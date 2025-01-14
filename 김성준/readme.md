@@ -56,3 +56,185 @@ https://learnote-dev.com/assets/images/tech/Java/2022-06-12-[Spring]%EC%A0%A0%ED
 
 
 </details>
+
+<details>
+  <summary><h3 style="display: inline; margin-left: 5px;">2025.1.14.</h3></summary>
+참고자료
+[[AWS] EC2 서버 구축하기](https://velog.io/@somm/AWS-EC2-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95%ED%95%98%EA%B8%B0#-0-vpc-%EC%83%9D%EC%84%B1)
+
+# EC2 인스턴스 생성
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/321f21f6-094d-4367-9c5d-4ba675a0f14f/a27e9f71-0486-460d-8d5f-fd0b5f36c7ab/image.png)
+
+자세한건 참고자료의 링크를 참조하자. 위와같이 인스턴스가 생성된다면 성공.
+EC2는 Heroku와 같은 서비스와 달리, 무한히 쓰면 무한히 비용이 청구되는 끔찍한 체계이다.
+
+따라서, 이거 처음 생성할때 정신 똑바로 차리고 생성하자.
+<hr>
+
+# 보안키 생성
+
+## .pem vs .ppk
+
+- 맥북에서는 pem 파일로 key를 만들고 나서 바로 ssh 문을 통해 실행을 할 수 있었지만, 윈도우는 그렇지 않았다.
+- 먼 과거, 윈도우에서는 ppk파일로 key파일을 만들고 나서 putty를 설치해서 변환하고 어쩌구저쩌구를 해야 했다고 한다.
+- 그런데 이제 마이크로소프트가 윈도우 터미널을 보완해서 그렇게 하지 않아도 된다고 한다. 그냥 pem파일로 생성하고 로컬에서 관리를 하면 된다.
+
+<hr>
+
+# 탄력적 IP 생성
+
+- AWS에서 인스턴스를 만들면, 해당 서버의 IP는 고정되어있지 않고 재시작하거나 중지가 될 떄마다 계속 유동적으로 바뀐다. 하지만 탄력적 IP를 쓴다면, **고정된 퍼블릭 IP**를 쓸 수 있게 된다.
+- 따라서, 이를 생성한 다음, 방금 우리가 생성한 EC2 서버에 할당을 해야 한다.
+
+<hr>
+
+# (윈도우 한정) 보안 키(.pem) 보안 설정
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/321f21f6-094d-4367-9c5d-4ba675a0f14f/5509f70f-5e8e-4640-bb55-f21634067feb/image.png)
+
+그냥 무작정 ssh 문을 실행하려고 하면, 위와 같은 에러문이 뜬다. 이는 발급받은 보안키의 허용 범위가 너무 넓어서, 보안떄문에 생기는 이슈이다. 따라서 아래와 같이 보안을 설정하는 작업이 필요하다.
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/321f21f6-094d-4367-9c5d-4ba675a0f14f/cf2c976c-b34c-49cc-a82e-060b7da9b646/image.png)
+
+맨 밑 Authenticated Users, Users의 항목을 삭제해야 한다.
+
+# ssh 문 실행
+
+```
+ssh -i "C:\\SSAFY\\AWS_EC2_key\\2025ssafyCICD.pem" ubuntu@ec2-13-124-195-234.ap-northeast-2.compute.amazonaws.com
+
+```
+
+위의 명령어를 git bash에서 실행하거나 windows terminal에서 실행한다.
+
+꼭꼭꼭꼭꼭 파일 경로명을 제발 잘 설정하고 다시 확인하자. 진짜 파일 경로명 한글자 틀려서 30분 날렸다. 진짜 어이가 없네. 그런 파일 찾을 수 없다고 에러메시지라도 보여주던가.
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/321f21f6-094d-4367-9c5d-4ba675a0f14f/df8858e2-7587-46e1-a954-6e72c65d8c88/image.png)
+
+성공하면 위와 같은 메시지가 뜬다.
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/321f21f6-094d-4367-9c5d-4ba675a0f14f/b083d357-043f-4429-95c8-46b065508c39/image.png)
+
+이렇게, 콘솔의 유저명이 윈도우 유저가 아닌, ubuntu로 바뀐것을 알 수 있다. EC2 서버 환경에 들어온 것이다.
+
+이제 여기에 도커를 설치하고, 도커위에 컨테이너를 생성하고, 그 컨테이너 위에 젠킨슨을 설치하면 된다.
+
+<hr>
+
+# Docker 설치방법
+
+당연하지만, 아래의 과정은 꼭 EC2 서버가 아니더라도 모두 Linux 환경에서만 먹힙니당.
+
+### 1. 우분투 시스템 패키지 업데이트
+
+```
+sudo apt-get update
+```
+
+### 2. 필요한 패키지 설치
+
+```
+sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+```
+
+### 3. Docker의 공식 GPG키를 추가
+
+```
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+```
+
+### 4. Docker의 공식 apt 저장소를 추가
+
+```
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+```
+
+### 5. 시스템 패키지 업데이트
+
+```
+sudo apt-get update
+```
+
+### 6. Docker 설치
+
+```
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+
+### 7. Docker가 설치 확인
+
+### 7-1 도커 실행상태 확인
+
+```ebnf
+sudo systemctl status docker
+```
+
+### 7-2 도커 실행
+
+```
+sudo docker run hello-world
+```
+
+<hr>
+
+# ubuntu에서 도커 설치 후, 젠킨슨 이미지를 만들고 컨테이너로 실행하기까지의 과정
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/321f21f6-094d-4367-9c5d-4ba675a0f14f/e2a9d9a0-f89c-4b01-9c92-520e0d342fbd/image.png)
+
+명령어를 하나씩 설명하자면,
+
+```
+groupadd -f docker
+```
+
+- **`groupadd`:** 새로운 그룹을 생성하는 명령어
+- **`f`:** "force"의 약자로, 그룹이 이미 존재할 경우 오류를 발생시키지 않고 무시
+- **`docker`:** 생성하려는 그룹의 이름
+
+```
+sudo usermod -aG docker ubuntu
+```
+
+- **`sudo`:** 관리자 권한으로 명령어를 실행
+- **`usermod`:** 사용자의 속성을 수정하는 명령어
+- **`aG docker`:** 사용자를 특정 그룹에 추가. 여기서:
+    - **`a`:** "append"의 약자로, 사용자를 새로운 그룹에 추가할 때 기존 그룹을 유지합니다.
+    - **`G docker`:** `docker` 그룹에 사용자를 추가합니다.
+- **`ubuntu`:** 그룹에 추가하려는 사용자의 이름입니다. 일반적으로 Ubuntu 인스턴스에서 기본 사용자 이름이다. (참고 : 사용자 이름 확인 명령어 : `whoami`)
+
+```
+sudo docker run -d -p 9090:8080 -v /jenkins:/var/jenkins_home --name jenkins -u root -v /var/run/docker.sock:/var/run/docker.sock --privileged jenkins/jenkins
+```
+
+| 옵션 | 설명 |
+| --- | --- |
+| -d | 컨테이너를 백그라운드에서 실행 (detached 모드) |
+| -p 9090:8080 | 호스트의 9090 포트를 컨테이너의 8080 포트에 매핑 |
+| -v /jenkins:/var/jenkins_home | 호스트의 `/jenkins` 디렉토리를 컨테이너의 `/var/jenkins_home`에 마운트 |
+| --name jenkins | 컨테이너의 이름을 `jenkins`로 지정 |
+| -u root | 컨테이너 내부에서 `root` 사용자로 실행 |
+| -v /var/run/docker.sock:/var/run/docker.sock | 호스트의 Docker 소켓을 컨테이너에 마운트, Docker 명령어 실행 가능하게 함 |
+| --privileged | 컨테이너에 추가적인 권한 부여 (보안 위험 있음) |
+| jenkins/jenkins | 사용하려는 Docker 이미지 (공식 Jenkins 이미지) |
+- 즉, 이 명령어를 실행한다면, 추가로 무엇을 설치한다거나, docker hub에서 이미지를 따로 사용자가 추가로 가져오지 않고, 자동으로 젠킨슨 이미지를 docker에서 가져오는 것이다.
+- 그리고 정말 당연한 이야기이지만, 컨테이너 내부의 8080포트를 호스트 서버의 9090포트에서 열어주기 때문에, **반드시 9090포트를 열어주어야 한다**. [AWS EC2 서버에서 포트 여는 방법](https://ruriruriya.tistory.com/60)
+
+## 젠킨슨 접속
+
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/321f21f6-094d-4367-9c5d-4ba675a0f14f/5b61f854-2d66-409a-a08c-f5169f1d313c/image.png)
+
+위의 과정을 거친다면,
+
+http://13.124.195.234:9090/login?from=%2F
+와 같이,
+
+```
+http://<할당받은 AWS공개 IP주소>/9090
+```
+
+주소를 통해서 실행한 젠킨슨 컨테이너에 접속을 할 수 있다.
+이제 관리자 비밀번호를 설정하고, gitlab에 webhook 설정을 하고 연결..? 그런거 하면 될..듯?
+
+아니 그리고 너무 찜찜한게, 왜 https가 아니라 http지...? 괜찮은건가 이거
+</details>
