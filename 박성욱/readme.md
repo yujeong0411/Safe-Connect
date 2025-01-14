@@ -20,7 +20,7 @@
 </details>
 
 <details>
-   <summary><b>타입스크립트 채택 이유유</b></summary>
+   <summary><b>타입스크립트 채택 이유</b></summary>
 
 <ul>
     <h5>타입스크립트 특징</h5>
