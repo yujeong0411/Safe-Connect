@@ -238,3 +238,71 @@ http://<할당받은 AWS공개 IP주소>/9090
 
 아니 그리고 너무 찜찜한게, 왜 https가 아니라 http지...? 괜찮은건가 이거
 </details>
+
+<details>
+  <summary><h3 style="display: inline; margin-left: 5px;">2025.1.15.</h3></summary>
+# 관리자 비밀번호 가져오기
+
+```
+sudo cat /jenkins/secrets/initialAdminPassword
+```
+
+# 관리자 계정 생성
+![image.png](./image.png)
+
+![image-1.png](./image-1.png)
+![image-2.png](./image-2.png)
+
+---
+# 필요한 플러그인 설치
+Jenkins관리 -> plugins -> gitlab 검색 -> 필요한 플러그인들 설치
+![image-3.png](./image-3.png)
+
+```
+설치할 플러그인 목록   
+- Git  (안뜸)
+- Git client (안뜸)  
+- Generic Webhook Trigger  
+- GitLab  
+- GitLab API  
+- Docker plugin  
+- Docker Pipeline  
+- SSH
+```
+
+
+
+---
+# webhook 설정
+
+1. GitLab에서 Access Token 발급
+	1. ![image-4.png](./image-4.png)
+	2. 위와 같이, api, read_user, read_repository에 체크를 한다.
+	3. 발급받은 토큰명 : `n_y5xxy225umKpv5YeGF`
+2. 저렇게 토큰을 등록했다면, gitlab 레포지토리와 연결이 되었는지 테스트를 한다.
+	1. Jenkins관리 -> System -> Gitlab항목으로 이동 -> 아래와 같이 기입한다.
+	2. ![image-5.png](./image-5.png)
+3. 위와 같이 Success 가 뜬다면 성공. 이제 원격 GitLab레포지토리에 젠킨스가 접근을 할 수 있게 된 것이다. 이제 Pipeline 파일을 작성하여, 어느 레포지토리의 어느 브랜치에서 변화가 일어났을때 빌드를 할 것인지. 그리고 빌드한 결과를 어떤 이름으로 이미지를 만들어서 push, pull을 할 것인지를 상세히 설정을 해두어야 한다.
+---
+# FreeStyle 프로젝트와 Pipeline 프로젝트의 차이점
+- FreeStyle은 GUI기반 단순한 CI/CD 파이프라인 또는 단순한 빌드 작업만을 수행할 수 있다.
+- 파이프라인의 구조를 마음대로 바꿀 수 없고, 커스터마이징 또한 할 수 없다.
+- Pipeline은 복잡한 CI/CD 파이프라인을 필요로 하거나, 작업 흐름을 코드로 관리하고 버전 컨트롤에서 추적하려는 경우 사용
+
+
+---
+
+# Jenkins pipline 주요 문법 (미완)
+### agent
+
+파이프라인을 실행할 Jenkins 노드를 지정.
+
+- `any`: 사용 가능한 모든 Jenkins 에이전트에서 파이프라인을 실행합니다.
+- `none`: 파이프라인 수준에서 에이전트를 할당하지 않습니다.
+- `label`: 특정 레이블을 가진 에이전트에서 파이프라인을 실행합니다.
+- `docker`: 특정 Docker 이미지를 사용하여 컨테이너에서 파이프라인을 실행합니다.
+- `dockerfile`: Dockerfile을 사용하여 컨테이너를 빌드하고 파이프라인을 실행합니다.
+- `node`: 특정 노드 이름을 지정하여 파이프라인을 실행합니다.
+- `parameters`: 파이프라인 실행 시 매개변수를 사용하여 동적 에이전트 할당을 구현합니다.
+
+  </details>
