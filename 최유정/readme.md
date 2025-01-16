@@ -124,3 +124,63 @@ Native Application과 유사한 사용자 경험을 제공하기 위해, 웹 기
         속성 및 예제 코드를 제공하여 개발자들이 컴포넌트를 쉽게 이해하고 사용할 수 있도록 돕는다. </p>
 </ul>
 </details>
+
+## 20250116
+<details>
+    <summary>
+    <b>Sass (Syntactically Awesome Stylesheets)란?</b>
+    </summary>
+
+<ul>
+    <p>스타일 시트를 생성하기 위한 확장된 CSS 프리 프로세서로, CSS의 한계를 극복하고 코드의 재사용성과 유지보수성을 향상시키기 위해 만들어졌다.
+    주로 웹 개발에서 스타일링을 더 효과적으로 관리하고 구조화하기 위해 사용한다.
+    SASS(Syntactically Awesome Style Sheets)는 CSS의 전처리기이며, 두 가지 문법을 제공한다.
+    </p>
+    <h5>SASS 문법 (들여쓰기 문법)</h5>
+<pre><code>
+    nav
+        ul
+            margin: 0
+            padding: 0
+            list-style: none
+        li
+            display: inline-block
+        a
+            display: block
+            padding: 6px 12px
+            text-decoration: none
+</code></pre>
+<h5>SCSS 문법 (중괄호 문법)</h5>
+<pre><code>
+nav {
+    ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    }
+    li {
+    display: inline-block;
+    }
+    a {
+    display: block;
+    padding: 6px 12px;
+    text-decoration: none;
+    }
+}
+</code></pre>
+</ul>
+<ul>
+<h5>장점</h5>
+    <li>중첩을 지원하여 코드의 가독성을 향상시키고, 중첩 구조는 HTML 요소의 계층 구조와 비슷하게 코드를 작성할 수 있도록 도와준다.</li>
+    <li>변수를 사용하여 스타일에서 사용되는 값을 중앙에서 관리할 수 있어 유지보수성이 향상되고, 재사용이 가능하다.</li>
+    <li>여러 개의 파일로 스타일을 나누고, '@import'를 통해 불러와 사용하기 때문에 모듈화하여 관리한다.</li>
+    <li>Sass는 CSS보다 더 프로그래밍적인 요소를 제공하여 복잡한 스타일로직을 보다 간편화한다.</li>
+</ul>
+<ul>
+<h5>단점</h5>
+    <li>Sass 파일은 브라우저에서 직접 인식되지 않아, CSS로 변환되어야 한다. 이로인해 추가적인 빌드 단계가 필요하여 초기설정에서 일어날 수 있는 복잡성 특징이 있다.</li>
+    <li>중첩이 가독성을 향상시키지만, 과도한 중첩 사용은 오히려 유지보수를 어렵게 할 수 있다.</li>
+    <li>브라우저에 보여지는 CSS 파일은 Sass 소스 코드와는 다르기 때문에 버전관리 시스템에서 소스코드와 컴파일된 코드를 함께 관리하기에 어려울 수 있다.</li>
+</ul>
+<p>현재 진행하고 있는 프로젝트의 경우 역할별 컴포넌트가 다르고 반응형 디자인을 고혀해야하므로 ssas의 도입이 도움이 된다고 생각한다.</p>
+</details>
