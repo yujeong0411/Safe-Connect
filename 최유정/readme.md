@@ -154,17 +154,17 @@ Native Application과 유사한 사용자 경험을 제공하기 위해, 웹 기
 <pre><code>
 nav {
     ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
+        margin: 0;
+        padding: 0;
+        list-style: none;
     }
     li {
-    display: inline-block;
+        display: inline-block;
     }
     a {
-    display: block;
-    padding: 6px 12px;
-    text-decoration: none;
+        display: block;
+        padding: 6px 12px;
+        text-decoration: none;
     }
 }
 </code></pre>
