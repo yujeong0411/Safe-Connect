@@ -65,3 +65,44 @@
     </ul>
   </div>
 </details>
+
+<br>
+
+<details>
+  <summary><h3 style="display: inline; margin-left: 5px;">2025.1.16.</h3></summary>
+  <div markdown="1">
+    <br>
+    <h3>JWT</h3>
+    <p>JWT(Json Web Token)는 일반적으로 클라이언트와 서버 사이에서 통신할 때 권한을 위해 사용하는 토큰이다.</p>
+    <strong>JWT 구성요소</strong>
+    <ul>
+      <li>헤더(Header)</li>
+      어떤 알고리즘으로 암호화 할 것인지, 어떤 토큰을 사용할 것인지에 대한 정보가 들어있다.
+      <li>정보(Payload)</li>
+      클레임이라 불리는 사용자 정보와 추가적인 데이터가 들어있다.
+      <li>서명(Signature)</li>
+      헤더와 정보를 합친 후 발급해준 서버가 지정한 secret key로 암호화 시켜 토큰을 변조하기 어렵게 만든다.
+    </ul><br>
+    <strong>JWT 동작방식</strong>
+    <ol>
+      <li>사용자가 로그인을 한다.</li>
+      <li>서버는 로그인 후 사용자의 정보(클레임)를 JWT payload에 담고, 이를 서명하여 JWT 토큰을 생성한다.</li>
+      <li>서버는 생성된 JWT 토큰을 클라이언트에게 전달한다.</li>
+      <li>클라이언트가 서버에 요청을 보낼 때, JWT 토큰을 HTTP 헤더의 Authorization 헤더에 담아서 보낸다.</li>
+      <li>서버는 클라이언트로부터 받은 JWT 토큰을 검증하고, 필요한 정보를 추출하기 위해 디코딩한다. 서명이 올바르면 토큰이 유효하다는 것을 의미한다.</li>
+      <li>인증된 해당 사용자에게 요청에 대한 응답과 요청한 데이터를 전달한다.</li>
+    </ol><br>
+    <strong>JWT 장점</strong>
+    <ul>
+      <li>서버 측에서 별도의 세션 저장소가 필요 없어 확장성이 높다.</li>
+      <li>클라이언트의 상태를 서버에 저장하지 않아 서버 자원을 절약할 수 있다.</li>
+      <li>토큰 자체에 필요한 정보가 포함되어 있어 데이터베이스 조회가 줄어든다.</li>
+    </ul>
+    <strong>JWT 단점</strong>
+    <ul>
+      <li>토큰 크기가 커질 수 있어 네트워크 부하가 증가할 수 있다.</li>
+      <li>페이로드에 중요한 정보를 포함하면 보안 위험이 있다.</li>
+      <li>토큰이 탈취되면 대응이 어렵다.</li>
+    </ul>
+  </div>
+</details>
