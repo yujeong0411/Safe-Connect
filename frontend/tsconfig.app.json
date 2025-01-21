@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    "baseUrl": ".",  // 기본 경로를 현재 프로젝트의 루트로 설정 (상대 경로 대신 별칭 사용 가능)
+    "paths": {
+      "@/*": [ "src/*" ],  // '@' 별칭을 'src' 폴더로 설정 (모듈 경로 참조 시 간단하게 사용 가능)
+      // 추후 수정!!!
+      "@assets/*": [ "src/assets/*" ],
+      "@components/*": [ "src/components/*" ],
+      "@pages/*": [ "src/pages*" ],
+      "@types/*": [ "src/types*" ],
+      "@zustand/*": [ "src/zustand/*" ],
+      "@apis/*": [ "src/apis/*" ]
+    },
+    "types": ["vite/client"]  // Vite 프로젝트에서 자동 완성 및 타입 정보를 제공 (Vite 관련 타입을 포함)
+  },
+  "include": ["src"],
+  "exclude": [
+    "node_modules",  // 'node_modules' 폴더는 검사하지 않음
+    "**/node_modules",  // 서브 디렉토리의 'node_modules'도 검사하지 않음
+    "dist"  // 빌드 결과물이 저장되는 'dist' 폴더는 검사에서 제외
+  ]
+}
