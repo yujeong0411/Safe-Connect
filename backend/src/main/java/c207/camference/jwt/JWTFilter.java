@@ -1,5 +1,8 @@
 package c207.camference.jwt;
 
+import c207.camference.api.dto.user.CustomUserDetails;
+import c207.camference.db.entity.User;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class JWTFilter extends OncePerRequestFilter {
 
@@ -22,7 +26,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         //request에서 Authorization 헤더를 찾음
         String authorization= request.getHeader("Authorization");
 
@@ -49,15 +52,17 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
 
+
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(username);
-        userEntity.setPassword("temppassword");
-        userEntity.setRole(role);
+        System.out.println(role);
+        User user = new User();
+        user.setUserName(username);
+        user.setUserPassword("temppassword");//비밀번호는 요청이 올때마다 줄 필요가 없어서 일시 비밀번호를 줘서 대충 만들어서 주는 것으로 한다.
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
