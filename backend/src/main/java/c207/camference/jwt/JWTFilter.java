@@ -31,10 +31,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //Authorization 헤더 검증
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-
-            System.out.println("token null");
             filterChain.doFilter(request, response);
-
             //조건이 해당되면 메소드 종료 (필수)
             return;
         }
@@ -51,12 +48,9 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-
-
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 
-        System.out.println(role);
         User user = new User();
         user.setUserName(username);
         user.setUserPassword("temppassword");//비밀번호는 요청이 올때마다 줄 필요가 없어서 일시 비밀번호를 줘서 대충 만들어서 주는 것으로 한다.

@@ -46,7 +46,7 @@ public class LoginFilter  extends UsernamePasswordAuthenticationFilter {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String username = customUserDetails.getUsername();
+        String userEmail = customUserDetails.getUserEmail();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -54,7 +54,8 @@ public class LoginFilter  extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
 
-        String token = jwtUtil.createJwt(username, role, 60*60*100L);//토큰 만료 시간.
+        String token = jwtUtil.createJwt(userEmail, role, 60*60*1000L);//토큰 만료 시간(60분) 기준은 millisecond 다.
+        //토큰 저장 데이터를 userEmail로 해야 unique한 값을 이용해 값 찾기가 가능해진다.
 
         response.addHeader("Authorization", "Bearer " + token);
     }

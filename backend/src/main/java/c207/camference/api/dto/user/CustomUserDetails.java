@@ -21,10 +21,14 @@ public class CustomUserDetails implements UserDetails {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return "ROLE_USER";
+                return "ROLE_USER"; // 유저 역할 강제 추가를 위해서 넣음.. 나중에 소방서, 병원 관련 db 생성 시 생각해봐야 할것...
             }
         });
         return collection;
+    }
+
+    public String getUserEmail(){
+        return user.getUserEmail();
     }
 
     @Override
