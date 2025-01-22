@@ -1,7 +1,9 @@
 package c207.camference.config;
 
+import c207.camference.jwt.JWTUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,6 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity // 웹 보안 활성화를 위해 추가
 public class SecurityConfig {
 
+
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final JWTUtil jwtUtil;
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,JwtUtil jwtUtil){
+        this.authenticationConfiguration = authenticationConfiguration;
+        this.jwtUtil=jwtUtil;
+    }
 
 
     @Bean
