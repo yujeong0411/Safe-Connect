@@ -4,6 +4,7 @@ import c207.camference.api.request.user.UserCreateRequest;
 import c207.camference.db.entity.User;
 import c207.camference.db.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,4 +29,16 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
     };
+
+    @Override
+    public Boolean validEmail(String userEmail){
+
+
+        if (userRepository.existsByUserEmail(userEmail)){
+            //이메일 형식이 다르거나 이미 있는 메일이면 (사용불가)
+            return false;
+        }
+        //없는 메일이다.(사용가능)
+        return true;
+    }
 }

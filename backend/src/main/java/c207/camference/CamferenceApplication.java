@@ -1,6 +1,8 @@
 package c207.camference;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -15,5 +17,6 @@ public class CamferenceApplication {
     public ModelMapper getModelMapper() {
         return new ModelMapper();
     }
+
 
 }
