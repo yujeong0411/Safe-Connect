@@ -28,8 +28,8 @@
       // 추후 수정!!!
       "@assets/*": [ "src/assets/*" ],
       "@components/*": [ "src/components/*" ],
-      "@pages/*": [ "src/pages*" ],
-      "@types/*": [ "src/types*" ],
+      "@pages/*": [ "src/pages/*" ],
+      "@types/*": [ "src/types/*" ],
       "@zustand/*": [ "src/zustand/*" ],
       "@apis/*": [ "src/apis/*" ]
     },

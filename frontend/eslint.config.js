@@ -18,7 +18,7 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-        prettier: prettierPlugin,   // Prettier 플러그인 추가
+        'prettier': prettierPlugin,   // Prettier 플러그인 추가
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -26,7 +26,7 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-        'prettier/prettier': 'error',  // prettier 규칙 위반시 에러 표시
+        'prettier/prettier':['error', { endOfLine: 'auto' }],  // prettier 규칙 위반시 에러 표시
     },
   },
 )

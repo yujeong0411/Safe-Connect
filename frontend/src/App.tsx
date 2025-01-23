@@ -1,11 +1,5 @@
-import ExamplePage from "@/pages/Example.tsx";
-
 function App() {
-    return (
-        <div>
-            <ExamplePage />
-        </div>
-    )
+  return <div></div>;
 }
 
 export default App;
