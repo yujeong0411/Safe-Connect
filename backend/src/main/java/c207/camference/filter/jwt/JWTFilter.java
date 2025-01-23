@@ -53,7 +53,7 @@ public class JWTFilter extends OncePerRequestFilter {
         user.setUserEmail(userEmail);
         //비밀번호는 요청이 올때마다 줄 필요가 없어서 일시 비밀번호를 줘서 대충 만들어서 주는 것으로 한다.
         user.setUserPassword("temppassword");
-
+        System.out.println("userEmail: " + userEmail);
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
