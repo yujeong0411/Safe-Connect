@@ -40,7 +40,6 @@ dependencies {
     // coolsms 의존성 추가
     implementation 'net.nurigo:sdk:4.2.7'
 
-
     // redis 인증 유효기간 생성
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
