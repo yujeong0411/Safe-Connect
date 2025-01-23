@@ -1,11 +1,10 @@
-package c207.camference.jwt;
+package c207.camference.filter.jwt;
 
 import c207.camference.api.dto.user.CustomUserDetails;
+import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

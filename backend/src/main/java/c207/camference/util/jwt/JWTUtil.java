@@ -1,4 +1,4 @@
-package c207.camference.jwt;
+package c207.camference.util.jwt;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;

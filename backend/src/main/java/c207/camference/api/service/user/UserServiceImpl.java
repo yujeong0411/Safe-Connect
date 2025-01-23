@@ -3,7 +3,10 @@ package c207.camference.api.service.user;
 import c207.camference.api.request.user.UserCreateRequest;
 import c207.camference.db.entity.User;
 import c207.camference.db.repository.UserRepository;
+import jakarta.mail.Message;
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,4 +44,5 @@ public class UserServiceImpl implements UserService {
         //없는 메일이다.(사용가능)
         return true;
     }
+
 }

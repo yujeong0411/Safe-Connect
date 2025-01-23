@@ -31,11 +31,17 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    //이메일 인증 의존성 추가-> 이메일을 보낼때 사용.
+    //이메일 인증 의존성 추가-> 이메일을 보낼때 사용. -> 필요 없을 시 삭제 가능
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     //이메일 형식 확인 의존성
     implementation 'commons-validator:commons-validator:1.7'
+
+    // coolsms 의존성 추가
+    implementation 'net.nurigo:sdk:4.2.7'
+
+    // redis 인증 유효기간 생성
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //spring-security 추가
     implementation 'org.springframework.boot:spring-boot-starter-security'
