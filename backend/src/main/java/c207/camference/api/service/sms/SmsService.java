@@ -1,8 +1,9 @@
 package c207.camference.api.service.sms;
 
 import c207.camference.api.request.user.UserValidPhoneCheckRequest;
+import org.springframework.http.ResponseEntity;
 
 public interface SmsService {
-    void userPhoneValid(String userPhone);
-    Boolean userPhoneValidCheck(UserValidPhoneCheckRequest request);
+    ResponseEntity<?> userPhoneValid(String userPhone);
+    ResponseEntity<?> userPhoneValidCheck(UserValidPhoneCheckRequest request);
 }

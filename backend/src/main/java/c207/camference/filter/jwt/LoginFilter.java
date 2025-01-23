@@ -49,9 +49,6 @@ public class LoginFilter  extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        // 확인용 print
-        System.out.println("토큰 생성 중......");
-
 
         //jwtUtil에서 토큰 생성-> 이메일, 역할, 만료시간 설정
         String token = jwtUtil.createJwt(userEmail, role, 60*60*1000L);//토큰 만료 시간(60분) 기준은 millisecond 다.
