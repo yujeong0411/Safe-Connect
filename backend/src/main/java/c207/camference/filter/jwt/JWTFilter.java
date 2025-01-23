@@ -1,8 +1,8 @@
-package c207.camference.jwt;
+package c207.camference.filter.jwt;
 
 import c207.camference.api.dto.user.CustomUserDetails;
 import c207.camference.db.entity.User;
-import io.jsonwebtoken.ExpiredJwtException;
+import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 public class JWTFilter extends OncePerRequestFilter {
 

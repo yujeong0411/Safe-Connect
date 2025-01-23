@@ -1,8 +1,8 @@
 package c207.camference.config;
 
-import c207.camference.jwt.JWTFilter;
-import c207.camference.jwt.JWTUtil;
-import c207.camference.jwt.LoginFilter;
+import c207.camference.filter.jwt.JWTFilter;
+import c207.camference.util.jwt.JWTUtil;
+import c207.camference.filter.jwt.LoginFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -59,6 +59,7 @@ public class SecurityConfig {
         http.
                 authorizeHttpRequests((auth)->auth
                         .requestMatchers("/**").permitAll() // 이 경로는 모두 접근 가능
+//                        .requestMatchers("/user/valid/phone").denyAll()
 //                        .requestMatchers("/").hasRole("USER") // 유저역할을 가진 사람만
                         .anyRequest().authenticated()); // 나머지는 모두 이용 가능
 
