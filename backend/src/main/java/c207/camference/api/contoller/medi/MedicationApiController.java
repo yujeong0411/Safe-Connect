@@ -1,5 +1,7 @@
 package c207.camference.api.contoller.medi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,25 +16,25 @@ import java.net.URL;
 
 @RestController
 @RequestMapping("/api")
-public class MediApiController {
+public class MedicationApiController {
 
     @Value("${openApi.serviceKey}")
     private String serviceKey;
 
-    @Value("${openApi.callBackUrl}")
-    private String callBackUrl;
+    @Value("${openApi.medicationUrl}")
+    private String medicationUrl;
 
     @Value("${openApi.dataType}")
     private String dataType;
 
     // API 호출
-    @GetMapping("/forecast")
-    public ResponseEntity<String> callForecastApi() {
+    @GetMapping("/medication")
+    public ResponseEntity<String> callMedicationApi() {
         HttpURLConnection urlConnection = null;
         InputStream stream = null;
         String result = null;
 
-        String urlStr = callBackUrl + "?serviceKey=" + serviceKey + "&type=" + dataType;
+        String urlStr = medicationUrl + "?serviceKey=" + serviceKey + "&type=" + dataType;
 
         try {
             URL url = new URL(urlStr);
@@ -44,6 +46,13 @@ public class MediApiController {
             if (stream != null) {
                 stream.close();
             }
+
+            // JSON 응답 pretty print 형식으로 반환
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT); // 들여쓰기 활성화
+            Object json = mapper.readValue(result, Object.class);
+            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
