@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
 
             if (userRepository.existsByUserEmail(userEmail)){
                 //이메일 형식이 다르거나 이미 있는 메일이면 (사용불가)
-                ResponseData<?> response = ResponseUtil.fail(409,"이미 있는 이메일입니다..");
+                ResponseData<?> response = ResponseUtil.fail(409,"이미 있는 이메일입니다.");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
             //없는 메일이다.(사용가능)

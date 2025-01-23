@@ -1,8 +1,7 @@
 package c207.camference;
 
-import org.apache.commons.validator.routines.EmailValidator;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.CommandLineRunner;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +14,11 @@ public class CamferenceApplication {
     // ModelMapper를 사용하기 위한 Bean 추가
     @Bean
     public ModelMapper getModelMapper() {
-        return new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setSkipNullEnabled(true);
+        return modelMapper;
     }
-
 
 }

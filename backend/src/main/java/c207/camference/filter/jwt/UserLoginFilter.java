@@ -10,31 +10,30 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Collection;
 import java.util.Iterator;
 
-public class LoginFilter  extends UsernamePasswordAuthenticationFilter {
+public class UserLoginFilter extends LoginFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public UserLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+        super(authenticationManager, jwtUtil);
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        setAuthenticationManager(authenticationManager);
+        setFilterProcessesUrl("/user/login"); // 사용자 로그인 URL 설정
     }
-
-
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String userEmail = request.getParameter("Id");
-        String password = request.getParameter("Password");
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        String userEmail = request.getParameter("userEmail");
+        String password = request.getParameter("userPassword");
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEmail, password, null);
-        return authenticationManager.authenticate(authToken);
+        return getAuthenticationManager().authenticate(authToken);
     }
-
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
