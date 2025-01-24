@@ -12,15 +12,16 @@ import java.util.Date;
 @Component
 public class JWTUtil {
 
-    private SecretKey secretKey;
+    private final SecretKey secretKey;
 
     private JWTUtil(@Value("${jwt.secret}")String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String getUserEmail(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userEmail",String.class);
+    public String getLoginId(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("LoginId",String.class);
     }
+
 
     public String getRole(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role",String.class);
@@ -32,7 +33,7 @@ public class JWTUtil {
 
     public String createJwt(String userEmail, String role, Long expiredMs) {
         return Jwts.builder()
-                .claim("userEmail", userEmail)
+                .claim("LoginId", userEmail)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
