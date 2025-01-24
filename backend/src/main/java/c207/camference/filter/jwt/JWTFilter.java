@@ -39,7 +39,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //토큰 소멸 시간 검증
         if (jwtUtil.isExpired(token)) {
-
             System.out.println("token expired");
             filterChain.doFilter(request, response);
             //조건이 해당되면 메소드 종료 (필수)
@@ -49,16 +48,23 @@ public class JWTFilter extends OncePerRequestFilter {
         String userEmail = jwtUtil.getUserEmail(token);
         String role = jwtUtil.getRole(token);
 
+        System.out.println("userEmail: " + userEmail + ", role: " + role); // role 에따라 찾으러 가는거 수정해야함.
+
+
+
+
         User user = new User();
         user.setUserEmail(userEmail);
         //비밀번호는 요청이 올때마다 줄 필요가 없어서 일시 비밀번호를 줘서 대충 만들어서 주는 것으로 한다.
         user.setUserPassword("temppassword");
-        System.out.println("userEmail: " + userEmail);
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+//        System.out.println("1111");
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+//        System.out.println("222");
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
+        System.out.println("3333");
 
         filterChain.doFilter(request, response);
     }
