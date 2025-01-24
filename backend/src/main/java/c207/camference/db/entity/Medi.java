@@ -17,7 +17,7 @@ public class Medi {
     private Integer mediId;
 
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "medi_category_id", nullable = false)
     private MediCategory mediCategory;
 
     @Column(length = 150, nullable = false)
@@ -38,9 +38,11 @@ public class Medi {
         this.mediCreatedAt = LocalDateTime.now();
         this.mediUpdatedAt = LocalDateTime.now();
     }
+/*
 
     @PreUpdate
     public void onUpdate() {
         this.mediUpdatedAt = LocalDateTime.now();
     }
+*/
 }
