@@ -64,20 +64,33 @@ public class SecurityConfig {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/signup", "/user/login", "/user/valid/**", "/user/find/**").permitAll()
-                        .requestMatchers("/admin/signup", "/admin/login").permitAll()
-                        .requestMatchers("/user/**").hasRole("USER")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class);
+                // 기본 로그인 폼 비활성화 (jwt 토큰 사용을 위해서는 제거해야함.)
+                .formLogin(AbstractHttpConfigurer::disable);
+
+
+        //url별 접근 권한 설정
+        http.
+                authorizeHttpRequests((auth)->auth
+                        .requestMatchers("/**").permitAll()
+//                        .requestMatchers("/user/signup","login","/user/valid/**","/user/find/**").permitAll() // 이 경로는 모두 접근 가능
+//                        .requestMatchers("/user").hasRole("USER")
+//                        .requestMatchers("/user/valid/phone").denyAll()
+//                        .requestMatchers("/").hasRole("USER") // 유저역할을 가진 사람만
+                        .anyRequest().authenticated()); // 나머지는 모두 이용 가능
+
+        // 세션 관리 설정
+        // jwt를 사용하기 위해서 sessionless로 설정.-> 매 요청마다 jwt토큰을 확인하며 인증 처리
+        http
+                .sessionManagement((sessionManagement)->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+
+        http
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class); //로그인 필터 등록
+
+        http
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }

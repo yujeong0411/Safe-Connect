@@ -1,7 +1,8 @@
 package c207.camference.api.contoller.medi;
 
+import c207.camference.api.service.medi.MediService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RestController
 @RequestMapping("/api")
 public class MedicationApiController {
 
+    private final MediService mediService;
     @Value("${openApi.serviceKey}")
     private String serviceKey;
 
@@ -27,68 +31,75 @@ public class MedicationApiController {
     @Value("${openApi.dataType}")
     private String dataType;
 
-    // API 호출
-    @GetMapping("/medication")
-    public ResponseEntity<String> callMedicationApi() {
-        HttpURLConnection urlConnection = null;
-        InputStream stream = null;
-        String result = null;
+    public MedicationApiController(MediService mediService) {
+        this.mediService = mediService;
+    }
 
-        String urlStr = medicationUrl + "?serviceKey=" + serviceKey + "&type=" + dataType;
+    @GetMapping("/medication")
+    public ResponseEntity<String> fetchAndSaveMedicationData() {
 
         try {
-            URL url = new URL(urlStr);
+            int pageNo = 1;
+            int numOfRows = 300;
 
-            urlConnection = (HttpURLConnection) url.openConnection();
-            stream = getNetworkConnection(urlConnection);
-            result = readStreamToString(stream);
+            while (true) {
+                // 외부 API 호출
+                String apiResponse = fetchDataFromApi(pageNo, numOfRows);
 
-            if (stream != null) {
-                stream.close();
+                // JSON 응답에서 ITEM_NAME 리스트 추출
+                List<String> mediNames = extractItemNames(apiResponse);
+
+                if (mediNames.isEmpty()) {
+                    break;
+                }
+                // Service 호출해서 데이터 저장
+                mediService.saveMedicationData(mediNames);
+
+                pageNo++; // 다음 페이지로
             }
 
-            // JSON 응답 pretty print 형식으로 반환
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT); // 들여쓰기 활성화
-            Object json = mapper.readValue(result, Object.class);
-            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+            return new ResponseEntity<>("데이터 저장 성공", HttpStatus.OK);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (urlConnection != null) {
-            urlConnection.disconnect();
+            return new ResponseEntity<>("Error: ", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private List<String> extractItemNames(String apiResponse) throws Exception {
+        List<String> mediNames = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(apiResponse);
+
+        // JSON에서 body.items[].ITEM_NAME 추출
+        JsonNode itemsNode = rootNode.path("body").path("items");
+        if (itemsNode.isArray()) {
+            for (JsonNode itemNode : itemsNode) {
+                String itemName = itemNode.path("ITEM_NAME").asText();
+                mediNames.add(itemName);
             }
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return mediNames;
     }
 
-    // URLConnection을 전달받아 연결정보 설정 후 연결, 연결 후 수신한 InputStream 반환
-    private InputStream getNetworkConnection(HttpURLConnection urlConnection) throws IOException {
+    private String fetchDataFromApi(int pageNo, int numOfRows) throws Exception {
+        String urlStr = medicationUrl +
+                "?serviceKey=" + serviceKey +
+                "&pageNo=" + pageNo +
+                "&numOfRows=" + numOfRows +
+                "&type=" + dataType;
+
+        HttpURLConnection urlConnection = (HttpURLConnection) new URL(urlStr).openConnection();
         urlConnection.setRequestMethod("GET");
-        urlConnection.setDoInput(true);
 
-        // 에러 확인용
         if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            throw new IOException("HTTP error code: " + urlConnection.getResponseCode());
-        }
-        return urlConnection.getInputStream();
-    }
-
-    // InputStream을 전달받아 문자열로 변환 후 반환
-    private String readStreamToString(InputStream stream) throws IOException {
-        StringBuilder result = new StringBuilder();
-
-        // 바이트 -> 문자
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-
-        String readLine; // 각 줄의 내용 저장
-        while ((readLine = br.readLine()) != null) {
-            result.append(readLine + "\n\r");
+            throw new RuntimeException("Failed : HTTP error code : " + urlConnection.getResponseCode());
         }
 
-        br.close();
-
-        return result.toString();
+        try (InputStream inputStream = urlConnection.getInputStream()){
+            return new String(inputStream.readAllBytes());
+        } finally {
+            urlConnection.disconnect();
+        }
     }
 }
