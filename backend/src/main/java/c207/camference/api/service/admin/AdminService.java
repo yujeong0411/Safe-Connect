@@ -5,4 +5,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface AdminService {
     ResponseEntity<?> createAdmin(AdminCreateRequest request);
+    ResponseEntity<?> getAdmin();
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public ResponseEntity<?> createAdmin(AdminCreateRequest request){
-        System.out.println("00");
         try{
             Admin admin = modelMapper.map(request, Admin.class);
             admin.setAdminPassword(bCryptPasswordEncoder.encode(request.getAdminPassword()));
@@ -39,5 +39,21 @@ public class AdminServiceImpl implements AdminService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<?> getAdmin(){
+        try{
+            String adminLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+            System.out.println(adminLoginId);
+            Admin admin = adminRepository.findAdminByAdminLoginId(adminLoginId);
+            AdminResponse adminResponse = modelMapper.map(admin, AdminResponse.class);
+            ResponseData<AdminResponse> response = ResponseUtil.success(adminResponse, "관리자 상세조회 완료했습니다.");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (Exception e){
+            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }

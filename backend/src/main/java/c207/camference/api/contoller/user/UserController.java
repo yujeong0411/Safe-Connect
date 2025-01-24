@@ -4,9 +4,9 @@ import c207.camference.api.request.user.UserCreateRequest;
 import c207.camference.api.request.user.UserUpdateRequest;
 import c207.camference.api.request.user.UserValidPhoneCheckRequest;
 import c207.camference.api.request.user.UserValidPhoneRequest;
-import c207.camference.db.repository.UserRepository;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.user.UserService;
+import c207.camference.db.repository.UserRepository;
 import c207.camference.util.redis.RedisUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +44,7 @@ public class UserController {
 
     @GetMapping("")
     public ResponseEntity<?> getUser(){
-        return userService.getUserByEmail();
+        return userService.getUser();
     }
 
 

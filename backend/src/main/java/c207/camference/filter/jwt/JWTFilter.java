@@ -1,6 +1,8 @@
 package c207.camference.filter.jwt;
 
+import c207.camference.api.dto.admin.AdminDetails;
 import c207.camference.api.dto.user.CustomUserDetails;
+import c207.camference.db.entity.Admin;
 import c207.camference.db.entity.User;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
@@ -45,27 +47,27 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        String userEmail = jwtUtil.getUserEmail(token);
         String role = jwtUtil.getRole(token);
+        String loginId = jwtUtil.getLoginId(token);
+        Authentication authToken;
 
-        System.out.println("userEmail: " + userEmail + ", role: " + role); // role 에따라 찾으러 가는거 수정해야함.
-
-
-
-
-        User user = new User();
-        user.setUserEmail(userEmail);
-        //비밀번호는 요청이 올때마다 줄 필요가 없어서 일시 비밀번호를 줘서 대충 만들어서 주는 것으로 한다.
-        user.setUserPassword("temppassword");
-
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
-//        System.out.println("1111");
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-//        System.out.println("222");
+        if ("ROLE_USER".equals(role)) {
+            User user = new User();
+            user.setUserEmail(loginId);
+            user.setUserPassword("temppassword");
+            CustomUserDetails userDetails = new CustomUserDetails(user);
+            authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            System.out.println("user");
+        } else { // ROLE_ADMIN
+            Admin admin = new Admin();
+            admin.setAdminLoginId(loginId);
+            admin.setAdminPassword("temppassword");
+            AdminDetails adminDetails = new AdminDetails(admin);
+            authToken = new UsernamePasswordAuthenticationToken(adminDetails, null, adminDetails.getAuthorities());
+            System.out.println("admin");
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
-        System.out.println("3333");
-
         filterChain.doFilter(request, response);
     }
 }

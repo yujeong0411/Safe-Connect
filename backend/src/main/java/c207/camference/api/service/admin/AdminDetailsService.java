@@ -21,12 +21,12 @@ public class AdminDetailsService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String adminLoginId) throws UsernameNotFoundException {
-        System.out.println("222222");
         Admin admin = adminRepository.findByAdminLoginId(adminLoginId)
                 .orElseThrow(() -> new UsernameNotFoundException("입력하신 이메일로 가입된 사용자를 찾을 수 없습니다.: " + adminLoginId));
         return new org.springframework.security.core.userdetails.User(
                 admin.getAdminLoginId(),
                 admin.getAdminPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        // role을 가져와서 만드는게 아니라 직접 만드는 방법
     }
 }

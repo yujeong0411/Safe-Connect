@@ -7,11 +7,8 @@ import c207.camference.api.response.user.UserResponse;
 import c207.camference.db.entity.User;
 import c207.camference.db.repository.UserRepository;
 import c207.camference.util.response.ResponseUtil;
-import jakarta.mail.Message;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -43,7 +40,7 @@ public class UserServiceImpl implements UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
-    };
+    }
 
     @Override
     @Transactional
@@ -74,9 +71,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> getUserByEmail(){
+    public ResponseEntity<?> getUser(){
         try{
             String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+            System.out.println(userEmail);
             User user = userRepository.findUserByUserEmail(userEmail);
             UserResponse userResponse = modelMapper.map(user, UserResponse.class);
             ResponseData<UserResponse> response = ResponseUtil.success(userResponse, "유저 상세조회 완료했습니다.");

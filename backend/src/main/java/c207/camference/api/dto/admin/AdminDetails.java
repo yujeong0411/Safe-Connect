@@ -2,11 +2,12 @@ package c207.camference.api.dto.admin;
 
 import c207.camference.db.entity.Admin;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class AdminDetails {
+public class AdminDetails implements UserDetails {
     private final Admin admin;
         public AdminDetails(Admin admin) {
         this.admin = admin;
