@@ -2,6 +2,7 @@ package c207.camference.api.service.user;
 
 
 import c207.camference.api.request.user.UserCreateRequest;
+import c207.camference.api.request.user.UserPasswordChangeRequest;
 import c207.camference.api.request.user.UserUpdateRequest;
 import org.springframework.http.ResponseEntity;
 
@@ -12,4 +13,8 @@ public interface UserService {
     ResponseEntity<?> updateUser(UserUpdateRequest request);
     ResponseEntity<?> validEmail(String userEmail);
     ResponseEntity<?> getUser();
+    ResponseEntity<?> deleteUser();
+    ResponseEntity<?> findEmail(String userName,String userPhone);
+    ResponseEntity<?> findPassword(String userEmail);
+    ResponseEntity<?> changePassword(UserPasswordChangeRequest request);
 }

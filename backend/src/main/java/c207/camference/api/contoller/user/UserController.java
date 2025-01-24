@@ -1,9 +1,6 @@
 package c207.camference.api.contoller.user;
 
-import c207.camference.api.request.user.UserCreateRequest;
-import c207.camference.api.request.user.UserUpdateRequest;
-import c207.camference.api.request.user.UserValidPhoneCheckRequest;
-import c207.camference.api.request.user.UserValidPhoneRequest;
+import c207.camference.api.request.user.*;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.user.UserService;
 import c207.camference.db.repository.UserRepository;
@@ -53,6 +50,11 @@ public class UserController {
         return userService.updateUser(request);
     }
 
+    @DeleteMapping("")
+    public ResponseEntity<?> deleteUser(){return userService.deleteUser();}
+
+
+
     @GetMapping("/valid/email")
     public ResponseEntity<?> validEmail(@RequestParam String userEmail){
         //이메일 중복여부 확인
@@ -68,6 +70,23 @@ public class UserController {
     @PostMapping("/valid/phone/check")
     public ResponseEntity<?> certificateSms(@RequestBody UserValidPhoneCheckRequest request){
         return smsService.userPhoneValidCheck(request);
+    }
+
+
+
+    @GetMapping("/find/email")
+    public ResponseEntity<?> findEmail( @RequestParam String userName, @RequestParam String userPhone){
+        return userService.findEmail(userName,userPhone);
+    }
+
+    @PutMapping("/find/password")
+    public ResponseEntity<?> findPassword(@RequestBody UserFindPasswordRequest request){
+        return userService.findPassword(request.getUserEmail());
+    }
+
+    @PutMapping("/password/change")
+    public ResponseEntity<?> changePassword(@RequestBody UserPasswordChangeRequest request) {
+        return userService.changePassword(request);
     }
 
 }

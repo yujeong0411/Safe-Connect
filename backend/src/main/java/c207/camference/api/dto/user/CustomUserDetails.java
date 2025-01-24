@@ -55,8 +55,8 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    @Override
+    @Override// 유저가 만일 탈퇴하면 토큰 발급이 불가능하도록
     public boolean isEnabled() {
-        return true;
+        return !user.getUserWithdraw();
     }
 }

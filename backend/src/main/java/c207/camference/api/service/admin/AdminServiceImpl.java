@@ -32,10 +32,10 @@ public class AdminServiceImpl implements AdminService {
             adminRepository.save(admin);
             //비밀번호 암호화
             AdminResponse adminResponse = modelMapper.map(admin, AdminResponse.class);
-            ResponseData<AdminResponse> response = ResponseUtil.success(adminResponse, "회원 가입이 완료되었습니다.");
+            ResponseData<AdminResponse> response = ResponseUtil.success(adminResponse, "회원 가입이 완료");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }catch (Exception e){
-            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생했습니다.");
+            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
@@ -49,10 +49,10 @@ public class AdminServiceImpl implements AdminService {
             System.out.println(adminLoginId);
             Admin admin = adminRepository.findAdminByAdminLoginId(adminLoginId);
             AdminResponse adminResponse = modelMapper.map(admin, AdminResponse.class);
-            ResponseData<AdminResponse> response = ResponseUtil.success(adminResponse, "관리자 상세조회 완료했습니다.");
+            ResponseData<AdminResponse> response = ResponseUtil.success(adminResponse, "관리자 상세조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }catch (Exception e){
-            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생했습니다.");
+            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
