@@ -1,7 +1,10 @@
 package c207.camference.filter.jwt;
 
+import c207.camference.db.entity.Refresh;
+import c207.camference.db.repository.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,15 +14,30 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Date;
+
 
 public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
-    public AdminLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
+
+    public AdminLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
         setAuthenticationManager(authenticationManager);
         setFilterProcessesUrl("/admin/login"); // 사용자 로그인 URL 설정
     }
@@ -40,12 +58,29 @@ public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         UserDetails adminDetails = (UserDetails) authentication.getPrincipal();
 
-        String token = jwtUtil.createJwt(adminDetails.getUsername(), "ROLE_ADMIN",60*60*1000L);
+        String access = jwtUtil.createJwt("access",adminDetails.getUsername(), "ROLE_ADMIN",10*60*1000L);
+        String refresh = jwtUtil.createJwt("refresh",adminDetails.getUsername(), "ROLE_ADMIN",60*60*1000L);
 
-        response.addHeader("Authorization", "Bearer " + token);
-        // 성공시 user로 보내기
+        //Refresh 토큰 저장
+        addRefreshEntity(adminDetails.getUsername(), refresh, 86400000L);
+
+        //응답 헤더 설정
+        response.setHeader("access", access);
+        response.addCookie(createCookie("refresh",refresh));
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
+    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        Refresh refreshEntity = new Refresh();
+        refreshEntity.setUsername(username);
+        refreshEntity.setRefresh(refresh);
+        refreshEntity.setExpiration(date.toString());
+
+        refreshRepository.save(refreshEntity);
+    }
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);

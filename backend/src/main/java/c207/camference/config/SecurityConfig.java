@@ -2,8 +2,10 @@ package c207.camference.config;
 
 import c207.camference.api.service.admin.AdminDetailsService;
 import c207.camference.api.service.user.CustomUserDetailsService;
+import c207.camference.db.repository.RefreshRepository;
 import c207.camference.filter.jwt.AdminLoginFilter;
 import c207.camference.filter.jwt.JWTFilter;
+import c207.camference.filter.jwt.LogoutFilter;
 import c207.camference.filter.jwt.UserLoginFilter;
 import c207.camference.util.jwt.JWTUtil;
 import org.springframework.context.annotation.Bean;
@@ -60,7 +62,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, RefreshRepository refreshRepository) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
@@ -69,16 +71,18 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/**").permitAll()
+                        .requestMatchers("/reissue").permitAll()
 //                        .requestMatchers("/user/signup", "/user/login", "/user/valid/**", "/user/find/**").permitAll()
 //                        .requestMatchers("/admin/signup", "/admin/login").permitAll()
 //                        .requestMatchers("/user/**").hasRole("USER")
 //                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil),
+                .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil,refreshRepository),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new LogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         return http.build();
     }
