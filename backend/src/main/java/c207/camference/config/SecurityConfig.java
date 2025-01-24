@@ -58,8 +58,9 @@ public class SecurityConfig {
         //url별 접근 권한 설정
         http.
                 authorizeHttpRequests((auth)->auth
-                        .requestMatchers("/user/signup","login","/user/valid/**","/user/find/**").permitAll() // 이 경로는 모두 접근 가능
-                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/**").permitAll()
+//                        .requestMatchers("/user/signup","login","/user/valid/**","/user/find/**").permitAll() // 이 경로는 모두 접근 가능
+//                        .requestMatchers("/user").hasRole("USER")
 //                        .requestMatchers("/user/valid/phone").denyAll()
 //                        .requestMatchers("/").hasRole("USER") // 유저역할을 가진 사람만
                         .anyRequest().authenticated()); // 나머지는 모두 이용 가능
