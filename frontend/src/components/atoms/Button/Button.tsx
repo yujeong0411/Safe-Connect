@@ -1,62 +1,39 @@
-// src/components/atoms/Button/Button.tsx
-import React from 'react';
-
-type ButtonVariant = 'primary' | 'secondary' | 'outline';
-type ButtonSize = 'full' | 'half' | 'quarter';
-type TextSize = 'sm' | 'base' | 'lg' | 'xl';
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  textSize?: TextSize;
-  children: React.ReactNode;
+// 버튼 컴포넌트의 props 타입 정의
+interface ButtonProps {
+  variant?: 'primary' | 'secondary';    // 버튼 스타일 종류 (기본값: primary)
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';  // 버튼 크기 옵션 (기본값: md)
+  children?: React.ReactNode;           // 버튼 내부 콘텐츠
+  onClick?: () => void;                // 클릭 이벤트 핸들러
 }
 
-export const Button: React.FC<ButtonProps> = ({
-  variant = 'primary',
-  size = 'full',
-  textSize = 'base', // 기본 텍스트 크기
-  children,
-  className,
-  ...props
-}) => {
-  // 기본 스타일
-  const baseStyle = 'h-12 rounded-md transition-all text-white';
+const Button = ({ variant = 'primary', size = 'md', children, onClick }: ButtonProps) => {
+  // 모든 버튼에 공통으로 적용되는 기본 스타일
+  const baseStyle = "rounded-md transition-colors";  // 둥근 모서리, hover 시 부드러운 색상 전환
 
-  // 버라이언트별 스타일
+  // 버튼 종류별 스타일 정의
   const variantStyles = {
-    primary: 'bg-blue-500 hover:bg-blue-600',
-    secondary: 'bg-gray-500 hover:bg-gray-600',
-    outline: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100',
+    primary: "bg-pink-500 hover:bg-pink-600 text-white",    // 파란색 배경, hover시 진한 파란색
+    secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800" // 회색 배경, hover시 진한 회색
   };
 
-  // 사이즈별 너비 스타일
+  // 버튼 크기별 스타일 정의 (padding과 글자 크기)
   const sizeStyles = {
-    full: 'w-full',
-    half: 'w-1/2',
-    quarter: 'w-1/4',
-  };
-
-  // 텍스트 크기 스타일
-  const textSizeStyles = {
-    sm: 'text-sm',
-    base: 'text-base',
-    lg: 'text-lg',
-    xl: 'text-xl',
+    xs: "px-2 py-1 text-xs",    // 가장 작은 크기
+    sm: "px-3 py-1.5 text-sm",  // 작은 크기
+    md: "px-4 py-2 text-base",  // 중간 크기 (기본)
+    lg: "px-5 py-2.5 text-lg",  // 큰 크기
+    xl: "px-6 py-3 text-xl"     // 가장 큰 크기
   };
 
   return (
-    <button
-      className={`
-        ${baseStyle} 
-        ${variantStyles[variant]} 
-        ${sizeStyles[size]}
-        ${textSizeStyles[textSize]}
-        ${className}
-      `}
-      {...props}
-    >
-      {children}
-    </button>
+      <button
+          // 스타일들을 조합하여 적용
+          className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]}`}
+          onClick={onClick}
+      >
+        {children}
+      </button>
   );
 };
+
+export default Button;
