@@ -13,11 +13,11 @@ const LoginTemplate = ({ children }: { children: React.ReactNode }) => {
       {/* 로그인 폼 */}
       <div className="absolute left-[100px] top-[235px] z-20">{children}</div>
 
-      {/* md 이상에서만 표시 */}
+      {/* 2xl 이상에서만 표시 */}
       <img
         src={loginImg1}
         alt="decorative"
-        className="fixed right-[100px] top-[242px] hidden xl:block z-0 transition-transform duration-100"
+        className="fixed right-[100px] top-[242px] hidden 2xl:block z-0 transition-transform duration-100"
       />
 
       <img

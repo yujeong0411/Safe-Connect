@@ -1,16 +1,37 @@
-import React from 'react';
+import { useState } from 'react';
 import Button from '@components/atoms/Button/Button.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
-import { LoginFormProps } from '@types/common/Login.types.ts';
+import { LoginFormProps } from '@/features/auth/types/UserFrom.tyeps.ts';
 
-const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+const UserLoginForm = ({ onSubmit, onFindEmail, onFindPassword, onSignIn }: LoginFormProps) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit?.(email, password);
+    setIsLoading(true);
+    setError(null);
+    try {
+      await onSubmit(email, password);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleFindEmail = () => {
+    navigate('/find_email');
+  };
+  const handleSignUp = () => {
+    navigate('/signup');
+  };
+  const handleFindPassword = () => {
+    navigate('/find_password');
+  };
+
   return (
     <div
       className="
@@ -56,9 +77,16 @@ const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
           >
             <div className="flex justify-between w-full">
               <label>이메일</label>
-              <span className="text-blue-500">이메일 찾기</span>
+              <span
+                onClick={handleFindEmail}
+                className="text-blue-500 cursor-pointer hover:underline"
+              >
+                이메일 찾기
+              </span>
             </div>
             <Input
+              id="email"
+              type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               width="full"
@@ -68,9 +96,15 @@ const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
 
             <div className="flex justify-between w-full mt-3">
               <label>비밀번호</label>
-              <span className="text-blue-500">비밀번호 찾기</span>
+              <span
+                onClick={handleFindPassword}
+                className="text-blue-500 cursor-pointer hover:underline"
+              >
+                비밀번호 찾기
+              </span>
             </div>
             <Input
+              id="password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -78,11 +112,13 @@ const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
               width="full"
               isRequired
             />
+            {error && <div className="text-red-500 text-sm">{error}</div>}
+
             <div className="felx flex-col w-full mt-5 ">
               <Button type="submit" variant="blue" width="full" className="mb-3">
                 로그인
               </Button>
-              <Button variant="gray" width="full">
+              <Button variant="gray" width="full" onClick={handleSignUp}>
                 회원가입
               </Button>
             </div>
