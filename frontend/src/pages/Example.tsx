@@ -3,7 +3,7 @@ import Button from '@components/atoms/Button/Button';
 import Input from '@components/atoms/Input/Input';
 import Pagination from '@components/atoms/Pagination/Pagination';
 import Dropdown from '@components/atoms/Dropdown/Dropdown';
-import Icon from '@components/atoms/Icon/Icon';
+// import Icon from '@components/atoms/Icon/Icon';
 
 const ExamplePage = () => {
   return (
@@ -11,27 +11,27 @@ const ExamplePage = () => {
       <section className="space-y-4">
         <h2 className="text-xl font-bold">Buttons</h2>
         <div className="flex gap-2">
-          <Button variant="primary" size="sm">
+          <Button variant="blue" size="sm">
             Small
           </Button>
-          <Button variant="primary" size="md">
+          <Button variant="blue" size="md">
             Medium
           </Button>
-          <Button variant="primary" size="lg">
+          <Button variant="red" size="lg">
             Large
           </Button>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm">
+          <Button variant="gray" size="sm">
             Small
           </Button>
-          <Button variant="secondary" size="md">
+          <Button variant="gray" size="md">
             Medium
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button variant="blue" size="lg">
             Large
           </Button>
-          <Button variant="primary" size="lg" onClick={() => console.log('클릭')}>
+          <Button variant="red" size="lg" onClick={() => console.log('클릭')}>
             큰 파란 버튼
           </Button>
         </div>
@@ -40,9 +40,15 @@ const ExamplePage = () => {
       <section className="space-y-4">
         <h2 className="text-xl font-bold">Inputs</h2>
         <div className="space-y-4">
-          <Input label="기본 입력" placeholder="텍스트를 입력하세요" />
-          <Input label="에러 상태" variant="error" helperText="필수 입력 항목입니다" isRequired />
-          <Input label="큰 사이즈" size="lg" fullWidth />
+          <Input label="기본 입력" placeholder="텍스트를 입력하세요" width="quarter" />
+          <Input
+            label="에러 상태"
+            variant="error"
+            helperText="필수 입력 항목입니다"
+            isRequired
+            width="half"
+          />
+          <Input label="큰 사이즈" inputSize="lg" width="half" />
         </div>
       </section>
 
@@ -69,16 +75,16 @@ const ExamplePage = () => {
           />
         </div>
       </section>
-      <section className="space-y-4">
-        <h2 className="text-xl font-bold">Icons</h2>
-        <div className="flex gap-4 items-center">
-          <Icon name="Heart" size="sm" color="error" />
-          <Icon name="AlertCircle" size="md" color="warning" />
-          <Icon name="CheckCircle" size="lg" color="success" />
-          <Icon name="User" color="primary" />
-          <Icon name="Settings" color="secondary" />
-        </div>
-      </section>
+      {/*<section className="space-y-4">*/}
+      {/*  <h2 className="text-xl font-bold">Icons</h2>*/}
+      {/*  <div className="flex gap-4 items-center">*/}
+      {/*    <Icon name="Heart" size="sm" color="error" />*/}
+      {/*    <Icon name="AlertCircle" size="md" color="warning" />*/}
+      {/*    <Icon name="CheckCircle" size="lg" color="success" />*/}
+      {/*    <Icon name="User" color="primary" />*/}
+      {/*    <Icon name="Settings" color="secondary" />*/}
+      {/*  </div>*/}
+      {/*</section>*/}
       {/* <section>
                 <h2 className="text-xl font-bold">Alert</h2>
                 <div className="flex gap-2">

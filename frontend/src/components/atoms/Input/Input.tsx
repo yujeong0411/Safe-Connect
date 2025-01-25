@@ -4,11 +4,11 @@ import { InputProps } from './Input.types';
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
-      variant = 'default',
-      size = 'md',
+      variant = 'white',
+      inputSize = 'md',
       label,
       helperText,
-      fullWidth = false,
+      width = 'full',
       isRequired = false,
       className = '',
       ...props
@@ -18,20 +18,26 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const baseStyle = 'rounded-md border outline-none focus:ring-2';
 
     const variantStyles = {
-      default: 'border-gray-300 focus:border-pink-500 focus:ring-pink-200',
+      white: 'bg-[#FFFFFF] focus:ring-blue-200',
+      blue: 'bg-[#EBEDF3] focus:ring-blue-200',
       error: 'border-red-500 focus:border-red-500 focus:ring-red-200',
     };
 
-    const sizeStyles = {
-      sm: 'px-2 py-1 text-sm',
-      md: 'px-3 py-2 text-base',
-      lg: 'px-4 py-3 text-lg',
+    const inputSizeStyles = {
+      sm: 'px-2 py-2 text-sm',
+      md: 'px-3 py-3 text-base',
+      lg: 'px-4 py-4 text-lg',
     };
 
-    const widthStyle = fullWidth ? 'w-full' : 'w-auto';
+    const widthStyles = {
+      full: 'w-full', // 100%
+      half: 'w-1/2', // 50%
+      quarter: 'w-1/4', // 25%
+      auto: 'w-auto', // 자동
+    };
 
     return (
-      <div className={`${fullWidth ? 'w-full' : 'w-fit'}`}>
+      <div className={`${width ? 'w-full' : 'w-fit'}`}>
         {label && (
           <label className="block text-gray-700 text-sm font-medium mb-1">
             {label}
@@ -43,8 +49,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           className={`
           ${baseStyle}
           ${variantStyles[variant]}
-          ${sizeStyles[size]}
-          ${widthStyle}
+          ${inputSizeStyles[inputSize]}
+          ${widthStyles[width]}
           ${className}
         `}
           {...props}

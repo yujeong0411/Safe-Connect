@@ -1,19 +1,22 @@
-// 버튼 컴포넌트의 props 타입 정의
-interface ButtonProps {
-  variant?: 'primary' | 'secondary'; // 버튼 스타일 종류 (기본값: primary)
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // 버튼 크기 옵션 (기본값: md)
-  children?: React.ReactNode; // 버튼 내부 콘텐츠
-  onClick?: () => void; // 클릭 이벤트 핸들러
-}
+import { ButtonProps } from '@components/atoms/Button/Button.types.ts';
 
-const Button = ({ variant = 'primary', size = 'md', children, onClick }: ButtonProps) => {
+const Button = ({
+  variant = 'blue',
+  size = 'md',
+  width = 'full',
+  children,
+  onClick,
+  type,
+  className,
+}: ButtonProps) => {
   // 모든 버튼에 공통으로 적용되는 기본 스타일
   const baseStyle = 'rounded-md transition-colors'; // 둥근 모서리, hover 시 부드러운 색상 전환
 
   // 버튼 종류별 스타일 정의
   const variantStyles = {
-    primary: 'bg-pink-500 hover:bg-pink-600 text-white', // 파란색 배경, hover시 진한 파란색
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800', // 회색 배경, hover시 진한 회색
+    blue: 'bg-[#545f71] hover:bg-[#697383] text-white', // 파란색 배경
+    gray: 'bg-[#DDDDDD] hover:bg-[#ABABAB] text-gray-800', // 회색 배경
+    red: 'bg-red-500 hover:bg-red-600 text-white',
   };
 
   // 버튼 크기별 스타일 정의 (padding과 글자 크기)
@@ -25,11 +28,19 @@ const Button = ({ variant = 'primary', size = 'md', children, onClick }: ButtonP
     xl: 'px-6 py-3 text-xl', // 가장 큰 크기
   };
 
+  const widthStyles = {
+    full: 'w-full', // 100%
+    half: 'w-1/2', // 50%
+    quarter: 'w-1/4', // 25%
+    auto: 'w-auto', // 자동
+  };
+
   return (
     <button
       // 스타일들을 조합하여 적용
-      className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]}`}
+      className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${widthStyles[width]} ${className}`}
       onClick={onClick}
+      type={type}
     >
       {children}
     </button>

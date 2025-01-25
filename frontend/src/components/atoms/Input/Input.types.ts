@@ -1,10 +1,10 @@
 import { InputHTMLAttributes } from 'react';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  variant?: 'default' | 'error';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'white' | 'blue' | 'error';
+  inputSize?: 'sm' | 'md' | 'lg';
   label?: string;
   helperText?: string;
-  fullWidth?: boolean;
+  width?: 'full' | 'half' | 'quarter' | 'auto';
   isRequired?: boolean;
 }
