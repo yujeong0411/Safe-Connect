@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { fileURLToPath, URL} from "node:url"
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { fileURLToPath, URL } from 'node:url';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,7 +14,7 @@ export default defineConfig({
       '@zustand': fileURLToPath(new URL('./src/zustand', import.meta.url)),
       '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
       '@types': fileURLToPath(new URL('./src/types', import.meta.url)),
-      '@apis': fileURLToPath(new URL('./src/apis', import.meta.url))
+      '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
     },
   },
   // SCSS 전역 사용
@@ -22,7 +22,7 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `@use "@/styles/globals.scss";`,
-      }
-    }
-  }
-})
+      },
+    },
+  },
+});

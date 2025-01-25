@@ -1,7 +1,15 @@
 import React from 'react';
+import UserLoginForm from '@/features/auth/components/UserLoginForm.tsx';
+import LoginTemplate from '@components/templates/LoginTemplate.tsx';
 
-function UserLoginPage(props) {
-  return <div></div>;
-}
+const LoginPage = () => {
+  return (
+    <div>
+      <LoginTemplate>
+        <UserLoginForm />
+      </LoginTemplate>
+    </div>
+  );
+};
 
-export default UserLoginPage;
+export default LoginPage;
