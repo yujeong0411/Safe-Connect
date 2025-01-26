@@ -22,6 +22,7 @@ import java.util.List;
 public class MedicationApiController {
 
     private final MediService mediService;
+
     @Value("${openApi.serviceKey}")
     private String serviceKey;
 
