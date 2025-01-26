@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import Button from '@components/atoms/Button/Button.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
-import { LoginFormProps } from '@/features/auth/types/UserFrom.tyeps.ts';
+import { LoginFormProps } from '@features/auth/types/UserLoginFrom.tyeps.ts';
+import { Link, useNavigate } from 'react-router-dom';
 
-const UserLoginForm = ({ onSubmit, onFindEmail, onFindPassword, onSignIn }: LoginFormProps) => {
+const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -16,7 +18,7 @@ const UserLoginForm = ({ onSubmit, onFindEmail, onFindPassword, onSignIn }: Logi
     try {
       await onSubmit(email, password);
     } catch (error) {
-      setError(error instanceof Error ? error.message : error);
+      setError(error instanceof Error ? error.message : String(error));
     } finally {
       setIsLoading(false);
     }
@@ -25,9 +27,7 @@ const UserLoginForm = ({ onSubmit, onFindEmail, onFindPassword, onSignIn }: Logi
   const handleFindEmail = () => {
     navigate('/find_email');
   };
-  const handleSignUp = () => {
-    navigate('/signup');
-  };
+
   const handleFindPassword = () => {
     navigate('/find_password');
   };
@@ -114,13 +114,15 @@ const UserLoginForm = ({ onSubmit, onFindEmail, onFindPassword, onSignIn }: Logi
             />
             {error && <div className="text-red-500 text-sm">{error}</div>}
 
-            <div className="felx flex-col w-full mt-5 ">
+            <div className="flex flex-col w-full mt-5 ">
               <Button type="submit" variant="blue" width="full" className="mb-3">
                 로그인
               </Button>
-              <Button variant="gray" width="full" onClick={handleSignUp}>
-                회원가입
-              </Button>
+              <Link to="/user/signup">
+                <Button variant="gray" width="full">
+                  회원가입
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
