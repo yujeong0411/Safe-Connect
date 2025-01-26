@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { AuthStore, UserType, AuthResponse } from '@types/auth/auth.types.ts';
-import { idAuthService, emailAuthService } from '@/features/auth/servies/idAuthService.ts';
+import { AuthStore, UserType, AuthResponse } from '@types/auth/auth.types';
+import { idAuthService } from '@features/auth/servies/idAuthService.ts';
+import { emailAuthService } from '@features/auth/servies/emailAuthService.ts';
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthStore>((set) => ({
   // 초기상태
   token: localStorage.getItem('token'),
   userType: null,
@@ -32,9 +33,11 @@ export const useAuthStore = create<AuthState>((set) => ({
             break;
         }
       }
-      const { token, userType } = response.data;
-      localStorage.setItem('token', token); // 응답받은 토큰 저장
-      set({ token, userType, isAuthenticated: true }); // 상태 업데이트
+      if (response) {
+        const { token, userType } = response.data;
+        localStorage.setItem('token', token); // 응답받은 토큰 저장
+        set({ token, userType, isAuthenticated: true }); // 상태 업데이트
+      }
     } catch (error) {
       // 에러 처리
       throw error;
@@ -45,4 +48,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('token');
     set({ token: null, userType: null, isAuthenticated: false });
   },
+
+  mediInfo: {
+    currentIllnesses: [],
+    medications: [],
+  },
+  setCurrentIllnesses: (illnesses) =>
+    set((state) => ({ mediInfo: { ...state.mediInfo, currentIllnesses: illnesses } })),
+  setMedications: (medications) =>
+    set((state) => ({ mediInfo: { ...state.mediInfo, medications } })),
 }));

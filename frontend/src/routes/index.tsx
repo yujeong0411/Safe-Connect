@@ -2,8 +2,11 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
 import UserLoginPage from '@pages/UserPage/UserLoginPage.tsx';
+import UserSignupPage1 from '@pages/UserPage/UserSignupPage1.tsx';
+import UserSignupPage2 from '@pages/UserPage/UserSignupPage2.tsx';
+import UserSignupPage3 from '@pages/UserPage/UserSignupPage3.tsx';
 
-const router = () => {
+const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -13,30 +16,13 @@ const router = () => {
         {/* 모든 사용자 접근 가능 */}
         <Route element={<PublicRoute />}>
           <Route path="/user/login" element={<UserLoginPage />}></Route>
+          <Route path="/user/signup" element={<UserSignupPage1 />}></Route>
+          <Route path="/user/signup/info" element={<UserSignupPage2 />}></Route>
+          <Route path="/user/signup/medi" element={<UserSignupPage3 />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>
   );
 };
 
-export default router;
-
-// routes/index.tsx
-import { createBrowserRouter } from 'react-router-dom';
-
-export const router = createBrowserRouter([
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    element: <PrivateRoute />,
-    children: [
-      {
-        path: '/dashboard',
-        element: <DashboardPage />,
-      },
-      // 기타 보호된 라우트
-    ],
-  },
-]);
+export default Router;

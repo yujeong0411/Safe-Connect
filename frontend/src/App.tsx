@@ -1,13 +1,9 @@
-import ExamplePage from '@/pages/Example.tsx';
-import LoginForm from '@/features/auth/components/UserLoginForm.tsx';
-import LoginPage from '@pages/UserPage/UserLoginPage.tsx';
+import Router from '@/routes/index';
+
+// router 연결 가능
 
 function App() {
-  return (
-    <div>
-      <LoginPage />
-    </div>
-  );
+  return <Router />;
 }
 
 export default App;

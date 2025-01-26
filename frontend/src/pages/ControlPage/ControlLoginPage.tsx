@@ -1,11 +1,12 @@
-import UserLoginForm from '@/features/auth/components/UserLoginForm.tsx';
+import React from 'react';
+import IdLoginForm from '@/features/auth/components/IdLoginForm.tsx';
 import LoginTemplate from '@components/templates/LoginTemplate.tsx';
 
 const LoginPage = () => {
   return (
     <div>
       <LoginTemplate>
-        <UserLoginForm />
+        <IdLoginForm />
       </LoginTemplate>
     </div>
   );

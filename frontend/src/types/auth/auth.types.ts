@@ -23,11 +23,19 @@ export interface AuthResponse {
 // 사용자 타입
 export type UserType = 'user' | 'dispatch' | 'hospital' | 'control' | 'admin';
 
+export interface MediInfo {
+  currentIllnesses: string[];
+  medications: string[];
+}
+
 // 인증 상태 관련 타입
 export interface AuthState {
   token: string | null;
   userType: UserType | null;
   isAuthenticated: boolean;
+  mediInfo: MediInfo;
+  setCurrentIllnesses: (illnesses: string[]) => void;
+  setMedications: (medications: string[]) => void;
 }
 
 // 상태와 액션 모두 포함

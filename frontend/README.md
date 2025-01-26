@@ -3,7 +3,7 @@
 2. React Router 설치 : `npm install react-router-dom` <br/>
 3. React 중앙집중식 상태관리 라이브러리 Zustand 설치 : `npm install zustand` <br/>
 4. 외부 open API 통신을 위한 라이브러리 axios 설치 : `npm install axios` <br/>
-5. CSS 스타일링을 위한 SASS/SCSS 설치 : `npm install -D sass` <br/>
+5. Carousel 설치 : `npm install react-slick --save`, `npm install slick-carousel --save`<br/>
 6. tailwindcss 설치 : `npm install -D tailwindcss postcss autoprefixer` <br/>
 7. Typescript에서 Node.js 모듈을 쓸 수 있도록 환경 구축 : `npm install @types/node` <br/>
 8. React Toasts Popup 모듈 설치 : `npm install react-toastify ` <br/>
@@ -16,3 +16,7 @@
 1. Settings → Languages & Frameworks → JavaScript → Prettier 이동
 2. 'Automatic Prettier configuration' 선택
 3. 설치된 Prettier 패키지와 설정 파일이 자동으로 인식되어 사용됨
+
+### Carousel 
+https://react-slick.neostack.com/docs/example/simple-slider 
+

@@ -11,17 +11,17 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
       '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
-      '@zustand': fileURLToPath(new URL('./src/zustand', import.meta.url)),
+      '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
       '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
       '@types': fileURLToPath(new URL('./src/types', import.meta.url)),
       '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
     },
   },
-  // SCSS 전역 사용
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@use "@/styles/globals.scss";`,
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080', // 백엔드 서버 주소
+        changeOrigin: true,
       },
     },
   },
