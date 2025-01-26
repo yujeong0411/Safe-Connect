@@ -7,4 +7,5 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
   width?: 'full' | 'half' | 'quarter' | 'auto';
   isRequired?: boolean;
+  error?: string;
 }

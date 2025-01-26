@@ -4,6 +4,7 @@ import { InputProps } from './Input.types';
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
+      error,
       variant = 'white',
       inputSize = 'md',
       label,
@@ -47,6 +48,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           className={`
+          ${error ? variantStyles.error : variantStyles[variant]}
           ${baseStyle}
           ${variantStyles[variant]}
           ${inputSizeStyles[inputSize]}
@@ -55,6 +57,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         `}
           {...props}
         />
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         {helperText && (
           <p className={`mt-1 text-sm ${variant === 'error' ? 'text-red-500' : 'text-gray-500'}`}>
             {helperText}

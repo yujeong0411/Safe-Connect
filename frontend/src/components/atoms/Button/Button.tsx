@@ -3,7 +3,7 @@ import { ButtonProps } from '@components/atoms/Button/Button.types.ts';
 const Button = ({
   variant = 'blue',
   size = 'md',
-  width = 'full',
+  width = 'half',
   children,
   onClick,
   type,

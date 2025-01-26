@@ -1,6 +1,6 @@
 import React from 'react';
 import WaveBackground from '@components/atoms/WaveBackground';
-import PublicHeader from '@components/organisms/PublicHeader';
+import PublicHeader from '@components/organisms/PublicHeader/PublicHeader.tsx';
 import loginImg1 from '@assets/image/loginImg1.png';
 import loginImg2 from '@assets/image/loginImg2.png';
 
