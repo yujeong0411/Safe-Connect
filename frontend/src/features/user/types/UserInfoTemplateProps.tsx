@@ -1,11 +1,11 @@
 import React from 'react';
 
-export interface UserInfoHeaderProps {
+export interface UserInfoTemplateProps {
   title: string;
   content: string;
+  logoSrc?: string;
+  logoAlt?: string;
   primaryButtonOnClick: () => void;
   secondaryButtonOnClick: () => void;
-  primaryButtonText: string;
-  secondaryButtonText: string;
   children: React.ReactNode;
 }

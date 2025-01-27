@@ -8,6 +8,8 @@ import UserSignupPage3 from '@pages/UserPage/UserSignupPage3.tsx';
 import UserPublicPage from '@pages/UserPage/UserPublicPage.tsx';
 import UserMainPage from '@pages/UserPage/UserMainPage.tsx';
 import UserInfoPage from '@pages/UserPage/UserInfoPage.tsx';
+import UserMediPage from '@pages/UserPage/UserMediPage.tsx';
+import UserUpdatePwPage from '@pages/UserPage/UserUpdatePwPage.tsx';
 
 const Router = () => {
   return (
@@ -23,6 +25,10 @@ const Router = () => {
           public!!
           <Route path="/user/info" element={<UserInfoPage />}></Route> // 로그인 연결될때까지만
           public!!
+          <Route path="/user/medi" element={<UserMediPage />}></Route> // 로그인 연결될때까지만
+          public!!
+          <Route path="/user/updatepassword" element={<UserUpdatePwPage />}></Route> // 로그인
+          연결될때까지만 public!!
           <Route path="/user/login" element={<UserLoginPage />}></Route>
           <Route path="/user/signup" element={<UserSignupPage1 />}></Route>
           <Route path="/user/signup/info" element={<UserSignupPage2 />}></Route>

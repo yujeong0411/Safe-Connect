@@ -4,16 +4,17 @@ export interface SignupPerFormProps {
 }
 
 export interface FormData {
-  email: string;
+  userEmail: string;
   isEmailVerified: boolean;
-  name: string;
-  password: string;
+  userName: string;
+  userPassword: string;
   passwordConfirm: string;
-  phoneNumber: string;
-  verificationCode: string;
+  userPhone: string;
   isPhoneVerified: boolean;
-  residentNumber: string;
-  guardianPhone?: string;
+  authCode: string;
+  userBirthday: string;
+  userGender: string;
+  userProtectorPhone: string;
 }
 
 export interface SignupInfoFormProps {

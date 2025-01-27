@@ -1,10 +1,11 @@
 // 공통 필드는 제외하고 로그인 방식에 따라 타입 분리
 type EmailLoginRequest = {
   type: 'email';
-  email: string;
-  password: string;
+  userEmail: string;
+  userPassword: string;
 };
 
+// 추후 수정 각 유저별로...
 type IdLoginRequest = {
   type: 'id';
   id: string;
@@ -28,7 +29,7 @@ export interface MediInfo {
   medications: string[];
 }
 
-// 인증 상태 관련 타입
+// 인증 상태 관련 타입(Zustand 용)
 export interface AuthState {
   token: string | null;
   userType: UserType | null;

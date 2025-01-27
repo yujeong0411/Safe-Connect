@@ -1,9 +1,9 @@
 import MainTemplate from '@components/templates/MainTemplate.tsx';
 import UserInfoTemplate from '@features/user/components/UserInfoTemplate.tsx';
-import userImg from '@assets/image/userImg.png';
-import UserInfoForm from '@features/user/components/UserInfoForm.tsx';
+import pwImg from '@assets/image/pwImg.png';
+import UserPwForm from '@features/user/components/UserPwForm.tsx';
 
-const UserInfoPage = () => {
+const UserUpdatePassword = () => {
   return (
     <MainTemplate
       navItems={[
@@ -13,14 +13,14 @@ const UserInfoPage = () => {
       ]}
     >
       <UserInfoTemplate
-        title="개인 정보 수정"
-        content="회원님의 개인정보는 응급 상황 발생 시 본인 확인과 보호자 연락에 사용됩니다. 이름, 이메일, 생년월일을 제외한 연락처 정보를 수정할 수 있습니다."
-        logoSrc={userImg}
+        title="비밀번호 수정"
+        content="안전한 서비스 이용을 위해 영문, 숫자, 특수문자를 포함한 8자 이상의 비밀번호를 설정해 주세요. "
+        logoSrc={pwImg}
       >
-        <UserInfoForm />
+        <UserPwForm />
       </UserInfoTemplate>
     </MainTemplate>
   );
 };
 
-export default UserInfoPage;
+export default UserUpdatePassword;

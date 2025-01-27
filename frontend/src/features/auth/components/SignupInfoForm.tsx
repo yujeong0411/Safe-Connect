@@ -1,6 +1,6 @@
 import React from 'react';
+import { useSignupStore } from '@/store/user/signupStore.tsx';
 import Input from '@components/atoms/Input/Input';
-import { SignupInfoFormProps } from '@features/auth/types/SignupForm.types.ts';
 import SearchBar from '@components/molecules/SearchBar/SearchBar.tsx';
 import { FormData } from '@features/auth/types/SignupForm.types.ts';
 import { ResidentNumberInput } from '@features/auth/components/ResidentNumberInput.tsx';
@@ -8,41 +8,61 @@ import { formatPhoneNumber } from '@features/auth/servies/signupService.ts';
 import {
   checkEmailDuplication,
   sendPhoneVerification,
-  verifyPhoneCode,
+  authCode,
 } from '@features/auth/servies/apiService.ts';
+import {
+  validateEmail,
+  validatePassword,
+  validatePasswordConfirm,
+  validatePhoneNumber,
+} from '@utils/validation';
 
-const SignupInfoForm: React.FC<SignupInfoFormProps> = ({
-  formData,
-  setFormData,
-  validateFields,
-}) => {
-  // 1. name: 폼 데이터의 특정 키 (예: 'email', 'password')를 받음
-  // 2. e: 입력 이벤트 객체
+const SignupInfoForm = () => {
+  const { formData, setFormData } = useSignupStore();
+  const validateFields = (name: keyof FormData, value: string) => {
+    if (!value) return '';
+
+    switch (name) {
+      case 'userEmail':
+        return validateEmail(value) ? '' : '올바른 이메일 형식이 아닙니다.';
+      case 'userPassword':
+        return validatePassword(value)
+          ? ''
+          : '숫자, 문자, 특수문자를 포함하여 8자리 이상입력하세요.';
+      case 'passwordConfirm':
+        return validatePasswordConfirm(formData.userPassword, value)
+          ? ''
+          : '비밀번호가 일치하지 않습니다.';
+      case 'userPhone':
+        return validatePhoneNumber(value) ? '' : '올바른 전화번호 형식이 아닙니다.';
+      default:
+        return '';
+    }
+  };
   const handleChange = (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    const processedValue = name === 'phoneNumber' ? formatPhoneNumber(value) : value;
+    const processedValue =
+      name === 'userPhone' || name === 'userProtectorPhone' ? formatPhoneNumber(value) : value;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: processedValue,
-    }));
+    setFormData({ [name]: processedValue });
   };
 
   const handleEmailVerify = async () => {
     try {
-      const isSuccess = await checkEmailDuplication(formData.email);
+      console.log('Email to verify:', formData.userEmail);
+      const isSuccess = await checkEmailDuplication(formData.userEmail);
       if (isSuccess) {
-        setFormData((prev) => ({ ...prev, isEmailVerified: true }));
+        setFormData({ isEmailVerified: true });
         alert('사용가능한 이메일입니다.');
       }
     } catch (error) {
-      alert(error.message || '이메일 중복 확인에 실패했습니다.');
+      alert('이메일을 다시 확인하세요..');
     }
   };
 
   const handlePhoneSendVerification = async () => {
     try {
-      const isSuccess = await sendPhoneVerification(formData.phoneNumber);
+      const isSuccess = await sendPhoneVerification(formData.userPhone);
       if (isSuccess) {
         alert('인증번호가 발송되었습니다.');
       }
@@ -53,9 +73,9 @@ const SignupInfoForm: React.FC<SignupInfoFormProps> = ({
 
   const handlePhoneVerify = async () => {
     try {
-      const isSuccess = await verifyPhoneCode(formData.phoneNumber, formData.verificationCode);
+      const isSuccess = await authCode(formData.userPhone, formData.authCode);
       if (isSuccess) {
-        setFormData((prev) => ({ ...prev, isPhoneVerified: true }));
+        setFormData({ isPhoneVerified: true });
         alert('인증이 완료되었습니다.');
       }
     } catch (error) {
@@ -72,20 +92,25 @@ const SignupInfoForm: React.FC<SignupInfoFormProps> = ({
             {/*이메일 + 중복확인*/}
             <SearchBar
               label="이메일"
-              value={formData.email}
-              onChange={handleChange('email')}
+              value={formData.userEmail}
+              onChange={handleChange('userEmail')}
               onButtonClick={handleEmailVerify}
               buttonText="중복확인"
-              error={validateFields('email', formData.email)}
+              error={validateFields('userEmail', formData.userEmail)}
               isRequired
             />
-            <Input label="이름" value={formData.name} onChange={handleChange('name')} isRequired />
+            <Input
+              label="이름"
+              value={formData.userName}
+              onChange={handleChange('userName')}
+              isRequired
+            />
             <Input
               label="비밀번호"
               type="password"
-              value={formData.password}
-              onChange={handleChange('password')}
-              error={validateFields('password', formData.password)}
+              value={formData.userPassword}
+              onChange={handleChange('userPassword')}
+              error={validateFields('userPassword', formData.userPassword)}
               isRequired
             />
             <Input
@@ -105,28 +130,37 @@ const SignupInfoForm: React.FC<SignupInfoFormProps> = ({
             {/*전화번호*/}
             <SearchBar
               label="전화번호"
-              value={formData.phoneNumber}
-              onChange={handleChange('phoneNumber')}
+              value={formData.userPhone}
+              onChange={handleChange('userPhone')}
               onButtonClick={handlePhoneSendVerification}
               placeholder="전화번호를 입력하세요."
               buttonText="전송"
-              error={validateFields('phoneNumber', formData.phoneNumber)}
+              error={validateFields('userPhone', formData.userPhone)}
               isRequired
             />
             <SearchBar
               label="전화번호 확인"
-              value={formData.verificationCode}
-              onChange={handleChange('verificationCode')}
+              value={formData.authCode}
+              onChange={handleChange('authCode')}
               onButtonClick={handlePhoneVerify}
               placeholder="문자로 받은 인증번호를 입력하세요."
               buttonText="인증"
               isRequired
             />
-            <ResidentNumberInput />
+            <ResidentNumberInput
+              value={formData.userBirthday + formData.userGender}
+              onChange={(birthdayAndGender) => {
+                setFormData({
+                  userBirthday: birthdayAndGender.userBirthday,
+                  userGender: birthdayAndGender.userGender,
+                });
+              }}
+            />
             <Input
               label="보호자 연락처"
-              value={formData.guardianPhone}
-              onChange={handleChange('guardianPhone')}
+              value={formData.userProtectorPhone}
+              onChange={handleChange('userProtectorPhone')}
+              error={validateFields('userProtectorPhone', formData.userProtectorPhone)}
             />
           </div>
         </div>

@@ -5,23 +5,26 @@ import * as validate from '@/utils/validation';
 export const validateSignupForm = (formData: FormData) => {
   return {
     // 이메일: 이메일 형식 검증 및 중복 확인 여부
-    email: validate.validateEmail(formData.email) && formData.isEmailVerified,
+    userEmail: validate.validateEmail(formData.userEmail) && formData.isEmailVerified,
 
     // 이름: 공백 제거 후 빈 문자열이 아닌지 확인
-    name: formData.name.trim() !== '',
+    userName: formData.userName.trim() !== '',
 
     // 비밀번호: 최소 길이 만족
-    password: validate.validatePassword(formData.password),
+    userPassword: validate.validatePassword(formData.userPassword),
 
     // 비밀번호 확인: 원래 비밀번호와 일치 여부
-    passwordConfirm: validate.validatePasswordConfirm(formData.password, formData.passwordConfirm),
+    passwordConfirm: validate.validatePasswordConfirm(
+      formData.userPassword,
+      formData.passwordConfirm
+    ),
 
     // 전화번호: 형식 검증 및 인증 여부
 
-    phoneNumber: validate.validatePhoneNumber(formData.phoneNumber) && formData.isPhoneVerified,
+    userPhone: validate.validatePhoneNumber(formData.userPhone) && formData.isPhoneVerified,
 
     // 주민등록번호: 7자리 형식 검증
-    residentNumber: validate.validateResidentNumber(formData.residentNumber),
+    residentNumber: formData.userBirthday && formData.userGender, // 생년월일과 성별 모두 있는지 확인
   };
 };
 

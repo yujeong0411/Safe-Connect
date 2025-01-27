@@ -1,21 +1,43 @@
-import React from 'react';
 import Dropdown from '@components/atoms/Dropdown/Dropdown.tsx';
+import { useSignupStore } from '@/store/user/signupStore.tsx';
+import { useEffect } from 'react';
+import { axiosInstance } from '@utils/axios.ts';
 
 const SignupMediForm = () => {
+  const {
+    medicalHistoryOptions,
+    medicationOptions,
+    setMedicalHistoryOptions,
+    setMedicationOptions,
+    formData,
+    setFormData,
+  } = useSignupStore();
+
+  useEffect(() => {
+    const fetchMedicalData = async () => {
+      const response = await axiosInstance.get('/user/medi/list');
+
+      const medicalOptions = response.data.data.map((item) => ({
+        value: item.mediId.toString(),
+        label: item.mediName,
+      }));
+
+      setMedicalHistoryOptions(medicalOptions);
+      setMedicationOptions(medicalOptions);
+    };
+
+    fetchMedicalData();
+  }, []);
+
   return (
     <div>
-      <h1 className="text-3xl font-bold text-left w-full mb-10">의료 정보 입력</h1>
       <div className="flex flex-row gap-10 p-10 w-full max-w-5xl mx-auto">
         {/*왼쪽*/}
         <div className="flex-1">
           <Dropdown
             label="현재 병력"
-            options={[
-              { value: 'option1', label: '옵션 1' },
-              { value: 'option2', label: '옵션 2' },
-              { value: 'option3', label: '옵션 3' },
-            ]}
-            onChange={(value) => console.log('선택된 값:', value)}
+            options={medicalHistoryOptions}
+            onChange={(value) => setFormData({ medicalHistory: value })}
           />
         </div>
 
@@ -23,12 +45,8 @@ const SignupMediForm = () => {
         <div className="flex-1">
           <Dropdown
             label="복용 약물"
-            options={[
-              { value: 'option1', label: '옵션 1' },
-              { value: 'option2', label: '옵션 2' },
-              { value: 'option3', label: '옵션 3' },
-            ]}
-            onChange={(value) => console.log('선택된 값:', value)}
+            options={medicationOptions}
+            onChange={(value) => setFormData({ medication: value })}
           />
         </div>
       </div>

@@ -1,8 +1,7 @@
-import React from 'react';
 import IdLoginForm from '@/features/auth/components/IdLoginForm.tsx';
 import LoginTemplate from '@components/templates/LoginTemplate.tsx';
 
-const LoginPage = () => {
+const ControlLoginPage = () => {
   return (
     <div>
       <LoginTemplate>
@@ -12,4 +11,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ControlLoginPage;
