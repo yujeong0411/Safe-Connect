@@ -32,6 +32,7 @@ const Button = ({
     full: 'w-full', // 100%
     half: 'w-1/2', // 50%
     quarter: 'w-1/4', // 25%
+    sm: 'w-1/6',
     auto: 'w-auto', // 자동
   };
 

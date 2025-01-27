@@ -8,4 +8,5 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   width?: 'full' | 'half' | 'quarter' | 'auto';
   isRequired?: boolean;
   error?: string;
+  disabled?: boolean;
 }

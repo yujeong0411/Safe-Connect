@@ -12,6 +12,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       width = 'full',
       isRequired = false,
       className = '',
+      disabled = false,
       ...props
     },
     ref

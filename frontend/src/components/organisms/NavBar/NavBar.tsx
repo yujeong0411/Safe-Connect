@@ -6,7 +6,7 @@ const NavBar = ({ navItems }: NavBarProps) => {
     <nav className="w-flex h-[50px] relative">
       <div className="w-full h-full absolute bg-[#545f71]" />
       <div className=" h-full flex justify-start items-center pl-20 gap-20">
-        {navItems.map((item, index) => (
+        {navItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
