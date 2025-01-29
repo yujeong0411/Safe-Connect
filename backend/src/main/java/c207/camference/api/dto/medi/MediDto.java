@@ -1,11 +1,12 @@
 package c207.camference.api.dto.medi;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-// API 데이터 매핑
-@Data
+@Getter
+@Builder
 public class MediDto {
     private Integer mediId;
     private String mediName;
-    private Boolean mediIsActive;
 }
