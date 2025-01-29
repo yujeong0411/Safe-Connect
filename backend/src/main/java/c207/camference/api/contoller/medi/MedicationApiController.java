@@ -54,7 +54,7 @@ public class MedicationApiController {
                     break;
                 }
                 // Service 호출해서 데이터 저장
-                mediService.saveMedicationData(mediNames);
+//                mediService.saveMedicationData(mediNames);
 
                 pageNo++; // 다음 페이지로
             }
