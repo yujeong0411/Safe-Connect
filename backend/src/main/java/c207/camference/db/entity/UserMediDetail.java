@@ -1,7 +1,9 @@
 package c207.camference.db.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 // user의 의약질환 정보 관리 테이블
 public class UserMediDetail {
@@ -43,6 +46,10 @@ public class UserMediDetail {
     @Column(nullable = false)
     private LocalDateTime userMediDetailUpdatedAt;
 
+    // user 받는 생성자
+    public UserMediDetail(User user) {
+        this.user = user;
+    }
 
     // 의약질환 매핑 정보 업데이트
     public void updateMediMappings(List<Medi> medis) {
