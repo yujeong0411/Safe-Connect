@@ -38,8 +38,9 @@ public class ControlController {
     public ResponseEntity<?> callDetail(@RequestParam Integer callId){
         return controlService.getCall(callId);
     }
+
     //
-    @GetMapping("medi_list")
+    @GetMapping("/medi_list")
     public ResponseEntity<?> mediList(@RequestParam String patientPhone){
         return controlService.getUser(patientPhone);
     }

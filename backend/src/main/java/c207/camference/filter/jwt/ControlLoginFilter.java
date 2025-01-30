@@ -34,11 +34,8 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
     // 여기 x
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
         UserDetails controlDetails = (UserDetails) authentication.getPrincipal();
-
         String token = jwtUtil.createJwt(controlDetails.getUsername(), "ROLE_DISPATCH",60*60*1000L);
-
         response.addHeader("Authorization", "Bearer " + token);
         // 성공시 user로 보내기
     }

@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FireStaffResponse {
     private String fireStaffLoginId;
-    private String fireStaffPassword;
     private FireDept fireDept;
     private String fireStaffNumber;
     private String fireStaffName;

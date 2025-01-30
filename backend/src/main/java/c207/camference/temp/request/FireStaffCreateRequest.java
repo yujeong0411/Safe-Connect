@@ -7,8 +7,7 @@ import lombok.Data;
 public class FireStaffCreateRequest {
     private String fireStaffLoginId;
     private String fireStaffPassword;
-    private FireDept fireDept;
+    private int fireDept;
     private String fireStaffNumber;
     private String fireStaffName;
-    private String fireStaffCategory;
 }

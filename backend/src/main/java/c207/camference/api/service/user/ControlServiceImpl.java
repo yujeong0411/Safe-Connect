@@ -2,9 +2,11 @@ package c207.camference.api.service.user;
 
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.db.entity.others.Call;
+import c207.camference.db.entity.others.FireDept;
 import c207.camference.db.entity.users.FireStaff;
 import c207.camference.db.entity.users.User;
 import c207.camference.db.repository.CallRepository;
+import c207.camference.db.repository.FireDeptRepository;
 import c207.camference.db.repository.FireStaffRepository;
 import c207.camference.db.repository.UserRepository;
 import c207.camference.temp.request.FireStaffCreateRequest;
@@ -32,6 +34,7 @@ public class ControlServiceImpl implements ControlService {
     private final FireStaffRepository fireStaffRepository;
     private final CallRepository callRepository;
     private final UserRepository userRepository;
+    private final FireDeptRepository fireDeptRepository;
 
 
     @Override
@@ -39,8 +42,12 @@ public class ControlServiceImpl implements ControlService {
     public ResponseEntity<?> createUser(FireStaffCreateRequest request){
         try{
             FireStaff fireStaff = modelMapper.map(request, FireStaff.class);
-            fireStaff.setFireStaffCategory("C");
-            fireStaffRepository.save(fireStaff);
+            fireStaff.setFireStaffCategory('C');
+
+            FireDept fireDept = fireDeptRepository.findByFireDeptId(request.getFireDept());
+            fireStaff.setFireDept(fireDept);
+            fireStaffRepository.saveAndFlush(fireStaff);
+
             //비밀번호 암호화
             fireStaff.setFireStaffPassword(bCryptPasswordEncoder.encode(fireStaff.getFireStaffPassword()));
             FireStaffResponse fireStaffResponse = modelMapper.map(fireStaff, FireStaffResponse.class);

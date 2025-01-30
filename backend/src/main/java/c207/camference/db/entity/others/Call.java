@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name="call")
+@Table(name="report_call")
 public class Call {
     
     @Id
@@ -44,7 +44,7 @@ public class Call {
     private LocalDateTime callStartedAt;
 
 
-    @Column(name = "call_started_at", nullable = false)
+    @Column(name = "call_text_created_at", nullable = false)
     @Comment(value = "신고내용 작성 시간")
     private LocalDateTime callTextCreatedAt;
 
