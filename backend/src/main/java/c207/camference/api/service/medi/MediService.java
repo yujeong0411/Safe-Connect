@@ -1,8 +1,8 @@
 package c207.camference.api.service.medi;
 
 import c207.camference.api.dto.medi.MediDto;
-import c207.camference.db.entity.Medi;
-import c207.camference.db.entity.MediCategory;
+import c207.camference.db.entity.others.Medi;
+import c207.camference.db.entity.others.MediCategory;
 import c207.camference.db.repository.MediCategoryRepository;
 import c207.camference.db.repository.MediRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package c207.camference.api.service.user;
 
 import c207.camference.api.dto.user.CustomUserDetails;
-import c207.camference.db.entity.User;
+import c207.camference.db.entity.users.User;
 import c207.camference.db.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
