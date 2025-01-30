@@ -1,4 +1,4 @@
-package c207.camference.db.entity;
+package c207.camference.db.entity.users;
 
 
 import jakarta.persistence.*;

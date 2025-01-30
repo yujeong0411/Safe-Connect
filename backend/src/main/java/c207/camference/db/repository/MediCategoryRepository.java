@@ -1,6 +1,6 @@
 package c207.camference.db.repository;
 
-import c207.camference.db.entity.MediCategory;
+import c207.camference.db.entity.others.MediCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

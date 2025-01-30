@@ -1,10 +1,9 @@
 package c207.camference.config;
 
 import c207.camference.api.service.admin.AdminDetailsService;
+import c207.camference.api.service.fireStaff.FireStaffDetailsService;
 import c207.camference.api.service.user.CustomUserDetailsService;
-import c207.camference.filter.jwt.AdminLoginFilter;
-import c207.camference.filter.jwt.JWTFilter;
-import c207.camference.filter.jwt.UserLoginFilter;
+import c207.camference.filter.jwt.*;
 import c207.camference.util.jwt.JWTUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +26,16 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
     private final AdminDetailsService adminDetailsService;
+    private final FireStaffDetailsService fireStaffDetailsService;
 
     public SecurityConfig(JWTUtil jwtUtil,
                           CustomUserDetailsService customUserDetailsService,
-                          AdminDetailsService adminDetailsService) {
+                          AdminDetailsService adminDetailsService,
+                          FireStaffDetailsService fireStaffDetailsService) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
         this.adminDetailsService = adminDetailsService;
+        this.fireStaffDetailsService = fireStaffDetailsService;
     }
 
     @Primary
@@ -49,6 +51,14 @@ public class SecurityConfig {
     public AuthenticationManager adminAuthenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(adminDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
+    }
+
+    @Bean
+    public AuthenticationManager fireStaffAuthenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(fireStaffDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(provider);
     }
@@ -78,7 +88,11 @@ public class SecurityConfig {
                 .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class);
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new ControlLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

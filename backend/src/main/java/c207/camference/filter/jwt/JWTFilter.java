@@ -1,9 +1,11 @@
 package c207.camference.filter.jwt;
 
+import c207.camference.api.dto.FireStaffDetails;
 import c207.camference.api.dto.admin.AdminDetails;
 import c207.camference.api.dto.user.CustomUserDetails;
-import c207.camference.db.entity.Admin;
-import c207.camference.db.entity.User;
+import c207.camference.db.entity.users.Admin;
+import c207.camference.db.entity.users.FireStaff;
+import c207.camference.db.entity.users.User;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -58,14 +60,32 @@ public class JWTFilter extends OncePerRequestFilter {
             CustomUserDetails userDetails = new CustomUserDetails(user);
             authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             System.out.println("user");
-        } else { // ROLE_ADMIN
+        } else if("ROLE_ADMIN".equals(role)) { // ROLE_ADMIN
             Admin admin = new Admin();
             admin.setAdminLoginId(loginId);
             admin.setAdminPassword("temppassword");
             AdminDetails adminDetails = new AdminDetails(admin);
             authToken = new UsernamePasswordAuthenticationToken(adminDetails, null, adminDetails.getAuthorities());
             System.out.println("admin");
+        } else if("ROLE_CONTROL".equals(role) || "ROLE_DISPATCH".equals(role)) {
+            FireStaff fireStaff = new FireStaff();
+            fireStaff.setFireStaffLoginId(loginId);
+            fireStaff.setFireStaffPassword("temppassword");
+            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
+            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
+            System.out.println("fireStaff");
+
+        } else {
+            // 병원 생기면 추가해야함
+
+            FireStaff fireStaff = new FireStaff();
+            fireStaff.setFireStaffLoginId(loginId);
+            fireStaff.setFireStaffPassword("temppassword");
+            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
+            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
+            System.out.println("hospital");
         }
+
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
         filterChain.doFilter(request, response);
