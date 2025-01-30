@@ -26,7 +26,7 @@ const HospitalListForm = () => {
       'sex/age': 'M/50',
       callStartAt: '20250115',
       transferAcceptAt: '20250115',
-      'pre-KTAS': 3,
+      'pre-KTAS': 4,
       symptom: '흉통',
     },
     {
