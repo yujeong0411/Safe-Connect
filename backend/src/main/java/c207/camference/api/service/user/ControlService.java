@@ -7,5 +7,5 @@ public interface ControlService {
     ResponseEntity<?> createUser(FireStaffCreateRequest request);
     ResponseEntity<?> getCalls();
     ResponseEntity<?> getCall(Integer callId);
-    ResponseEntity<?> getUser(String patientPhone);
+    ResponseEntity<?> getUser(String callerPhone);
 }

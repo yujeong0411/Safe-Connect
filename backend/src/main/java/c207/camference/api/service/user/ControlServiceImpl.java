@@ -10,7 +10,6 @@ import c207.camference.db.repository.FireDeptRepository;
 import c207.camference.db.repository.FireStaffRepository;
 import c207.camference.db.repository.UserRepository;
 import c207.camference.temp.request.FireStaffCreateRequest;
-import c207.camference.temp.request.MessageRequest;
 import c207.camference.temp.response.FireStaffResponse;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,9 +94,9 @@ public class ControlServiceImpl implements ControlService {
     @Override
     @Transactional
     public
-    ResponseEntity<?> getUser(String patientPhone){
+    ResponseEntity<?> getUser(String callerPhone){
         try{
-            User user = userRepository.findByUserPhone(patientPhone)
+            User user = userRepository.findByUserPhone(callerPhone)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
             //비밀번호 암호화
             ResponseData<User> response = ResponseUtil.success(user, "상세 조회 완료");

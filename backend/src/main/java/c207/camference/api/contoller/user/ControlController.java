@@ -41,8 +41,8 @@ public class ControlController {
 
     //
     @GetMapping("/medi_list")
-    public ResponseEntity<?> mediList(@RequestParam String patientPhone){
-        return controlService.getUser(patientPhone);
+    public ResponseEntity<?> mediList(@RequestParam String callerPhone){
+        return controlService.getUser(callerPhone);
     }
 
 }
