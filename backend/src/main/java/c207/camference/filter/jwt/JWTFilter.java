@@ -73,9 +73,19 @@ public class JWTFilter extends OncePerRequestFilter {
             fireStaff.setFireStaffPassword("temppassword");
             FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
             authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
-            System.out.println("admin");
+            System.out.println("fireStaff");
 
+        } else {
+            // 병원 생기면 추가해야함
+
+            FireStaff fireStaff = new FireStaff();
+            fireStaff.setFireStaffLoginId(loginId);
+            fireStaff.setFireStaffPassword("temppassword");
+            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
+            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
+            System.out.println("hospital");
         }
+
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
         filterChain.doFilter(request, response);

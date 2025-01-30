@@ -43,7 +43,7 @@ public class FireStaff {
 
     @Column(name="fire_staff_category", nullable = false, length = 1)
     @Comment(value = "분류 C: 상황실, E : 구급대원")
-    private String fireStaffCategory;
+    private Character fireStaffCategory;
 
     @Column(name = "fire_staff_is_activate", nullable = false)
     @Comment(value = "활성화여부")

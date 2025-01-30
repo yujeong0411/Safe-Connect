@@ -11,15 +11,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
+public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
 
-    public ControlLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public DispatchLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         setAuthenticationManager(authenticationManager);
-        setFilterProcessesUrl("/control/login"); // 사용자 로그인 URL 설정
+        setFilterProcessesUrl("/dispatch/login"); // 사용자 로그인 URL 설정
     }
 
     // 이거 다음
@@ -35,9 +35,9 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
-        UserDetails controlDetails = (UserDetails) authentication.getPrincipal();
+        UserDetails adminDetails = (UserDetails) authentication.getPrincipal();
 
-        String token = jwtUtil.createJwt(controlDetails.getUsername(), "ROLE_DISPATCH",60*60*1000L);
+        String token = jwtUtil.createJwt(adminDetails.getUsername(), "ROLE_CONTROL",60*60*1000L);
 
         response.addHeader("Authorization", "Bearer " + token);
         // 성공시 user로 보내기
