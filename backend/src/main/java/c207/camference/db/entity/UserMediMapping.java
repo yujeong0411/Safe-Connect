@@ -19,14 +19,14 @@ public class UserMediMapping {
 
     @Index(name = "idx_user_medi", columnNames = "user_id, medi_id")
     @ManyToOne(fetch = FetchType.LAZY) // 지연로딩. user_medi_mapping 엔티티 조회 시 user_medi_detail 엔티티를 즉시 가져오지 않음.
-    @JoinColumn(name = "user_id", nullable = false) // FK
+    @JoinColumn(name = "user_medi_detail_id", nullable = false) // FK
     private UserMediDetail userMediDetail; // 관계의 주인
 
     @ManyToOne(fetch = FetchType.LAZY) // 지연로딩. user_medi_mapping 엔티티 조회 시 medi 엔티티를 즉시 가져오지 않음.
     @JoinColumn(name = "medi_id", nullable = false)
     private Medi medi;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean mediIsActive = true;
 
     public UserMediMapping(UserMediDetail userMediDetail, Medi medi) {
