@@ -1,5 +1,5 @@
 import UserLoginForm from '@/features/auth/components/UserLoginForm.tsx';
-import LoginTemplate from '@components/templates/LoginTemplate.tsx';
+import LoginTemplate from '@features/auth/components/LoginTemplate.tsx';
 
 const LoginPage = () => {
   return (

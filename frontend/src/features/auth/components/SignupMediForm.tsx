@@ -1,54 +1,57 @@
 import Dropdown from '@components/atoms/Dropdown/Dropdown.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useEffect } from 'react';
-import { axiosInstance } from '@utils/axios.ts';
+import { fetchMedicalData } from '@features/auth/servies/apiService.ts';
 
 const SignupMediForm = () => {
   const {
-    medicalHistoryOptions,
+    diseaseOptions,
     medicationOptions,
-    setMedicalHistoryOptions,
+    setDiseaseOptions,
     setMedicationOptions,
     formData,
     setFormData,
   } = useSignupStore();
 
   useEffect(() => {
-    const fetchMedicalData = async () => {
-      const response = await axiosInstance.get('/user/medi/list');
+    const loadMedicalData = async () => {
+      try {
+        const { diseaseOptions, medicationOptions } = await fetchMedicalData();
 
-      const medicalOptions = response.data.data.map((item) => ({
-        value: item.mediId.toString(),
-        label: item.mediName,
-      }));
-
-      setMedicalHistoryOptions(medicalOptions);
-      setMedicationOptions(medicalOptions);
+        setDiseaseOptions(diseaseOptions);
+        setMedicationOptions(medicationOptions);
+        console.log('의료정보 전체 조회 성공');
+      } catch (error) {
+        console.error('의료 데이터 가져오기 실패:', error);
+        alert('의료 데이터를 불러오는 중 문제가 발생했습니다. 다시 시도해주세요.');
+      }
     };
 
-    fetchMedicalData();
-  }, []);
+    loadMedicalData();
+  }, [setDiseaseOptions, setMedicationOptions]);
 
   return (
-    <div>
-      <div className="flex flex-row gap-10 p-10 w-full max-w-5xl mx-auto">
-        {/*왼쪽*/}
-        <div className="flex-1">
-          <Dropdown
-            label="현재 병력"
-            options={medicalHistoryOptions}
-            onChange={(value) => setFormData({ medicalHistory: value })}
-          />
-        </div>
+    <div className="flex flex-row gap-x-20 w-full min-h-full">
+      {/*왼쪽*/}
+      <div className=" w-1/2 h-auto max-w-[50%]">
+        <Dropdown
+          label="현재 병력"
+          options={diseaseOptions}
+          value={formData.diseaseId || []} // 훅에서 가져온 데이터 전달
+          placeholder="현재 앓고 계신 질환을 추가하세요."
+          onChange={(value) => setFormData({ diseaseId: value })}
+        />
+      </div>
 
-        {/*오른쪽*/}
-        <div className="flex-1">
-          <Dropdown
-            label="복용 약물"
-            options={medicationOptions}
-            onChange={(value) => setFormData({ medication: value })}
-          />
-        </div>
+      {/*오른쪽*/}
+      <div className="w-1/2 h-auto max-w-[50%]">
+        <Dropdown
+          label="복용 약물"
+          options={medicationOptions}
+          value={formData.medicationId || []}
+          placeholder="복용하고 있는 약물을 추가하세요."
+          onChange={(value) => setFormData({ medicationId: value })}
+        />
       </div>
     </div>
   );

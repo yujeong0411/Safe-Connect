@@ -1,62 +1,12 @@
-import React, { useState } from 'react';
 import SignupInfoForm from '@/features/auth/components/SignupInfoForm.tsx';
-import SignupTemplate from '@components/templates/SignupTemplate.tsx';
+import SignupTemplate from '@features/auth/components/SignupTemplate.tsx';
 import { useNavigate } from 'react-router-dom';
-import { FormData } from '@features/auth/types/SignupForm.types.ts';
+import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { validateSignupForm } from '@features/auth/servies/signupService.ts';
-import {
-  validateEmail,
-  validatePassword,
-  validatePasswordConfirm,
-  validatePhoneNumber,
-  validateResidentNumber,
-} from '@utils/validation.ts';
 
 const UserSignupPage2 = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<FormData>({
-    userEmail: '',
-    isEmailVerified: false,
-    userName: '',
-    userPassword: '',
-    passwordConfirm: '',
-    userPhone: '',
-    isPhoneVerified: false,
-    verificationCode: '',
-    userBirthday: '',
-    userGender: '',
-    userProtectorPhone: '',
-  });
-
-  const validateFields = (name: keyof FormData, value: string) => {
-    // 빈 값에 대해서는 에러 메시지 반환하지 않음
-    if (!value) return '';
-
-    switch (name) {
-      case 'userEmail':
-        if (!value) return '';
-        return validateEmail(value) ? '' : '올바른 이메일 형식이 아닙니다.';
-      case 'userPassword':
-        if (!value) return '';
-        return validatePassword(value)
-          ? ''
-          : '숫자, 문자, 특수문자를 포함하여 8자리 이상입력하세요.';
-      case 'passwordConfirm':
-        if (!value) return '';
-        return validatePasswordConfirm(formData.userPassword, value)
-          ? ''
-          : ' 비밀번호가 일치하지 않습니다.';
-      case 'userPhone':
-        if (!value) return '';
-        return validatePhoneNumber(value) ? '' : '올바른 전화번호 형식이 아닙니다.';
-      case 'userProtectorPhone':
-        if (!value) return '';
-        return validateResidentNumber(value) ? '' : '올바른 전화번호 형식이 아닙니다.';
-
-      default:
-        return '';
-    }
-  };
+  const { formData } = useSignupStore();
 
   const handleNext = () => {
     const validationResults = validateSignupForm(formData);
@@ -107,11 +57,7 @@ const UserSignupPage2 = () => {
   };
   return (
     <SignupTemplate currentStep={2} buttonText="다음" onButtonClick={handleNext}>
-      <SignupInfoForm
-        formData={formData}
-        setFormData={setFormData}
-        validateFields={validateFields}
-      />
+      <SignupInfoForm />
     </SignupTemplate>
   );
 };

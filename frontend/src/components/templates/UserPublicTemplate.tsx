@@ -7,7 +7,7 @@ interface MainTemplateProps {
 const UserPublicTemplate = ({ children }: MainTemplateProps) => {
   return (
     <div className="min-h-screen">
-      <div className="relative h-screen">
+      <div className="relative min-h-screen">
         {/* 상단 배경 */}
         <div className="absolute inset-0 bg-[#F3F5F9]" />
 

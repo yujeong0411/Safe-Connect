@@ -10,35 +10,10 @@ import {
   sendPhoneVerification,
   authCode,
 } from '@features/auth/servies/apiService.ts';
-import {
-  validateEmail,
-  validatePassword,
-  validatePasswordConfirm,
-  validatePhoneNumber,
-} from '@utils/validation';
 
 const SignupInfoForm = () => {
-  const { formData, setFormData } = useSignupStore();
-  const validateFields = (name: keyof FormData, value: string) => {
-    if (!value) return '';
+  const { formData, setFormData, validateFields } = useSignupStore();
 
-    switch (name) {
-      case 'userEmail':
-        return validateEmail(value) ? '' : '올바른 이메일 형식이 아닙니다.';
-      case 'userPassword':
-        return validatePassword(value)
-          ? ''
-          : '숫자, 문자, 특수문자를 포함하여 8자리 이상입력하세요.';
-      case 'passwordConfirm':
-        return validatePasswordConfirm(formData.userPassword, value)
-          ? ''
-          : '비밀번호가 일치하지 않습니다.';
-      case 'userPhone':
-        return validatePhoneNumber(value) ? '' : '올바른 전화번호 형식이 아닙니다.';
-      default:
-        return '';
-    }
-  };
   const handleChange = (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const processedValue =
@@ -48,16 +23,11 @@ const SignupInfoForm = () => {
   };
 
   const handleEmailVerify = async () => {
-    try {
-      console.log('Email to verify:', formData.userEmail);
-      const isSuccess = await checkEmailDuplication(formData.userEmail);
-      if (isSuccess) {
-        setFormData({ isEmailVerified: true });
-        alert('사용가능한 이메일입니다.');
-      }
-    } catch (error) {
-      alert('이메일을 다시 확인하세요..');
+    const result = await checkEmailDuplication(formData.userEmail);
+    if (result.isSuccess) {
+      setFormData({ isEmailVerified: true });
     }
+    alert(result.message);
   };
 
   const handlePhoneSendVerification = async () => {

@@ -1,13 +1,3 @@
-export interface UserSignupRequest {
-  userEmail: string;
-  userPassword: string;
-  userName: string;
-  userBirthday: string;
-  userGender: 'M' | 'F';
-  userPhone: string;
-  userProtectorPhone: string;
-}
-
 // 사용자 위치 정보 공유 동의 요청 인터페이스
 export interface UserLocationConsentRequest {
   callId: number; // 특정 신고 건의 고유 식별자

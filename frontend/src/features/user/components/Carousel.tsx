@@ -17,8 +17,8 @@ const Carousel = () => {
     responsive: [{}],
   };
   return (
-    <div className="slider-container  sm:w-4/6 md:w-5/6 lg:w-[1400px] mx-auto">
-      <Slider {...settings}>
+    <div className="w-full max-w-[1300px] h-full flex justify-center items-center">
+      <Slider {...settings} className="w-full">
         <div>
           <img
             src={carousel1}
@@ -26,10 +26,10 @@ const Carousel = () => {
             className="w-full  h-full object-cover object-center"
           />
           <div className="absolute w-full px-4 top-1 left-1/2 transform -translate-x-1/2 -translate-y-1 text-[#08455A] text-center">
-            <h2 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
+            <h2 className="text-xl md:text-3xl font-bold mb-2 md:mb-4">
               "실시간 소통으로 더 정확한 응급처치"
             </h2>
-            <p className="text-base md:text-2xl">
+            <p className="text-base md:text-xl">
               상황실과의 영상통화로 현장 도착 전에도 응급 지도를 받을 수 있습니다. <br />
               또한 119간 실시간 응급 상황을 공유하여 최적의 구급팀이 즉시 출동합니다.
             </p>
@@ -43,10 +43,10 @@ const Carousel = () => {
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 text-[#08455A] text-center">
-            <h2 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
+            <h2 className="text-xl md:text-3xl font-bold mb-2 md:mb-4">
               "한 번의 등록으로 언제나 안전하게"
             </h2>
-            <p className="text-base md:text-2xl">
+            <p className="text-base md:text-xl">
               기저질환, 복용약물 정보를 미리 등록하시면 <br />
               구급대원이 현장에서 즉시 확인하고 대처할 수 있습니다.
             </p>
@@ -60,10 +60,8 @@ const Carousel = () => {
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute top-1 left-1/4 transform translate-x-2/4 -translate-y-1 text-[#08455A] text-center">
-            <h2 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">
-              "정확한 위치, 빠른 도착"
-            </h2>
-            <p className="text-base md:text-2xl">
+            <h2 className="text-xl md:text-3xl font-bold mb-2 md:mb-4">"정확한 위치, 빠른 도착"</h2>
+            <p className="text-base md:text-xl">
               위치 정보 공유로 골든 타임을 놓치지 않고 가장 가까운 구급대가 출동합니다.
             </p>
           </div>

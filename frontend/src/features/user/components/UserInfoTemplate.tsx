@@ -11,15 +11,20 @@ const UserInfoTemplate = ({
   logoSrc,
 }: UserInfoTemplateProps) => {
   return (
-    <div className="flex flex-col min-h-full relative overflow-hidden">
+    <div className="flex flex-col flex-grow">
       <h2 className="pl-10 p-8  text-[32px] font-medium text-black">{title}</h2>
-      <div className="flex justify-center items-center w-full h-[115px] relative p-10 bg-white">
+
+      {/* 내용 및 로고 */}
+      <div className="flex justify-center items-center w-full h-[115px] p-10 bg-white">
         {content}
         {logoSrc && <img src={logoSrc} alt={logoAlt} className="ml-4 w-[90px] h-auto" />}
       </div>
-      <div className="flex justify-center p-10">{children}</div>
+
+      {/* 콘텐츠 */}
+      <div className="flex flex-col items-center  p-10 w-full">{children}</div>
+
       {/*버튼*/}
-      <div className="flex justify-center gap-10 mt-10 mb-10 ">
+      <div className="flex justify-center gap-10 m-5">
         <Button variant="blue" size="md" width="sm" onClick={primaryButtonOnClick}>
           저장
         </Button>

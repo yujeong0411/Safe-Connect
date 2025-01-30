@@ -1,35 +1,64 @@
 import { useState } from 'react';
 import Button from '@components/atoms/Button/Button.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
-import { LoginFormProps } from '@features/auth/types/UserLoginFrom.tyeps.ts';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/user/authStore.tsx';
+//import { useSignupStore } from '@/store/user/signupStore.tsx';
 
-const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+const UserLoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
+  //const { formData, setFormData } = useSignupStore();
+  const [formData, setFormData] = useState({
+    userEmail: '',
+    userPassword: '',
+  });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    console.log('1. handleSubmit 시작'); // 디버깅 로그
     event.preventDefault();
+    console.log('2. preventDefault 실행 후');
     setIsLoading(true);
     setError(null);
     try {
-      await onSubmit(email, password);
+      console.log('3. login 호출 전');
+      await login({
+        userEmail: formData.userEmail,
+        userPassword: formData.userPassword,
+      });
+      console.log('4. login 완료');
+      // 로그인 성공 시 폼 초기화
+      setFormData({
+        userEmail: '',
+        userPassword: '',
+      });
+      // 로그인 성공 시 메인페이지 이동
+      navigate('/user/main');
     } catch (error) {
+      console.log('5. 에러 발생:', error);
       setError(error instanceof Error ? error.message : String(error));
     } finally {
+      console.log('6. finally 블록');
       setIsLoading(false);
     }
   };
 
+  const handleChange =
+    (name: 'userEmail' | 'userPassword') => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: event.target.value,
+      }));
+    };
+
   const handleFindEmail = () => {
-    navigate('/find_email');
+    navigate('/user/findemail');
   };
 
   const handleFindPassword = () => {
-    navigate('/find_password');
+    navigate('/user/findpassword');
   };
 
   return (
@@ -87,8 +116,8 @@ const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={formData.userEmail}
+              onChange={handleChange('userEmail')}
               width="full"
               variant="blue"
               isRequired // 필수 필드
@@ -106,8 +135,8 @@ const UserLoginForm = ({ onSubmit }: LoginFormProps) => {
             <Input
               id="password"
               type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              value={formData.userPassword}
+              onChange={handleChange('userPassword')}
               variant="blue"
               width="full"
               isRequired

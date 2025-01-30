@@ -3,7 +3,7 @@ import Checkbox from '@components/atoms/Checkbox/Checkbox.tsx';
 
 const SignupPerForm = ({ isChecked, setIsChecked }: SignupPerFormProps) => {
   return (
-    <div>
+    <div className="mb-10">
       <h1 className="text-3xl font-bold text-left w-full mb-10">개인정보 수집 및 이용 동의서</h1>
       <div className="bg-white rounded-xl p-10 w-full max-w-5xl mx-auto">
         <div className="space-y-10">
@@ -17,6 +17,7 @@ const SignupPerForm = ({ isChecked, setIsChecked }: SignupPerFormProps) => {
               safe connect에 등록한 정보를 119상황실, 출동하는 소방대원, 병원에게 제공
             </li>
           </div>
+
           <div>
             <ul className="text-lg font-bold mb-2">수집하려는 개인정보의 항목</ul>
             <li className="text-md">필수항목 : 주민등록번호 7자리, 이름, 전화번호, 이메일</li>

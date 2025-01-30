@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .auth-title {
+        @apply text-[50px] font-bold text-white;
+    }
+    .auth-subtitle {
+        @apply text-[20px] font-normal text-white mt-2;
+    }
+    .auth-banner {
+        @apply w-full bg-[#545F71] h-[300px] p-[50px] mb-8 flex flex-col items-center justify-center;
+    }
+}

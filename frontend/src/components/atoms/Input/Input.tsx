@@ -54,11 +54,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ${variantStyles[variant]}
           ${inputSizeStyles[inputSize]}
           ${widthStyles[width]}
+          ${disabled ? 'bg-gray-100 cursor-not-allowed pointer-events-none' : ''}  // 추가
           ${className}
         `}
           {...props}
         />
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        {error && typeof props.value === 'string' && props.value.trim() !== '' && (
+          <p className="text-red-500 text-sm mt-1">{error}</p>
+        )}
         {helperText && (
           <p className={`mt-1 text-sm ${variant === 'error' ? 'text-red-500' : 'text-gray-500'}`}>
             {helperText}

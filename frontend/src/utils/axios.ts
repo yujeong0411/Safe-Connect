@@ -1,17 +1,23 @@
 import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: '/api',
   timeout: 5000, // 요청 제한 시간 5초
-  headers: {
-    'Content-Type': 'application/json', // JSON 형식으로 통신
-  },
+  withCredentials: true, // 쿠키를 포함시키기 위해 설정한다
 });
 
 // 요청 인터셉터  (요청 보내기 전에 실행)
 axiosInstance.interceptors.request.use(
   (config) => {
+    console.log('Request Config Details:', {
+      url: config.url,
+      method: config.method,
+      data: config.data ? JSON.stringify(config.data) : null, // JSON 문자열로 변환
+      headers: config.headers,
+    });
+
     // 토큰이 있다면 헤더에 추가
+
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // JWT 토큰 헤더에 추가
@@ -26,27 +32,34 @@ axiosInstance.interceptors.request.use(
 // 응답 인터셉터  (응답 받은 후 실행)
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // 에러 처리
-    if (error.response?.status === 401) {
-      // 인증 에러면
-      localStorage.removeItem('token'); // 토큰 삭제
+  async (error) => {
+    const originalRequest = error.config;
 
-      // 현재 URL을 확인하여 적절한 로그인 페이지로 리다이렉트
-      const currentPath = window.location.pathname;
+    // 401에러이고 재시도 중이 아닌 경우
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
-      if (currentPath.includes('/dispatch')) {
-        window.location.href = '/dispatch/login';
-      } else if (currentPath.includes('/hospital')) {
-        window.location.href = '/hospital/login';
-      } else if (currentPath.includes('/control')) {
-        window.location.href = '/control/login';
-      } else if (currentPath.includes('/admin')) {
-        window.location.href = '/admin/login';
-      } else {
-        window.location.href = '/user/login'; // 기본 유저 로그인
+      try {
+        // 토큰 갱신 요청
+        const response = await axiosInstance.post('/token/refresh');
+        const newToken = response.headers['authorization'];
+
+        // 새토큰 저장
+        localStorage.setItem('token', newToken);
+
+        // 원본 요청 헤더 업데이트
+        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+
+        // 원본 요청 재시도
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        // 갱신 실패 시 로그인 페이지로 리다이렉트
+        localStorage.removeItem('token');
+        window.location.href = '/user/login';
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );

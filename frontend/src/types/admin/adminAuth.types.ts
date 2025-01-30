@@ -1,6 +1,13 @@
+export interface AdminAuthStore {
+  token: string | null;
+  isAuthenticated: boolean;
+  login: (credentials: Record<string, string>) => Promise<void>; // 타입 변경
+  logout: () => void;
+}
+
 export interface AdminLoginRequest {
-  adminUserId: string;
-  adminUserPassword: string;
+  AdminUserId: string;
+  AdminUserPassword: string;
 }
 
 // 소방청 생성 요청 인터페이스

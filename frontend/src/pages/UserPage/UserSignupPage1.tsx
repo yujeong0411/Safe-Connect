@@ -1,4 +1,4 @@
-import SignupTemplate from '@components/templates/SignupTemplate.tsx';
+import SignupTemplate from '@features/auth/components/SignupTemplate.tsx';
 import SignupPerForm from '@/features/auth/components/SignupPerForm.tsx';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';

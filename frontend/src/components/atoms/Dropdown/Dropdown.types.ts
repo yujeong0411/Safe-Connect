@@ -6,9 +6,11 @@ export interface DropdownOption {
 
 export interface DropdownProps {
   options: DropdownOption[];
-  value?: string;
+  value: number | number[]; // 단일/다중 선택 모두 지원
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
   disabled?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  isMulti?: boolean;
 }
