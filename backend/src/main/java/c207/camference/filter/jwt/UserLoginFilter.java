@@ -51,10 +51,10 @@ public class UserLoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         String access = jwtUtil.createJwt("access",userDetails.getUsername(), "ROLE_USER",10*60*1000L);
-        String refresh = jwtUtil.createJwt("refresh",userDetails.getUsername(), "ROLE_USER",60*60*1000L);
+        String refresh = jwtUtil.createJwt("refresh",userDetails.getUsername(), "ROLE_USER",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(userDetails.getUsername(), refresh, 86400000L);
+        addRefreshEntity(userDetails.getUsername(), refresh, 24 * 60 * 60*1000L);
 
         //응답 헤더 설정
         response.setHeader("access", access);

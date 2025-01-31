@@ -56,7 +56,6 @@ public class ReIssueController {
         //expired check
         try {
             jwtUtil.isExpired(refresh);
-            System.out.println("1111111111111");
         } catch (ExpiredJwtException e) {
 
             //response status code
@@ -66,24 +65,23 @@ public class ReIssueController {
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(refresh);
-        System.out.println("2222222");
         if (!category.equals("refresh")) {
-            System.out.println("333333333");
             //response status code
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
         //DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefresh(refresh);
-        System.out.println("444444");
-        if (!isExist) {
 
+        if (!isExist) {
             //response body
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
+
         String username = jwtUtil.getLoginId(refresh);
         String role = jwtUtil.getRole(refresh);
+
 
         //make new JWT
         String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
@@ -93,7 +91,6 @@ public class ReIssueController {
         refreshRepository.deleteByRefresh(refresh);
         addRefreshEntity(username, newRefresh, 86400000L);
 
-        System.out.println("5555555");
         //response
         response.setHeader("access", newAccess);
         response.addCookie(createCookie("refresh", newRefresh));

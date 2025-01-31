@@ -32,13 +32,15 @@ public class JWTLogoutFilter extends GenericFilterBean {
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
-        //path and method verify
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/logout$")) {
+        System.out.println("Requested URI: " + requestUri);
 
+        // 경로 매칭을 단순화
+        if (!requestUri.equals("/logout")) {  // 또는 "/user/logout"
             filterChain.doFilter(request, response);
             return;
         }
+
         String requestMethod = request.getMethod();
         if (!requestMethod.equals("POST")) {
 
@@ -49,6 +51,12 @@ public class JWTLogoutFilter extends GenericFilterBean {
         //get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
         for (Cookie cookie : cookies) {
 
             if (cookie.getName().equals("refresh")) {

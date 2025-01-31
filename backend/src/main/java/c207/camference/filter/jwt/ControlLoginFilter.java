@@ -54,10 +54,10 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         String access = jwtUtil.createJwt("access",controlDetails.getUsername(), "ROLE_CONTROL",10*60*1000L);
-        String refresh = jwtUtil.createJwt("refresh",controlDetails.getUsername(), "ROLE_CONTROL",60*60*1000L);
+        String refresh = jwtUtil.createJwt("refresh",controlDetails.getUsername(), "ROLE_CONTROL",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(controlDetails.getUsername(), refresh, 86400000L);
+        addRefreshEntity(controlDetails.getUsername(), refresh, 24 * 60 * 60*1000L);
 
 
         response.setHeader("access", access);
@@ -82,7 +82,7 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24*60*60);
         //cookie.setSecure(true);
-        //cookie.setPath("/");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         return cookie;

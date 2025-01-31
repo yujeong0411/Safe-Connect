@@ -31,7 +31,7 @@ public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24*60*60);
         //cookie.setSecure(true);
-        //cookie.setPath("/");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         return cookie;
@@ -67,10 +67,10 @@ public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         String access = jwtUtil.createJwt("access",adminDetails.getUsername(), "ROLE_ADMIN",10*60*1000L);
-        String refresh = jwtUtil.createJwt("refresh",adminDetails.getUsername(), "ROLE_ADMIN",60*60*1000L);
+        String refresh = jwtUtil.createJwt("refresh",adminDetails.getUsername(), "ROLE_ADMIN",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(adminDetails.getUsername(), refresh, 86400000L);
+        addRefreshEntity(adminDetails.getUsername(), refresh, 24 * 60 * 60*1000L);
 
         //응답 헤더 설정
         response.setHeader("access", access);

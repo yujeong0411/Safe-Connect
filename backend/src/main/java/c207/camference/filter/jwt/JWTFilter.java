@@ -32,13 +32,14 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //request에서 Authorization 헤더를 찾음
-        String token= request.getHeader("access");
+        String authHeader = request.getHeader("Authorization");
 
         //Authorization 헤더 검증
-        if (token == null) {
+        if (authHeader  == null|| !authHeader .startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
+        String token = authHeader.substring(7);
         //토큰 소멸 시간 검증
         try {
             jwtUtil.isExpired(token);

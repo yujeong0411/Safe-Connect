@@ -76,9 +76,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/logout").permitAll()
                         .requestMatchers("/**").permitAll()
                         .requestMatchers("/reissue").permitAll()
 //                        .requestMatchers("/user/signup", "/user/login", "/user/valid/**", "/user/find/**").permitAll()
@@ -86,6 +88,8 @@ public class SecurityConfig {
 //                        .requestMatchers("/user/**").hasRole("USER")
 //                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
+                .addFilterBefore(new JWTLogoutFilter(jwtUtil, refreshRepository),
+                        UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
@@ -94,8 +98,6 @@ public class SecurityConfig {
                 .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil,refreshRepository),
-                        UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTLogoutFilter(jwtUtil, refreshRepository),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
