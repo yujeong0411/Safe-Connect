@@ -1,11 +1,11 @@
 package c207.camference.api.service.medi;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
-import c207.camference.db.entity.UserMediDetail;
-import c207.camference.db.entity.UserMediMapping;
 import c207.camference.db.entity.others.Medi;
 import c207.camference.db.entity.others.MediCategory;
 import c207.camference.db.entity.users.User;
+import c207.camference.db.entity.users.UserMediDetail;
+import c207.camference.db.entity.users.UserMediMapping;
 import c207.camference.db.repository.MediRepository;
 import c207.camference.db.repository.UserMediDetailRepository;
 import c207.camference.db.repository.UserRepository;

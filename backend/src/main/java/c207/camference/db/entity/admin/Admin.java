@@ -1,4 +1,4 @@
-package c207.camference.db.entity.users;
+package c207.camference.db.entity.admin;
 
 import jakarta.persistence.*;
 import lombok.Data;

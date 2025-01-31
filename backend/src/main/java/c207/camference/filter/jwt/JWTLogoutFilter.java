@@ -33,7 +33,6 @@ public class JWTLogoutFilter extends GenericFilterBean {
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
         String requestUri = request.getRequestURI();
-        System.out.println("Requested URI: " + requestUri);
 
         // 경로 매칭을 단순화
         if (!requestUri.equals("/logout")) {  // 또는 "/user/logout"

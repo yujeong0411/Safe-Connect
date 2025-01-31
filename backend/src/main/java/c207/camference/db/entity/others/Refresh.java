@@ -1,4 +1,4 @@
-package c207.camference.db.entity;
+package c207.camference.db.entity.others;
 
 import jakarta.persistence.Id;
 import lombok.Getter;

@@ -1,10 +1,12 @@
 package c207.camference.filter.jwt;
 
-import c207.camference.api.dto.FireStaffDetails;
 import c207.camference.api.dto.admin.AdminDetails;
+import c207.camference.api.dto.fireStaff.FireStaffDetails;
+import c207.camference.api.dto.hospital.HospitalDetails;
 import c207.camference.api.dto.user.CustomUserDetails;
-import c207.camference.db.entity.users.Admin;
-import c207.camference.db.entity.users.FireStaff;
+import c207.camference.db.entity.admin.Admin;
+import c207.camference.db.entity.firestaff.FireStaff;
+import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.users.User;
 import c207.camference.util.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -94,11 +96,11 @@ public class JWTFilter extends OncePerRequestFilter {
         } else {
             // 병원 생기면 추가해야함
 
-            FireStaff fireStaff = new FireStaff();
-            fireStaff.setFireStaffLoginId(loginId);
-            fireStaff.setFireStaffPassword("temppassword");
-            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
-            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
+            Hospital hospital = new Hospital();
+            hospital.setHospitalLoginId(loginId);
+            hospital.setHospitalPassword("temppassword");
+            HospitalDetails hospitalDetails = new HospitalDetails(hospital);
+            authToken = new UsernamePasswordAuthenticationToken(hospitalDetails, null, hospitalDetails.getAuthorities());
             System.out.println("hospital");
         }
 

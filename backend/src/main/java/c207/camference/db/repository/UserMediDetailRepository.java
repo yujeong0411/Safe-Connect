@@ -1,6 +1,6 @@
 package c207.camference.db.repository;
 
-import c207.camference.db.entity.UserMediDetail;
+import c207.camference.db.entity.users.UserMediDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
