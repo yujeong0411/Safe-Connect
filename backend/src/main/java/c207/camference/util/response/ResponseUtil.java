@@ -1,10 +1,9 @@
 package c207.camference.util.response;
 
+import c207.camference.api.response.common.ResponseData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import c207.camference.api.response.common.ResponseData;
 import org.springframework.http.HttpStatus;
 
 @Data
@@ -17,6 +16,15 @@ public class ResponseUtil<T> {
         return ResponseData.<T>builder()
                 .isSuccess(true)
                 .code(HttpStatus.OK.value())
+                .message(message)
+                .data(data)
+                .build();
+    }
+
+    public static <T> ResponseData<T> success(T data, String message,int status) {
+        return ResponseData.<T>builder()
+                .isSuccess(true)
+                .code(status)
                 .message(message)
                 .data(data)
                 .build();

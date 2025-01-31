@@ -36,3 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/resources/application.properties
+
+# macOS에서 생성되는 시스템 파일 제외
+.DS_Store
