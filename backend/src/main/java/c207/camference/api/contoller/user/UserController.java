@@ -73,7 +73,6 @@ public class UserController {
     }
 
 
-
     @GetMapping("/find/email")
     public ResponseEntity<?> findEmail( @RequestParam String userName, @RequestParam String userPhone){
         return userService.findEmail(userName,userPhone);
