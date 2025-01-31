@@ -1,15 +1,16 @@
-package c207.camference.db.entity;
+package c207.camference.db.entity.others;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "medi")
 @Getter
-@Setter
+@EntityListeners(AuditingEntityListener.class)
 public class Medi {
 
     @Id
@@ -17,7 +18,7 @@ public class Medi {
     private Integer mediId;
 
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "medi_category_id", nullable = false)
     private MediCategory mediCategory;
 
     @Column(length = 150, nullable = false)
@@ -26,21 +27,11 @@ public class Medi {
     @Column(nullable = false)
     private Boolean mediIsActive = true;
 
+    @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime mediCreatedAt;
 
+    @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime mediUpdatedAt;
-
-    // JPA 엔티티 이벤트를 사용해 자도으로 생성 및 수정 시간 업데이트
-    @PrePersist
-    public void onCreate() {
-        this.mediCreatedAt = LocalDateTime.now();
-        this.mediUpdatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        this.mediUpdatedAt = LocalDateTime.now();
-    }
 }

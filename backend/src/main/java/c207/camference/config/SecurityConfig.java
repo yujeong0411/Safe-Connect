@@ -1,7 +1,9 @@
 package c207.camference.config;
 
 import c207.camference.api.service.admin.AdminDetailsService;
+import c207.camference.api.service.fireStaff.FireStaffDetailsService;
 import c207.camference.api.service.user.CustomUserDetailsService;
+import c207.camference.filter.jwt.*;
 import c207.camference.db.repository.RefreshRepository;
 import c207.camference.filter.jwt.AdminLoginFilter;
 import c207.camference.filter.jwt.JWTFilter;
@@ -29,13 +31,16 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
     private final AdminDetailsService adminDetailsService;
+    private final FireStaffDetailsService fireStaffDetailsService;
 
     public SecurityConfig(JWTUtil jwtUtil,
                           CustomUserDetailsService customUserDetailsService,
-                          AdminDetailsService adminDetailsService) {
+                          AdminDetailsService adminDetailsService,
+                          FireStaffDetailsService fireStaffDetailsService) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
         this.adminDetailsService = adminDetailsService;
+        this.fireStaffDetailsService = fireStaffDetailsService;
     }
 
     @Primary
@@ -51,6 +56,14 @@ public class SecurityConfig {
     public AuthenticationManager adminAuthenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(adminDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
+    }
+
+    @Bean
+    public AuthenticationManager fireStaffAuthenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(fireStaffDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(provider);
     }
@@ -80,6 +93,12 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new ControlLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
+                UsernamePasswordAuthenticationFilter.class);
                 .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new LogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);

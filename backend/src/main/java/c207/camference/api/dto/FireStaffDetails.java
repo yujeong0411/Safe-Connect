@@ -1,16 +1,16 @@
-package c207.camference.api.dto.admin;
+package c207.camference.api.dto;
 
-import c207.camference.db.entity.users.Admin;
+import c207.camference.db.entity.users.FireStaff;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class AdminDetails implements UserDetails {
-    private final Admin admin;
-        public AdminDetails(Admin admin) {
-        this.admin = admin;
+public class FireStaffDetails implements UserDetails {
+    private final FireStaff fireStaff;
+    public FireStaffDetails(FireStaff fireStaff) {
+        this.fireStaff = fireStaff;
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -19,7 +19,11 @@ public class AdminDetails implements UserDetails {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return "ROLE_ADMIN"; // 유저 역할 강제 추가를 위해서 넣음.. 나중에 소방서, 병원 관련 db 생성 시 생각해봐야 할것...
+                if (fireStaff.getFireStaffCategory().equals("C")){
+                    return "ROLE_CONTROL";
+                }else{
+                    return "ROLE_DISPATCH";
+                }
             }
         });
         return collection;
@@ -27,11 +31,11 @@ public class AdminDetails implements UserDetails {
 
 
     public String getPassword() {
-        return admin.getAdminPassword();
+        return fireStaff.getFireStaffPassword();
     }
 
     public String getUsername() {
-        return admin.getAdminLoginId();
+        return fireStaff.getFireStaffLoginId();
     }
 
     public boolean isAccountNonExpired() {
