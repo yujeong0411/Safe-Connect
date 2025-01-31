@@ -29,16 +29,15 @@ public class LoginFilter  extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
-        String userEmail = request.getParameter("userEmail");
-        String password = request.getParameter("userPassword");
+        String userEmail = request.getParameter("Id");
+        String password = request.getParameter("Password");
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEmail, password, null);
         return authenticationManager.authenticate(authToken);
     }
 
+
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
 
         //customUserDetails dto에서 이메일, role 가져오기...
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
