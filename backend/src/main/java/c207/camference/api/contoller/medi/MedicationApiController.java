@@ -39,6 +39,7 @@ public class MedicationApiController {
     @GetMapping("/medication")
     public ResponseEntity<String> fetchAndSaveMedicationData() {
 
+
         try {
             int pageNo = 1;
             int numOfRows = 300;
