@@ -39,23 +39,33 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      // 무한 루프 방지 조건 추가
+      if (originalRequest.url === '/reissue') {
+        console.error('토큰 갱신 실패: 리프레시 요청 반복됨.');
+        return Promise.reject(error);
+      }
+
       try {
         // 토큰 갱신 요청
-        const response = await axiosInstance.post('/token/refresh');
-        const newToken = response.headers['authorization'];
+        const response = await axiosInstance.post('/reissue');
 
-        // 새토큰 저장
-        localStorage.setItem('token', newToken);
+        // 새 토큰 가져오기
+        const newToken = response.headers['access']?.replace('Bearer ', '');
+        if (newToken) {
+          // 새토큰 저장
+          localStorage.setItem('token', newToken);
+          axiosInstance.defaults.headers.common['access'] = `Bearer ${newToken}`;
+          originalRequest.headers['access'] = `Bearer ${newToken}`;
 
-        // 원본 요청 헤더 업데이트
-        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-
-        // 원본 요청 재시도
-        return axiosInstance(originalRequest);
+          // 원본 요청 재시도
+          return axiosInstance(originalRequest);
+        }
       } catch (refreshError) {
+        // 리프레시 토큰도 만료되었거나 유효하지 않은 경우
+        console.error('Token refresh failed:', refreshError);
         // 갱신 실패 시 로그인 페이지로 리다이렉트
         localStorage.removeItem('token');
-        window.location.href = '/user/login';
+        // window.location.href = '/user/login';
         return Promise.reject(refreshError);
       }
     }

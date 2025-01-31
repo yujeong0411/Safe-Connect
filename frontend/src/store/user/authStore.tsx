@@ -33,27 +33,34 @@ export const useAuthStore = create<AuthStore>((set) => ({
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
+        withCredentials: true, // 이 부분 추가
       });
       console.log('All headers:', response.headers); // 모든 헤더 확인
-      console.log('Authorization header:', response.headers['authorization']); // 소문자로도 확인
-      const authHeader = response.headers['authorization'];
+      console.log('access header:', response.headers['access']); // 소문자로도 확인
+      const accessToken = response.headers['access'];
+      console.log('accessToken:', accessToken);
 
       // 성공시에만 200 응답과 토큰을 주기때문에 또 true 확인할 필요는 없다.
-      if (authHeader) {
-        const accessToken = authHeader.replace('Bearer ', '');
-        console.log('token', accessToken);
+      if (accessToken) {
         localStorage.setItem('token', accessToken); // 응답받은 토큰 저장
         set({ token: accessToken, isAuthenticated: true }); // 상태 업데이트
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`; // 이후 요청 헤더 설정
+
+        console.log('token', accessToken);
+        axiosInstance.defaults.headers.common['access'] = `Bearer ${accessToken}`; // 이후 요청 헤더 설정
+
+        // 로그인 성공 후 바로 리턴하여 리다이렉트 방지
+        return;
       } else {
+        console.error('No authorization header found in response');
         throw new Error(response.data.message || '로그인 실패');
       }
     } catch (error) {
       // 에러 처리
       console.error('Login error details:', {
         error,
-        config: error.config,
-        message: error.message,
+        response: error.response,
+        status: error.response?.status,
+        data: error.response?.data,
       });
       throw error;
     }

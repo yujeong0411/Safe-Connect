@@ -189,6 +189,8 @@ export const fetchMedicalData = async () => {
           value: item.mediId,
           label: item.mediName,
         })) || [];
+    console.log('약물', medicationOptions);
+    console.log('질병', diseaseOptions);
     return { medicationOptions, diseaseOptions };
   } catch (error) {
     console.error('fetchMedicalData failed:', error);

@@ -7,6 +7,7 @@ import c207.camference.db.entity.users.Admin;
 import c207.camference.db.entity.users.FireStaff;
 import c207.camference.db.entity.users.User;
 import c207.camference.util.jwt.JWTUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class JWTFilter extends OncePerRequestFilter {
 
@@ -30,28 +32,50 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //request에서 Authorization 헤더를 찾음
-        String authorization= request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
         //Authorization 헤더 검증
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        if (authHeader  == null|| !authHeader .startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
-            //조건이 해당되면 메소드 종료 (필수)
+            return;
+        }
+        String token = authHeader.substring(7);
+        //토큰 소멸 시간 검증
+<<<<<<< HEAD
+        try {
+            jwtUtil.isExpired(token);
+        } catch (ExpiredJwtException e) {
+
+            //response body
+            PrintWriter writer = response.getWriter();
+            writer.print("access token expired");
+
+            //response status code
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        String token = authorization.split(" ")[1];
+        String category = jwtUtil.getCategory(token);
 
-        //토큰 소멸 시간 검증
+        if (!category.equals("access")) {
+            //response body
+            PrintWriter writer = response.getWriter();
+            writer.print("invalid access token");
+            //response status code
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+=======
         if (jwtUtil.isExpired(token)) {
             System.out.println("token expired");
             filterChain.doFilter(request, response);
             //조건이 해당되면 메소드 종료 (필수)
+>>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
             return;
         }
 
         String role = jwtUtil.getRole(token);
         String loginId = jwtUtil.getLoginId(token);
         Authentication authToken;
+<<<<<<< HEAD
 
         if ("ROLE_USER".equals(role)) {
             User user = new User();
@@ -85,6 +109,42 @@ public class JWTFilter extends OncePerRequestFilter {
             authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
             System.out.println("hospital");
         }
+
+=======
+
+        if ("ROLE_USER".equals(role)) {
+            User user = new User();
+            user.setUserEmail(loginId);
+            user.setUserPassword("temppassword");
+            CustomUserDetails userDetails = new CustomUserDetails(user);
+            authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            System.out.println("user");
+        } else if("ROLE_ADMIN".equals(role)) { // ROLE_ADMIN
+            Admin admin = new Admin();
+            admin.setAdminLoginId(loginId);
+            admin.setAdminPassword("temppassword");
+            AdminDetails adminDetails = new AdminDetails(admin);
+            authToken = new UsernamePasswordAuthenticationToken(adminDetails, null, adminDetails.getAuthorities());
+            System.out.println("admin");
+        } else if("ROLE_CONTROL".equals(role) || "ROLE_DISPATCH".equals(role)) {
+            FireStaff fireStaff = new FireStaff();
+            fireStaff.setFireStaffLoginId(loginId);
+            fireStaff.setFireStaffPassword("temppassword");
+            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
+            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
+            System.out.println("fireStaff");
+
+        } else {
+            // 병원 생기면 추가해야함
+
+            FireStaff fireStaff = new FireStaff();
+            fireStaff.setFireStaffLoginId(loginId);
+            fireStaff.setFireStaffPassword("temppassword");
+            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
+            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
+            System.out.println("hospital");
+        }
+>>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
 
 
         SecurityContextHolder.getContext().setAuthentication(authToken);

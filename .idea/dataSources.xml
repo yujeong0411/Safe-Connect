@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="S12P11C207@stg-yswa-kr-practice-db-master.mariadb.database.azure.com" uuid="9312d47c-4e21-4603-9b04-01ab3005657a">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://stg-yswa-kr-practice-db-master.mariadb.database.azure.com:3306/S12P11C207</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
     <data-source source="LOCAL" name="S12P11C207@stg-yswa-kr-practice-db-master.mariadb.database.azure.com [2]" uuid="e40c1268-069d-48f7-bf84-9616d9c570bc">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>

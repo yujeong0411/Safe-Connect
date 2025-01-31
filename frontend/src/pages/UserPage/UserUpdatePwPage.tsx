@@ -25,6 +25,7 @@ const UserUpdatePassword = () => {
 
       await updatePassword({
         userPassword: formData.userPassword,
+        newPassword: formData.passwordConfirm,
       });
       alert('비밀번호가 성공적으로 변경되었습니다.');
     } catch (error) {

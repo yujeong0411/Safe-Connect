@@ -37,11 +37,11 @@ const ControlMainPage = () => {
         {/* 기존 mainContent 내용 */}
       </MainTemplate>
 
-      <VideoCallDialog 
+      <VideoCallDialog
         isOpen={isVideoCallOpen}
         onClose={() => setIsVideoCallOpen(false)}
       />
-      
+
       <GuardianNotifyDialog
         isOpen={isGuardianNotifyOpen}
         onClose={() => setIsGuardianNotifyOpen(false)}
