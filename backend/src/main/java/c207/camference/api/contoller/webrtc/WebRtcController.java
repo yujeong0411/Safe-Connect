@@ -27,7 +27,7 @@ import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import io.openvidu.java.client.SessionProperties;
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @RestController
 public class WebRtcController {
     @Value("${OPENVIDU_URL}")
@@ -53,7 +53,7 @@ public class WebRtcController {
         SessionProperties properties = SessionProperties.fromJson(params).build();
         Session session = openvidu.createSession(properties);
         System.out.println(session.getSessionId()); // 테스트용
-        System.out.println(1111111);
+
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 
@@ -73,7 +73,7 @@ public class WebRtcController {
         ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
         Connection connection = session.createConnection(properties);
         System.out.println(connection.getConnectionId());
-        System.out.println(2222222);
+
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
 
