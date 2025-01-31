@@ -73,6 +73,10 @@ public class UserController {
     }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
     @GetMapping("/find/email")
     public ResponseEntity<?> findEmail( @RequestParam String userName, @RequestParam String userPhone){
         return userService.findEmail(userName,userPhone);

@@ -193,7 +193,15 @@ public class UserServiceImpl implements UserService {
             User user = userRepository.findByUserEmail(userEmail)
                     .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
+<<<<<<< HEAD
             if(user.getUserPassword().equals(request.getNewPassword())) {
+=======
+            if(!bCryptPasswordEncoder.matches(request.getUserPassword(), user.getUserPassword())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ResponseUtil.fail(400, "현재 비밀번호가 일치하지 않습니다."));
+            }
+            if(request.getUserPassword().equals(request.getNewPassword())) {
+>>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(ResponseUtil.fail(400, "새 비밀번호가 현재 비밀번호와 같습니다."));
             }

@@ -3,7 +3,10 @@ package c207.camference.config;
 import c207.camference.api.service.admin.AdminDetailsService;
 import c207.camference.api.service.fireStaff.FireStaffDetailsService;
 import c207.camference.api.service.user.CustomUserDetailsService;
+<<<<<<< HEAD
 import c207.camference.db.repository.RefreshRepository;
+=======
+>>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
 import c207.camference.filter.jwt.*;
 import c207.camference.util.jwt.JWTUtil;
 import org.springframework.context.annotation.Bean;
@@ -71,11 +74,16 @@ public class SecurityConfig {
     }
 
     @Bean
+<<<<<<< HEAD
     public SecurityFilterChain filterChain(HttpSecurity http, RefreshRepository refreshRepository) throws Exception {
+=======
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+>>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
+<<<<<<< HEAD
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -99,6 +107,26 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class);
+=======
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/**").permitAll()
+//                        .requestMatchers("/user/signup", "/user/login", "/user/valid/**", "/user/find/**").permitAll()
+//                        .requestMatchers("/admin/signup", "/admin/login").permitAll()
+//                        .requestMatchers("/user/**").hasRole("USER")
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new ControlLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
+                UsernamePasswordAuthenticationFilter.class);
+>>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
 
         return http.build();
     }
