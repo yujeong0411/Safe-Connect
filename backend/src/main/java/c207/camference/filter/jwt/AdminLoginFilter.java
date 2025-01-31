@@ -11,10 +11,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 
 public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -57,6 +60,11 @@ public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
         UserDetails adminDetails = (UserDetails) authentication.getPrincipal();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+        String role = auth.getAuthority();
 
         String access = jwtUtil.createJwt("access",adminDetails.getUsername(), "ROLE_ADMIN",10*60*1000L);
         String refresh = jwtUtil.createJwt("refresh",adminDetails.getUsername(), "ROLE_ADMIN",60*60*1000L);

@@ -1,15 +1,15 @@
 package c207.camference.db.entity;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.redis.core.RedisHash;
 
-@Entity
 @Getter
 @Setter
+@RedisHash(value = "refreshToken",timeToLive=3600)
 public class Refresh {
 
     @Id

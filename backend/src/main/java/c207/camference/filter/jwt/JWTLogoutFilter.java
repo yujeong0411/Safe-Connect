@@ -14,11 +14,11 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 
-public class LogoutFilter extends GenericFilterBean {
+public class JWTLogoutFilter extends GenericFilterBean {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
-    public LogoutFilter(JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public JWTLogoutFilter(JWTUtil jwtUtil, RefreshRepository refreshRepository) {
 
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;

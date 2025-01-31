@@ -2,9 +2,11 @@ package c207.camference.db.repository;
 
 import c207.camference.db.entity.Refresh;
 import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-public interface RefreshRepository extends JpaRepository<Refresh, Long> {
+@Repository
+public interface RefreshRepository extends CrudRepository<Refresh, Long> {
 
     Boolean existsByRefresh(String refresh);
 

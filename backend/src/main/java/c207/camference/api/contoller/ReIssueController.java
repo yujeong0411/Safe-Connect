@@ -34,6 +34,11 @@ public class ReIssueController {
         //get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return new ResponseEntity<>("no cookies found", HttpStatus.BAD_REQUEST);
+        }
+
         for (Cookie cookie : cookies) {
 
             if (cookie.getName().equals("refresh")) {
@@ -43,26 +48,37 @@ public class ReIssueController {
         }
 
         if (refresh == null) {
-
             //response status code
             return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
+
         }
 
         //expired check
         try {
             jwtUtil.isExpired(refresh);
+            System.out.println("1111111111111");
         } catch (ExpiredJwtException e) {
 
             //response status code
             return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
+
         }
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(refresh);
-
+        System.out.println("2222222");
         if (!category.equals("refresh")) {
-
+            System.out.println("333333333");
             //response status code
+            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+        }
+
+        //DB에 저장되어 있는지 확인
+        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+        System.out.println("444444");
+        if (!isExist) {
+
+            //response body
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
@@ -73,16 +89,19 @@ public class ReIssueController {
         String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
         String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
-        //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
+        //Refresh 토큰 저장 DB  에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);
         addRefreshEntity(username, newRefresh, 86400000L);
 
+        System.out.println("5555555");
         //response
         response.setHeader("access", newAccess);
         response.addCookie(createCookie("refresh", newRefresh));
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);

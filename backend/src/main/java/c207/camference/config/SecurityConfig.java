@@ -3,12 +3,8 @@ package c207.camference.config;
 import c207.camference.api.service.admin.AdminDetailsService;
 import c207.camference.api.service.fireStaff.FireStaffDetailsService;
 import c207.camference.api.service.user.CustomUserDetailsService;
-import c207.camference.filter.jwt.*;
 import c207.camference.db.repository.RefreshRepository;
-import c207.camference.filter.jwt.AdminLoginFilter;
-import c207.camference.filter.jwt.JWTFilter;
-import c207.camference.filter.jwt.LogoutFilter;
-import c207.camference.filter.jwt.UserLoginFilter;
+import c207.camference.filter.jwt.*;
 import c207.camference.util.jwt.JWTUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -93,15 +89,14 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil),
+                .addFilterAt(new ControlLoginFilter(fireStaffAuthenticationManager(),jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new ControlLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
+                .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
-                UsernamePasswordAuthenticationFilter.class);
                 .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new LogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+                .addFilterBefore(new JWTLogoutFilter(jwtUtil, refreshRepository),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
