@@ -1,6 +1,6 @@
-package c207.camference.api.dto;
+package c207.camference.api.dto.fireStaff;
 
-import c207.camference.db.entity.users.FireStaff;
+import c207.camference.db.entity.firestaff.FireStaff;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

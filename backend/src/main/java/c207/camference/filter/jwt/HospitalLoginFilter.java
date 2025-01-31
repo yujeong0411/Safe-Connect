@@ -19,63 +19,48 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-
-public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
+public class HospitalLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        //cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
-    }
-
-    public AdminLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,RefreshRepository refreshRepository) {
+    public HospitalLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
         setAuthenticationManager(authenticationManager);
-        setFilterProcessesUrl("/admin/login"); // 사용자 로그인 URL 설정
+        setFilterProcessesUrl("/hospital/login"); // 사용자 로그인 URL 설정
     }
 
-
-    // 이거 다음
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        String userId = request.getParameter("adminLoginId");
-        String password = request.getParameter("adminPassword");
+        String userId = request.getParameter("hospitalLoginId");
+        String password = request.getParameter("hospitalPassword");
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userId, password, null);
         return getAuthenticationManager().authenticate(authToken);
     }
 
-    // 여기 x
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
-        UserDetails adminDetails = (UserDetails) authentication.getPrincipal();
+        UserDetails hospitalDetails = (UserDetails) authentication.getPrincipal();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access",adminDetails.getUsername(), "ROLE_ADMIN",10*60*1000L);
-        String refresh = jwtUtil.createJwt("refresh",adminDetails.getUsername(), "ROLE_ADMIN",24 * 60 * 60*1000L);
+        String access = jwtUtil.createJwt("access",hospitalDetails.getUsername(), "ROLE_HOSP",10*60*1000L);
+        String refresh = jwtUtil.createJwt("refresh",hospitalDetails.getUsername(), "ROLE_HOSP",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(adminDetails.getUsername(), refresh, 24 * 60 * 60*1000L);
+        addRefreshEntity(hospitalDetails.getUsername(), refresh, 24 * 60 * 60*1000L);
 
         //응답 헤더 설정
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh",refresh));
         response.setStatus(HttpServletResponse.SC_OK);
+
     }
 
     private void addRefreshEntity(String username, String refresh, Long expiredMs) {
@@ -89,10 +74,18 @@ public class AdminLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         refreshRepository.save(refreshEntity);
     }
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);
     }
 }
-
-

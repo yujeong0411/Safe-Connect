@@ -1,9 +1,9 @@
 package c207.camference.api.service.user;
 
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.db.entity.firestaff.FireDept;
+import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.others.Call;
-import c207.camference.db.entity.others.FireDept;
-import c207.camference.db.entity.users.FireStaff;
 import c207.camference.db.entity.users.User;
 import c207.camference.db.repository.CallRepository;
 import c207.camference.db.repository.FireDeptRepository;

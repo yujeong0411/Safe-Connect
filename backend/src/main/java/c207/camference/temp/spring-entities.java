@@ -104,45 +104,7 @@
 //    private Integer fireStaffId;
 //}
 //
-//
-//// FireStaff.java
-//@Entity
-//@Table(name = "fire_staff")
-//@Getter @Setter
-//@NoArgsConstructor
-//public class FireStaff {
-//    @Id
-//    @Column(name = "fire_staff_id", nullable = false, comment = "소방청직원ID")
-//    private Integer fireStaffId;
-//
-//    @Column(name = "fire_dept_id", nullable = false, comment = "소방청ID")
-//    private Integer fireDeptId;
-//
-//    @Column(name = "fire_staff_login_id", nullable = false, length = 30, comment = "로그인ID")
-//    private String fireStaffLoginId;
-//
-//    @Column(name = "fire_staff_password", nullable = false, length = 64, comment = "비밀번호")
-//    private String fireStaffPassword;
-//
-//    @Column(name = "fire_staff_number", nullable = false, length = 20, comment = "직원번호")
-//    private String fireStaffNumber;
-//
-//    @Column(name = "fire_staff_name", nullable = false, length = 45, comment = "이름")
-//    private String fireStaffName;
-//
-//    @Column(name = "fire_staff_category", nullable = false, length = 1, comment = "분류 (상황실 : C, 구급대원 : E)")
-//    private String fireStaffCategory;
-//
-//    @Column(name = "fire_staff_is_activate", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE", comment = "활성화여부")
-//    private Boolean fireStaffIsActivate = true;
-//
-//    @Column(name = "fire_staff_created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()", comment = "생성시각")
-//    private LocalDateTime fireStaffCreatedAt;
-//
-//    @Column(name = "fire_staff_updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT NOW()", comment = "수정시간")
-//    private LocalDateTime fireStaffUpdatedAt;
-//}
-//
+
 //// Hospital.java
 //@Entity
 //@Table(name = "hospital")

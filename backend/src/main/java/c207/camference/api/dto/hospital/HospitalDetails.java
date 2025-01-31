@@ -1,25 +1,24 @@
-package c207.camference.api.dto.admin;
+package c207.camference.api.dto.hospital;
 
-import c207.camference.db.entity.admin.Admin;
+import c207.camference.db.entity.hospital.Hospital;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class AdminDetails implements UserDetails {
-    private final Admin admin;
-        public AdminDetails(Admin admin) {
-        this.admin = admin;
+public class HospitalDetails implements UserDetails {
+    private final Hospital hospital;
+    public HospitalDetails(Hospital hospital) {
+        this.hospital = hospital;
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return "ROLE_ADMIN"; // 유저 역할 강제 추가를 위해서 넣음.. 나중에 소방서, 병원 관련 db 생성 시 생각해봐야 할것...
+                return "ROLE_HOSP";
             }
         });
         return collection;
@@ -27,11 +26,11 @@ public class AdminDetails implements UserDetails {
 
 
     public String getPassword() {
-        return admin.getAdminPassword();
+        return hospital.getHospitalPassword();
     }
 
     public String getUsername() {
-        return admin.getAdminLoginId();
+        return hospital.getHospitalLoginId();
     }
 
     public boolean isAccountNonExpired() {
@@ -49,6 +48,5 @@ public class AdminDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
 }

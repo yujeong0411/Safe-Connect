@@ -1,6 +1,6 @@
 package c207.camference.filter.jwt;
 
-import c207.camference.db.entity.Refresh;
+import c207.camference.db.entity.others.Refresh;
 import c207.camference.db.repository.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
