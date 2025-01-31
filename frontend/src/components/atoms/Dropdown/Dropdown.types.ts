@@ -13,4 +13,5 @@ export interface DropdownProps {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   isMulti?: boolean;
+  onAddOption?: (value: string) => void;
 }

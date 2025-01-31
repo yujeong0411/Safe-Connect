@@ -53,7 +53,7 @@ const UserFindEmailPage = () => {
             subtitle={`가입한 이메일 : ${userEmail}`}
             primaryButton={{
               text: '비밀번호 찾기',
-              onClick: () => navigate('/user/find/password'),
+              onClick: () => navigate('/user/findpassword'),
             }}
           />
         );

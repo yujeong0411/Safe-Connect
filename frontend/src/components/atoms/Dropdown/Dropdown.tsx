@@ -11,7 +11,10 @@ const Dropdown = ({
   disabled = false,
   size = 'md',
   isMulti = true, // 다중 선택 여부
+  onAddOption,
 }: DropdownProps) => {
+  const [inputValue, setInputValue] = useState(''); // 사용자 입력
+  const [customOptions, setCustomOptions] = useState(options); // 사용자 추가 옵션 포함 목록
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,22 @@ const Dropdown = ({
     onChange(isMulti ? newValues : null);
   };
 
+  const handleAddCustomOption = () => {
+    if (inputValue.trim() && !options.some((opt) => opt.label === inputValue)) {
+      const newOption = { label: inputValue, value: inputValue };
+      onAddOption?.(newOption); // ⬅ 부모 컴포넌트(SingupMediForm)로 전달
+      setInputValue('');
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && inputValue.trim()) {
+      event.preventDefault(); // 기본 동작 방지
+      handleAddCustomOption();
+    }
+  };
+
+  const allOptions = [...customOptions]; // 기본 옵션 + 사용자 추가 옵션 포함
   return (
     <div ref={dropdownRef} className="relative w-full">
       {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
@@ -88,8 +107,9 @@ const Dropdown = ({
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setIsOpen(true); // 검색어 입력 시 자동으로 드롭다운 열기
+            setInputValue(e.target.value);
           }}
+          onKeyDown={handleKeyDown} // enter 처리
           onClick={(e) => e.stopPropagation()}
         />
       </div>
@@ -112,6 +132,16 @@ const Dropdown = ({
               <div className="px-4 py-2 text-gray-500">검색 결과가 없습니다</div>
             )}
           </div>
+
+          {/* 사용자가 직접 입력한 값 추가 버튼 */}
+          {inputValue && !customOptions.some((opt) => opt.label === inputValue) && (
+            <div
+              className="px-4 py-2 bg-pink-100 cursor-pointer hover:bg-pink-200 text-center"
+              onClick={handleAddCustomOption}
+            >
+              "{inputValue}" 추가하기
+            </div>
+          )}
         </div>
       )}
 

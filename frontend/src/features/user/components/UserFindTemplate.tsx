@@ -39,9 +39,12 @@ const UserFindTemplate = ({
 
       <div className="flex flex-col w-full space-y-5 mt-10 max-w-xl mx-auto mb-5">
         <Button onClick={primaryButton.onClick}>{primaryButton.text}</Button>
-        <Button onClick={secondaryButton.onClick} variant="gray">
-          {secondaryButton.text}
-        </Button>
+        {/* secondaryButton이 존재할 때만 렌더링 */}
+        {secondaryButton && (
+          <Button onClick={secondaryButton.onClick} variant="gray">
+            {secondaryButton.text}
+          </Button>
+        )}
       </div>
     </div>
   );
