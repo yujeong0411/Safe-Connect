@@ -1,5 +1,7 @@
 package c207.camference.db.entity;
 
+import c207.camference.db.entity.others.Medi;
+import c207.camference.db.entity.users.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,7 +32,7 @@ public class UserMediDetail {
     // cascade = CascadeType.ALL: user_medi_detail 엔티티의 변경이 user_medi_mapping에도 전파된다.
     // orphanRemoval = true: 매핑 관계가 끊어진 user_medi_mapping 엔티티는 자동 삭제된다.
     @OneToMany(mappedBy = "userMediDetail", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserMediMapping> userMediMappings = new ArrayList<>();
+    private final List<UserMediMapping> userMediMappings = new ArrayList<>();
 
 /*
     // 필요 없다고 판단되어 주석처리
