@@ -3,7 +3,7 @@ package c207.camference.api.contoller.medi;
 import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.service.medi.MediService;
 import c207.camference.api.service.medi.UserMediService;
-import c207.camference.db.repository.UserRepository;
+import c207.camference.db.repository.users.UserRepository;
 import c207.camference.util.response.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

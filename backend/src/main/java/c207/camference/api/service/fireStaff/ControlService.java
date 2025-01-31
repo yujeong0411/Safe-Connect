@@ -1,4 +1,4 @@
-package c207.camference.api.service.user;
+package c207.camference.api.service.fireStaff;
 
 import c207.camference.temp.request.FireStaffCreateRequest;
 import org.springframework.http.ResponseEntity;

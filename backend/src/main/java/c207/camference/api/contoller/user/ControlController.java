@@ -1,7 +1,7 @@
 package c207.camference.api.contoller.user;
 
+import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.sms.SmsService;
-import c207.camference.api.service.user.ControlService;
 import c207.camference.temp.request.FireStaffCreateRequest;
 import c207.camference.temp.request.MessageRequest;
 import org.springframework.http.ResponseEntity;

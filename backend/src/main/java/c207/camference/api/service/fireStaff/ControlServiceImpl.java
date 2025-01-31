@@ -1,14 +1,14 @@
-package c207.camference.api.service.user;
+package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.db.entity.firestaff.FireDept;
 import c207.camference.db.entity.firestaff.FireStaff;
-import c207.camference.db.entity.others.Call;
+import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.users.User;
-import c207.camference.db.repository.CallRepository;
-import c207.camference.db.repository.FireDeptRepository;
-import c207.camference.db.repository.FireStaffRepository;
-import c207.camference.db.repository.UserRepository;
+import c207.camference.db.repository.firestaff.FireDeptRepository;
+import c207.camference.db.repository.firestaff.FireStaffRepository;
+import c207.camference.db.repository.report.CallRepository;
+import c207.camference.db.repository.users.UserRepository;
 import c207.camference.temp.request.FireStaffCreateRequest;
 import c207.camference.temp.response.FireStaffResponse;
 import c207.camference.util.response.ResponseUtil;

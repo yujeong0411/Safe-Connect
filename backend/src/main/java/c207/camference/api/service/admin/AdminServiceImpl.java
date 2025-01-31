@@ -4,7 +4,7 @@ import c207.camference.api.request.admin.AdminCreateRequest;
 import c207.camference.api.response.admin.AdminResponse;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.db.entity.admin.Admin;
-import c207.camference.db.repository.AdminRepository;
+import c207.camference.db.repository.admin.AdminRepository;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

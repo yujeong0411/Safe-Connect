@@ -1,7 +1,7 @@
 package c207.camference.api.contoller;
 
-import c207.camference.db.entity.others.Refresh;
-import c207.camference.db.repository.RefreshRepository;
+import c207.camference.db.entity.etc.Refresh;
+import c207.camference.db.repository.etc.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;

@@ -1,4 +1,4 @@
-package c207.camference.db.repository;
+package c207.camference.db.repository.admin;
 
 import c207.camference.db.entity.admin.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;

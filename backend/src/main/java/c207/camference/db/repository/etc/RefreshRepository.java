@@ -1,6 +1,6 @@
-package c207.camference.db.repository;
+package c207.camference.db.repository.etc;
 
-import c207.camference.db.entity.others.Refresh;
+import c207.camference.db.entity.etc.Refresh;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

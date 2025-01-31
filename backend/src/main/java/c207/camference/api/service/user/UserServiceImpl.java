@@ -7,7 +7,7 @@ import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.user.UserEmailResponse;
 import c207.camference.api.response.user.UserResponse;
 import c207.camference.db.entity.users.User;
-import c207.camference.db.repository.UserRepository;
+import c207.camference.db.repository.users.UserRepository;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

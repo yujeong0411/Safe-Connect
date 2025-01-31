@@ -1,4 +1,4 @@
-package c207.camference.db.repository;
+package c207.camference.db.repository.users;
 
 import c207.camference.db.entity.users.User;
 import org.springframework.data.jpa.repository.JpaRepository;

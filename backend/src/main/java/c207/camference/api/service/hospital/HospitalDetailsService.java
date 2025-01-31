@@ -1,7 +1,7 @@
 package c207.camference.api.service.hospital;
 
 import c207.camference.db.entity.hospital.Hospital;
-import c207.camference.db.repository.HospitalRepository;
+import c207.camference.db.repository.hospital.HospitalRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
