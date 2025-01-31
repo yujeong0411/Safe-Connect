@@ -59,6 +59,12 @@ dependencies {
     // test에서 lombok을 사용하기 위해서..
     testRuntimeOnly 'org.projectlombok:lombok'
     testImplementation 'org.projectlombok:lombok'
+
+    // org.json 라이브러리 추가 (XML -> JSON)
+    implementation 'org.json:json:20210307'
+
+    // 웹 크롤링을 위한 Jsoup 라이브러리 추가
+    implementation 'org.jsoup:jsoup:1.18.3'
 }
 
 tasks.named('test') {

@@ -1,6 +1,6 @@
 package c207.camference.db.repository;
 
-import c207.camference.db.entity.User;
+import c207.camference.db.entity.users.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findUserByUserEmail(String userEmail);
     Boolean existsByUserEmail(String userEmail);
     Optional<User> findByUserEmail(String userEmail);
+    Optional<User> findByUserNameAndUserPhone(String userName, String userPhone);
+    Optional<User> findByUserPhone(String userPhone);
 }
