@@ -1,11 +1,10 @@
 package c207.camference.db.entity.others;
 
-import c207.camference.db.entity.users.FireStaff;
+import c207.camference.db.entity.firestaff.FireStaff;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 

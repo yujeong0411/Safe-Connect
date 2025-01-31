@@ -1,22 +1,16 @@
 package c207.camference.filter.jwt;
 
-<<<<<<< HEAD
-import c207.camference.db.entity.Refresh;
+import c207.camference.db.entity.others.Refresh;
 import c207.camference.db.repository.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
-=======
-import c207.camference.util.jwt.JWTUtil;
-import jakarta.servlet.FilterChain;
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-<<<<<<< HEAD
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -34,18 +28,6 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
-=======
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
-    private final AuthenticationManager authenticationManager;
-    private final JWTUtil jwtUtil;
-
-    public DispatchLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
         setAuthenticationManager(authenticationManager);
         setFilterProcessesUrl("/dispatch/login"); // 사용자 로그인 URL 설정
     }
@@ -63,7 +45,6 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
-<<<<<<< HEAD
         UserDetails dispatchDetails = (UserDetails) authentication.getPrincipal();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -106,16 +87,6 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
         return cookie;
     }
 
-=======
-        UserDetails adminDetails = (UserDetails) authentication.getPrincipal();
-
-        String token = jwtUtil.createJwt(adminDetails.getUsername(), "ROLE_CONTROL",60*60*1000L);
-
-        response.addHeader("Authorization", "Bearer " + token);
-        // 성공시 user로 보내기
-    }
-
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);

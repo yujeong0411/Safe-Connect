@@ -1,6 +1,5 @@
 package c207.camference.temp.request;
 
-import c207.camference.db.entity.others.FireDept;
 import lombok.Data;
 
 @Data

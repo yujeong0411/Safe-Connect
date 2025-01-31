@@ -2,11 +2,9 @@ package c207.camference.config;
 
 import c207.camference.api.service.admin.AdminDetailsService;
 import c207.camference.api.service.fireStaff.FireStaffDetailsService;
+import c207.camference.api.service.hospital.HospitalDetailsService;
 import c207.camference.api.service.user.CustomUserDetailsService;
-<<<<<<< HEAD
 import c207.camference.db.repository.RefreshRepository;
-=======
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
 import c207.camference.filter.jwt.*;
 import c207.camference.util.jwt.JWTUtil;
 import org.springframework.context.annotation.Bean;
@@ -31,15 +29,18 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final AdminDetailsService adminDetailsService;
     private final FireStaffDetailsService fireStaffDetailsService;
+    private final HospitalDetailsService hospitalDetailsService;
 
     public SecurityConfig(JWTUtil jwtUtil,
                           CustomUserDetailsService customUserDetailsService,
                           AdminDetailsService adminDetailsService,
-                          FireStaffDetailsService fireStaffDetailsService) {
+                          FireStaffDetailsService fireStaffDetailsService,
+                          HospitalDetailsService hospitalDetailsService) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
         this.adminDetailsService = adminDetailsService;
         this.fireStaffDetailsService = fireStaffDetailsService;
+        this.hospitalDetailsService = hospitalDetailsService;
     }
 
     @Primary
@@ -67,6 +68,14 @@ public class SecurityConfig {
         return new ProviderManager(provider);
     }
 
+    @Bean
+    public AuthenticationManager hospitalAuthenticationManager() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(hospitalDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
+    }
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -74,16 +83,11 @@ public class SecurityConfig {
     }
 
     @Bean
-<<<<<<< HEAD
     public SecurityFilterChain filterChain(HttpSecurity http, RefreshRepository refreshRepository) throws Exception {
-=======
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-<<<<<<< HEAD
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -91,9 +95,9 @@ public class SecurityConfig {
                         .requestMatchers("/logout").permitAll()
                         .requestMatchers("/**").permitAll()
                         .requestMatchers("/reissue").permitAll()
-                       .requestMatchers("/user/signup", "/user/login", "/user/valid/**", "/user/find/**").permitAll()
+//                        .requestMatchers("/user/signup", "/user/login", "/user/valid/**", "/user/find/**").permitAll()
 //                        .requestMatchers("/admin/signup", "/admin/login").permitAll()
-                        .requestMatchers("/user/**").hasRole("USER")
+//                        .requestMatchers("/user/**").hasRole("USER")
 //                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTLogoutFilter(jwtUtil, refreshRepository),
@@ -106,27 +110,9 @@ public class SecurityConfig {
                 .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil,refreshRepository),
-                        UsernamePasswordAuthenticationFilter.class);
-=======
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
-//                        .requestMatchers("/user/signup", "/user/login", "/user/valid/**", "/user/find/**").permitAll()
-//                        .requestMatchers("/admin/signup", "/admin/login").permitAll()
-//                        .requestMatchers("/user/**").hasRole("USER")
-//                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new UserLoginFilter(userAuthenticationManager(), jwtUtil),
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new AdminLoginFilter(adminAuthenticationManager(),jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new ControlLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
-                        UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(new DispatchLoginFilter(fireStaffAuthenticationManager(),jwtUtil),
-                UsernamePasswordAuthenticationFilter.class);
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
+                .addFilterAt(new HospitalLoginFilter(hospitalAuthenticationManager(),jwtUtil,refreshRepository),
+                    UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

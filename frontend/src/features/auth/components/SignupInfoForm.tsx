@@ -10,6 +10,7 @@ import {
   sendPhoneVerification,
   authCode,
 } from '@features/auth/servies/apiService.ts';
+import { validateResidentNumber } from '@utils/validation.ts';
 
 const SignupInfoForm = () => {
   const { formData, setFormData, validateFields } = useSignupStore();
@@ -125,6 +126,7 @@ const SignupInfoForm = () => {
                   userGender: birthdayAndGender.userGender,
                 });
               }}
+              error={validateResidentNumber(formData.userBirthday + formData.userGender)}
             />
             <Input
               label="보호자 연락처"

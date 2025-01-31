@@ -1,10 +1,12 @@
 package c207.camference.filter.jwt;
 
-import c207.camference.api.dto.FireStaffDetails;
 import c207.camference.api.dto.admin.AdminDetails;
+import c207.camference.api.dto.fireStaff.FireStaffDetails;
+import c207.camference.api.dto.hospital.HospitalDetails;
 import c207.camference.api.dto.user.CustomUserDetails;
-import c207.camference.db.entity.users.Admin;
-import c207.camference.db.entity.users.FireStaff;
+import c207.camference.db.entity.admin.Admin;
+import c207.camference.db.entity.firestaff.FireStaff;
+import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.users.User;
 import c207.camference.util.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -41,7 +43,6 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         String token = authHeader.substring(7);
         //토큰 소멸 시간 검증
-<<<<<<< HEAD
         try {
             jwtUtil.isExpired(token);
         } catch (ExpiredJwtException e) {
@@ -63,19 +64,12 @@ public class JWTFilter extends OncePerRequestFilter {
             writer.print("invalid access token");
             //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-=======
-        if (jwtUtil.isExpired(token)) {
-            System.out.println("token expired");
-            filterChain.doFilter(request, response);
-            //조건이 해당되면 메소드 종료 (필수)
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
             return;
         }
 
         String role = jwtUtil.getRole(token);
         String loginId = jwtUtil.getLoginId(token);
         Authentication authToken;
-<<<<<<< HEAD
 
         if ("ROLE_USER".equals(role)) {
             User user = new User();
@@ -102,52 +96,18 @@ public class JWTFilter extends OncePerRequestFilter {
         } else {
             // 병원 생기면 추가해야함
 
-            FireStaff fireStaff = new FireStaff();
-            fireStaff.setFireStaffLoginId(loginId);
-            fireStaff.setFireStaffPassword("temppassword");
-            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
-            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
+            Hospital hospital = new Hospital();
+            hospital.setHospitalLoginId(loginId);
+            hospital.setHospitalPassword("temppassword");
+            HospitalDetails hospitalDetails = new HospitalDetails(hospital);
+            authToken = new UsernamePasswordAuthenticationToken(hospitalDetails, null, hospitalDetails.getAuthorities());
             System.out.println("hospital");
         }
 
-=======
-
-        if ("ROLE_USER".equals(role)) {
-            User user = new User();
-            user.setUserEmail(loginId);
-            user.setUserPassword("temppassword");
-            CustomUserDetails userDetails = new CustomUserDetails(user);
-            authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            System.out.println("user");
-        } else if("ROLE_ADMIN".equals(role)) { // ROLE_ADMIN
-            Admin admin = new Admin();
-            admin.setAdminLoginId(loginId);
-            admin.setAdminPassword("temppassword");
-            AdminDetails adminDetails = new AdminDetails(admin);
-            authToken = new UsernamePasswordAuthenticationToken(adminDetails, null, adminDetails.getAuthorities());
-            System.out.println("admin");
-        } else if("ROLE_CONTROL".equals(role) || "ROLE_DISPATCH".equals(role)) {
-            FireStaff fireStaff = new FireStaff();
-            fireStaff.setFireStaffLoginId(loginId);
-            fireStaff.setFireStaffPassword("temppassword");
-            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
-            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
-            System.out.println("fireStaff");
-
-        } else {
-            // 병원 생기면 추가해야함
-
-            FireStaff fireStaff = new FireStaff();
-            fireStaff.setFireStaffLoginId(loginId);
-            fireStaff.setFireStaffPassword("temppassword");
-            FireStaffDetails fireStaffDetails = new FireStaffDetails(fireStaff);
-            authToken = new UsernamePasswordAuthenticationToken(fireStaffDetails, null, fireStaffDetails.getAuthorities());
-            System.out.println("hospital");
-        }
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
 
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
+
         filterChain.doFilter(request, response);
     }
 }

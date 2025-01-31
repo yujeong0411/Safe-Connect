@@ -38,8 +38,8 @@ const Carousel = () => {
 
         <div>
           <img
-            src={carousel2}
-            alt="carousel2"
+            src={carousel3}
+            alt="carousel3"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 text-[#08455A] text-center">
@@ -55,8 +55,8 @@ const Carousel = () => {
 
         <div>
           <img
-            src={carousel3}
-            alt="carousel3"
+            src={carousel2}
+            alt="carousel2"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute top-1 left-1/4 transform translate-x-2/4 -translate-y-1 text-[#08455A] text-center">

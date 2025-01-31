@@ -20,15 +20,11 @@ public class JWTUtil {
 
     public String getLoginId(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("LoginId",String.class);
-<<<<<<< HEAD
     }
 
     public String getCategory(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category",String.class);
-=======
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
     }
-
 
     public String getRole(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role",String.class);
@@ -38,15 +34,9 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-<<<<<<< HEAD
     public String createJwt(String category,String userEmail, String role, Long expiredMs) {
         return Jwts.builder()
                 .claim("category",category)
-=======
-    public String createJwt(String userEmail, String role, Long expiredMs) {
-//        System.out.println(role);
-        return Jwts.builder()
->>>>>>> 9494a876eee1f3528c5ef7a68f5a37c7b2574c62
                 .claim("LoginId", userEmail)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
