@@ -33,25 +33,22 @@ const SearchBar = ({
     onSearch(value);
   };
   return (
-    <form onSubmit={handleSubmit} className="flex w-full">
+    <form onSubmit={handleSubmit} className="relative w-full  min-w-[300px]">
       <Input
         label={label}
         isRequired={isRequired}
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="rounded-r-none"
+        className="pr-24" // 버튼 공간 확보
         error={error}
       />
-      <Button
+      <button
         type="submit"
-        width="quarter"
-        size="md"
-        className="rounded-l-none"
-        onClick={onButtonClick}
+        className="absolute right-2 top-[32px] px-4 py-1 bg-banner text-white rounded-md hover:bg-[#697383] transition-colors"
       >
         {buttonText}
-      </Button>
+      </button>
     </form>
   );
 };

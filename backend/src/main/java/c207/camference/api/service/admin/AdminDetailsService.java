@@ -1,6 +1,6 @@
 package c207.camference.api.service.admin;
 
-import c207.camference.db.entity.users.Admin;
+import c207.camference.db.entity.admin.Admin;
 import c207.camference.db.repository.AdminRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -31,6 +31,7 @@ export interface AuthStore {
   fetchUserInfo: () => Promise<any>;
   updateUserInfo: (updateData: any) => Promise<any>;
   fetchMediInfo: () => Promise<any>;
+  saveMediInfo: (updateData: any) => Promise<any>;
   updateMediInfo: (updateData: any) => Promise<any>;
   updatePassword: (updateData: any) => Promise<any>;
   findEmail: (userName: string, userPhone: string) => Promise<string>;

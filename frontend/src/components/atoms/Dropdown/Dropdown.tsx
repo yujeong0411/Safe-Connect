@@ -9,22 +9,15 @@ const Dropdown = ({
   placeholder = '선택하세요',
   label,
   disabled = false,
-  size = 'md',
   isMulti = true, // 다중 선택 여부
   onAddOption,
 }: DropdownProps) => {
   const [inputValue, setInputValue] = useState(''); // 사용자 입력
-  const [customOptions, setCustomOptions] = useState(options); // 사용자 추가 옵션 포함 목록
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  const sizeStyles = {
-    sm: 'px-10 py-2 text-sm',
-    md: 'px-30 py-3',
-    lg: 'px-30 py-3 text-lg',
-  };
 
   // 다중 선택을 위한 배열 처리
   const selectedValues = Array.isArray(value) ? value : [value].filter(Boolean);
@@ -46,20 +39,17 @@ const Dropdown = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
   const handleOptionClick = (optionValue: number) => {
     if (isMulti) {
       const newValues = selectedValues.includes(optionValue)
         ? selectedValues.filter((v) => v !== optionValue)
         : [...selectedValues, optionValue];
       onChange(newValues);
-      setIsOpen(false);
-      setSearchTerm(''); // 선택 후 검색어 초기화
     } else {
       onChange(optionValue);
-      setIsOpen(false);
-      setSearchTerm(''); // 선택 후 검색어 초기화
     }
+    setIsOpen(false);
+    setSearchTerm('');
   };
 
   const handleRemoveOption = (optionValue: number, e: React.MouseEvent) => {
@@ -76,14 +66,62 @@ const Dropdown = ({
     }
   };
 
+  const [focusedIndex, setFocusedIndex] = useState(-1); // 현재 포커스된 항목의 인덱스
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && inputValue.trim()) {
-      event.preventDefault(); // 기본 동작 방지
-      handleAddCustomOption();
+    if (!isOpen) {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        setIsOpen(true);
+        return;
+      }
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        setFocusedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : prev));
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        break;
+
+      case 'Enter':
+        event.preventDefault();
+        if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+          handleOptionClick(filteredOptions[focusedIndex].value);
+        } else if (searchTerm && filteredOptions.length > 0) {
+          // 포커스된 항목이 없을 때는 첫 번째 항목 선택
+          handleOptionClick(filteredOptions[0].value);
+        }
+        break;
+
+      case 'Escape':
+        setIsOpen(false);
+        setSearchTerm('');
+        setFocusedIndex(-1);
+        break;
     }
   };
 
-  const allOptions = [...customOptions]; // 기본 옵션 + 사용자 추가 옵션 포함
+  // 포커스가 변경될 때마다 스크롤 조정
+  useEffect(() => {
+    if (focusedIndex >= 0 && itemRefs.current[focusedIndex]) {
+      itemRefs.current[focusedIndex]?.scrollIntoView({
+        block: 'nearest',
+        behavior: 'smooth',
+      });
+    }
+  }, [focusedIndex]);
+
+  // 드롭다운이 닫힐 때 포커스 초기화
+  useEffect(() => {
+    if (!isOpen) {
+      setFocusedIndex(-1);
+    }
+  }, [isOpen]);
+
   return (
     <div ref={dropdownRef} className="relative w-full">
       {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
@@ -103,26 +141,27 @@ const Dropdown = ({
           ref={searchInputRef}
           type="text"
           className="w-full focus:outline-none"
-          placeholder="검색..."
+          placeholder={placeholder}
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setInputValue(e.target.value);
+            if (!isOpen) setIsOpen(true); // 텍스트 입력시 드롭다운 열기
           }}
           onKeyDown={handleKeyDown} // enter 처리
-          onClick={(e) => e.stopPropagation()}
         />
       </div>
 
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
           <div className="max-h-60 overflow-y-auto">
-            {filteredOptions.map((option) => (
+            {filteredOptions.map((option, index) => (
               <div
                 key={option.value}
+                ref={(el) => (itemRefs.current[index] = el)} // ref 추가
                 className={`px-4 py-2 cursor-pointer hover:bg-pink-50 ${
                   selectedValues.includes(option.value) ? 'bg-pink-100' : ''
-                }`}
+                } ${index === focusedIndex ? 'bg-pink-50' : ''}`} // 포커스된 항목 스타일 추가
                 onClick={() => handleOptionClick(option.value)}
               >
                 {option.label}
@@ -132,16 +171,6 @@ const Dropdown = ({
               <div className="px-4 py-2 text-gray-500">검색 결과가 없습니다</div>
             )}
           </div>
-
-          {/* 사용자가 직접 입력한 값 추가 버튼 */}
-          {inputValue && !customOptions.some((opt) => opt.label === inputValue) && (
-            <div
-              className="px-4 py-2 bg-pink-100 cursor-pointer hover:bg-pink-200 text-center"
-              onClick={handleAddCustomOption}
-            >
-              "{inputValue}" 추가하기
-            </div>
-          )}
         </div>
       )}
 

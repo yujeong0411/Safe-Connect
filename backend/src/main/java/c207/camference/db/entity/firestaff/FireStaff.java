@@ -1,6 +1,5 @@
-package c207.camference.db.entity.users;
+package c207.camference.db.entity.firestaff;
 
-import c207.camference.db.entity.others.FireDept;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;

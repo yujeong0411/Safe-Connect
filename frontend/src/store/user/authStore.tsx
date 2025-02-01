@@ -6,15 +6,7 @@ import { findEmail } from '@features/auth/servies/apiService.ts';
 export const useAuthStore = create<AuthStore>((set) => ({
   // 초기상태
   token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'), // 토큰 존재 여부로 인증 상태 초기화\
-  // setAuthenticated: (auth) => set({ isAuthenticated: auth }),
-  //
-  // // localStorage 기반으로 로그인 상태 확인하는 함수
-  // checkAuth: () => {
-  //   const token = localStorage.getItem('token');
-  //   set({ isAuthenticated: !!token }); // 토큰이 있으면 true, 없으면 false
-  // },
-
+  isAuthenticated: !!localStorage.getItem('token'), // 토큰 존재 여부로 인증 상태 초기화
   userEmail: '',
 
   // 로그인
@@ -33,10 +25,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        withCredentials: true, // 이 부분 추가
+        withCredentials: true, // 쿠키 전달
       });
       console.log('All headers:', response.headers); // 모든 헤더 확인
-      console.log('access header:', response.headers['access']); // 소문자로도 확인
+      // 서버는 토큰을 access 키로 보냄.
       const accessToken = response.headers['access'];
       console.log('accessToken:', accessToken);
 
@@ -45,8 +37,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
         localStorage.setItem('token', accessToken); // 응답받은 토큰 저장
         set({ token: accessToken, isAuthenticated: true }); // 상태 업데이트
 
-        console.log('token', accessToken);
-        axiosInstance.defaults.headers.common['access'] = `Bearer ${accessToken}`; // 이후 요청 헤더 설정
+        // 요청할 때는 Authorization으로 요청해야함.
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`; // 이후 요청 헤더 설정
 
         // 로그인 성공 후 바로 리턴하여 리다이렉트 방지
         return;
@@ -67,9 +59,25 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   // 로그아웃 시 토큰 제거 및 상태 초기화
-  logout: () => {
-    localStorage.removeItem('token');
-    set({ token: null, isAuthenticated: false });
+  logout: async () => {
+    try {
+      await axiosInstance.post('/logout');
+
+      // 로컬 상태 초기화
+      set({
+        token: null,
+        isAuthenticated: false,
+      });
+
+      // 토큰 제거
+      localStorage.removeItem('token');
+
+      // axios 헤더에서 토큰 제거
+      delete axiosInstance.defaults.headers.common['access'];
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+      throw error;
+    }
   },
 
   // 회원 정보 조회
@@ -107,10 +115,21 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
-  // 의료 정보 수정
-  updateMediInfo: async (updateData) => {
+  // 의료 정보 저장
+  saveMediInfo: async (updateData) => {
     try {
       const response = await axiosInstance.post('/user/medi', updateData);
+      return response.data.data;
+    } catch (error) {
+      console.error('의료정보 저장 실패', error);
+      throw error;
+    }
+  },
+
+  // 의료 정보 수정 및 삭제
+  updateMediInfo: async (updateData) => {
+    try {
+      const response = await axiosInstance.put('/user/medi', updateData);
       return response.data.data;
     } catch (error) {
       console.error('의료정보 수정 실패', error);

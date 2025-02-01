@@ -1,6 +1,6 @@
 package c207.camference.db.repository;
 
-import c207.camference.db.entity.Refresh;
+import c207.camference.db.entity.others.Refresh;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,11 +8,14 @@ import org.springframework.stereotype.Repository;
 public interface RefreshRepository extends CrudRepository<Refresh, String> {
 
     default Boolean existsByRefresh(String refresh) {
+        System.out.println("Checking refresh token existence: " + refresh);
+
         // findAll()을 사용하여 모든 refreshToken을 가져온 뒤
         // refresh 값이 일치하는지 확인
         Iterable<Refresh> all = findAll();
         for (Refresh token : all) {
             if (token.getRefresh().equals(refresh)) {
+                System.out.println("Token found in repository!");
                 return true;
             }
         }
@@ -20,6 +23,7 @@ public interface RefreshRepository extends CrudRepository<Refresh, String> {
     }
 
     default void deleteByRefresh(String refresh){
+        System.out.println("Attempting to delete refresh token: " + refresh);
         Iterable<Refresh> all = findAll();
         for (Refresh token : all) {
             if (token.getRefresh().equals(refresh)) {

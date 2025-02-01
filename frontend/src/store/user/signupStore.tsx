@@ -4,6 +4,7 @@ import {
   validatePassword,
   validatePasswordConfirm,
   validatePhoneNumber,
+  validateResidentNumber,
 } from '@/utils/validation';
 
 export interface SignupStore {
@@ -87,6 +88,7 @@ export const useSignupStore = create<SignupStore>((set, get) => ({
     if (!value) return '';
 
     const { formData } = get();
+    const residentNumber = formData.userBirthday + formData.userGender;
 
     switch (name) {
       case 'userEmail':
@@ -103,6 +105,11 @@ export const useSignupStore = create<SignupStore>((set, get) => ({
         return validatePhoneNumber(value) ? '' : '올바른 전화번호 형식이 아닙니다.';
       case 'userProtectorPhone':
         return validatePhoneNumber(value) ? '' : '올바른 전화번호 형식이 아닙니다.';
+      case 'userBirthday':
+      case 'userGender':
+        return validateResidentNumber(residentNumber)
+          ? ''
+          : '주민등록번호 7자리를 올바르게 입력해주세요.';
       default:
         return '';
     }

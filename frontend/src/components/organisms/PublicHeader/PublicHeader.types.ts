@@ -1,8 +1,9 @@
 export interface PublicHeaderProps {
   LinkLabel?: string;
   LinkHref?: string;
-  labels?: Array<{
+  labels?: {
     label: string;
     href: string;
-  }>;
+    onClick?: () => void;
+  }[];
 }

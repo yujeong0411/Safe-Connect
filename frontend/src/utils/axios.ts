@@ -3,6 +3,12 @@ import axios from 'axios';
 export const axiosInstance = axios.create({
   baseURL: '/api',
   timeout: 5000, // 요청 제한 시간 5초
+  // headers 초기화 시 토큰이 없을 때 문제 발생
+  headers: {
+    Authorization: localStorage.getItem('token')
+      ? `Bearer ${localStorage.getItem('token')}`
+      : undefined,
+  },
   withCredentials: true, // 쿠키를 포함시키기 위해 설정한다
 });
 
@@ -14,10 +20,10 @@ axiosInstance.interceptors.request.use(
       method: config.method,
       data: config.data ? JSON.stringify(config.data) : null, // JSON 문자열로 변환
       headers: config.headers,
+      withCredentials: config.withCredentials,
     });
 
     // 토큰이 있다면 헤더에 추가
-
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // JWT 토큰 헤더에 추가
@@ -33,10 +39,17 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log('토큰 갱신 요청 에러 상세:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: error.config,
+    });
     const originalRequest = error.config;
 
     // 401에러이고 재시도 중이 아닌 경우
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log('401 에러 발생, 토큰 갱신 시도');
       originalRequest._retry = true;
 
       // 무한 루프 방지 조건 추가
@@ -46,18 +59,28 @@ axiosInstance.interceptors.response.use(
       }
 
       try {
-        // 토큰 갱신 요청
-        const response = await axiosInstance.post('/reissue');
+        console.log('토큰 갱신 요청 시작');
+        console.log('Before request, cookies: ', document.cookie); // 쿠키 확인
+        // 리프레시 토큰은 쿠키에 있으므로 별도의 토큰을 보낼 필요 없음 (url, body data, axios 객체)
+        const response = await axiosInstance.post('/reissue', {}, { withCredentials: true });
+        console.log('토큰 갱신 응답:', response);
 
-        // 새 토큰 가져오기
-        const newToken = response.headers['access']?.replace('Bearer ', '');
-        if (newToken) {
+        // 새 토큰 가져오기 (서버는 access로 내려줌)
+        const newAccessToken = response.headers['access'];
+        console.log('새로운 액세스 토큰:', newAccessToken);
+
+        if (newAccessToken) {
+          console.log('새 토큰 저장 및 헤더 설정');
           // 새토큰 저장
-          localStorage.setItem('token', newToken);
-          axiosInstance.defaults.headers.common['access'] = `Bearer ${newToken}`;
-          originalRequest.headers['access'] = `Bearer ${newToken}`;
+          localStorage.setItem('token', newAccessToken);
+
+          // 원본 요청의 헤더 업데이트
+          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          // Axios 기본 헤더 업데이트
+          axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
 
           // 원본 요청 재시도
+          console.log('원래 요청 재시도');
           return axiosInstance(originalRequest);
         }
       } catch (refreshError) {

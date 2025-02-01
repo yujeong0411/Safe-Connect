@@ -1,6 +1,6 @@
 package c207.camference.temp.response;
 
-import c207.camference.db.entity.others.FireDept;
+import c207.camference.db.entity.firestaff.FireDept;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
