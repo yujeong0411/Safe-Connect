@@ -4,7 +4,7 @@ import c207.camference.api.service.admin.AdminDetailsService;
 import c207.camference.api.service.fireStaff.FireStaffDetailsService;
 import c207.camference.api.service.hospital.HospitalDetailsService;
 import c207.camference.api.service.user.CustomUserDetailsService;
-import c207.camference.db.repository.RefreshRepository;
+import c207.camference.db.repository.etc.RefreshRepository;
 import c207.camference.filter.jwt.*;
 import c207.camference.util.jwt.JWTUtil;
 import org.springframework.context.annotation.Bean;

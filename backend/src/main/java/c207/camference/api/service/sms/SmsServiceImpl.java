@@ -3,7 +3,7 @@ package c207.camference.api.service.sms;
 import c207.camference.api.request.user.UserValidPhoneCheckRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.db.entity.users.User;
-import c207.camference.db.repository.UserRepository;
+import c207.camference.db.repository.users.UserRepository;
 import c207.camference.temp.request.MessageRequest;
 import c207.camference.util.redis.RedisUtil;
 import c207.camference.util.response.ResponseUtil;

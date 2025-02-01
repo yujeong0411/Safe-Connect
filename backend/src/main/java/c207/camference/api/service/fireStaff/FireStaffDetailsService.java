@@ -1,7 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.db.entity.firestaff.FireStaff;
-import c207.camference.db.repository.FireStaffRepository;
+import c207.camference.db.repository.firestaff.FireStaffRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
