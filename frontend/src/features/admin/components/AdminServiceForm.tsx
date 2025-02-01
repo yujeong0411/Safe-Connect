@@ -7,7 +7,6 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table';
-
 import Pagination from '@components/atoms/Pagination/Pagination.tsx';
 import AdminReportDetailDialog from '@features/admin/components/AdminReportDetailDialog.tsx';
 import AdminDispatchDetailDialog from '@features/admin/components/AdminDispatchDetailDialog.tsx';
@@ -72,11 +71,7 @@ const AdminServiceForm = () => {
           {
             key: 'dispatchStatus',
             header: '출동 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '출동' : '미출동'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
           },
         ];
       case 'dispatch':
@@ -88,11 +83,7 @@ const AdminServiceForm = () => {
           {
             key: 'transferStatus',
             header: '이송 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '이송' : '미이송'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
           },
         ];
       case 'transfer':
@@ -111,20 +102,12 @@ const AdminServiceForm = () => {
           {
             key: 'dispatchStatus',
             header: '출동 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '출동' : '미출동'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
           },
           {
             key: 'transferStatus',
             header: '이송 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '이송' : '미이송'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
           },
         ];
     }
@@ -221,7 +204,6 @@ const AdminServiceForm = () => {
       </div>
 
       {/* 테이블 */}
-      {/* 테이블 영역 수정 */}
       <div className="w-full">
         <Table>
           <TableHeader>
@@ -238,9 +220,11 @@ const AdminServiceForm = () => {
               <TableRow key={index} onClick={() => handleRowClick(data)} className="cursor-pointer">
                 {columns.map((column) => (
                   <TableCell key={column.key}>
-                    {column.render
-                      ? column.render(data[column.key])
-                      : String(data[column.key] ?? '')}
+                    {data[column.key] !== undefined && data[column.key] !== null
+                      ? column.render
+                        ? column.render(data[column.key])
+                        : data[column.key]
+                      : 'N/A'}
                   </TableCell>
                 ))}
               </TableRow>

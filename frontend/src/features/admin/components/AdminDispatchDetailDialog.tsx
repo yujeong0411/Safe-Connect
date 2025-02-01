@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@components/ui/textarea.tsx';
 import { DispatchDetailProps } from '@features/admin/types/detailProps.types.ts';
 
-const AdminDispatchDetailDialog = ({ open, onOpenChange, data, buttons }: DispatchDetailProps) => {
+const AdminDispatchDetailDialog = ({ open, onOpenChange, data }: DispatchDetailProps) => {
   if (!data) return null;
 
   return (

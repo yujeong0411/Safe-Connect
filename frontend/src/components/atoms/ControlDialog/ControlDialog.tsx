@@ -66,7 +66,7 @@ const ControlDialogOverlay = React.forwardRef<
     {...props}
   />
 ));
-ControlDialogOverlay.displayName = "ControlDialogOverlay";
+ControlDialogOverlay.displayName = 'ControlDialogOverlay';
 
 const ControlDialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
@@ -86,6 +86,6 @@ const ControlDialogContent = React.forwardRef<
     </DialogPrimitive.Content>
   </ControlDialogPortal>
 ));
-ControlDialogContent.displayName = "ControlDialogContent";
+ControlDialogContent.displayName = 'ControlDialogContent';
 
 export { ControlDialog, ControlDialogTrigger, ControlDialogContent };

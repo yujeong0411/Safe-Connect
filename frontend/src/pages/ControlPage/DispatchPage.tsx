@@ -9,7 +9,7 @@ const DispatchPage = () => {
     { label: '신고 접수', path: '/Control/patient-info' },
     { label: '출동 지령', path: '/Control/dispatch' },
     { label: '보호자 알림', path: '/Control/main' },
-    { label: '신고 목록', path: '/Control/logs' }
+    { label: '신고 목록', path: '/Control/logs' },
   ];
 
   const mainContent = (
@@ -17,8 +17,8 @@ const DispatchPage = () => {
       {/* 좌측: 영상통화 및 신고내용 */}
       <div className="w-1/2 p-4 border-r border-gray-200">
         <div className="relative w-full h-[400px] bg-white rounded-lg overflow-hidden">
-          <img 
-            src="/patient-video.png" 
+          <img
+            src="/patient-video.png"
             alt="Emergency call video"
             className="w-full h-full object-cover"
           />
@@ -31,7 +31,7 @@ const DispatchPage = () => {
         </div>
 
         <div className="mt-4 bg-white p-4 rounded-lg">
-          <textarea 
+          <textarea
             className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="신고 내용을 입력하세요"
           />
@@ -45,8 +45,8 @@ const DispatchPage = () => {
       <div className="flex-1 p-4">
         <div className="h-full bg-white rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="환자 진찰번호"
               className="px-4 py-2 border border-gray-300 rounded-md w-80 focus:outline-none focus:ring-2 focus:ring-blue-200"
             />

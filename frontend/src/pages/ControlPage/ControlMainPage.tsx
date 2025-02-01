@@ -13,7 +13,7 @@ const ControlMainPage = () => {
     { label: '신고 접수', path: '/Control/patient-info' },
     { label: '출동 지령', path: '/Control/dispatch' },
     { label: '보호자 알림', path: '/Control/main' },
-    { label: '신고 목록', path: '/Control/logs' }
+    { label: '신고 목록', path: '/Control/logs' },
   ];
 
   // URL 경로 변경 감지하여 다이얼로그 표시
@@ -33,14 +33,9 @@ const ControlMainPage = () => {
 
   return (
     <>
-      <MainTemplate navItems={navItems}>
-        {/* 기존 mainContent 내용 */}
-      </MainTemplate>
+      <MainTemplate navItems={navItems}>{/* 기존 mainContent 내용 */}</MainTemplate>
 
-      <VideoCallDialog
-        isOpen={isVideoCallOpen}
-        onClose={() => setIsVideoCallOpen(false)}
-      />
+      <VideoCallDialog isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)} />
 
       <GuardianNotifyDialog
         isOpen={isGuardianNotifyOpen}

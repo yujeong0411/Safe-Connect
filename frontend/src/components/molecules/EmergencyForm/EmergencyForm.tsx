@@ -13,8 +13,8 @@ const EmergencyForm = ({ onSubmit }: EmergencyFormProps) => {
       <Input label="나이" width="full" />
       <Input label="연락처" width="full" />
       <div className="col-span-2">
-        <Input 
-          label="증상" 
+        <Input
+          label="증상"
           width="full"
           className="h-32" // multiline 대신 높이 지정
         />

@@ -1,6 +1,9 @@
 // src/components/organisms/EmergencyDetailModal/EmergencyDetailModal.tsx
 import React from 'react';
-import { ControlDialog, ControlDialogContent } from '@/components/atoms/ControlDialog/ControlDialog';
+import {
+  ControlDialog,
+  ControlDialogContent,
+} from '@/components/atoms/ControlDialog/ControlDialog';
 import Button from '@/components/atoms/Button/Button';
 
 interface EmergencyDetailModalProps {
@@ -27,9 +30,7 @@ const EmergencyDetailModal = ({ isOpen, onClose, data }: EmergencyDetailModalPro
   const InfoField = ({ label, value }: { label: string; value?: string | number }) => (
     <div className="mb-4">
       <label className="block text-sm font-medium text-gray-600">{label}</label>
-      <div className="mt-1 p-2 bg-gray-50 rounded-md min-h-[2.5rem]">
-        {value || '-'}
-      </div>
+      <div className="mt-1 p-2 bg-gray-50 rounded-md min-h-[2.5rem]">{value || '-'}</div>
     </div>
   );
 
@@ -69,7 +70,7 @@ const EmergencyDetailModal = ({ isOpen, onClose, data }: EmergencyDetailModalPro
         </div>
 
         <div className="flex justify-end mt-6">
-          <Button 
+          <Button
             variant="secondary"
             onClick={onClose}
             className="px-6 py-2 bg-[#545F71] text-white hover:bg-[#434b59]"
