@@ -1,6 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
@@ -23,17 +24,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class DispatchStaffServiceImpl implements DispatchStaffService {
-    private FireStaffRepository fireStaffRepository;
-    private DispatchStaffRepository dispatchStaffRepository;
-    private DispatchGroupRepository dispatchGroupRepository;
-    private DispatchRepository dispatchRepository;
-    private TransferRepository transferRepository;
+    private final FireStaffRepository fireStaffRepository;
+    private final DispatchStaffRepository dispatchStaffRepository;
+    private final DispatchGroupRepository dispatchGroupRepository;
+    private final DispatchRepository dispatchRepository;
+    private final TransferRepository transferRepository;
 
-    public DispatchStaffServiceImpl(FireStaffRepository fireStaffRepository, DispatchStaffRepository dispatchStaffRepository, DispatchGroupRepository dispatchGroupRepository, DispatchRepository dispatchRepository, TransferRepository transferRepository) {
+    public DispatchStaffServiceImpl(
+            FireStaffRepository fireStaffRepository,
+            DispatchStaffRepository dispatchStaffRepository,
+            DispatchGroupRepository dispatchGroupRepository,
+            DispatchRepository dispatchRepository,
+            TransferRepository transferRepository) {
         this.fireStaffRepository = fireStaffRepository;
         this.dispatchStaffRepository = dispatchStaffRepository;
         this.dispatchGroupRepository = dispatchGroupRepository;
@@ -46,38 +52,46 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         try{
             String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
             System.out.println("입력된 ID: " + fireStaffLoginId);
-            Optional<FireStaff> result = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId);
-            if (result.isPresent()) {
-                System.out.println("조회된 직원 정보: " + result.get().getFireStaffName());  // 또는 다른 필드
-                FireStaff fireStaff = result.get();
-                System.out.println("소방서 정보: " + fireStaff.getFireDept().getFireDeptName());  // 연관된 소방서 정보
-            } else {
-                System.out.println("직원 정보를 찾을 수 없습니다.");
-                result.orElseThrow();
-            }
-//            System.out.println(fireStaffLoginId);
+
+            // 1. FireStaff 조회
             FireStaff fireStaff = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId)
                     .orElseThrow(() -> new EntityNotFoundException("직원이 일치하지 않습니다."));
-//
-            System.out.println("222222222222");
+            System.out.println("FireStaff 조회 성공: " + fireStaff.getFireStaffName());
 
-            //직원 찾고, 직원 팀찾고, 직원
+            // 2. DispatchStaff 조회
             DispatchStaff dispatchStaff = dispatchStaffRepository.findByFireStaff(fireStaff);
-            DispatchGroup dispatchGroup = dispatchStaff.getDispatchGroup();
-            System.out.println("33333333333");
+            if (dispatchStaff == null) {
+                throw new EntityNotFoundException("해당 직원의 출동팀 정보가 없습니다.");
+            }
+            System.out.println("DispatchStaff 조회 성공: " + dispatchStaff.getDispatchGroup().getDispatchGroupId());
 
-            List<Transfer> transfers = transferRepository.findByDispatchGroup(dispatchGroup);
+            // 3. DispatchGroup 조회
+            DispatchGroup dispatchGroup = dispatchStaff.getDispatchGroup();
+            System.out.println("DispatchGroup 조회 성공: " + dispatchGroup.getDispatchGroupId());
+
+            // 4. Transfer와 Dispatch 조회
+            List<TransferResponse> transfers = transferRepository.findByDispatchGroup(dispatchGroup)
+                    .stream().map(TransferResponse::new)
+                    .collect(Collectors.toList());
             List<Dispatch> dispatches = dispatchRepository.findByDispatchGroup(dispatchGroup);
+
 
             Map<String, Object> data = new HashMap<>();
             data.put("transfer", transfers);
             data.put("dispatch", dispatches);
 
-            //비밀번호 암호화
             ResponseData<Map> response = ResponseUtil.success(data, "전체 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }catch (Exception e){
-            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
+
+
+        } catch (EntityNotFoundException e) {
+            System.out.println("EntityNotFoundException: " + e.getMessage());
+            ResponseData<Void> response = ResponseUtil.fail(404, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+            ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
