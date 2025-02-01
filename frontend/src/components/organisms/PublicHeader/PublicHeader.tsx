@@ -24,7 +24,12 @@ const PublicHeader = ({ labels = [] }: PublicHeaderProps) => {
 
       <div className="flex gap-4">
         {labels.map((item, index) => (
-          <Link key={index} to={item.href} className="text-[#3699ff]">
+          <Link
+            key={index}
+            to={item.href}
+            onClick={item.onClick || (() => navigate(item.href))}
+            className="text-[#3699ff]"
+          >
             {item.label}
           </Link>
         ))}

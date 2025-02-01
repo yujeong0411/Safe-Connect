@@ -10,7 +10,7 @@ const UserMainPage = () => {
         { label: '비밀번호 수정', path: '/user/updatepassword' },
       ]}
     >
-      <div className="w-full min-h-[700px] flex items-center justify-center">
+      <div className="w-full min-h-[700px] flex items-center justify-center scale-90 pr-20">
         <Carousel />
       </div>
     </MainTemplate>

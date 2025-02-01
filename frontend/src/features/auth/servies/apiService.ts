@@ -174,11 +174,13 @@ export const findPassword = async (userEmail: string) => {
 export const fetchMedicalData = async () => {
   try {
     const response = await axiosInstance.get('/user/medi/list');
+    console.log('API 응답:', response.data); // 전체 응답 데이터 확인
+
     const medicationOptions =
       response.data.data
         .find((category: MedicalCategory) => category.categoryName === '복용약물')
         ?.mediList.map((item: MedicalItem) => ({
-          value: item.mediId,
+          value: Number(item.mediId), // mediId를 명시적으로 숫자로 변환
           label: item.mediName,
         })) || [];
 
@@ -186,11 +188,11 @@ export const fetchMedicalData = async () => {
       response.data.data
         .find((category: MedicalCategory) => category.categoryName === '기저질환')
         ?.mediList.map((item: MedicalItem) => ({
-          value: item.mediId,
+          value: Number(item.mediId), // mediId를 명시적으로 숫자로 변환
           label: item.mediName,
         })) || [];
-    console.log('약물', medicationOptions);
-    console.log('질병', diseaseOptions);
+
+    console.log('변환된 옵션:', { medicationOptions, diseaseOptions });
     return { medicationOptions, diseaseOptions };
   } catch (error) {
     console.error('fetchMedicalData failed:', error);

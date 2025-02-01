@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/user/authStore.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useEffect } from 'react';
 import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
-import { signOut } from '@features/auth/servies/apiService';
+import { signOut } from '@features/auth/servies/apiService.ts';
 
 const UserInfoPage = () => {
   const { loadUserInfo, isLoading } = useLoadUserInfo('user');

@@ -16,10 +16,11 @@ const SignupMediForm = () => {
   useEffect(() => {
     const loadMedicalData = async () => {
       try {
-        const { diseaseOptions, medicationOptions } = await fetchMedicalData();
+        const data = await fetchMedicalData();
+        console.log('받아온 의료 데이터:', data);
 
-        setDiseaseOptions(diseaseOptions);
-        setMedicationOptions(medicationOptions);
+        setDiseaseOptions(data.diseaseOptions);
+        setMedicationOptions(data.medicationOptions);
         console.log('의료정보 전체 조회 성공');
       } catch (error) {
         console.error('의료 데이터 가져오기 실패:', error);
@@ -28,7 +29,12 @@ const SignupMediForm = () => {
     };
 
     loadMedicalData();
-  }, [setDiseaseOptions, setMedicationOptions]);
+  }, []); // 의존성 배열에서 setDiseaseOptions, setMedicationOptions 제거
+
+  // store의 상태를 모니터링하기 위한 별도의 useEffect
+  useEffect(() => {
+    console.log('store 상태:', { diseaseOptions, medicationOptions });
+  }, [diseaseOptions, medicationOptions]);
 
   return (
     <div className="flex flex-row gap-x-20 w-full min-h-full">
@@ -39,7 +45,13 @@ const SignupMediForm = () => {
           options={diseaseOptions}
           value={formData.diseaseId || []} // 훅에서 가져온 데이터 전달
           placeholder="현재 앓고 계신 질환을 추가하세요."
-          onChange={(value) => setFormData({ diseaseId: value })}
+          onChange={(value: number[]) => {
+            // 타입을 number[]로 명시
+            setFormData({
+              ...formData,
+              diseaseId: value,
+            });
+          }}
         />
       </div>
 
@@ -50,7 +62,13 @@ const SignupMediForm = () => {
           options={medicationOptions}
           value={formData.medicationId || []}
           placeholder="복용하고 있는 약물을 추가하세요."
-          onChange={(value) => setFormData({ medicationId: value })}
+          onChange={(value: number[]) => {
+            // 타입을 number[]로 명시
+            setFormData({
+              ...formData,
+              medicationId: value,
+            });
+          }}
         />
       </div>
     </div>
