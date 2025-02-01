@@ -3,7 +3,7 @@ package c207.camference.api.contoller.user;
 import c207.camference.api.request.user.*;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.user.UserService;
-import c207.camference.db.repository.UserRepository;
+import c207.camference.db.repository.users.UserRepository;
 import c207.camference.util.redis.RedisUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;

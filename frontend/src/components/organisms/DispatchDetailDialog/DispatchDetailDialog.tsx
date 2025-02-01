@@ -7,7 +7,7 @@ const DispatchDetailDialog = ({
   onClose,
   patientInfo,
   vitalSigns,
-  transferInfo
+  transferInfo,
 }: DispatchDetailDialogProps) => {
   return (
     <Dialog
@@ -16,10 +16,10 @@ const DispatchDetailDialog = ({
       onClose={onClose}
       buttons={[
         {
-          text: "닫기",
-          variant: "secondary",
-          onClick: onClose
-        }
+          text: '닫기',
+          variant: 'secondary',
+          onClick: onClose,
+        },
       ]}
     >
       <div className="w-[800px] max-h-[80vh] overflow-y-auto">

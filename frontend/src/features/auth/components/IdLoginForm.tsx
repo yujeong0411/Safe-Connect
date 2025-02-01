@@ -133,7 +133,7 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
             />
             {error && <div className="text-red-500 text-sm">{error}</div>}
 
-            <div className="felx flex-col w-full mt-5 ">
+            <div className="felx flex-col w-full mt-10 ">
               <Button type="submit" variant="blue" width="full" size="md" className="mb-3">
                 로그인
               </Button>

@@ -1,6 +1,16 @@
 import { useState } from 'react';
-import TableRow from '@components/organisms/TableRow/TableRow.tsx';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '@/components/ui/table';
 import Pagination from '@components/atoms/Pagination/Pagination.tsx';
+import AdminReportDetailDialog from '@features/admin/components/AdminReportDetailDialog.tsx';
+import AdminDispatchDetailDialog from '@features/admin/components/AdminDispatchDetailDialog.tsx';
+import AdminTransferDetailDialog from '@features/admin/components/AdminTransferDetailDialog.tsx';
 
 type ServiceType = 'report' | 'dispatch' | 'transfer' | null;
 
@@ -31,6 +41,20 @@ const AdminServiceForm = () => {
   // 날짜 필터링 관리
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  // 디테일 모달
+  const handleRowClick = (detailData) => {
+    // selectedType이 null일 때는 데이터의 type을 사용
+    const modalType = selectedType || detailData.type;
+    setSelectedPatient({
+      ...detailData,
+      type: selectedType,
+    });
+    setIsModalOpen(true);
+  };
+
   // 페이지네이션 관련 상태 추가
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(10); // API에서 받아올 총 페이지 수
@@ -47,11 +71,7 @@ const AdminServiceForm = () => {
           {
             key: 'dispatchStatus',
             header: '출동 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '출동' : '미출동'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
           },
         ];
       case 'dispatch':
@@ -63,11 +83,7 @@ const AdminServiceForm = () => {
           {
             key: 'transferStatus',
             header: '이송 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '이송' : '미이송'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
           },
         ];
       case 'transfer':
@@ -86,33 +102,36 @@ const AdminServiceForm = () => {
           {
             key: 'dispatchStatus',
             header: '출동 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '출동' : '미출동'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
           },
           {
             key: 'transferStatus',
             header: '이송 여부',
-            render: (value) => (
-              <span className="px-2.5 py-0.5 text-xs bg-[#f2f4f8] rounded-[10px]">
-                {value ? '이송' : '미이송'}
-              </span>
-            ),
+            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
           },
         ];
     }
   };
 
-  // 더미 데이터
-  const dummyData = {
-    classification: '신고',
-    reporterNumber: '123-4567',
-    reportTime: '2025-01-19 14:30',
-    reportEndTime: '2025-01-19 15:00',
-    dispatchStatus: true,
-  };
+  // dummyData를 각 타입별로 수정
+  const dummyData = [
+    {
+      type: 'report', // 분류 정보 추가
+      classification: '신고',
+      reporterNumber: '123-4567',
+      reportTime: '2025-01-19 14:30',
+      reportEndTime: '2025-01-19 15:00',
+      dispatchStatus: true,
+    },
+    {
+      type: 'dispatch', // 분류 정보 추가
+      classification: '출동',
+      fireStation: '광산구 소방서',
+      dispatchTime: '2025-01-19 14:30',
+      dispatchEndTime: '2025-01-19 15:00',
+      transferStatus: false,
+    },
+  ];
 
   const columns = getColumns();
 
@@ -185,22 +204,33 @@ const AdminServiceForm = () => {
       </div>
 
       {/* 테이블 */}
-      <div className="w-full overflow-x-auto">
-        <div className="min-w-[800px] border border-[#dde1e6] bg-white">
-          {/* 테이블 헤더 */}
-          <div className="flex w-full bg-banner text-white text-sm font-medium">
-            {columns.map((column) => (
-              <div key={column.header} className="flex-1 p-4">
-                {column.header}
-              </div>
+      <div className="w-full">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-banner hover:bg-banner">
+              {columns.map((column) => (
+                <TableHead key={column.header} className="text-white font-medium">
+                  {column.header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {dummyData.map((data, index) => (
+              <TableRow key={index} onClick={() => handleRowClick(data)} className="cursor-pointer">
+                {columns.map((column) => (
+                  <TableCell key={column.key}>
+                    {data[column.key] !== undefined && data[column.key] !== null
+                      ? column.render
+                        ? column.render(data[column.key])
+                        : data[column.key]
+                      : 'N/A'}
+                  </TableCell>
+                ))}
+              </TableRow>
             ))}
-          </div>
-
-          {/* 테이블 데이터 */}
-          <TableRow data={dummyData} columns={columns} actions={<button>...</button>} />
-
-          {/* 더 많은 데이터 행 */}
-        </div>
+          </TableBody>
+        </Table>
 
         {/* 페이지네이션 추가 : 추후 수정*/}
         <div className="mt-4">
@@ -211,6 +241,29 @@ const AdminServiceForm = () => {
           />
         </div>
       </div>
+
+      {/* 모달 컴포넌트 */}
+      {(selectedType === 'report' || selectedPatient?.type === 'report') && (
+        <AdminReportDetailDialog
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          data={selectedPatient}
+        />
+      )}
+      {(selectedType === 'dispatch' || selectedPatient?.type === 'dispatch') && (
+        <AdminDispatchDetailDialog
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          data={selectedPatient}
+        />
+      )}
+      {(selectedType === 'transfer' || selectedPatient?.type === 'transfer') && (
+        <AdminTransferDetailDialog
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          data={selectedPatient}
+        />
+      )}
     </div>
   );
 };

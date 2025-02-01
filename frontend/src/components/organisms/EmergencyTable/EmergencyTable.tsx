@@ -30,7 +30,7 @@ const EmergencyTable = ({ data, onActionClick }: EmergencyTableProps) => {
         <div>이송병원</div>
         <div>조치</div>
       </div>
-      
+
       <div className="divide-y">
         {data.map((item) => (
           <div key={item.id} className="grid grid-cols-8 gap-4 p-4 items-center text-sm">
@@ -43,11 +43,7 @@ const EmergencyTable = ({ data, onActionClick }: EmergencyTableProps) => {
             <div>{item.team}</div>
             <div>{item.hospital}</div>
             <div>
-              <Button
-                variant="blue"
-                size="sm"
-                onClick={() => onActionClick(item.id)}
-              >
+              <Button variant="blue" size="sm" onClick={() => onActionClick(item.id)}>
                 상세보기
               </Button>
             </div>

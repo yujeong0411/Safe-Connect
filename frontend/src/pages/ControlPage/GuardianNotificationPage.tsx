@@ -21,17 +21,15 @@ const GuardianNotificationPage = () => {
                 <li>• 신고 위치: 광주광역시 광산구 장덕동 1442</li>
                 <li>• 현재 상태: 구급대원 출동 중</li>
               </ul>
-              <p className="mt-2 text-sm text-gray-600">* 환자의 위치로 이동 중이신 경우, 안전운전 바랍니다.</p>
+              <p className="mt-2 text-sm text-gray-600">
+                * 환자의 위치로 이동 중이신 경우, 안전운전 바랍니다.
+              </p>
             </div>
           </div>
 
           {/* 보호자 연락처 입력 */}
           <div>
-            <Input
-              label="보호자 연락처"
-              width="full"
-              placeholder="010-0000-0000"
-            />
+            <Input label="보호자 연락처" width="full" placeholder="010-0000-0000" />
           </div>
 
           {/* 버튼 */}

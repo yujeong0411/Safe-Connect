@@ -32,10 +32,10 @@ const GuardianNotifyDialog: React.FC<GuardianNotifyDialogProps> = ({ isOpen, onC
       onClose={onClose}
       buttons={[
         {
-          text: "전송",
-          variant: "primary",
-          onClick: handleSend
-        }
+          text: '전송',
+          variant: 'primary',
+          onClick: handleSend,
+        },
       ]}
     />
   );

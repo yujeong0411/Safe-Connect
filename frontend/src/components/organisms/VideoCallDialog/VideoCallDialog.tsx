@@ -21,15 +21,15 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({ isOpen, onClose }) =>
       onClose={onClose}
       buttons={[
         {
-          text: "영상통화방 생성 및 url전송",
-          variant: "primary",
-          onClick: handleCreateAndSend
+          text: '영상통화방 생성 및 url전송',
+          variant: 'primary',
+          onClick: handleCreateAndSend,
         },
         {
-          text: "닫기",
-          variant: "secondary",
-          onClick: onClose
-        }
+          text: '닫기',
+          variant: 'secondary',
+          onClick: onClose,
+        },
       ]}
     />
   );

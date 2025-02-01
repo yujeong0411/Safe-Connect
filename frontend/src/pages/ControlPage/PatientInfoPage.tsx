@@ -10,7 +10,7 @@ const PatientInfoPage = () => {
     { label: '신고 접수', path: '/Control/patient-info' },
     { label: '출동 지령', path: '/Control/dispatch' },
     { label: '보호자 알림', path: '/Control/main' },
-    { label: '신고 목록', path: '/Control/logs' }
+    { label: '신고 목록', path: '/Control/logs' },
   ];
 
   const mainContent = (
@@ -18,8 +18,8 @@ const PatientInfoPage = () => {
       {/* 좌측: 영상통화 영역 */}
       <div className="w-1/2 p-4 border-r border-gray-200">
         <div className="relative w-full h-[400px] bg-white rounded-lg overflow-hidden">
-          <img 
-            src="/patient-video.png" 
+          <img
+            src="/patient-video.png"
             alt="Emergency call video"
             className="w-full h-full object-cover"
           />
@@ -27,9 +27,7 @@ const PatientInfoPage = () => {
             또는 대기화면
           </div>
           <div className="absolute top-4 right-4 space-x-2">
-            <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm">
-              URL 복사
-            </button>
+            <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm">URL 복사</button>
             <button className="bg-red-500 text-white px-3 py-1 rounded text-sm">
               응급상황 종료
             </button>
@@ -37,7 +35,7 @@ const PatientInfoPage = () => {
         </div>
 
         <div className="mt-4 bg-white p-4 rounded-lg">
-          <textarea 
+          <textarea
             className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="신고 내용을 입력하세요"
           />
@@ -51,7 +49,7 @@ const PatientInfoPage = () => {
       <div className="flex-1 p-4">
         <div className="bg-white rounded-lg p-6 h-full">
           <div className="flex justify-between items-center mb-6">
-            <input 
+            <input
               type="text"
               placeholder="환자 전화번호"
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -104,7 +102,7 @@ const PatientInfoPage = () => {
 
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
-            <textarea 
+            <textarea
               className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
               placeholder="요청사항을 입력하세요"
             />

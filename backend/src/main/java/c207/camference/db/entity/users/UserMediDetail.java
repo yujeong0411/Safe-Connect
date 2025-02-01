@@ -1,6 +1,6 @@
 package c207.camference.db.entity.users;
 
-import c207.camference.db.entity.others.Medi;
+import c207.camference.db.entity.etc.Medi;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package c207.camference.filter.jwt;
 
 import c207.camference.api.dto.user.CustomUserDetails;
-import c207.camference.db.entity.others.Refresh;
-import c207.camference.db.repository.RefreshRepository;
+import c207.camference.db.entity.etc.Refresh;
+import c207.camference.db.repository.etc.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -50,7 +50,7 @@ public class UserLoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access",userDetails.getUsername(), "ROLE_USER",60*1000L);
+        String access = jwtUtil.createJwt("access",userDetails.getUsername(), "ROLE_USER",10*60*1000L);
         String refresh = jwtUtil.createJwt("refresh",userDetails.getUsername(), "ROLE_USER",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장

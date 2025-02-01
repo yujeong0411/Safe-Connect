@@ -44,7 +44,6 @@ const Button = ({
       type={type}
     >
       {children}
-
     </button>
   );
 };
