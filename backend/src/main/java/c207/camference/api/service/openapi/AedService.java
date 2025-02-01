@@ -1,5 +1,6 @@
 package c207.camference.api.service.openapi;
 
+import c207.camference.api.response.openapi.AedResponse;
 import c207.camference.db.entity.etc.Aed;
 import c207.camference.db.repository.openapi.AedRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static c207.camference.util.openapi.OpenApiUtil.convertXmlToJson;
 
@@ -93,5 +95,12 @@ public class AedService {
                 break;
             }
         }
+    }
+
+    public List<AedResponse> getAedsNearBy(double lat, double lon) {
+        List<Aed> aeds = aedRepository.findAedsWithin1Km(lat, lon);
+        return aeds.stream()
+                .map(aed -> new AedResponse(aed.getAedId(), aed.getAedAddress(), aed.getAedLatitude(), aed.getAedLongitude()))
+                .collect(Collectors.toList());
     }
 }

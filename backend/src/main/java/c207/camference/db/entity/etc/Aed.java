@@ -22,6 +22,6 @@ public class Aed {
     @Column(name = "aed_latitude", nullable = false)
     private double aedLatitude;
 
-    @Column(name = "aed_longitude")
+    @Column(name = "aed_longitude", nullable = false)
     private double aedLongitude;
 }
