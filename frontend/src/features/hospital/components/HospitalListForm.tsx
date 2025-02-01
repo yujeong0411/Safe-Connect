@@ -1,7 +1,17 @@
 import TableRow from '@components/organisms/TableRow/TableRow.tsx';
-import SearchBar_ver2 from '@components/molecules/SearchBar/SearchBar_ver2.tsx';
+import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
+import { useState } from 'react';
 
 const HospitalListForm = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  // 테이블 행 클릭 시
+  const handleRowClick = (patientData) => {
+    setSelectedPatient(patientData);
+    setIsModalOpen(true);
+  };
+
   // 컬럼 정의
   const columns: {
     key: string;
@@ -56,12 +66,20 @@ const HospitalListForm = () => {
             <div className="w-10 p-4"></div>
           </div>
 
-          {/* 테이블 바디 */}
+          {/* 테이블 바디에 클릭 이벤트 추가 */}
           {dummyData.map((data, index) => (
-            <TableRow key={index} data={data} columns={columns} actions={<button>...</button>} />
+            <div onClick={() => handleRowClick(data)} className="cursor-pointer">
+              <TableRow key={index} data={data} columns={columns} actions={<button>...</button>} />
+            </div>
           ))}
         </div>
       </div>
+      {/* 모달 컴포넌트 */}
+      <HospitalDetailDialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        data={selectedPatient}
+      />
     </div>
   );
 };

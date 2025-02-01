@@ -13,7 +13,10 @@ const HospitalRoutes = () => {
       {/*인증되지 않은 사용자*/}
       <Route element={<PublicRoute />}>
         <Route path="" element={<HospitalLoginPage />} />
-        <Route path="main" element={<HospitalMainPage />} />
+        <Route path="request" element={<HospitalMainPage />} />
+        <Route path="request/detail" element={<HospitalMainPage />} />
+        <Route path="accept" element={<HospitalMainPage />} />
+        <Route path="accept/detail" element={<HospitalMainPage />} />
       </Route>
     </Routes>
   );

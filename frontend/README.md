@@ -9,6 +9,7 @@
 8. React Toasts Popup 모듈 설치 : `npm install react-toastify ` <br/>
 9. ESLint 설치 및 설정 : `npm install -D eslint eslint-plugin-react @typescript-eslint/parser @typescript-eslint/eslint-plugin` <br/>
 10. Prettier 설치 및 설정 : `npm install -D prettier eslint-config-prettier eslint-plugin-prettier` <br/>
+11. shadcn-ui 설치 및 설정 : `npx shadcn-ui@latest init`, `npm install tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react`
 
 
 ### Prettier 설정 방법
@@ -20,3 +21,6 @@
 ### Carousel 
 https://react-slick.neostack.com/docs/example/simple-slider 
 
+### Shadcn-ui
+https://ui.shadcn.com/docs/installation/vite
+원하는 컴포넌트 패키지 설치 후 사용 : src/components/ui

@@ -1,5 +1,6 @@
 import SearchBar_ver2 from '@components/molecules/SearchBar/SearchBar_ver2.tsx';
 import TableRow from '@components/organisms/TableRow/TableRow.tsx';
+import { useState } from 'react';
 
 interface AdminUserTableProps {
   userType: 'fire' | 'hospital';
@@ -15,6 +16,15 @@ interface UserData {
 }
 
 const AdminRegisterForm = ({ userType }: AdminUserTableProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  // 테이블 행 클릭 시
+  const handleRowClick = (patientData) => {
+    setSelectedPatient(patientData);
+    setIsModalOpen(true);
+  };
+
   const handleSearch = (keyword: string) => {
     console.log('keyword:', keyword);
     // 검색로직 구현
