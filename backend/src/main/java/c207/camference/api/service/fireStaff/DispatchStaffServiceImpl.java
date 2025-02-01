@@ -1,6 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.report.DispatchResponse;
 import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
@@ -73,7 +74,9 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             List<TransferResponse> transfers = transferRepository.findByDispatchGroup(dispatchGroup)
                     .stream().map(TransferResponse::new)
                     .collect(Collectors.toList());
-            List<Dispatch> dispatches = dispatchRepository.findByDispatchGroup(dispatchGroup);
+            List<DispatchResponse> dispatches = dispatchRepository.findByDispatchGroup(dispatchGroup)
+                    .stream().map(DispatchResponse::new)
+                    .collect(Collectors.toList());
 
 
             Map<String, Object> data = new HashMap<>();
