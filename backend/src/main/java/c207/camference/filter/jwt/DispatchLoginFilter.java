@@ -1,7 +1,7 @@
 package c207.camference.filter.jwt;
 
-import c207.camference.db.entity.others.Refresh;
-import c207.camference.db.repository.RefreshRepository;
+import c207.camference.db.entity.etc.Refresh;
+import c207.camference.db.repository.etc.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -29,7 +29,7 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
         setAuthenticationManager(authenticationManager);
-        setFilterProcessesUrl("/dispatch/login"); // 사용자 로그인 URL 설정
+        setFilterProcessesUrl("/dispatch_staff/login"); // 사용자 로그인 URL 설정
     }
 
     // 이거 다음

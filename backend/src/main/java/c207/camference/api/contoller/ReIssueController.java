@@ -1,7 +1,7 @@
 package c207.camference.api.contoller;
 
-import c207.camference.db.entity.others.Refresh;
-import c207.camference.db.repository.RefreshRepository;
+import c207.camference.db.entity.etc.Refresh;
+import c207.camference.db.repository.etc.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
@@ -30,20 +30,10 @@ public class ReIssueController {
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
-        System.out.println("=== Reissue Request ===");
+
         //get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
-
-         if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    System.out.println("Cookie Name: " + cookie.getName());
-                    System.out.println("Cookie Value: " + cookie.getValue());
-                }
-            } else {
-                System.out.println("No cookies found");
-            }
-
 
         if (cookies == null) {
             return new ResponseEntity<>("no cookies found", HttpStatus.BAD_REQUEST);
@@ -113,8 +103,8 @@ public class ReIssueController {
 
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24*60*60);
-       // cookie.setSecure(true);
-        cookie.setPath("/");
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         return cookie;

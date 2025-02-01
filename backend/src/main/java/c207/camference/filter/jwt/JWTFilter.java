@@ -44,7 +44,6 @@ public class JWTFilter extends OncePerRequestFilter {
         //request에서 Authorization 헤더를 찾음
         String authHeader = request.getHeader("Authorization");
 
-
         //Authorization 헤더 검증
         if (authHeader  == null|| !authHeader .startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -56,19 +55,13 @@ public class JWTFilter extends OncePerRequestFilter {
             jwtUtil.isExpired(token);
         } catch (ExpiredJwtException e) {
 
-           // 중요: 리프레시 토큰으로 갱신 가능한 상황임을 명시
-//                 response.setHeader("Token-Status", "EXPIRED");
-//                 filterChain.doFilter(request, response);
-//                 return;
-
-
-             //response body
+            //response body
             PrintWriter writer = response.getWriter();
             writer.print("access token expired");
 
-             //response status code
-             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-             return;
+            //response status code
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         String category = jwtUtil.getCategory(token);
