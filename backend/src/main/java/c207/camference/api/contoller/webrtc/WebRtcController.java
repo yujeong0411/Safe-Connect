@@ -1,5 +1,7 @@
 package c207.camference.api.contoller.webrtc;
 
+import c207.camference.api.service.webrtc.WebRtcService;
+import c207.camference.api.service.webrtc.WebRtcServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,10 +40,20 @@ public class WebRtcController {
 
     private OpenVidu openvidu;
 
+    private WebRtcService webRtcService;
+
+    public WebRtcController(WebRtcService webRtcService) {
+        this.webRtcService = webRtcService;
+    }
+
     @PostConstruct
     public void init() {
+
         this.openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
+        this.webRtcService = webRtcService;
     }
+
+
 
     /**
      * @param params The Session properties
@@ -50,6 +62,9 @@ public class WebRtcController {
     @PostMapping("/api/sessions")
     public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
+
+        System.out.println(params);
+
         SessionProperties properties = SessionProperties.fromJson(params).build();
         Session session = openvidu.createSession(properties);
         System.out.println(session.getSessionId()); // 테스트용
@@ -66,6 +81,7 @@ public class WebRtcController {
     public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
                                                    @RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
+        System.out.println(params);
         Session session = openvidu.getActiveSession(sessionId);
         if (session == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -74,7 +90,25 @@ public class WebRtcController {
         Connection connection = session.createConnection(properties);
         System.out.println(connection.getConnectionId());
 
+        webRtcService.sendUrlMsg("01028372243");
+
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
+
+
+    /**
+     * @param sessionId
+     * @param params
+     * @return
+     */
+//    @PostMapping("/control/video")
+//    public ResponseEntity<String> sendUrl(@PathVariable("sessionId") String sessionId,
+//                                                   @RequestBody(required = false) Map<String, Object> params)
+//            throws OpenViduJavaClientException, OpenViduHttpException {
+//
+//        webRtcService.sendUrlMsg("01028372243");
+//
+//        return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.CREATED);
+//    }
 
 }
