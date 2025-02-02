@@ -25,7 +25,7 @@ const MainTemplate = ({ children, navItems }: MainTemplateProps) => {
   return (
     <div className="min-h-screen bg-bg flex flex-col">
       {/* 콘텐츠 영역 */}
-
+        <div className="-space-y-4">  {/* 음수 마진으로 간격을 줄임 */}
       <PublicHeader
         labels={[
           {
@@ -36,6 +36,7 @@ const MainTemplate = ({ children, navItems }: MainTemplateProps) => {
         ]}
       />
       <NavBar navItems={navItems} />
+        </div>
       {/* 자식 요소 */}
       <div className="flex-1">{children}</div>
     </div>

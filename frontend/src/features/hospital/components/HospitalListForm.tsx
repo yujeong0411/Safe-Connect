@@ -30,6 +30,7 @@ type ColumnDef = {
 const HospitalListForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data'] | undefined>(); // null 대신 undefined 전달
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
   // 테이블 행 클릭 시
   const handleRowClick = (patientData: PatientData) => {
@@ -92,46 +93,74 @@ const HospitalListForm = () => {
   ];
 
   return (
-    <div className="w-full p-10">
-      <h1 className="text-[32px] font-bold pl-20 mb-5">실시간 이송 요청</h1>
-      <div className="flex flex-col items-center">
-        <div className="w-[80%] min-w-[800px] border border-[#dde1e6] bg-white">
+      <div className="w-full p-10">
+        <h1 className="text-[32px] font-bold mb-5">실시간 이송 요청</h1>
+
+        {/* 필터 영역 추가 */}
+        <div className="flex gap-4 items-center mb-6 pt-4 px-10">
+          <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+              className="border p-2 rounded"
+          />
+          <span>~</span>
+          <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+              className="border p-2 rounded"
+          />
+          <button className="px-4 py-2 rounded bg-banner text-white">검색</button>
+        </div>
+
+
+        {/* 테이블 */}
+        <div className="w-full px-10">
           <Table>
             <TableHeader>
-              <TableRow className="bg-banner hover:bg-banner">
+              <TableRow className="bg-graybtn  hover:bg-graybtn">
                 {columns.map((column) => (
-                  <TableHead key={column.header} className="text-white font-medium">
-                    {column.header}
-                  </TableHead>
+                    <TableHead key={column.header} className="text-black font-semibold">
+                      {column.header}
+                    </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dummyData.map((data, index) => (
-                <TableRow
-                  key={index}
-                  onClick={() => handleRowClick(data)}
-                  className="cursor-pointer hover:bg-gray-100"
-                >
-                  {columns.map((column) => (
-                    <TableCell key={column.key}>
-                      {column.render ? column.render(data[column.key]) : data[column.key]}
+              {dummyData.length > 0 ? (
+                  dummyData.map((data, index) => (
+                      <TableRow
+                          key={index}
+                          onClick={() => handleRowClick(data)}
+                          className="cursor-pointer  hover:bg-[#FAF7F0]"
+                      >
+                        {columns.map((column) => (
+                            <TableCell key={column.key}>
+                              {column.render ? column.render(data[column.key]) : data[column.key]}
+                            </TableCell>
+                        ))}
+                      </TableRow>
+                  ))
+              ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="text-center">
+                      데이터가 없습니다.
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+                  </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
-      </div>
 
-      <HospitalDetailDialog
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        data={selectedPatient}
-        buttons="수락"
-      />
-    </div>
+        <HospitalDetailDialog
+            open={isModalOpen}
+            onOpenChange={setIsModalOpen}
+            data={selectedPatient}
+            buttons="수락"
+        />
+      </div>
   );
 };
+
 export default HospitalListForm;
