@@ -6,10 +6,9 @@ import { useAuthStore } from '@/store/user/authStore.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useEffect } from 'react';
 import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
-import { signOut } from '@features/auth/servies/apiService.ts';
 
 const UserInfoPage = () => {
-  const { loadUserInfo, isLoading } = useLoadUserInfo('user');
+  const { loadUserInfo } = useLoadUserInfo('user');
   const { updateUserInfo } = useAuthStore();
   const { formData, validateFields } = useSignupStore();
 
@@ -49,9 +48,7 @@ const UserInfoPage = () => {
   };
 
   // 회원탈퇴 핸들러
-  const handleSignout = async () => {
-    await signOut();
-  };
+  const handleSignout = async () => {};
 
   return (
     <MainTemplate

@@ -6,33 +6,36 @@ import { useAuthStore } from '@/store/user/authStore.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useEffect } from 'react';
 import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
-import { signOut } from '@features/auth/servies/apiService.ts';
+// import { signOut } from '@features/auth/servies/apiService.ts';
 
 const UserMediPage = () => {
   const { updateMediInfo } = useAuthStore();
   const { formData, setFormData } = useSignupStore();
-  const { loadUserInfo, isLoading } = useLoadUserInfo('medi'); // 사용자 정보 가져오기
+  const { loadUserInfo } = useLoadUserInfo('medi'); // 사용자 정보 가져오기
 
   useEffect(() => {
-    initializePage();
+    (async () => {
+      await initializePage();
+    })();
   }, []); // 페이지 마운트 시 한 번만 실행
 
   const initializePage = async () => {
     try {
-      const userMediInfo = await loadUserInfo();
+      const userMediInfo: { categoryName: string; mediList: { mediId: number }[] }[] | null =
+        await loadUserInfo();
       console.log('받아온 사용자 의료 정보:', userMediInfo);
 
       if (userMediInfo) {
         // mediList 내의 ID들을 찾아서 변환
         const diseaseIds =
           userMediInfo
-            .find((item) => item.categoryName === '기저질환')
-            ?.mediList.map((medi) => medi.mediId) || [];
+            .find((item: { categoryName: string }) => item.categoryName === '기저질환')
+            ?.mediList.map((medi: { mediId: number }) => medi.mediId) || [];
 
         const medicationIds =
           userMediInfo
-            .find((item) => item.categoryName === '복용약물')
-            ?.mediList.map((medi) => medi.mediId) || [];
+            .find((item: { categoryName: string }) => item.categoryName === '복용약물')
+            ?.mediList.map((medi: { mediId: number }) => medi.mediId) || [];
 
         console.log('변환된 ID들:', { diseaseIds, medicationIds });
 
@@ -65,9 +68,7 @@ const UserMediPage = () => {
   };
 
   // 회원탈퇴 핸들러
-  const handleSignout = async () => {
-    await signOut();
-  };
+  const handleSignout = async () => {};
 
   return (
     <MainTemplate

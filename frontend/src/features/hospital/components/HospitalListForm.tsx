@@ -29,7 +29,7 @@ type ColumnDef = {
 
 const HospitalListForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data'] | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data'] | undefined>(); // null 대신 undefined 전달
 
   // 테이블 행 클릭 시
   const handleRowClick = (patientData: PatientData) => {

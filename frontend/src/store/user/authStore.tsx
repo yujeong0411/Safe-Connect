@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { AuthStore, EmailLoginRequest } from '@types/user/auth.types.ts';
+import { AuthStore, EmailLoginRequest } from '@/types/user/auth.types.ts';
 import { axiosInstance } from '@utils/axios.ts';
 import { findEmail } from '@features/auth/servies/apiService.ts';
+import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
 
 export const useAuthStore = create<AuthStore>((set) => ({
   // 초기상태
@@ -11,79 +12,35 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   // 로그인
   login: async (data: EmailLoginRequest) => {
-    // backend에서 form-data 형식으로 받음.
+    // 벡엔드에서 form-data 형식으로 받음.
     const formData = new URLSearchParams();
     formData.append('userEmail', data.userEmail);
     formData.append('userPassword', data.userPassword);
     // 문자열로 변환
     console.log(formData.toString());
 
-    try {
-      console.log('Login attempt with data:', formData);
-      const response = await axiosInstance.post('/user/login', formData, {
-        // axios에 지정 불가능(회원가입시엔 json 필요!)
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        withCredentials: true, // 쿠키 전달
-      });
-      console.log('All headers:', response.headers); // 모든 헤더 확인
-      // 서버는 토큰을 access 키로 보냄.
-      const accessToken = response.headers['access'];
-      console.log('accessToken:', accessToken);
+    // 로그인 공통 로직 사용
+    const accessToken = await commonLogin({
+      loginPath: '/user/login',
+      formData,
+    });
 
-      // 성공시에만 200 응답과 토큰을 주기때문에 또 true 확인할 필요는 없다.
-      if (accessToken) {
-        localStorage.setItem('token', accessToken); // 응답받은 토큰 저장
-        set({ token: accessToken, isAuthenticated: true }); // 상태 업데이트
-
-        // 요청할 때는 Authorization으로 요청해야함.
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`; // 이후 요청 헤더 설정
-
-        // 로그인 성공 후 바로 리턴하여 리다이렉트 방지
-        return;
-      } else {
-        console.error('No authorization header found in response');
-        throw new Error(response.data.message || '로그인 실패');
-      }
-    } catch (error: unknown) {
-      // 에러 처리
-      console.error('Login error details:', {
-        error,
-        response: error.response,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      throw error;
-    }
+    // 상태 변경
+    set({
+      token: accessToken,
+      isAuthenticated: true,
+    });
   },
 
   // 로그아웃 시 토큰 제거 및 상태 초기화
   logout: async () => {
-    try {
-      console.log('로그아웃 요청 전 설정:', {
-        url: 'user/logout',
-        headers: axiosInstance.defaults.headers,
-        cookies: document.cookie,
-      });
-      await axiosInstance.post('/user/logout');
-      console.log('로그아웃 요청 성공');
+    await commonLogout('/user/logout');
 
-      // 로컬 상태 초기화
-      set({
-        token: null,
-        isAuthenticated: false,
-      });
-
-      // 토큰 제거
-      localStorage.removeItem('token');
-
-      // axios 헤더에서 토큰 제거
-      delete axiosInstance.defaults.headers.common['access'];
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-      throw error;
-    }
+    // 상태 변경
+    set({
+      token: null,
+      isAuthenticated: false,
+    });
   },
 
   // 회원 정보 조회
@@ -163,10 +120,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
         set({ userEmail: response.userEmail }); // 스토어의 상태 업데이트
         return response.userEmail;
       }
-      throw new Error(response.message);
+      // 에러 객체 생성 후 Promise.reject로 처리
+      return Promise.reject(new Error(response.message));
     } catch (error) {
       console.error('이메일 찾기 실패:', error);
-      throw error;
+      //throw error;
+      return Promise.reject(error);
     }
   },
 

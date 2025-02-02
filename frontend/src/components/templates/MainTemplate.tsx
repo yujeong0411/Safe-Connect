@@ -6,7 +6,7 @@ import React from 'react';
 
 interface MainTemplateProps {
   children?: React.ReactNode;
-  navItems: [];
+  navItems: Array<{ label: string; path: string }>;
 }
 
 const MainTemplate = ({ children, navItems }: MainTemplateProps) => {

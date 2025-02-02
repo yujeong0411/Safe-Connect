@@ -90,4 +90,5 @@ const AdminTransferDetailDialog = ({ open, onOpenChange, data }: TransferDetailP
     </Dialog>
   );
 };
+
 export default AdminTransferDetailDialog;

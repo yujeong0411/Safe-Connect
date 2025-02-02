@@ -2,6 +2,16 @@ import { useAuthStore } from '@/store/user/authStore.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useState } from 'react';
 
+interface MediItem {
+  mediId: number;
+  mediName: string;
+}
+
+interface MediCategory {
+  categoryName: string;
+  mediList: MediItem[];
+}
+
 // user인지 medi인지 구분하기
 export const useLoadUserInfo = (type: 'user' | 'medi') => {
   const { fetchUserInfo, fetchMediInfo } = useAuthStore();
@@ -19,7 +29,7 @@ export const useLoadUserInfo = (type: 'user' | 'medi') => {
         return userData;
       } else {
         // 의료정보 가져오기
-        const mediData = await fetchMediInfo();
+        const mediData: MediCategory[] = await fetchMediInfo();
         console.log('서버에서 받은 의료 데이터:', mediData);
 
         // 의료 데이터 형식에 맞게 변환 (ID 추출)

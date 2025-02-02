@@ -148,7 +148,7 @@ export const findEmail = async (userName: string, userPhone: string) => {
 };
 
 // 비밀번호 찾기
-export const findPassword = async (userEmail: string) => {
+/*export const findPassword = async (userEmail: string) => {
   try {
     const response = await axiosInstance.put('/user/find/password', { userEmail: userEmail });
     console.log('find Password response', response.data);
@@ -166,7 +166,7 @@ export const findPassword = async (userEmail: string) => {
     console.error('findPassword failed:', error);
     throw error; // 에러를 throw하여 컴포넌트에서 처리
   }
-};
+};*/
 
 // 전체 의료 데이터 조회(크롤링)
 export const fetchMedicalData = async () => {

@@ -11,7 +11,7 @@ export interface IdLoginFormProps {
   };
   loginStore: {
     // 각 유저별 스토어와 로그인 함수
-    login: (credentials: Record<string, string>) => Promise<void>;
+    login: (data: any) => Promise<void>;
   };
   onSuccess?: () => void; // 로그인 성공 시 콜백(페이지 이동)
 }

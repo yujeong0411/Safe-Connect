@@ -5,7 +5,7 @@ import UserPwForm from '@features/user/components/UserPwForm.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useAuthStore } from '@/store/user/authStore.tsx';
 import { validatePassword, validatePasswordConfirm } from '@utils/validation.ts';
-import { signOut } from '@features/auth/servies/apiService.ts';
+// import { signOut } from '@features/auth/servies/apiService.ts';
 
 const UserUpdatePassword = () => {
   const { formData } = useSignupStore();
@@ -35,9 +35,7 @@ const UserUpdatePassword = () => {
   };
 
   // 회원탈퇴 핸들러
-  const handleSignout = async () => {
-    await signOut();
-  };
+  const handleSignout = async () => {};
 
   return (
     <MainTemplate

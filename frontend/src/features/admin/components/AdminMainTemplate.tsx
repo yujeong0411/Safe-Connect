@@ -6,9 +6,10 @@ import { Link, useLocation } from 'react-router-dom';
 interface AdminTemplateProps {
   children?: React.ReactNode;
   currentMenu?: string;
+  onButtonClick?: () => void;
 }
 
-const AdminMainTemplate = ({ children, currentMenu }: AdminTemplateProps) => {
+const AdminMainTemplate = ({ children, currentMenu, onButtonClick }: AdminTemplateProps) => {
   const { pathname } = useLocation();
 
   // 추후 서비스에 로그아웃 함수 만들기
@@ -106,7 +107,7 @@ const AdminMainTemplate = ({ children, currentMenu }: AdminTemplateProps) => {
             {(currentMenu === 'fire' ||
               currentMenu === 'hospital' ||
               currentMenu === 'service') && (
-              <Button width="auto" size="sm" className="whitespace-nowrap">
+              <Button width="auto" size="sm" className="whitespace-nowrap" onClick={onButtonClick}>
                 {currentMenu === 'service' ? '전체 조회' : '신규생성'}
               </Button>
             )}

@@ -1,4 +1,3 @@
-// DispatchMainPage.tsx
 import { useState } from 'react';
 import MainTemplate from '@components/templates/MainTemplate';
 import TableRow from '@components/organisms/TableRow/TableRow';
@@ -101,12 +100,12 @@ const DispatchMainPage = () => {
           <div className="flex gap-4">
             <Badge
               label="출동 대기 중"
-              variant={isEmergency ? 'outline' : 'filled'}
+              variant={isEmergency ? 'primary' : 'secondary'}
               onClick={() => setIsEmergency(false)}
             />
             <Badge
               label="출동 중"
-              variant={isEmergency ? 'filled' : 'outline'}
+              variant={isEmergency ? 'secondary' : 'primary'}
               onClick={() => setIsEmergency(true)}
             />
           </div>
