@@ -9,16 +9,21 @@ import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
+import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.hospital.ReqHospital;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.DispatchStaffRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
+import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.db.repository.hospital.ReqHospitalRepository;
 import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.report.TransferRepository;
+import c207.camference.util.openapi.OpenApiUtil;
 import c207.camference.util.response.ResponseUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -31,10 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,14 +44,17 @@ import java.util.stream.Collectors;
 import static io.openvidu.java.client.ConnectionProperties.DefaultValues.data;
 
 @Service
+@RequiredArgsConstructor
 public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final FireStaffRepository fireStaffRepository;
     private final DispatchStaffRepository dispatchStaffRepository;
     private final DispatchGroupRepository dispatchGroupRepository;
     private final DispatchRepository dispatchRepository;
     private final TransferRepository transferRepository;
+    private final HospitalRepository hospitalRepository;
     private final ReqHospitalRepository reqHospitalRepository;
     private final ModelMapper modelMapper;
+    private final ObjectMapper objectMapper;
 
     @Value("${openApi.serviceKey}")
     private String serviceKey;
@@ -57,21 +62,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     @Value("${openApi.availableHospitalUrl}")
     private String availableHospitalUrl;
 
-    public DispatchStaffServiceImpl(
-            FireStaffRepository fireStaffRepository,
-            DispatchStaffRepository dispatchStaffRepository,
-            DispatchGroupRepository dispatchGroupRepository,
-            DispatchRepository dispatchRepository,
-            TransferRepository transferRepository, ReqHospitalRepository reqHospitalRepository,
-            ModelMapper modelMapper) {
-        this.fireStaffRepository = fireStaffRepository;
-        this.dispatchStaffRepository = dispatchStaffRepository;
-        this.dispatchGroupRepository = dispatchGroupRepository;
-        this.dispatchRepository = dispatchRepository;
-        this.transferRepository = transferRepository;
-        this.reqHospitalRepository = reqHospitalRepository;
-        this.modelMapper = modelMapper;
-    }
 
     @Override
     public ResponseEntity<?> getReports(){
@@ -203,54 +193,33 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             String urlStr = availableHospitalUrl +
                     "?ServiceKey=" + serviceKey +  // serviceKey는 인코딩하지 않음
                     "&STAGE1=" + URLEncoder.encode(siDo, "UTF-8") +
-                    "&STAGE2=" + URLEncoder.encode(siGunGu, "UTF-8");
+                    "&STAGE2=" + URLEncoder.encode(siGunGu, "UTF-8") +
+                    "&numOfRows=" + 100;
 
-            urlConnection = (HttpURLConnection) new URL(urlStr).openConnection();
-            urlConnection.setRequestMethod("GET");
+            String response = OpenApiUtil.getHttpResponse(urlStr);
+            JSONObject jsonResponse = XML.toJSONObject(response); // XML 문자열 -> JSON 객체
+            String jsonStr = jsonResponse.toString();
 
-            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new RuntimeException("Failed : HTTP error code : " + urlConnection.getResponseCode());
-            }
+            JsonNode root = objectMapper.readTree(jsonStr);
+            JsonNode itemArray = root.path("response").path("body").path("items").path("item");
 
-            JSONObject jsonResponse;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
-                }
-                jsonResponse = XML.toJSONObject(sb.toString());
-            }
+            for (JsonNode item : itemArray) {
+                String hospitalName = item.path("dutyName").asText();
+                Hospital hospital = hospitalRepository.findByHospitalName(hospitalName)
+                        .orElse(null);
 
-            JSONObject body = jsonResponse.optJSONObject("response")
-                    .optJSONObject("body")
-                    .optJSONObject("items");
-
-            if (body == null) {
-                return responses;
-            }
-
-            Object itemObj = body.opt("item");
-            JSONArray items;
-            if (itemObj instanceof JSONArray) {
-                items = (JSONArray) itemObj;
-            } else if (itemObj instanceof JSONObject) {
-                items = new JSONArray().put(itemObj);
-            } else {
-                return responses;
-            }
-
-            for (int i = 0; i < items.length(); i++) {
-                JSONObject item = items.getJSONObject(i);
-
-                AvailableHospitalResponse response = AvailableHospitalResponse.builder()
-                        .hospitalName(item.optString("dutyName", "정보 없음"))
-                        .hospitalPhone(item.optString("dutyTel3", "연락처 없음"))
-                        .hospitalCapacity(item.has("hvec") ? item.optInt("hvec") : -1)
+                AvailableHospitalResponse availableHospitalResponse = AvailableHospitalResponse.builder()
+                        .hospitalId(hospital.getHospitalId())
+                        .hospitalName(hospitalName)
+                        .hospitalPhone(hospital.getHospitalPhone())
+                        .hospitalCapacity(item.path("hvec").asInt())
+                        .hospitalAddress(hospital.getHospitalAddress())
+                        .hospitalLocation(hospital.getHospitalLocation())
                         .build();
 
-                responses.add(response);
+                responses.add(availableHospitalResponse);
             }
+            return responses;
 
         } catch (Exception e) {
             throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
@@ -259,7 +228,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 urlConnection.disconnect();
             }
         }
-        return responses;
     }
 
 }

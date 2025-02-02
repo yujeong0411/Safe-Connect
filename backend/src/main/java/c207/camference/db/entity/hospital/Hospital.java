@@ -1,10 +1,7 @@
 package c207.camference.db.entity.hospital;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,9 +17,10 @@ import java.time.LocalDateTime;
 public class Hospital {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "hospital_id", nullable = false, length = 30)
     @Comment(value = "병원ID")
-    private String hospitalId;
+    private Integer hospitalId;
 
     @Column(name = "hospital_login_id", nullable = false, length = 30)
     @Comment(value = "로그인ID")
@@ -35,6 +33,10 @@ public class Hospital {
     @Column(name = "hospital_name", nullable = false, length = 50)
     @Comment(value = "병원명")
     private String hospitalName;
+
+    @Column(name = "hospital_address", nullable = false)
+    @Comment(value = "병원주소")
+    private String hospitalAddress;
 
     // Point 타입은 별도 처리가 필요할 수 있습니다
     @Column(name = "hospital_location", nullable = false, columnDefinition = "GEOMETRY")

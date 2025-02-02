@@ -13,6 +13,7 @@ import java.net.URL;
 // 외부 api 데이터 사용시 공통 메서드 모음
 public class OpenApiUtil {
 
+
     // 외부 api로부터 XML 데이터 받아와서 JSON 형식으로 변환
     public static JSONObject convertXmlToJson(String urlStr) throws IOException {
         HttpURLConnection urlConnection = null; // URL에 연결할 때 사용할 HTTP 연결 담당
@@ -43,6 +44,33 @@ public class OpenApiUtil {
             }
         }
     }
+
+    // HTTP GET 요청 -> 응답
+    public static String getHttpResponse(String urlStr) throws IOException {
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) new URL(urlStr).openConnection();
+            urlConnection.setRequestMethod("GET");
+
+            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : " + urlConnection.getResponseCode());
+            }
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+                return response.toString();
+            }
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+    }
+
 
     // 받아온 데이터에서 items 추출하기 (배열 형식으로)
     // 현재 외부 api 데이터 형식이 response -> body -> items -> item(필요한값) 으로 동일
