@@ -1,6 +1,3 @@
-// src/components/molecules/StatsCard/StatsCard.tsx
-import React from 'react';
-
 interface StatsCardProps {
   title: string;
   value: string | number;

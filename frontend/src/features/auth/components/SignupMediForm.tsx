@@ -1,6 +1,6 @@
 import Dropdown from '@components/atoms/Dropdown/Dropdown.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { fetchMedicalData } from '@features/auth/servies/apiService.ts';
 
 const SignupMediForm = () => {
@@ -13,25 +13,26 @@ const SignupMediForm = () => {
     setFormData,
   } = useSignupStore();
 
+  const loadMedicalData = useCallback(async () => {
+    try {
+      const data = await fetchMedicalData();
+      console.log('받아온 의료 데이터:', data);
+
+      setDiseaseOptions(data.diseaseOptions);
+      setMedicationOptions(data.medicationOptions);
+      console.log('의료정보 전체 조회 성공');
+    } catch (error) {
+      console.error('의료 데이터 가져오기 실패:', error);
+      alert('의료 데이터를 불러오는 중 문제가 발생했습니다. 다시 시도해주세요.');
+    }
+  }, [setDiseaseOptions, setMedicationOptions]); // 의존성 추가
+
   useEffect(() => {
-    const loadMedicalData = async () => {
-      try {
-        const data = await fetchMedicalData();
-        console.log('받아온 의료 데이터:', data);
+    // void 연산자로 프로미스 반환 무시
+    void loadMedicalData();
+  }, [loadMedicalData]); // loadMedicalData를 의존성으로 추가
 
-        setDiseaseOptions(data.diseaseOptions);
-        setMedicationOptions(data.medicationOptions);
-        console.log('의료정보 전체 조회 성공');
-      } catch (error) {
-        console.error('의료 데이터 가져오기 실패:', error);
-        alert('의료 데이터를 불러오는 중 문제가 발생했습니다. 다시 시도해주세요.');
-      }
-    };
-
-    loadMedicalData();
-  }, []); // 의존성 배열에서 setDiseaseOptions, setMedicationOptions 제거
-
-  // store의 상태를 모니터링하기 위한 별도의 useEffect
+  // 스토어의 상태를 모니터링하기 위한 별도의 useEffect
   useEffect(() => {
     console.log('store 상태:', { diseaseOptions, medicationOptions });
   }, [diseaseOptions, medicationOptions]);

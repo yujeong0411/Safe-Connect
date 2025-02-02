@@ -1,4 +1,3 @@
-// Pagination.tsx
 import { useMemo } from 'react';
 import { PaginationProps } from './Pagination.types';
 import Button from '../Button/Button';
@@ -45,7 +44,7 @@ const Pagination = ({
       {pageNumbers.map((pageNumber, index) => (
         <Button
           key={index}
-          variant={currentPage === pageNumber ? 'primary' : 'secondary'}
+          variant={currentPage === pageNumber ? 'blue' : 'gray'}
           size="sm"
           onClick={() => pageNumber !== '...' && onPageChange(Number(pageNumber))}
           className={pageNumber === '...' ? 'cursor-default' : ''}

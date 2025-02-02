@@ -7,13 +7,10 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table';
-import Pagination from '@components/atoms/Pagination/Pagination.tsx';
-import AdminReportDetailDialog from '@features/admin/components/AdminReportDetailDialog.tsx';
-import AdminDispatchDetailDialog from '@features/admin/components/AdminDispatchDetailDialog.tsx';
-import AdminTransferDetailDialog from '@features/admin/components/AdminTransferDetailDialog.tsx';
 
 type ServiceType = 'report' | 'dispatch' | 'transfer' | null;
 
+// 상태 카드 props 타입
 interface StatCardProps {
   title: string;
   count: number;
@@ -36,28 +33,13 @@ const StatCard = ({ title, count, subText, isSelected, onClick }: StatCardProps)
 );
 
 const AdminServiceForm = () => {
-  // 상태를 관리하는 훅
   const [selectedType, setSelectedType] = useState<ServiceType>(null);
-  // 날짜 필터링 관리
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
-
-  // 디테일 모달
-  const handleRowClick = (detailData) => {
-    // selectedType이 null일 때는 데이터의 type을 사용
-    const modalType = selectedType || detailData.type;
-    setSelectedPatient({
-      ...detailData,
-      type: selectedType,
-    });
-    setIsModalOpen(true);
+  // 카드 클릭 핸들러
+  const handleCardClick = (type: ServiceType) => {
+    setSelectedType(type === selectedType ? null : type);
   };
-
-  // 페이지네이션 관련 상태 추가
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(10); // API에서 받아올 총 페이지 수
 
   // 각 타입별 컬럼 설정
   const getColumns = () => {
@@ -68,11 +50,7 @@ const AdminServiceForm = () => {
           { key: 'reporterNumber', header: '신고자 번호' },
           { key: 'reportTime', header: '신고 일시' },
           { key: 'reportEndTime', header: '신고 종료 일시' },
-          {
-            key: 'dispatchStatus',
-            header: '출동 여부',
-            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
-          },
+          { key: 'dispatchStatus', header: '출동 여부' },
         ];
       case 'dispatch':
         return [
@@ -80,11 +58,7 @@ const AdminServiceForm = () => {
           { key: 'fireStation', header: '관할 소방서' },
           { key: 'dispatchTime', header: '출동 일시' },
           { key: 'dispatchEndTime', header: '출동 종료 일시' },
-          {
-            key: 'transferStatus',
-            header: '이송 여부',
-            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
-          },
+          { key: 'transferStatus', header: '이송 여부' },
         ];
       case 'transfer':
         return [
@@ -99,88 +73,48 @@ const AdminServiceForm = () => {
           { key: 'classification', header: '분류' },
           { key: 'requestTime', header: '요청 일시' },
           { key: 'endTime', header: '종료 일시' },
-          {
-            key: 'dispatchStatus',
-            header: '출동 여부',
-            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
-          },
-          {
-            key: 'transferStatus',
-            header: '이송 여부',
-            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
-          },
+          { key: 'dispatchStatus', header: '출동 여부' },
+          { key: 'transferStatus', header: '이송 여부' },
         ];
     }
   };
 
-  // dummyData를 각 타입별로 수정
-  const dummyData = [
-    {
-      type: 'report', // 분류 정보 추가
-      classification: '신고',
-      reporterNumber: '123-4567',
-      reportTime: '2025-01-19 14:30',
-      reportEndTime: '2025-01-19 15:00',
-      dispatchStatus: true,
-    },
-    {
-      type: 'dispatch', // 분류 정보 추가
-      classification: '출동',
-      fireStation: '광산구 소방서',
-      dispatchTime: '2025-01-19 14:30',
-      dispatchEndTime: '2025-01-19 15:00',
-      transferStatus: false,
-    },
-  ];
-
-  const columns = getColumns();
-
-  // 카트 내용
-  const stats = [
+  // 카드 내용
+  const stats: StatCardProps[] = [
     {
       type: 'report',
       title: '신고 현황',
       count: 128,
       subText: '오늘 신고 건수 12',
+      isSelected: selectedType === 'report',
+      onClick: () => handleCardClick('report'),
     },
     {
       type: 'dispatch',
       title: '출동 현황',
       count: 111,
       subText: '오늘 출동 건수 10',
+      isSelected: selectedType === 'dispatch',
+      onClick: () => handleCardClick('dispatch'),
     },
     {
       type: 'transfer',
       title: '이송 현황',
       count: 100,
       subText: '오늘 이송 건수 8',
+      isSelected: selectedType === 'transfer',
+      onClick: () => handleCardClick('transfer'),
     },
   ];
 
-  // 카드 클릭 핸들러
-  const handleCardClick = (type: ServiceType) => {
-    // 같은 카드를 다시 클릭하면 선택 해제, 아니면 선택
-    setSelectedType(type === selectedType ? null : type);
-  };
-
-  // 페이지 변경 핸들러
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // 여기서 새 페이지의 데이터를 불러오는 API 호출
-    // fetchData(page);
-  };
+  const columns = getColumns();
 
   return (
     <div className="w-full">
       {/* 상태 카드 */}
       <div className="grid grid-cols-3 gap-6 mb-8">
         {stats.map((stat) => (
-          <StatCard
-            key={stat.type}
-            {...stat}
-            isSelected={selectedType === stat.type}
-            onClick={() => handleCardClick(stat.type)}
-          />
+          <StatCard key={stat.type} {...stat} />
         ))}
       </div>
 
@@ -216,54 +150,14 @@ const AdminServiceForm = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {dummyData.map((data, index) => (
-              <TableRow key={index} onClick={() => handleRowClick(data)} className="cursor-pointer">
-                {columns.map((column) => (
-                  <TableCell key={column.key}>
-                    {data[column.key] !== undefined && data[column.key] !== null
-                      ? column.render
-                        ? column.render(data[column.key])
-                        : data[column.key]
-                      : 'N/A'}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+            <TableRow>
+              <TableCell colSpan={columns.length} className="text-center">
+                데이터가 없습니다.
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
-
-        {/* 페이지네이션 추가 : 추후 수정*/}
-        <div className="mt-4">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
       </div>
-
-      {/* 모달 컴포넌트 */}
-      {(selectedType === 'report' || selectedPatient?.type === 'report') && (
-        <AdminReportDetailDialog
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          data={selectedPatient}
-        />
-      )}
-      {(selectedType === 'dispatch' || selectedPatient?.type === 'dispatch') && (
-        <AdminDispatchDetailDialog
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          data={selectedPatient}
-        />
-      )}
-      {(selectedType === 'transfer' || selectedPatient?.type === 'transfer') && (
-        <AdminTransferDetailDialog
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          data={selectedPatient}
-        />
-      )}
     </div>
   );
 };

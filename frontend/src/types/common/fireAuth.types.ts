@@ -6,6 +6,6 @@ export interface FireLoginRequest {
 export interface FireAuthStore {
   token: string | null;
   isAuthenticated: boolean;
-  login: (credentials: Record<string, string>) => Promise<void>; // 타입 변경
+  login: (data: FireLoginRequest) => Promise<void>; // 타입 변경
   logout: () => void;
 }

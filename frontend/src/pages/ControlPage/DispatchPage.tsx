@@ -1,5 +1,3 @@
-// src/pages/ControlPage/DispatchPage.tsx
-import React from 'react';
 import MainTemplate from '@components/templates/MainTemplate';
 import Button from '@components/atoms/Button/Button';
 

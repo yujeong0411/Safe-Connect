@@ -17,7 +17,7 @@ const AdminRoutes = () => {
         <Route path="firedepart" element={<AdminRegisterPage userType="fire" />} />
         <Route path="hospitaldepart" element={<AdminRegisterPage userType="hospital" />} />
         {/*서비스 전체 기록(신고, 출동, 이송)*/}
-        <Route path="serviceall" element={<AdminServicePage userType="hospital" />} />
+        <Route path="serviceall" element={<AdminServicePage />} />
       </Route>
     </Routes>
   );

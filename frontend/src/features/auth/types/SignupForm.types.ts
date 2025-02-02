@@ -16,9 +16,3 @@ export interface FormData {
   userGender: string;
   userProtectorPhone: string;
 }
-
-export interface SignupInfoFormProps {
-  formData: FormData;
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-  validateFields: (name: keyof FormData, value: string) => string;
-}

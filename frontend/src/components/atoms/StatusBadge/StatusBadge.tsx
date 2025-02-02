@@ -1,6 +1,3 @@
-// src/components/atoms/StatusBadge/StatusBadge.tsx
-import React from 'react';
-
 interface StatusBadgeProps {
   status: 'waiting' | 'in_progress' | 'completed';
   className?: string;

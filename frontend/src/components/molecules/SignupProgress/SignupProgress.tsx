@@ -1,4 +1,3 @@
-import React from 'react';
 import StepItem from '@components/atoms/StepItem/StepItem.tsx';
 
 const SignupProgress = ({ currentStep }: { currentStep: number }) => {

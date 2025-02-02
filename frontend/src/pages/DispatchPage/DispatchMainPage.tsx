@@ -1,4 +1,3 @@
-// DispatchMainPage.tsx
 import { useState } from 'react';
 import MainTemplate from '@components/templates/MainTemplate';
 import TableRow from '@components/organisms/TableRow/TableRow';
@@ -50,7 +49,7 @@ const DispatchMainPage = () => {
       key: 'statusInfo',
       label: '구조 상세정보',
       render: (value: string) => (
-        <Button variant="secondary" size="sm" onClick={() => console.log('상황보기 클릭')}>
+        <Button variant="gray" size="sm" onClick={() => console.log('상황보기 클릭')}>
           상황보기
         </Button>
       ),
@@ -59,7 +58,7 @@ const DispatchMainPage = () => {
       key: 'patientInfo',
       label: '환자 정보 작성',
       render: (value: string) => (
-        <Button variant="secondary" size="sm" onClick={() => console.log('작성하기 클릭')}>
+        <Button variant="gray" size="sm" onClick={() => console.log('작성하기 클릭')}>
           작성하기
         </Button>
       ),
@@ -68,7 +67,7 @@ const DispatchMainPage = () => {
       key: 'videoCall',
       label: '영상통화 연결',
       render: (value: string) => (
-        <Button variant="secondary" size="sm" onClick={() => console.log('영상통화 클릭')}>
+        <Button variant="gray" size="sm" onClick={() => console.log('영상통화 클릭')}>
           영상통화
         </Button>
       ),
@@ -101,12 +100,12 @@ const DispatchMainPage = () => {
           <div className="flex gap-4">
             <Badge
               label="출동 대기 중"
-              variant={isEmergency ? 'outline' : 'filled'}
+              variant={isEmergency ? 'primary' : 'secondary'}
               onClick={() => setIsEmergency(false)}
             />
             <Badge
               label="출동 중"
-              variant={isEmergency ? 'filled' : 'outline'}
+              variant={isEmergency ? 'secondary' : 'primary'}
               onClick={() => setIsEmergency(true)}
             />
           </div>

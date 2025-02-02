@@ -1,5 +1,3 @@
-// src/pages/ControlPage/PatientInfoPage.tsx
-import React from 'react';
 import MainTemplate from '@components/templates/MainTemplate';
 import Input from '@components/atoms/Input/Input';
 import Button from '@components/atoms/Button/Button';

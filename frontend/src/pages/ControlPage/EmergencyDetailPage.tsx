@@ -1,5 +1,3 @@
-// src/pages/ControlPage/EmergencyDetailPage.tsx
-import React from 'react';
 import Button from '@components/atoms/Button/Button';
 
 const EmergencyDetailPage = () => {

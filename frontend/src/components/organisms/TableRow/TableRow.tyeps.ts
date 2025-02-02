@@ -4,6 +4,7 @@ export interface TableRowProps<T> {
     key: keyof T;
     header: string;
     width?: string;
-    render?: (value: any) => React.ReactNode;
+    render?: (value: T[keyof T]) => React.ReactNode;
   }[];
+  onRowClick?: (data: T) => void; // 새로 추가
 }

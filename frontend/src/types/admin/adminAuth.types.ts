@@ -1,7 +1,7 @@
 export interface AdminAuthStore {
   token: string | null;
   isAuthenticated: boolean;
-  login: (credentials: Record<string, string>) => Promise<void>; // 타입 변경
+  login: (data: AdminLoginRequest) => Promise<void>; // 타입 변경
   logout: () => void;
 }
 

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Input from '@components/atoms/Input/Input.tsx';
-import Button from '@components/atoms/Button/Button.tsx';
 import { SearchBarProps } from '@components/molecules/SearchBar/SearchBar.types.ts';
 
 const SearchBar = ({
@@ -9,7 +8,7 @@ const SearchBar = ({
   placeholder = '검색어를 입력하세요',
   buttonText = '검색',
   onSearch = () => {},
-  onButtonClick,
+
   onChange,
   error,
   value: controlledValue,

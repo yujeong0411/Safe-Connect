@@ -10,7 +10,6 @@ const Dropdown = ({
   label,
   disabled = false,
   isMulti = true, // 다중 선택 여부
-  onAddOption,
 }: DropdownProps) => {
   const [inputValue, setInputValue] = useState(''); // 사용자 입력
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -56,14 +55,6 @@ const Dropdown = ({
     e.stopPropagation();
     const newValues = selectedValues.filter((v) => v !== optionValue);
     onChange(isMulti ? newValues : null);
-  };
-
-  const handleAddCustomOption = () => {
-    if (inputValue.trim() && !options.some((opt) => opt.label === inputValue)) {
-      const newOption = { label: inputValue, value: inputValue };
-      onAddOption?.(newOption); // ⬅ 부모 컴포넌트(SingupMediForm)로 전달
-      setInputValue('');
-    }
   };
 
   const [focusedIndex, setFocusedIndex] = useState(-1); // 현재 포커스된 항목의 인덱스

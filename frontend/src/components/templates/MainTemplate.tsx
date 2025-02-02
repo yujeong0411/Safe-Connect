@@ -2,10 +2,11 @@ import PublicHeader from '@components/organisms/PublicHeader/PublicHeader.tsx';
 import NavBar from '@components/organisms/NavBar/NavBar';
 import { useAuthStore } from '@/store/user/authStore';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 interface MainTemplateProps {
   children?: React.ReactNode;
-  navItems: [];
+  navItems: Array<{ label: string; path: string }>;
 }
 
 const MainTemplate = ({ children, navItems }: MainTemplateProps) => {
@@ -29,7 +30,7 @@ const MainTemplate = ({ children, navItems }: MainTemplateProps) => {
         labels={[
           {
             label: '로그아웃',
-            href: '#', // href는 '#'으로 설정
+            href: '#',
             onClick: handleLogout,
           },
         ]}

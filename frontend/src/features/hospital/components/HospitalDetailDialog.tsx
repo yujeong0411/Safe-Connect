@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
 
-const HospitalDetailDialog = ({ open, onOpenChange, data, buttons }: PatientDetailProps) => {
+const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) => {
   if (!data) return null;
 
   return (

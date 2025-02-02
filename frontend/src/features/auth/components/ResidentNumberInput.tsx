@@ -6,7 +6,7 @@ export const ResidentNumberInput = ({
   disabled = false,
   value,
   onChange,
-  error: externalError, // props로 받은 error
+  error: externalError,
 }: {
   disabled?: boolean;
   value: string;
@@ -32,7 +32,7 @@ export const ResidentNumberInput = ({
     // 성별 결정
     const gender = genderDigit % 2 === 1 ? 'M' : 'F';
 
-    // 생년월일 포맷팅 (YYMMDD)
+    // 생년월일 포맷팅
     const birthday = birthYear ? firstPart : null;
 
     if (!birthYear || !birthday) return null;
