@@ -6,6 +6,7 @@ interface DialogProps {
   message?: string; // 선택적 메시지
   isOpen: boolean; // 알림창 표시 여부
   onClose: () => void; // 닫기 함수
+  children?: React.ReactNode; // children 추가
   buttons: {
     // 버튼 설정
     text: string;
@@ -17,7 +18,7 @@ interface DialogProps {
 // components/molecules/Dialog/Dialog.tsx
 import React from 'react';
 
-const Dialog: React.FC<DialogProps> = ({ title, message, isOpen, onClose, buttons }) => {
+const Dialog: React.FC<DialogProps> = ({ title, message, isOpen, buttons }) => {
   if (!isOpen) return null;
 
   return (

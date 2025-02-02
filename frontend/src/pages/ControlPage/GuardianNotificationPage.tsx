@@ -1,5 +1,3 @@
-// src/pages/ControlPage/GuardianNotificationPage.tsx
-import React from 'react';
 import Button from '@components/atoms/Button/Button';
 import Input from '@components/atoms/Input/Input';
 

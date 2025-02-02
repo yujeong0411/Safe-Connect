@@ -14,10 +14,10 @@ const AdminRoutes = () => {
       {/*인증되지 않은 사용자*/}
       <Route element={<PublicRoute />}>
         <Route path="" element={<AdminLoginPage />} />
-        <Route path="firedepart" element={<AdminRegisterPage userType="fire" />} />
-        <Route path="hospitaldepart" element={<AdminRegisterPage userType="hospital" />} />
+        <Route path="fireDepart" element={<AdminRegisterPage userType="fire" />} />
+        <Route path="hospitalDepart" element={<AdminRegisterPage userType="hospital" />} />
         {/*서비스 전체 기록(신고, 출동, 이송)*/}
-        <Route path="serviceall" element={<AdminServicePage userType="hospital" />} />
+        <Route path="serviceall" element={<AdminServicePage />} />
       </Route>
     </Routes>
   );

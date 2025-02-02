@@ -1,5 +1,5 @@
 import { SearchBarProps } from '@components/molecules/SearchBar/SearchBar.types.ts';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const SearchBar_ver2 = ({
   placeholder = '입력하세요.',

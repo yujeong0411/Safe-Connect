@@ -1,7 +1,7 @@
 import React from 'react';
 import PublicHeader from '@components/organisms/PublicHeader/PublicHeader.tsx';
 import Button from '@components/atoms/Button/Button.tsx';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface AdminTemplateProps {
   children?: React.ReactNode;
@@ -9,7 +9,6 @@ interface AdminTemplateProps {
 }
 
 const AdminMainTemplate = ({ children, currentMenu }: AdminTemplateProps) => {
-  const navigate = useNavigate();
   const { pathname } = useLocation();
 
   // 추후 서비스에 로그아웃 함수 만들기
@@ -32,7 +31,7 @@ const AdminMainTemplate = ({ children, currentMenu }: AdminTemplateProps) => {
               <li>
                 <Link
                   to="/admin/hospitaldepart"
-                  className={`cursor-pointer  ${pathname === '/admin/hospitaldepart' ? 'text-gray-400' : ''}`}
+                  className={`cursor-pointer  ${pathname === '/admin/hospitalDepart' ? 'text-gray-400' : ''}`}
                 >
                   병원 계정
                 </Link>
@@ -40,7 +39,7 @@ const AdminMainTemplate = ({ children, currentMenu }: AdminTemplateProps) => {
               <li>
                 <Link
                   to="/admin/firedepart"
-                  className={`cursor-pointer ${pathname === '/admin/firedepart' ? 'text-gray-400' : ''}`}
+                  className={`cursor-pointer ${pathname === '/admin/fireDepart' ? 'text-gray-400' : ''}`}
                 >
                   소방청 계정
                 </Link>
@@ -52,7 +51,7 @@ const AdminMainTemplate = ({ children, currentMenu }: AdminTemplateProps) => {
             <h2>
               <Link
                 to="/admin/serviceall"
-                className={`cursor-pointer ${pathname === '/admin/serviceall' ? 'text-gray-400' : ''}`}
+                className={`cursor-pointer ${pathname === '/admin/serviceAll' ? 'text-gray-400' : ''}`}
               >
                 서비스 관리
               </Link>

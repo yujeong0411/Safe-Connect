@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { axiosInstance } from '@utils/axios.ts';
-import { HospitalLoginRequest, HospitalAuthStore } from '@types/hospital/hospitalAuth.types.ts';
+import { HospitalLoginRequest, HospitalAuthStore } from '@/types/hospital/hospitalAuth.types.ts';
 
 export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
   token: localStorage.getItem('accessToken'),

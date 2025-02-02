@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { axiosInstance } from '@utils/axios.ts';
-import { FireAuthStore, FireLoginRequest } from '@types/common/fireAuth.types.ts';
+import { FireAuthStore, FireLoginRequest } from '@/types/common/fireAuth.types.ts';
 
 export const useFireAuthStore = create<FireAuthStore>((set) => ({
   token: localStorage.getItem('accessToken'),

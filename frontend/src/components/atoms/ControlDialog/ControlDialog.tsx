@@ -47,7 +47,7 @@
 // src/components/atoms/ControlDialog/ControlDialog.tsx
 import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { cn } from '../../../utils/cn';
+import { cn } from '@/utils/cn';
 
 const ControlDialog = DialogPrimitive.Root;
 const ControlDialogTrigger = DialogPrimitive.Trigger;

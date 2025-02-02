@@ -11,6 +11,36 @@ import Pagination from '@components/atoms/Pagination/Pagination.tsx';
 import AdminReportDetailDialog from '@features/admin/components/AdminReportDetailDialog.tsx';
 import AdminDispatchDetailDialog from '@features/admin/components/AdminDispatchDetailDialog.tsx';
 import AdminTransferDetailDialog from '@features/admin/components/AdminTransferDetailDialog.tsx';
+import { ReportDetailProps, DispatchDetailProps, TransferDetailProps } from '@features/admin/types/detailProps.types.ts';
+
+// 테이블용 데이터 타입 정의
+interface BaseTableData {
+  classification: string;
+}
+
+interface ReportTableData extends BaseTableData {
+  type: 'report';
+  reporterNumber: string;
+  reportTime: string;
+  reportEndTime: string;
+  dispatchStatus: boolean;
+}
+
+interface DispatchTableData extends BaseTableData {
+  type: 'dispatch';
+  fireStation: string;
+  dispatchTime: string;
+  dispatchEndTime: string;
+  transferStatus: boolean;
+}
+
+interface TransferTableData extends BaseTableData {
+  type: 'transfer';
+  hospital: string;
+  transferRequestTime: string;
+  transferCompletionTime: string;
+  preKTAS: number;
+}
 
 type ServiceType = 'report' | 'dispatch' | 'transfer' | null;
 
@@ -35,29 +65,23 @@ const StatCard = ({ title, count, subText, isSelected, onClick }: StatCardProps)
   </div>
 );
 
+interface DetailData {
+  type: ServiceType;
+  [key: string]: any;
+}
+
 const AdminServiceForm = () => {
   // 상태를 관리하는 훅
   const [selectedType, setSelectedType] = useState<ServiceType>(null);
+  const [selectedPatient, setSelectedPatient] = useState<DetailData | null>(null);
   // 날짜 필터링 관리
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
 
-  // 디테일 모달
-  const handleRowClick = (detailData) => {
-    // selectedType이 null일 때는 데이터의 type을 사용
-    const modalType = selectedType || detailData.type;
-    setSelectedPatient({
-      ...detailData,
-      type: selectedType,
-    });
-    setIsModalOpen(true);
-  };
 
   // 페이지네이션 관련 상태 추가
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(10); // API에서 받아올 총 페이지 수
+  const [totalPages] = useState(10); // API에서 받아올 총 페이지 수
 
   // 각 타입별 컬럼 설정
   const getColumns = () => {
@@ -71,7 +95,7 @@ const AdminServiceForm = () => {
           {
             key: 'dispatchStatus',
             header: '출동 여부',
-            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
+            render: (value: boolean) => <span>{value ? '출동' : '미출동'}</span>,
           },
         ];
       case 'dispatch':
@@ -83,7 +107,7 @@ const AdminServiceForm = () => {
           {
             key: 'transferStatus',
             header: '이송 여부',
-            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
+            render: (value: boolean) => <span>{value ? '이송' : '미이송'}</span>,
           },
         ];
       case 'transfer':
@@ -102,19 +126,19 @@ const AdminServiceForm = () => {
           {
             key: 'dispatchStatus',
             header: '출동 여부',
-            render: (value) => <span>{value ? '출동' : '미출동'}</span>,
+            render: (value: boolean) => <span>{value ? '출동' : '미출동'}</span>,
           },
           {
             key: 'transferStatus',
             header: '이송 여부',
-            render: (value) => <span>{value ? '이송' : '미이송'}</span>,
+            render: (value: boolean) => <span>{value ? '이송' : '미이송'}</span>,
           },
         ];
     }
   };
 
   // dummyData를 각 타입별로 수정
-  const dummyData = [
+  const dummyData: DetailData[] = [
     {
       type: 'report', // 분류 정보 추가
       classification: '신고',
@@ -136,24 +160,30 @@ const AdminServiceForm = () => {
   const columns = getColumns();
 
   // 카트 내용
-  const stats = [
+  const stats: StatCardProps[] = [
     {
       type: 'report',
       title: '신고 현황',
       count: 128,
       subText: '오늘 신고 건수 12',
+      isSelected: selectedType === 'report',
+      onClick: () => handleCardClick('report'),
     },
     {
       type: 'dispatch',
       title: '출동 현황',
       count: 111,
       subText: '오늘 출동 건수 10',
+      isSelected: selectedType === 'dispatch',
+      onClick: () => handleCardClick('dispatch'),
     },
     {
       type: 'transfer',
       title: '이송 현황',
       count: 100,
       subText: '오늘 이송 건수 8',
+      isSelected: selectedType === 'transfer',
+      onClick: () => handleCardClick('transfer'),
     },
   ];
 
@@ -170,17 +200,102 @@ const AdminServiceForm = () => {
     // fetchData(page);
   };
 
+
+  const convertToModalData = (data: DetailData) => {
+    switch (data.type) {
+      case 'report':
+        return {
+          callerPhone: data.reporterNumber,
+          callerIsUser: false,
+          callIsDispatch: data.dispatchStatus,
+          callStartAt: data.reportTime,
+          callFinishAt: data.reportEndTime,
+          callSummery: '',
+          fireStaffName: ''
+        };
+      case 'dispatch':
+        return {
+          patient: '',
+          callerPhone: data.fireStation,
+          patientGender: '',
+          patientAge: '',
+          fireDept: data.fireStation,
+          fireStaffName: '',
+          dispatchCreateAt: data.dispatchTime,
+          dispatchDepartAt: data.dispatchTime,
+          dispatchArriveAt: data.dispatchEndTime,
+          dispatchIsTransfer: data.transferStatus,
+          callSummery: ''
+        };
+      case 'transfer':
+        return {
+          patient: '',
+          patientGender: '',
+          patientAge: '',
+          preTKAS: data.preKTAS.toString(),
+          fireDept: '',
+          fireStaffName: '',
+          transferRequestAt: data.transferRequestTime,
+          transferAcceptAt: '',
+          transferArriveAt: data.transferCompletionTime,
+          hospitalName: true  // 이송 병원이 있으면 true
+        };
+      default:
+        throw new Error('Unknown detail type');
+    }
+  };
+
+  const renderModal = () => {
+    if (!selectedPatient) return null;
+
+    const modalData = convertToModalData(selectedPatient);
+
+    switch (selectedPatient.type) {
+      case 'report':
+        return (
+            <AdminReportDetailDialog
+                open={isModalOpen}
+                onOpenChange={setIsModalOpen}
+                data={modalData}
+                buttons="확인"
+            />
+        );
+      case 'dispatch':
+        return (
+            <AdminDispatchDetailDialog
+                open={isModalOpen}
+                onOpenChange={setIsModalOpen}
+                data={modalData}
+                buttons="확인"
+            />
+        );
+      case 'transfer':
+        return (
+            <AdminTransferDetailDialog
+                open={isModalOpen}
+                onOpenChange={setIsModalOpen}
+                data={modalData}
+                buttons="확인"
+            />
+        );
+      default:
+        return null; // 알 수 없는 타입인 경우 아무것도 렌더링하지 않음
+    }
+  };
+
+
+  // 디테일 모달
+  const handleRowClick = (data: DetailData) => {
+    setSelectedPatient(data);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="w-full">
       {/* 상태 카드 */}
       <div className="grid grid-cols-3 gap-6 mb-8">
         {stats.map((stat) => (
-          <StatCard
-            key={stat.type}
-            {...stat}
-            isSelected={selectedType === stat.type}
-            onClick={() => handleCardClick(stat.type)}
-          />
+          <StatCard key={stat.type} {...stat} />
         ))}
       </div>
 
@@ -231,6 +346,7 @@ const AdminServiceForm = () => {
             ))}
           </TableBody>
         </Table>
+      </div>
 
         {/* 페이지네이션 추가 : 추후 수정*/}
         <div className="mt-4">
@@ -240,32 +356,10 @@ const AdminServiceForm = () => {
             onPageChange={handlePageChange}
           />
         </div>
-      </div>
+        {renderModal()}
+        </div>
 
-      {/* 모달 컴포넌트 */}
-      {(selectedType === 'report' || selectedPatient?.type === 'report') && (
-        <AdminReportDetailDialog
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          data={selectedPatient}
-        />
-      )}
-      {(selectedType === 'dispatch' || selectedPatient?.type === 'dispatch') && (
-        <AdminDispatchDetailDialog
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          data={selectedPatient}
-        />
-      )}
-      {(selectedType === 'transfer' || selectedPatient?.type === 'transfer') && (
-        <AdminTransferDetailDialog
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          data={selectedPatient}
-        />
-      )}
-    </div>
-  );
-};
+
+
 
 export default AdminServiceForm;

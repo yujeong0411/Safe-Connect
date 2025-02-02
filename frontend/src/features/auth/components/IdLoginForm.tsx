@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Button from '@components/atoms/Button/Button.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
 
 // Id를 이용하는 4명의 유저 공유
 export interface IdLoginFormProps {
   fields: {
-    // API에 보낼 필드명
+    // 보낼 필드명
     UserId: string;
     UserPassword: string;
   };
   loginStore: {
-    // 각 유저별 store와 login 함수
+    // 각 유저별 스토어와 로그인 함수
     login: (credentials: Record<string, string>) => Promise<void>;
   };
   onSuccess?: () => void; // 로그인 성공 시 콜백(페이지 이동)
@@ -28,7 +28,7 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
     UserPassword: '',
   });
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [_isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     console.log('1. handleSubmit 시작'); // 디버깅 로그

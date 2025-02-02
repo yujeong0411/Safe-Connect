@@ -2,10 +2,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@components/ui/textarea.tsx';
 import { TransferDetailProps } from '@features/admin/types/detailProps.types.ts';
 
-const AdminTransferDetailDialog = ({ open, onOpenChange, data, buttons }: TransferDetailProps) => {
+const AdminTransferDetailDialog = ({ open, onOpenChange, data }: TransferDetailProps) => {
   if (!data) return null;
 
   return (
@@ -72,7 +71,11 @@ const AdminTransferDetailDialog = ({ open, onOpenChange, data, buttons }: Transf
             </div>
             <div>
               <Label className="text-sm mb-1">이송 병원</Label>
-              <Input value={data.hospitalName} readOnly className="bg-white border-none" />
+              <Input
+                value={data.hospitalName ? '이송' : '미이송'}
+                readOnly
+                className="bg-white border-none"
+              />
             </div>
           </div>
 

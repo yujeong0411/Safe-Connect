@@ -1,5 +1,4 @@
 // src/components/organisms/EmergencyDetailModal/EmergencyDetailModal.tsx
-import React from 'react';
 import {
   ControlDialog,
   ControlDialogContent,
@@ -71,7 +70,7 @@ const EmergencyDetailModal = ({ isOpen, onClose, data }: EmergencyDetailModalPro
 
         <div className="flex justify-end mt-6">
           <Button
-            variant="secondary"
+            variant="gray"
             onClick={onClose}
             className="px-6 py-2 bg-[#545F71] text-white hover:bg-[#434b59]"
           >

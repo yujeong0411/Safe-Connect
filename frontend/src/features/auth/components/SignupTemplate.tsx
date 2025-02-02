@@ -17,7 +17,6 @@ const SignupTemplate = ({
   currentStep,
   buttonText,
   onButtonClick,
-  isButtonFixed = false,
 }: SignupTemplateProps) => {
   return (
     <div className="flex flex-row min-h-screen">

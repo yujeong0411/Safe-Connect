@@ -50,7 +50,7 @@ const DispatchMainPage = () => {
       key: 'statusInfo',
       label: '구조 상세정보',
       render: (value: string) => (
-        <Button variant="secondary" size="sm" onClick={() => console.log('상황보기 클릭')}>
+        <Button variant="gray" size="sm" onClick={() => console.log('상황보기 클릭')}>
           상황보기
         </Button>
       ),
@@ -59,7 +59,7 @@ const DispatchMainPage = () => {
       key: 'patientInfo',
       label: '환자 정보 작성',
       render: (value: string) => (
-        <Button variant="secondary" size="sm" onClick={() => console.log('작성하기 클릭')}>
+        <Button variant="gray" size="sm" onClick={() => console.log('작성하기 클릭')}>
           작성하기
         </Button>
       ),
@@ -68,7 +68,7 @@ const DispatchMainPage = () => {
       key: 'videoCall',
       label: '영상통화 연결',
       render: (value: string) => (
-        <Button variant="secondary" size="sm" onClick={() => console.log('영상통화 클릭')}>
+        <Button variant="gray" size="sm" onClick={() => console.log('영상통화 클릭')}>
           영상통화
         </Button>
       ),

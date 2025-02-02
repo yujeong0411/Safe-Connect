@@ -1,6 +1,7 @@
+import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
 import { FormData } from '@features/auth/types/SignupForm.types';
-import { MedicalCategory, MedicalItem } from '@types/common/medical.types.ts';
+import { MedicalCategory, MedicalItem } from '@/types/common/medical.types.ts';
 
 // 이메일 중복 확인 API 호출
 export const checkEmailDuplication = async (email: string) => {
@@ -21,12 +22,14 @@ export const checkEmailDuplication = async (email: string) => {
       isSuccess: false,
       message: response.data.message || '이메일 중복 확인에 실패했습니다.',
     };
-  } catch (error) {
-    if (error.response?.data) {
-      return {
-        isSuccess: false,
-        message: error.response.data.message,
-      };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      if (error.response?.data) {
+        return {
+          isSuccess: false,
+          message: error.response.data.message,
+        };
+      }
     }
     return {
       isSuccess: false,
@@ -43,11 +46,8 @@ export const sendPhoneVerification = async (phoneNumber: string) => {
       userPhone: phoneNumber.replace(/-/g, ''), // json 형식 전송
     });
     console.log('Phone verification response:', response.data);
-    if (response.data.isSuccess === true) {
-      return true;
-    }
-    return false;
-  } catch (error) {
+    return response.data.isSuccess === true;
+  } catch (error: unknown) {
     console.error('Phone verification send error', error);
     throw error;
   }
@@ -62,10 +62,7 @@ export const authCode = async (phoneNumber: string, verificationCode: string) =>
       authCode: verificationCode,
     });
     console.log('Phone code verification response:', response.data);
-    if (response.data.isSuccess === true) {
-      return true;
-    }
-    return false;
+    return response.data.isSuccess === true;
   } catch (error) {
     console.error('Phone verification check error', error);
     throw error;
@@ -136,11 +133,12 @@ export const findEmail = async (userName: string, userPhone: string) => {
       isSuccess: false,
       message: response.data.message || '이메일을 찾을 수 없습니다.',
     };
-  } catch (error) {
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError;
     console.error('findEmail failed:', {
-      errorMessage: error.message,
-      errorResponse: error.response?.data,
-      errorStatus: error.response?.status,
+      errorMessage: axiosError.message,
+      errorResponse: axiosError.response?.data,
+      errorStatus: axiosError.response?.status,
     });
     return {
       isSuccess: false,

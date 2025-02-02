@@ -1,6 +1,7 @@
 import SearchBar_ver2 from '@components/molecules/SearchBar/SearchBar_ver2.tsx';
 import TableRow from '@components/organisms/TableRow/TableRow.tsx';
-import { useState } from 'react';
+import AdminRegisterDetailDialog from '@features/admin/components/AdminRegisterDetailDialgo.tsx';
+import React, { useState } from 'react';
 
 interface AdminUserTableProps {
   userType: 'fire' | 'hospital';
@@ -16,13 +17,15 @@ interface UserData {
 }
 
 const AdminRegisterForm = ({ userType }: AdminUserTableProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState<UserData | null>(null);
 
   // 테이블 행 클릭 시
-  const handleRowClick = (patientData) => {
-    setSelectedPatient(patientData);
-    setIsModalOpen(true);
+  const handleRowClick = (userData: UserData) => {
+    setSelectedPatient(userData);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPatient(null);
   };
 
   const handleSearch = (keyword: string) => {
@@ -34,7 +37,7 @@ const AdminRegisterForm = ({ userType }: AdminUserTableProps) => {
   const columns: {
     key: keyof UserData;
     header: string;
-    render?: (value: any) => React.ReactNode;
+    render?: (value: UserData[keyof UserData]) => React.ReactNode;
   }[] = [
     { key: 'name', header: '이름' },
     { key: 'id', header: '아이디' },
@@ -51,14 +54,14 @@ const AdminRegisterForm = ({ userType }: AdminUserTableProps) => {
         </span>
       ),
     },
-    { key: 'createAt', header: '생성일시' },
+    { key: 'createdAt', header: '생성일시' },
   ];
 
   // 더미 데이터
   const dummyData = [
     {
       name: '000',
-      id: 'dbwjd0411',
+      id: 'dd0411',
       department: '서울대학교병원',
       type: 'Cell Text',
       createdAt: '20250115',
@@ -93,11 +96,19 @@ const AdminRegisterForm = ({ userType }: AdminUserTableProps) => {
           </div>
 
           {/* 테이블 바디 */}
-          {dummyData.map((data, index) => (
-            <TableRow key={index} data={data} columns={columns} actions={<button>...</button>} />
+          {dummyData.map((data) => (
+            <TableRow key={data.id} data={data} columns={columns} onRowClick={handleRowClick} />
           ))}
         </div>
       </div>
+      {/*/!* 모달 추가 *!/*/}
+      {selectedPatient && (
+        <AdminRegisterDetailDialog
+          isOpen={!!selectedPatient}
+          onClose={handleCloseModal}
+          userData={selectedPatient}
+        />
+      )}
     </div>
   );
 };

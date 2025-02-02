@@ -1,23 +1,63 @@
-import TableRow from '@components/organisms/TableRow/TableRow.tsx';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '@/components/ui/table';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
-import { useState } from 'react';
+import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
+import React, { useState } from 'react';
+
+interface PatientData {
+  name: string;
+  id: string;
+  fire: string;
+  'sex/age': string;
+  callStartAt: string;
+  transferAcceptAt: string;
+  'pre-KTAS': number;
+  symptom: string;
+}
+
+type ColumnDef = {
+  key: keyof PatientData;
+  header: string;
+  render?: (value: string | number) => React.ReactNode;
+};
 
 const HospitalListForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data'] | null>(null);
 
   // 테이블 행 클릭 시
-  const handleRowClick = (patientData) => {
-    setSelectedPatient(patientData);
+  const handleRowClick = (patientData: PatientData) => {
+    // PatientData를 PatientDetailProps['data'] 형식으로 변환
+    setSelectedPatient({
+      name: patientData.name,
+      gender: patientData['sex/age'].split('/')[0],
+      age: parseInt(patientData['sex/age'].split('/')[1]),
+      mental: '',
+      preKTAS: patientData['pre-KTAS'],
+      contact: '',
+      sbp: 0,
+      dbp: 0,
+      pr: 0,
+      bt: 0,
+      spo2: 0,
+      bst: 0,
+      phone: '',
+      protectorPhone: '',
+      symptoms: patientData.symptom,
+      diseases: '',
+      medications: '',
+    });
     setIsModalOpen(true);
   };
 
   // 컬럼 정의
-  const columns: {
-    key: string;
-    header: string;
-    render?: (value: any) => React.ReactNode;
-  }[] = [
+  const columns: ColumnDef[] = [
     { key: 'callStartAt', header: '이송요청 일시' },
     { key: 'name', header: '이름' },
     { key: 'sex/age', header: '성별/나이' },
@@ -28,7 +68,7 @@ const HospitalListForm = () => {
   ];
 
   // 더미 데이터
-  const dummyData = [
+  const dummyData: PatientData[] = [
     {
       name: '000',
       id: 'dbwjd0411',
@@ -56,29 +96,40 @@ const HospitalListForm = () => {
       <h1 className="text-[32px] font-bold pl-20 mb-5">실시간 이송 요청</h1>
       <div className="flex flex-col items-center">
         <div className="w-[80%] min-w-[800px] border border-[#dde1e6] bg-white">
-          {/* 테이블 헤더 */}
-          <div className="flex w-full bg-[#A7A6A6] text-white text-sm font-medium">
-            {columns.map((column) => (
-              <div key={column.header} className="flex-1 p-4">
-                {column.header}
-              </div>
-            ))}
-            <div className="w-10 p-4"></div>
-          </div>
-
-          {/* 테이블 바디에 클릭 이벤트 추가 */}
-          {dummyData.map((data, index) => (
-            <div onClick={() => handleRowClick(data)} className="cursor-pointer">
-              <TableRow key={index} data={data} columns={columns} actions={<button>...</button>} />
-            </div>
-          ))}
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-banner hover:bg-banner">
+                {columns.map((column) => (
+                  <TableHead key={column.header} className="text-white font-medium">
+                    {column.header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {dummyData.map((data, index) => (
+                <TableRow
+                  key={index}
+                  onClick={() => handleRowClick(data)}
+                  className="cursor-pointer hover:bg-gray-100"
+                >
+                  {columns.map((column) => (
+                    <TableCell key={column.key}>
+                      {column.render ? column.render(data[column.key]) : data[column.key]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
-      {/* 모달 컴포넌트 */}
+
       <HospitalDetailDialog
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         data={selectedPatient}
+        buttons="수락"
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Button from '@components/atoms/Button/Button.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
 import { Link, useNavigate } from 'react-router-dom';
@@ -145,7 +145,7 @@ const UserLoginForm = () => {
 
             <div className="flex flex-col w-full mt-5 ">
               <Button type="submit" variant="blue" width="full" className="mb-3">
-                로그인
+                {isLoading ? '로그인 중...' : '로그인'}
               </Button>
               <Link to="/user/signup">
                 <Button variant="gray" width="full">

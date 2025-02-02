@@ -5,7 +5,7 @@ import { Button } from '@components/ui/button';
 import { Textarea } from '@components/ui/textarea.tsx';
 import { ReportDetailProps } from '@features/admin/types/detailProps.types.ts';
 
-const AdminReportDetailDialog = ({ open, onOpenChange, data, buttons }: ReportDetailProps) => {
+const AdminReportDetailDialog = ({ open, onOpenChange, data }: ReportDetailProps) => {
   if (!data) return null;
 
   return (
@@ -40,11 +40,19 @@ const AdminReportDetailDialog = ({ open, onOpenChange, data, buttons }: ReportDe
             </div>
             <div>
               <Label className="text-sm mb-1">출동 여부</Label>
-              <Input value={data.callIsDispatch} readOnly className="bg-white border-none" />
+              <Input
+                value={data.callIsDispatch ? '출동' : '미출동'}
+                readOnly
+                className="bg-white border-none"
+              />
             </div>
             <div className="text-sm mb-1">
               <Label>신고자 가입여부</Label>
-              <Input value={data.callerIsUser} readOnly className="bg-white border-none" />
+              <Input
+                value={data.callerIsUser ? '가입' : '미가입'}
+                readOnly
+                className="bg-white border-none"
+              />
             </div>
           </div>
 

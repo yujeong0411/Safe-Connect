@@ -1,11 +1,10 @@
-// components/atoms/WaveBackground/WaveBackground.tsx
 const WaveBackground = () => (
   <div className="absolute inset-0 overflow-hidden w-screen">
     <svg
       viewBox="0 0 1440 320"
       className="absolute bottom-0 w-full"
       preserveAspectRatio="none"
-      // 최소 너비를 설정하여 화면이 작아져도 SVG가 유지
+      // 최소 너비를 설정하여 화면이 작아져도 유지
       style={{ minWidth: '1440px' }}
     >
       <path

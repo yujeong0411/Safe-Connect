@@ -3,6 +3,7 @@ import { validatePhoneNumber } from '@utils/validation';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
 import { SignupStore } from '@/store/user/signupStore.tsx';
+import React from 'react';
 
 const UserInfoForm = () => {
   const { formData, setFormData } = useSignupStore();

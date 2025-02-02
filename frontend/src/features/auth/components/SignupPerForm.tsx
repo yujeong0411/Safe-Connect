@@ -13,7 +13,7 @@ const SignupPerForm = ({ isChecked, setIsChecked }: SignupPerFormProps) => {
               화재·구조·구급의 응급상황으로 119신고 시 신고자의 정보를 신속히 확인하고 출동 및
               대응시간을 최소화하기 위해 신고자정보 이용
             </li>
-            <li className="text-md">
+            <li className="text-md ">
               safe connect에 등록한 정보를 119상황실, 출동하는 소방대원, 병원에게 제공
             </li>
           </div>

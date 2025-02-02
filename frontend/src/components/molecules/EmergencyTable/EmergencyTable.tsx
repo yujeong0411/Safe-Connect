@@ -1,4 +1,3 @@
-import React from 'react';
 import Badge from '@components/atoms/Badge/Badge';
 
 interface EmergencyRecord {

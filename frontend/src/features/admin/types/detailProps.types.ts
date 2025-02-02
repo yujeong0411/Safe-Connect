@@ -49,3 +49,16 @@ export interface TransferDetailProps {
     hospitalName: boolean;
   };
 }
+
+export interface RegisterDetailProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userData: {
+    name: string;
+    id: string;
+    department: string;
+    type: string;
+    createdAt: string;
+    isActive: boolean;
+  };
+}

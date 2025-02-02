@@ -76,7 +76,11 @@ const AdminDispatchDetailDialog = ({ open, onOpenChange, data }: DispatchDetailP
             </div>
             <div>
               <Label className="text-sm mb-1">이송 여부</Label>
-              <Input value={data.dispatchIsTransfer} readOnly className="bg-white border-none" />
+              <Input
+                value={data.dispatchIsTransfer ? '이송' : '미이송'}
+                readOnly
+                className="bg-white border-none"
+              />
             </div>
           </div>
 

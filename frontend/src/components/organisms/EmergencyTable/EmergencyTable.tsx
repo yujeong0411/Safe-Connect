@@ -1,5 +1,4 @@
 // src/components/organisms/EmergencyTable/EmergencyTable.tsx
-import React from 'react';
 import StatusBadge from '@components/atoms/StatusBadge/StatusBadge';
 import Button from '@components/atoms/Button/Button';
 

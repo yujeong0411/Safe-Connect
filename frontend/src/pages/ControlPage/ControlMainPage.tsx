@@ -1,8 +1,7 @@
-// src/pages/ControlPage/ControlMainPage.tsx
-import React, { useState, useEffect } from 'react';
 import MainTemplate from '@components/templates/MainTemplate';
 import VideoCallDialog from '@components/organisms/VideoCallDialog/VideoCallDialog';
 import GuardianNotifyDialog from '@components/organisms/GuardianNotifyDialog/GuardianNotifyDialog';
+import { useState, useEffect } from 'react';
 
 const ControlMainPage = () => {
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);

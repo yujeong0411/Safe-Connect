@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         console.error('No authorization header found in response');
         throw new Error(response.data.message || '로그인 실패');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       // 에러 처리
       console.error('Login error details:', {
         error,
@@ -61,7 +61,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
   // 로그아웃 시 토큰 제거 및 상태 초기화
   logout: async () => {
     try {
-      await axiosInstance.post('/logout');
+      console.log('로그아웃 요청 전 설정:', {
+        url: 'user/logout',
+        headers: axiosInstance.defaults.headers,
+        cookies: document.cookie,
+      });
+      await axiosInstance.post('/user/logout');
+      console.log('로그아웃 요청 성공');
 
       // 로컬 상태 초기화
       set({

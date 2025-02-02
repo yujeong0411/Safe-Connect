@@ -27,7 +27,7 @@ export interface AuthStore {
   //setAuthenticated: (auth: boolean) => void;
   //checkAuth: () => void; // 추가된 함수
   login: (data: EmailLoginRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<any>;
   fetchUserInfo: () => Promise<any>;
   updateUserInfo: (updateData: any) => Promise<any>;
   fetchMediInfo: () => Promise<any>;
