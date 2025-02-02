@@ -5,17 +5,20 @@ import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
+import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.hospital.ReqHospital;
+import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.DispatchStaffRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
 import c207.camference.db.repository.hospital.ReqHospitalRepository;
+import c207.camference.db.repository.patient.PatientRepository;
 import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.report.TransferRepository;
 import c207.camference.util.response.ResponseUtil;
@@ -50,6 +53,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final TransferRepository transferRepository;
     private final ReqHospitalRepository reqHospitalRepository;
     private final ModelMapper modelMapper;
+    private final PatientRepository patientRepository;
 
     @Value("${openApi.serviceKey}")
     private String serviceKey;
@@ -63,7 +67,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             DispatchGroupRepository dispatchGroupRepository,
             DispatchRepository dispatchRepository,
             TransferRepository transferRepository, ReqHospitalRepository reqHospitalRepository,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper, PatientRepository patientRepository) {
         this.fireStaffRepository = fireStaffRepository;
         this.dispatchStaffRepository = dispatchStaffRepository;
         this.dispatchGroupRepository = dispatchGroupRepository;
@@ -71,6 +75,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         this.transferRepository = transferRepository;
         this.reqHospitalRepository = reqHospitalRepository;
         this.modelMapper = modelMapper;
+        this.patientRepository = patientRepository;
     }
 
     @Override
@@ -154,10 +159,12 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         try{
             Transfer transfer = transferRepository.findByTransferId(transferId)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 이송내역이 없습니다."));
+            Patient patient = patientRepository.findByTransferId(transfer.getTransferId())
+                    .orElseThrow(() -> new EntityNotFoundException("일치하는 환자가 없습니다."));
 
-            TransferResponse transferResponse = new TransferResponse(transfer);
+            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient);
 
-            ResponseData<TransferResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
+            ResponseData<TransferDetailResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
         } catch (EntityNotFoundException e) {
