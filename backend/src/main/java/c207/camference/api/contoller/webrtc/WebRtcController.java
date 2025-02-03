@@ -103,7 +103,13 @@ public class WebRtcController {
     public ResponseEntity<?> sendUrl(@RequestParam("audioFile") MultipartFile audioFile) throws IOException {
 
         String text = webRtcService.speechToText(audioFile);
-        System.out.println(text);
+        System.out.println("요약전 : " + text); // 테스트용.
+
+        // 텍스트로 변환한 통화 음성 내역을 AI를 통해서 요약한다.
+        // 원래대로라면 DB에 넣은 후, 다른 컨트롤러에서 DB에서 select한후 요약을 해야 하지만,
+        // 지금은 본격적인 개발 전이니까 하나의 컨트롤러에 합친다.(2025.02.03)
+        String summary = webRtcService.textSummary(text);
+        System.out.println("요약 후 : " + summary);
 
         return ResponseEntity.ok("ok");
     }
