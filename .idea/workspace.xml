@@ -4,28 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9fb1ebda-cdd8-4be7-8f38-cecf523e079e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/0abc95c4-6c06-4ad0-89d9-b03e4c8f18a9.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/0abc95c4-6c06-4ad0-89d9-b03e4c8f18a9.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/templates/MainTemplate.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/templates/MainTemplate.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/features/admin/components/AdminMainTemplate.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/features/admin/components/AdminMainTemplate.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminPage/AdminLoginPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminPage/AdminLoginPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HospitalPage/HospitalMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HospitalPage/HospitalMainPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserInfoPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserInfoPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserMainPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserMediPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserMediPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserUpdatePwPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/UserPage/UserUpdatePwPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/store/admin/adminAuthStore.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/admin/adminAuthStore.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/store/control/controlAuthStore.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/control/controlAuthStore.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/store/dispatch/dispatchAuthStore.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/dispatch/dispatchAuthStore.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/store/hospital/hospitalAuthStore.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/hospital/hospitalAuthStore.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/store/user/authStore.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/user/authStore.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/types/admin/adminAuth.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/admin/adminAuth.types.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/types/common/fireAuth.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/common/fireAuth.types.ts" afterDir="false" />
-    </list>
+    <list default="true" id="9fb1ebda-cdd8-4be7-8f38-cecf523e079e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,7 +14,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -90,7 +69,7 @@
       <updated>1738543874600</updated>
       <workItem from="1738543876728" duration="1794000" />
       <workItem from="1738545740728" duration="5580000" />
-      <workItem from="1738551438029" duration="9984000" />
+      <workItem from="1738551438029" duration="10342000" />
     </task>
     <servers />
   </component>
