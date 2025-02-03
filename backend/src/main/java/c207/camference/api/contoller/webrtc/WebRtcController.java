@@ -97,6 +97,10 @@ public class WebRtcController {
         ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
         Connection connection = session.createConnection(properties);
         System.out.println(connection.getToken());
+        System.out.println(connection.getConnectionId());
+
+        // 테스트용으로 우선 여기에 넣었다.
+        // webRtcService.sendUrlMsg("01028372243");
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
