@@ -50,7 +50,7 @@ public class UserLoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access",userDetails.getUsername(), "ROLE_USER",10*60*1000L);
+        String access = jwtUtil.createJwt("access",userDetails.getUsername(), "ROLE_USER",1*60*1000L);
         String refresh = jwtUtil.createJwt("refresh",userDetails.getUsername(), "ROLE_USER",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장

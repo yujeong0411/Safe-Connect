@@ -6,9 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="9fb1ebda-cdd8-4be7-8f38-cecf523e079e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.types.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/PatientInfoPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/PatientInfoPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +22,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -76,7 +79,7 @@
       <workItem from="1738545740728" duration="5580000" />
       <workItem from="1738551438029" duration="11162000" />
       <workItem from="1738563525408" duration="29000" />
-      <workItem from="1738563806293" duration="1363000" />
+      <workItem from="1738563806293" duration="8897000" />
     </task>
     <servers />
   </component>

@@ -14,6 +14,8 @@ import {
 import EmergencyDetailDialog from '@/features/control/components/EmergencyDetailDialog';
 import { EmergencyDetailData } from '@/features/control/types/emergencyDetail.types';
 import {useControlAuthStore} from "@/store/control/controlAuthStore.tsx";
+import VideoCallCreateDialog from "@features/control/components/VideoCallCreateDialog.tsx";
+import ProtectorNotifyDialog from "@features/control/components/ProtectorNotifyDialog.tsx";
 
 interface EmergencyLogData {
   reportTime: string;
@@ -33,15 +35,18 @@ interface EmergencyLogData {
 
 const ControlLogPage = () => {
   const [reportText, setReportText] = React.useState('');
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);  // 출동 지령
+  const [isVideoModalOpen, setIsVideoModalOpen] = React.useState(false);  // 영상통화 생성 및 URL 전송
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = React.useState(false);  // 보호자 알림 전송
   const [selectedEmergency, setSelectedEmergency] = React.useState<EmergencyDetailData>();
   const {logout} = useControlAuthStore();
 
+
   const navItems = [
-    { label: '영상통화 생성', path: '/Control/main' },
+    { label: '영상통화 생성', path: '#', hasModal:true, onModalOpen: () => setIsVideoModalOpen(true) },
     { label: '신고 접수', path: '/Control/patient-info' },
     { label: '출동 지령', path: '/Control/dispatch' },
-    { label: '보호자 알림', path: '/Control/main' },
+    { label: '보호자 알림', path: '#', hasModal: true, onModalOpen: () => setIsNotifyModalOpen(true) },
     { label: '신고 목록', path: '/Control/logs' },
   ];
 
@@ -173,6 +178,8 @@ const ControlLogPage = () => {
         onOpenChange={setIsModalOpen}
         data={selectedEmergency}
       />
+      <VideoCallCreateDialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen}/>
+      <ProtectorNotifyDialog open={isNotifyModalOpen} onOpenChange={setIsNotifyModalOpen}/>
     </MainTemplate>
   );
 };

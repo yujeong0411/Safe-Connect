@@ -3,6 +3,7 @@ import PatientInfoPage from '@/pages/ControlPage/PatientInfoPage';
 import DispatchPage from '@/pages/ControlPage/DispatchPage';
 import ControlLoginPage from '@/pages/ControlPage/ControlLoginPage';
 import ControlLogPage from '@/pages/ControlPage/ControlLogPage';
+import ControlMainPage from '@/pages/ControlPage/ControlMainPage';
 
 const ControlRoutes = () => {
   return (
@@ -11,6 +12,7 @@ const ControlRoutes = () => {
       <Route path="" element={<Navigate to="logs" replace />} />
 
       {/* 메인 라우트들 */}
+        <Route path="main" element={<ControlMainPage />} />
       <Route path="login" element={<ControlLoginPage />} />
       <Route path="patient-info" element={<PatientInfoPage />} />
       <Route path="dispatch" element={<DispatchPage />} />
