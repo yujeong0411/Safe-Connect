@@ -56,9 +56,12 @@ public class WebRtcController {
 
     @PostConstruct
     public void init() {
+
         this.openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
         this.webRtcService = webRtcService;
     }
+
+
 
     /**
      * @param params The Session properties
@@ -67,6 +70,9 @@ public class WebRtcController {
     @PostMapping("/api/sessions")
     public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
+
+        System.out.println(params);
+
         SessionProperties properties = SessionProperties.fromJson(params).build();
         Session session = openvidu.createSession(properties);
         System.out.println(session.getSessionId()); // 테스트용
@@ -83,6 +89,7 @@ public class WebRtcController {
     public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
                                                    @RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
+        System.out.println(params);
         Session session = openvidu.getActiveSession(sessionId);
         if (session == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
