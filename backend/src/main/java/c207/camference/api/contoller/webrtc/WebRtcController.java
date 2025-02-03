@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 import java.util.Map;
@@ -29,6 +30,8 @@ import io.openvidu.java.client.OpenViduHttpException;
 import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import io.openvidu.java.client.SessionProperties;
+import org.springframework.web.multipart.MultipartFile;
+
 //@CrossOrigin(origins = "*")
 @RestController
 public class WebRtcController {
@@ -90,9 +93,20 @@ public class WebRtcController {
         Connection connection = session.createConnection(properties);
         System.out.println(connection.getConnectionId());
 
+        // 테스트용으로 우선 여기에 넣었다.
         webRtcService.sendUrlMsg("01028372243");
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
+    }
+
+    @PostMapping("/control/whisper")
+    public ResponseEntity<?> sendUrl(@PathVariable("sessionId") String sessionId,
+                                     @RequestParam("audioFile") MultipartFile audioFile) throws IOException {
+
+        String text = webRtcService.speechToText(audioFile);
+        System.out.println(text);
+
+        return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.CREATED);
     }
 
 
