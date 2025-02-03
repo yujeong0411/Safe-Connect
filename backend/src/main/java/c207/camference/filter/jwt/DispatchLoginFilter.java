@@ -1,7 +1,7 @@
 package c207.camference.filter.jwt;
 
-import c207.camference.db.entity.others.Refresh;
-import c207.camference.db.repository.RefreshRepository;
+import c207.camference.db.entity.etc.Refresh;
+import c207.camference.db.repository.etc.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -29,7 +29,7 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
         setAuthenticationManager(authenticationManager);
-        setFilterProcessesUrl("/dispatch/login"); // 사용자 로그인 URL 설정
+        setFilterProcessesUrl("/dispatch_staff/login"); // 사용자 로그인 URL 설정
     }
 
     // 이거 다음
@@ -56,7 +56,7 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
         String refresh = jwtUtil.createJwt("refresh",dispatchDetails.getUsername(), "ROLE_DISPATCH",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(dispatchDetails.getUsername(), refresh, 24*60*60*100L);
+        addRefreshEntity(dispatchDetails.getUsername(), refresh,"ROLE_DISPATCH", 24*60*60*100L);
 
 
         response.setHeader("access", access);
@@ -65,7 +65,9 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 성공시 user로 보내기
     }
 
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+    private void addRefreshEntity(String username, String refresh, String role, Long expiredMs) {
+        // 동일한 사용자의 이전 리프레시 토큰 삭제
+        refreshRepository.deleteByUsernameAndRole(username, role,jwtUtil);
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
@@ -76,6 +78,7 @@ public class DispatchLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         refreshRepository.save(refreshEntity);
     }
+
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);

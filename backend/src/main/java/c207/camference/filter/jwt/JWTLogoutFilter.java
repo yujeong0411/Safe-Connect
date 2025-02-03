@@ -1,6 +1,6 @@
 package c207.camference.filter.jwt;
 
-import c207.camference.db.repository.RefreshRepository;
+import c207.camference.db.repository.etc.RefreshRepository;
 import c207.camference.util.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -35,7 +35,7 @@ public class JWTLogoutFilter extends GenericFilterBean {
         String requestUri = request.getRequestURI();
 
         // 경로 매칭을 단순화
-        if (!requestUri.equals("/logout")) {  // 또는 "/user/logout"
+        if (!requestUri.toLowerCase().matches(".*/logout$")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -89,6 +89,8 @@ public class JWTLogoutFilter extends GenericFilterBean {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+
+        String role = jwtUtil.getRole(refresh);
 
         //DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefresh(refresh);

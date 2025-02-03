@@ -2,11 +2,11 @@ package c207.camference.api.service.medi;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.dto.medi.MediDto;
-import c207.camference.db.entity.others.Medi;
-import c207.camference.db.entity.others.MediCategory;
-import c207.camference.db.repository.MediCategoryRepository;
-import c207.camference.db.repository.MediRepository;
-import c207.camference.db.repository.UserMediDetailRepository;
+import c207.camference.db.entity.etc.Medi;
+import c207.camference.db.entity.etc.MediCategory;
+import c207.camference.db.repository.etc.MediCategoryRepository;
+import c207.camference.db.repository.etc.MediRepository;
+import c207.camference.db.repository.users.UserMediDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
