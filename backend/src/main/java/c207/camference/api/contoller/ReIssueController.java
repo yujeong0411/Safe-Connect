@@ -71,7 +71,9 @@ public class ReIssueController {
         }
 
         //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+        String username = jwtUtil.getLoginId(refresh);
+        String role = jwtUtil.getRole(refresh);
+        Boolean isExist = refreshRepository.existsByRefresh(refresh,role);
 
         if (!isExist) {
             //response body
@@ -79,8 +81,6 @@ public class ReIssueController {
         }
 
 
-        String username = jwtUtil.getLoginId(refresh);
-        String role = jwtUtil.getRole(refresh);
 
 
         //make new JWT
@@ -88,8 +88,8 @@ public class ReIssueController {
         String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
         //Refresh 토큰 저장 DB  에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
-        refreshRepository.deleteByRefresh(refresh);
-        addRefreshEntity(username, newRefresh, 86400000L);
+        refreshRepository.deleteByRefresh(refresh,role);
+        addRefreshEntity(username, newRefresh,role, 86400000L);
 
         //response
         response.setHeader("access", newAccess);
@@ -104,12 +104,14 @@ public class ReIssueController {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24*60*60);
         //cookie.setSecure(true);
-        //cookie.setPath("/");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         return cookie;
     }
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+    private void addRefreshEntity(String username, String refresh, String role, Long expiredMs) {
+        // 동일한 사용자의 이전 리프레시 토큰 삭제
+        refreshRepository.deleteByUsernameAndRole(username, role);
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
@@ -117,6 +119,7 @@ public class ReIssueController {
         refreshEntity.setUsername(username);
         refreshEntity.setRefresh(refresh);
         refreshEntity.setExpiration(date.toString());
+        refreshEntity.setRole(role);
 
         refreshRepository.save(refreshEntity);
     }
