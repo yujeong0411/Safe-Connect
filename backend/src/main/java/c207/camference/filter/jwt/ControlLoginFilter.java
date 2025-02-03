@@ -57,7 +57,7 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
         String refresh = jwtUtil.createJwt("refresh",controlDetails.getUsername(), "ROLE_CONTROL",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(controlDetails.getUsername(), refresh, 24 * 60 * 60*1000L);
+        addRefreshEntity(controlDetails.getUsername(), refresh, "ROLE_CONTROL", 24 * 60 * 60*1000L);
 
 
         response.setHeader("access", access);
@@ -66,7 +66,9 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 성공시 user로 보내기
     }
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+    private void addRefreshEntity(String username, String refresh, String role, Long expiredMs) {
+        // 동일한 사용자의 이전 리프레시 토큰 삭제
+        refreshRepository.deleteByUsernameAndRole(username, role,jwtUtil);
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
