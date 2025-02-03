@@ -21,6 +21,7 @@ import c207.camference.db.repository.hospital.ReqHospitalRepository;
 import c207.camference.db.repository.patient.PatientRepository;
 import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.report.TransferRepository;
+import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 import static io.openvidu.java.client.ConnectionProperties.DefaultValues.data;
 
 @Service
+@RequiredArgsConstructor
 public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final FireStaffRepository fireStaffRepository;
     private final DispatchStaffRepository dispatchStaffRepository;
@@ -54,6 +56,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final ReqHospitalRepository reqHospitalRepository;
     private final ModelMapper modelMapper;
     private final PatientRepository patientRepository;
+    private final UserMediDetailRepository userMediDetailRepository;
 
     @Value("${openApi.serviceKey}")
     private String serviceKey;
@@ -61,22 +64,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     @Value("${openApi.availableHospitalUrl}")
     private String availableHospitalUrl;
 
-    public DispatchStaffServiceImpl(
-            FireStaffRepository fireStaffRepository,
-            DispatchStaffRepository dispatchStaffRepository,
-            DispatchGroupRepository dispatchGroupRepository,
-            DispatchRepository dispatchRepository,
-            TransferRepository transferRepository, ReqHospitalRepository reqHospitalRepository,
-            ModelMapper modelMapper, PatientRepository patientRepository) {
-        this.fireStaffRepository = fireStaffRepository;
-        this.dispatchStaffRepository = dispatchStaffRepository;
-        this.dispatchGroupRepository = dispatchGroupRepository;
-        this.dispatchRepository = dispatchRepository;
-        this.transferRepository = transferRepository;
-        this.reqHospitalRepository = reqHospitalRepository;
-        this.modelMapper = modelMapper;
-        this.patientRepository = patientRepository;
-    }
 
     @Override
     public ResponseEntity<?> getReports(){
@@ -162,7 +149,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             Patient patient = patientRepository.findByTransferId(transfer.getTransferId())
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 환자가 없습니다."));
 
-            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient);
+            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient, userMediDetailRepository);
 
             ResponseData<TransferDetailResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
