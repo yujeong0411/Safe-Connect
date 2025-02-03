@@ -94,10 +94,12 @@ public class WebRtcController {
         System.out.println(connection.getConnectionId());
 
         // 테스트용으로 우선 여기에 넣었다.
-        webRtcService.sendUrlMsg("01028372243");
+        // webRtcService.sendUrlMsg("01028372243");
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
+
+
 
     @PostMapping("/control/whisper")
     public ResponseEntity<?> sendUrl(@RequestParam("audioFile") MultipartFile audioFile) throws IOException {
@@ -113,21 +115,5 @@ public class WebRtcController {
 
         return ResponseEntity.ok("ok");
     }
-
-
-    /**
-     * @param sessionId
-     * @param params
-     * @return
-     */
-//    @PostMapping("/control/video")
-//    public ResponseEntity<String> sendUrl(@PathVariable("sessionId") String sessionId,
-//                                                   @RequestBody(required = false) Map<String, Object> params)
-//            throws OpenViduJavaClientException, OpenViduHttpException {
-//
-//        webRtcService.sendUrlMsg("01028372243");
-//
-//        return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.CREATED);
-//    }
 
 }
