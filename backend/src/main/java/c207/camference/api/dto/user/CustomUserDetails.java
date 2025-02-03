@@ -1,6 +1,6 @@
 package c207.camference.api.dto.user;
 
-import c207.camference.db.entity.User;
+import c207.camference.db.entity.users.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,7 +17,6 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
@@ -38,7 +37,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUserName() + "";
+        return user.getUserEmail();
     }
 
     @Override
@@ -56,8 +55,8 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    @Override
+    @Override// 유저가 만일 탈퇴하면 토큰 발급이 불가능하도록
     public boolean isEnabled() {
-        return true;
+        return !user.getUserWithdraw();
     }
 }
