@@ -1,11 +1,9 @@
-import ExamplePage from "@/pages/Example.tsx";
+import Router from '@/routes/index';
+
+// router 연결 가능
 
 function App() {
-    return (
-        <div>
-            <ExamplePage />
-        </div>
-    )
+  return <Router />;
 }
 
 export default App;
