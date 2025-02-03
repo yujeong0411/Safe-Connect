@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { HospitalLoginRequest, HospitalAuthStore } from '@/types/hospital/hospitalAuth.types.ts';
 import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
+import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 
 export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
   token: localStorage.getItem('accessToken'),
@@ -38,5 +39,6 @@ export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
       token: null,
       isAuthenticated: false,
     });
+    window.location.href = LOGIN_PATH.HOSPITAL
   },
 }));

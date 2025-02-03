@@ -2,10 +2,12 @@ import MainTemplate from '@components/templates/MainTemplate';
 import VideoCallDialog from '@components/organisms/VideoCallDialog/VideoCallDialog';
 import GuardianNotifyDialog from '@components/organisms/GuardianNotifyDialog/GuardianNotifyDialog';
 import { useState, useEffect } from 'react';
+import {useControlAuthStore} from "@/store/control/controlAuthStore.tsx";
 
 const ControlMainPage = () => {
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [isGuardianNotifyOpen, setIsGuardianNotifyOpen] = useState(false);
+  const {logout} = useControlAuthStore();
 
   const navItems = [
     { label: '영상통화 생성', path: '/Control/main' },
@@ -32,7 +34,7 @@ const ControlMainPage = () => {
 
   return (
     <>
-      <MainTemplate navItems={navItems}>{/* 기존 mainContent 내용 */}</MainTemplate>
+      <MainTemplate navItems={navItems} logoutDirect={logout}>{/* 기존 mainContent 내용 */}</MainTemplate>
 
       <VideoCallDialog isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)} />
 

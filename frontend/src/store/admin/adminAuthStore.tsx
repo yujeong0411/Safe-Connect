@@ -10,8 +10,8 @@ export const useAdminAuthStore = create<AdminAuthStore>((set) => ({
   login: async (data: AdminLoginRequest) => {
     // 벡엔드에서 form-data 형식으로 받음.
     const formData = new URLSearchParams();
-    formData.append('AdminUserID', data.AdminUserId);
-    formData.append('AdminUserPassword', data.AdminUserPassword);
+    formData.append('adminLoginId', data.adminLoginId);
+    formData.append('adminPassword', data.adminPassword);
     // 문자열로 변환
     console.log(formData.toString());
     // 로그인 공통 로직 사용

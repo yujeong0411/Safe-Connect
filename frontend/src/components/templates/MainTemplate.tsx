@@ -1,22 +1,19 @@
 import PublicHeader from '@components/organisms/PublicHeader/PublicHeader.tsx';
 import NavBar from '@components/organisms/NavBar/NavBar';
-import { useAuthStore } from '@/store/user/authStore';
-import { useNavigate } from 'react-router-dom';
 import React from 'react';
 
 interface MainTemplateProps {
   children?: React.ReactNode;
   navItems: Array<{ label: string; path: string }>;
+  logoutDirect: () => void | Promise<void>;
 }
 
-const MainTemplate = ({ children, navItems }: MainTemplateProps) => {
-  const { logout } = useAuthStore();
-  const navigate = useNavigate();
+const MainTemplate = ({ children, navItems, logoutDirect }: MainTemplateProps) => {
 
   const handleLogout = async () => {
     try {
-      await logout();
-      navigate('/user/login'); // 로그인 페이지로 이동
+      await logoutDirect()  // 각 페이지에서 로그아웃 함수 전달
+      // 페이지 이동은 각 스토어에서
     } catch (error) {
       console.error('로그아웃 실패', error);
     }

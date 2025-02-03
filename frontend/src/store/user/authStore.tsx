@@ -3,6 +3,7 @@ import { AuthStore, EmailLoginRequest } from '@/types/user/auth.types.ts';
 import { axiosInstance } from '@utils/axios.ts';
 import { findEmail } from '@features/auth/servies/apiService.ts';
 import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
+import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 
 export const useAuthStore = create<AuthStore>((set) => ({
   // 초기상태
@@ -41,6 +42,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       token: null,
       isAuthenticated: false,
     });
+    window.location.href = LOGIN_PATH.USER
   },
 
   // 회원 정보 조회

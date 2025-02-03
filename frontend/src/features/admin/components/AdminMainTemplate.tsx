@@ -1,7 +1,8 @@
 import React from 'react';
 import PublicHeader from '@components/organisms/PublicHeader/PublicHeader.tsx';
 import Button from '@components/atoms/Button/Button.tsx';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {useAdminAuthStore} from "@/store/admin/adminAuthStore.tsx";
 
 interface AdminTemplateProps {
   children?: React.ReactNode;
@@ -11,11 +12,17 @@ interface AdminTemplateProps {
 
 const AdminMainTemplate = ({ children, currentMenu, onButtonClick }: AdminTemplateProps) => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const {logout} = useAdminAuthStore();
 
   // 추후 서비스에 로그아웃 함수 만들기
-  const handleLogout = () => {
-    // 로그아웃 처리 로직
-    // 예: 토큰 제거, 상태 초기화 등
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/admin'); // 로그인 페이지로 이동
+    } catch (error) {
+      console.error('로그아웃 실패', error);
+    }
   };
 
   return (
