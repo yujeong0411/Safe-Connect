@@ -3,7 +3,10 @@ package c207.camference.api.service.webrtc;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.util.response.ResponseUtil;
 
+import com.google.cloud.speech.v1.*;
+import com.google.protobuf.ByteString;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Message;
@@ -21,14 +24,18 @@ import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import io.openvidu.java.client.SessionProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import java.util.*;
 
+
 @Service
+@RequiredArgsConstructor
 public class WebRtcServiceImpl implements WebRtcService {
     @Value("${OPENVIDU_URL}")
     private String OPENVIDU_URL;
@@ -37,6 +44,7 @@ public class WebRtcServiceImpl implements WebRtcService {
     private String OPENVIDU_SECRET;
 
     private OpenVidu openvidu;
+    private final SpeechClient speechClient;
 
     @PostConstruct
     public void init() {
@@ -67,15 +75,61 @@ public class WebRtcServiceImpl implements WebRtcService {
         Connection connection = session.createConnection(connProps);
         String Token = connection.getToken();
 
-        URL = "http://localhost:3000/" + "?token=" + Token;
+        URL = "http://localhost:3000/" + "?sessionid=" + session.getSessionId() + "token=" + Token;
 
 
         System.out.println(URL); // 디버그용. 삭제할것
 
+        // 생성한 URL을 SMS로 전송하는 로직 추가
 
 
 
 
         return ResponseEntity.ok().build();
     }
+
+    // 화상통화중 녹음된 파일을 텍스트로 변환해주는 메서드
+    @Override
+    public String speechToText(MultipartFile audioFile) throws IOException {
+        if (audioFile.isEmpty()) {
+            throw new IOException("전달받은 음성 데이터 audioFile 빈파일.");
+        }
+
+        // 오디오 파일을 byte array로 decode
+        byte[] audioBytes = audioFile.getBytes();
+
+        // 클라이언트 인스턴스화
+        //try (SpeechClient speechClient = SpeechClient.create()) {
+        //try (SpeechClient speechClient = speechClinet()) { // 넣고 싶은 부분
+            // 오디오 객체 생성
+            ByteString audioData = ByteString.copyFrom(audioBytes);
+            RecognitionAudio recognitionAudio = RecognitionAudio.newBuilder()
+                    .setContent(audioData)
+                    .build();
+
+            // 설정 객체 생성
+            RecognitionConfig recognitionConfig =
+                    RecognitionConfig.newBuilder()
+                            .setEncoding(RecognitionConfig.AudioEncoding.FLAC)
+                            .setSampleRateHertz(44100)
+                            .setLanguageCode("ko-KR")
+                            .build();
+
+            // 오디오-텍스트 변환 수행
+            RecognizeResponse response = speechClient.recognize(recognitionConfig, recognitionAudio);
+            List<SpeechRecognitionResult> results = response.getResultsList();
+
+            if (!results.isEmpty()) {
+                // 주어진 말 뭉치에 대해 여러 가능한 스크립트를 제공. 0번(가장 가능성 있는)을 사용한다.
+                SpeechRecognitionResult result = results.get(0);
+                return result.getAlternatives(0).getTranscript();
+            } else {
+                System.out.println("No transcription result found");
+                return "";
+            }
+        }
+//        catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }
