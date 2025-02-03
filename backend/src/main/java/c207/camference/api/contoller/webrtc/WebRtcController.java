@@ -100,13 +100,12 @@ public class WebRtcController {
     }
 
     @PostMapping("/control/whisper")
-    public ResponseEntity<?> sendUrl(@PathVariable("sessionId") String sessionId,
-                                     @RequestParam("audioFile") MultipartFile audioFile) throws IOException {
+    public ResponseEntity<?> sendUrl(@RequestParam("audioFile") MultipartFile audioFile) throws IOException {
 
         String text = webRtcService.speechToText(audioFile);
         System.out.println(text);
 
-        return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.CREATED);
+        return ResponseEntity.ok("ok");
     }
 
 
