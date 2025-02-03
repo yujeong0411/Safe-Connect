@@ -2,9 +2,7 @@
 <project version="4">
   <component name="dataSourceStorageLocal" created-in="WS-243.22562.222">
     <data-source name="0@localhost" uuid="d46a432a-2b59-49b0-87e3-16d2e662a736">
-      <database-info product="Redis Standalone" version="3.0.504" jdbc-version="4.2" driver-name="Redis JDBC Driver" driver-version="1.5" dbms="REDIS" exact-version="3.0.504" exact-driver-version="1.5">
-        <jdbc-catalog-is-schema>true</jdbc-catalog-is-schema>
-      </database-info>
+      <database-info product="Redis Standalone" version="3.0.504" jdbc-version="4.2" driver-name="Redis JDBC Driver" driver-version="1.5" dbms="REDIS" exact-version="3.0.504" exact-driver-version="1.5" />
       <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
       <secret-storage>master_key</secret-storage>
       <auth-provider>no-auth</auth-provider>

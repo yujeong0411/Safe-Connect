@@ -8,6 +8,8 @@ export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
 
   // 타입 변환 함수 추가
   login: async (data: HospitalLoginRequest) => {
+    console.log("보내는 데이터 : ", data)
+
     // 벡엔드에서 form-data 형식으로 받음.
     const formData = new URLSearchParams();
     formData.append('hospitalLoginId', data.hospitalLoginId);
