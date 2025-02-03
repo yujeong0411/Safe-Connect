@@ -8,7 +8,7 @@ const SearchBar = ({
   placeholder = '검색어를 입력하세요',
   buttonText = '검색',
   onSearch = () => {},
-
+  onButtonClick,
   onChange,
   error,
   value: controlledValue,
@@ -43,8 +43,9 @@ const SearchBar = ({
         error={error}
       />
       <button
-        type="submit"
+        type="button"
         className="absolute right-2 top-[32px] px-4 py-1 bg-banner text-white rounded-md hover:bg-[#697383] transition-colors"
+        onClick={onButtonClick}
       >
         {buttonText}
       </button>

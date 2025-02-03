@@ -19,8 +19,6 @@ public class FireDept {
     @Comment(value="소방청ID")
     private Integer fireDeptId;
 
-
-
     @Column(name = "fire_dept_name", nullable = false, length = 50)
     @Comment(value="소방청 이름")
     private String fireDeptName;
@@ -35,7 +33,7 @@ public class FireDept {
 
     @Column(name = "fire_dept_is_activate", nullable = false)
     @Comment(value = "활성화여부")
-    private Boolean fireDeptIsActivate;
+    private Boolean fireDeptIsActivate = true;
 
     @CreationTimestamp
     @Column(name = "fire_dept_created_at", nullable = false)

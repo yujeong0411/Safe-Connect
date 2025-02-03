@@ -9,7 +9,7 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1000px] w-[90%] max-h-[90vh] min-h-[700px] overflow-y-auto p-8 bg-bg">
+      <DialogContent className="max-w-[900px] w-[80%] max-h-[90vh] min-h-[600px] overflow-y-auto p-8 bg-bg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">이송 상세정보</DialogTitle>
         </DialogHeader>

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { HospitalLoginRequest, HospitalAuthStore } from '@/types/hospital/hospitalAuth.types.ts';
 import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
+import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 
 export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
   token: localStorage.getItem('accessToken'),
@@ -8,6 +9,8 @@ export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
 
   // 타입 변환 함수 추가
   login: async (data: HospitalLoginRequest) => {
+    console.log("보내는 데이터 : ", data)
+
     // 벡엔드에서 form-data 형식으로 받음.
     const formData = new URLSearchParams();
     formData.append('hospitalLoginId', data.hospitalLoginId);
@@ -36,5 +39,6 @@ export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
       token: null,
       isAuthenticated: false,
     });
+    window.location.href = LOGIN_PATH.HOSPITAL
   },
 }));

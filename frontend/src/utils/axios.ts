@@ -48,9 +48,9 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // 로그인 요청은 토큰 갱신 시도 제외
-    if (originalRequest.url === '/user/login' || originalRequest.url === '/admin/login') {
-      return Promise.reject(error);
-    }
+      if (originalRequest.url.includes('/login')) {
+          return Promise.reject(error);
+      }
 
     // 401에러이고 재시도 중이 아닌 경우
     if (error.response?.status === 401 && !originalRequest._retry) {

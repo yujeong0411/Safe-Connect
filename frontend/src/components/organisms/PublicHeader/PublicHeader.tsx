@@ -14,12 +14,13 @@ const PublicHeader = ({ labels = [] }: PublicHeaderProps) => {
     if (location.pathname.includes('/dispatch')) return '/dispatch';
     if (location.pathname.includes('/admin')) return '/admin';
     return '/user';
+
   };
 
   return (
     <header className="flex relative justify-between items-center pl-4 pr-10">
       <div onClick={() => navigate(getMainPath())}>
-        <Logo />
+        <Logo/>
       </div>
 
       <div className="flex gap-4">
