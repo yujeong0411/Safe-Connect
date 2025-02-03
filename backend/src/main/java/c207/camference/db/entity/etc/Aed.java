@@ -19,6 +19,9 @@ public class Aed {
     @Column(name = "aed_address", nullable = false)
     private String aedAddress;
 
+    @Column(name = "aed_place", nullable = false)
+    private String aedPlace;
+
     @Column(name = "aed_latitude", nullable = false)
     private double aedLatitude;
 
