@@ -56,9 +56,12 @@ public class WebRtcController {
 
     @PostConstruct
     public void init() {
+
         this.openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
         this.webRtcService = webRtcService;
     }
+
+
 
     /**
      * @param params The Session properties
