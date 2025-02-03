@@ -1,8 +1,10 @@
 import MainTemplate from '@components/templates/MainTemplate';
 import Input from '@components/atoms/Input/Input';
 import Button from '@components/atoms/Button/Button';
+import {useControlAuthStore} from "@/store/control/controlAuthStore.tsx";
 
 const PatientInfoPage = () => {
+  const {logout} = useControlAuthStore();
   const navItems = [
     { label: '영상통화 생성', path: '/Control/main' },
     { label: '신고 접수', path: '/Control/patient-info' },
@@ -114,7 +116,7 @@ const PatientInfoPage = () => {
     </div>
   );
 
-  return <MainTemplate navItems={navItems}>{mainContent}</MainTemplate>;
+  return <MainTemplate navItems={navItems} logoutDirect={logout}>{mainContent}</MainTemplate>;
 };
 
 export default PatientInfoPage;

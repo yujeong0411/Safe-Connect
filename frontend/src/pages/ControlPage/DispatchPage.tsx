@@ -3,11 +3,13 @@ import MainTemplate from '@/components/templates/MainTemplate';
 import TextArea from '@/components/atoms/TextArea/TextArea';
 import Button from '@/components/atoms/Button/Button';
 import DispatchCommandDialog from '@/features/control/components/DispatchCommandDialog';
+import {useDispatchAuthStore} from "@/store/dispatch/dispatchAuthStore.tsx";
 
 const DispatchPage = () => {
   const [reportContent, setReportContent] = useState('');
   const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
-  
+const {logout} = useDispatchAuthStore();
+
   const navItems = [
     { label: '영상통화 생성', path: '/Control/main' },
     { label: '신고 접수', path: '/Control/patient-info' },
@@ -17,14 +19,14 @@ const DispatchPage = () => {
   ];
 
   return (
-    <MainTemplate navItems={navItems}>
+    <MainTemplate navItems={navItems} logoutDirect={logout}>
       <div className="grid grid-cols-2 gap-6 p-6">
         {/* 왼쪽: 신고 내용 섹션 */}
         <div className="space-y-6">
           {/* 이미지 섹션 */}
           <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-            <img 
-              src="/emergency-call-image.jpg" 
+            <img
+              src="/emergency-call-image.jpg"
               alt="Emergency call"
               className="w-full h-full object-cover"
             />
@@ -56,7 +58,7 @@ const DispatchPage = () => {
         <div className="space-y-4">
           {/* 검색 필터 */}
           <div className="flex gap-2">
-            <input 
+            <input
               type="text"
               placeholder="근처 소방서 목록"
               className="flex-1 p-2 border border-gray-300 rounded-md"
@@ -72,12 +74,12 @@ const DispatchPage = () => {
             <div className="w-full h-full rounded-lg overflow-hidden">
               {/* 지도 API가 로드될 div */}
               <div id="map" className="w-full h-full" />
-              
+
               {/* 우측 하단 버튼 */}
               <div className="absolute bottom-4 right-4">
-                <Button 
-                  variant="red" 
-                  size="lg" 
+                <Button
+                  variant="red"
+                  size="lg"
                   width="auto"
                   className="bg-red-500 hover:bg-red-600"
                   onClick={() => setIsDispatchDialogOpen(true)}
@@ -90,7 +92,7 @@ const DispatchPage = () => {
         </div>
       </div>
 
-      <DispatchCommandDialog 
+      <DispatchCommandDialog
         open={isDispatchDialogOpen}
         onOpenChange={setIsDispatchDialogOpen}
       />

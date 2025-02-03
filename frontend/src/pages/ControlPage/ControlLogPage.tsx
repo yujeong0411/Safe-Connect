@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import EmergencyDetailDialog from '@/features/control/components/EmergencyDetailDialog';
 import { EmergencyDetailData } from '@/features/control/types/emergencyDetail.types';
+import {useControlAuthStore} from "@/store/control/controlAuthStore.tsx";
 
 interface EmergencyLogData {
   reportTime: string;
@@ -34,6 +35,7 @@ const ControlLogPage = () => {
   const [reportText, setReportText] = React.useState('');
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedEmergency, setSelectedEmergency] = React.useState<EmergencyDetailData>();
+  const {logout} = useControlAuthStore();
 
   const navItems = [
     { label: '영상통화 생성', path: '/Control/main' },
@@ -91,7 +93,7 @@ const ControlLogPage = () => {
   };
 
   return (
-    <MainTemplate navItems={navItems}>
+    <MainTemplate navItems={navItems} logoutDirect={logout}>
       <div className="grid grid-cols-2 gap-6 p-6">
         <div className="space-y-6">
           <VideoCall />

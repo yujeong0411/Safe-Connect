@@ -5,29 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9fb1ebda-cdd8-4be7-8f38-cecf523e079e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/atoms/TextArea/TextArea.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/atoms/TextArea/TextArea.types.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/molecules/EmergencyLogItem/EmergencyLogItem.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/molecules/EmergencyLogItem/EmergencyLogItem.types.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/organisms/EmergencyLogs/EmergencyLogs.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/organisms/VideoCall/VideoCall.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/DispatchCommandDialog.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/EmergencyDetailDialog.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/ProtectorNotifyDialog.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/VideoCallCreateDialog.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/emergencyLogTable.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/types/dialog.types.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/types/emergencyDetail.types.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/atoms/Dropdown/Dropdown.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/atoms/Dropdown/Dropdown.types.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/features/control/components.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/EmergencyDetailPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/EmergencyLogPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/GuardianNotificationPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/tsconfig.app.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/tsconfig.app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/PatientInfoPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/PatientInfoPage.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +19,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -49,28 +30,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merging S12P11C207-160",
-    "last_opened_file_path": "C:/Users/SSAFY/Desktop/S12P11C207",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\prettier",
-    "ts.external.directory.path": "C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Frontend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/SSAFY/Desktop/S12P11C207&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\prettier&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "redis",
-      "mariadb"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;redis&quot;,
+      &quot;mariadb&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\SSAFY\Desktop\S12P11C207" />
@@ -95,7 +76,7 @@
       <workItem from="1738545740728" duration="5580000" />
       <workItem from="1738551438029" duration="11162000" />
       <workItem from="1738563525408" duration="29000" />
-      <workItem from="1738563806293" duration="766000" />
+      <workItem from="1738563806293" duration="1363000" />
     </task>
     <servers />
   </component>
