@@ -1,27 +1,32 @@
-import React, { useEffect, useRef } from 'react';
-import { StreamManager } from 'openvidu-browser';
+import React, { Component } from 'react';
+import {StreamManager } from 'openvidu-browser';
 
-interface OvVideoProps {
-  streamManager: StreamManager;
-  className?: string;
+interface Props {
+    streamManager: StreamManager;
 }
 
-const OvVideo: React.FC<OvVideoProps> = ({ streamManager, className }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+export default class OpenViduVideoComponent extends Component<Props> {
+    private videoRef: React.RefObject<HTMLVideoElement>;
 
-  useEffect(() => {
-    if (streamManager && videoRef.current) {
-      streamManager.addVideoElement(videoRef.current);
+    constructor(props: Props) {
+        super(props);
+        this.videoRef = React.createRef();
     }
-  }, [streamManager]);
 
-  return (
-    <video
-      autoPlay={true}
-      ref={videoRef}
-      className={className}
-    />
-  );
-};
+    componentDidUpdate() {
+        if (this.props && !!this.videoRef.current) {
+            this.props.streamManager.addVideoElement(this.videoRef.current);
+        }
+    }
 
-export default OvVideo;
+    componentDidMount() {
+        if (this.props && !!this.videoRef.current) {
+            this.props.streamManager.addVideoElement(this.videoRef.current);
+        }
+    }
+
+    render() {
+        return <video autoPlay={true} ref={this.videoRef} />;
+    }
+
+}
