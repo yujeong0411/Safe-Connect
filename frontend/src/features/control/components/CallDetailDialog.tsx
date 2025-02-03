@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { EmergencyDetailProps } from '@/features/control/types/emergencyDetail.types';
 
-const EmergencyDetailDialog = ({ open, onOpenChange, data }: EmergencyDetailProps) => {
+const CallDetailDialog = ({ open, onOpenChange, data }: EmergencyDetailProps) => {
   if (!data) return null;
 
   return (
@@ -95,4 +95,4 @@ const EmergencyDetailDialog = ({ open, onOpenChange, data }: EmergencyDetailProp
   );
 };
 
-export default EmergencyDetailDialog;
+export default CallDetailDialog;

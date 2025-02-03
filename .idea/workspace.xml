@@ -6,12 +6,22 @@
   <component name="ChangeListManager">
     <list default="true" id="9fb1ebda-cdd8-4be7-8f38-cecf523e079e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/organisms/NavBar/NavBar.types.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/features/control/components/ControlHalfTemplate.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/features/control/components/ControlVideoForm.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/features/control/components/EmergencyDetailDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/features/control/components/CallDetailDialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/features/control/components/emergencyLogTable.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/features/control/components/emergencyLogTable.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlDispatchOrderPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/PatientInfoPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlPatientInfoPage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/types/image.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/image.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/tsconfig.app.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/tsconfig.app.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +31,31 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="feat/S12P11C207-207" />
+                    <option name="lastUsedInstant" value="1738579211" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1738579210" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -29,6 +64,9 @@
   &quot;associatedIndex&quot;: 6
 }</component>
   <component name="ProjectId" id="2sVbpgcKxhRRyXQrP1SwVZ9GuAx" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -37,15 +75,15 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Frontend&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/S12P11C207-207&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/SSAFY/Desktop/S12P11C207&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\prettier&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\choiy\\Desktop\\S12P11C207\\frontend\\node_modules\\prettier&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\choiy\\Desktop\\S12P11C207\\frontend\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -80,6 +118,7 @@
       <workItem from="1738551438029" duration="11162000" />
       <workItem from="1738563525408" duration="29000" />
       <workItem from="1738563806293" duration="8897000" />
+      <workItem from="1738606326460" duration="1384000" />
     </task>
     <servers />
   </component>
@@ -92,6 +131,10 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/frontend/src/store/control/controlAuthStore.tsx</url>
           <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/frontend/src/components/ui/drawer.tsx</url>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
