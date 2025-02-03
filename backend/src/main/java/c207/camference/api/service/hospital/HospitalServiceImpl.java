@@ -1,6 +1,7 @@
 package c207.camference.api.service.hospital;
 
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.hospital.AcceptTransferResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.hospital.Hospital;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,5 +87,26 @@ public class HospitalServiceImpl implements HospitalService {
             ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> respondToTransfer(int patientId, String status) {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + patientId));
+
+        if (status.equals(TransferStatus.ACCEPTED.name())) {
+            Transfer transfer = transferRepository.findById(patient.getTransferId())
+                    .orElseThrow(() -> new EntityNotFoundException("Transfer not found with id: " + patient.getTransferId()));
+            LocalDateTime now = LocalDateTime.now();
+            transfer.setTransferAcceptAt(now);
+            transferRepository.save(transfer);
+            AcceptTransferResponse response = new AcceptTransferResponse(patientId, now);
+            return ResponseEntity.ok().body(ResponseUtil.success(response, "환자 이송을 수락했습니다."));
+        }
+        if (status.equals(TransferStatus.REJECTED.name())) {
+            return ResponseEntity.ok().body(ResponseUtil.success("환자 이송을 거절했습니다."));
+        }
+
+        throw new IllegalArgumentException("Invalid status: " + status);
     }
 }
