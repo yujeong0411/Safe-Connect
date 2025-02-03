@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9fb1ebda-cdd8-4be7-8f38-cecf523e079e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/atoms/TextArea/TextArea.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/atoms/TextArea/TextArea.types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/molecules/EmergencyLogItem/EmergencyLogItem.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/molecules/EmergencyLogItem/EmergencyLogItem.types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/organisms/EmergencyLogs/EmergencyLogs.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/organisms/VideoCall/VideoCall.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/DispatchCommandDialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/EmergencyDetailDialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/ProtectorNotifyDialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/VideoCallCreateDialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/components/emergencyLogTable.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/types/dialog.types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/features/control/types/emergencyDetail.types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlLogPage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/DispatchPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/atoms/Dropdown/Dropdown.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/atoms/Dropdown/Dropdown.types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/features/control/components.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ControlPage/ControlMainPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/EmergencyDetailPage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/EmergencyLogPage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ControlPage/GuardianNotificationPage.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/ControlRoutes.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/tsconfig.app.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/tsconfig.app.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2sVbpgcKxhRRyXQrP1SwVZ9GuAx" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Merging S12P11C207-160",
+    "last_opened_file_path": "C:/Users/SSAFY/Desktop/S12P11C207",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\prettier",
+    "ts.external.directory.path": "C:\\Users\\SSAFY\\Desktop\\S12P11C207\\frontend\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis",
+      "mariadb"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\SSAFY\Desktop\S12P11C207" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-WS-243.22562.222" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9fb1ebda-cdd8-4be7-8f38-cecf523e079e" name="Changes" comment="" />
+      <created>1738543874600</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1738543874600</updated>
+      <workItem from="1738543876728" duration="1794000" />
+      <workItem from="1738545740728" duration="5580000" />
+      <workItem from="1738551438029" duration="11162000" />
+      <workItem from="1738563525408" duration="29000" />
+      <workItem from="1738563806293" duration="766000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/frontend/src/store/control/controlAuthStore.tsx</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
