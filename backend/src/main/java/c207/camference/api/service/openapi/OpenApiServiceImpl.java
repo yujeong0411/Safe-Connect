@@ -1,12 +1,22 @@
 package c207.camference.api.service.openapi;
 
+import c207.camference.api.dto.medi.MediCategoryDto;
+import c207.camference.api.dto.medi.MediDto;
 import c207.camference.api.dto.openapi.FireDeptDto;
 import c207.camference.api.dto.openapi.HospitalDto;
+import c207.camference.api.response.openapi.AedResponse;
+import c207.camference.db.entity.etc.Aed;
+import c207.camference.db.entity.etc.Medi;
+import c207.camference.db.entity.etc.MediCategory;
 import c207.camference.db.entity.firestaff.FireDept;
 import c207.camference.db.entity.hospital.Hospital;
+import c207.camference.db.repository.etc.MediCategoryRepository;
 import c207.camference.db.repository.firestaff.FireDeptRepository;
 import c207.camference.db.repository.hospital.HospitalRepository;
+import c207.camference.db.repository.openapi.AedRepository;
+import c207.camference.db.repository.openapi.MediRepository;
 import c207.camference.util.openapi.OpenApiUtil;
+import c207.camference.util.response.ResponseUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
@@ -18,6 +28,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +45,9 @@ public class OpenApiServiceImpl implements OpenApiService {
 
     private final FireDeptRepository fireDeptRepository;
     private final HospitalRepository hospitalRepository;
+    private final AedRepository aedRepository;
+    private final MediRepository mediRepository;
+    private final MediCategoryRepository mediCategoryRepository;
 
     @Value("${openApi.fireDeptUrl}")
     private String fireDeptUrl;
@@ -41,12 +55,21 @@ public class OpenApiServiceImpl implements OpenApiService {
     @Value("${openApi.hospitalUrl}")
     private String hospitalUrl;
 
+    @Value("${openApi.aedUrl}")
+    private String aedUrl;
+
+    @Value("${openApi.medicationUrl}")
+    private String medicationUrl;
+
+    @Value("${openApi.dataType}")
+    private String dataType;
+
     @Value("${openApi.serviceKey}")
     private String serviceKey;
 
     @Override
     @Transactional
-    public List<FireDeptDto> saveFireDept() {
+    public ResponseEntity<?> saveFireDept() {
         int page = 1;
         int perPage = 100;
 
@@ -78,7 +101,8 @@ public class OpenApiServiceImpl implements OpenApiService {
                 }
                 page++;
             }
-            return fireDeptDtos;
+            return ResponseEntity.ok().body(ResponseUtil.success(fireDeptDtos, "소방서 저장 성공"));
+
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -87,7 +111,7 @@ public class OpenApiServiceImpl implements OpenApiService {
 
     @Override
     @Transactional
-    public List<HospitalDto> saveHospital() {
+    public ResponseEntity<?> saveHospital() {
         int pageNo = 1;
         int numOfRows = 100;
 
@@ -134,7 +158,96 @@ public class OpenApiServiceImpl implements OpenApiService {
                 }
                 pageNo++;
             }
-            return hospitalDtos;
+            return ResponseEntity.ok().body(ResponseUtil.success(hospitalDtos, "병원 저장 성공"));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResponseEntity<?> saveAed() {
+        int pageNo = 1;
+        int numOfRows = 100;
+
+        List<AedResponse> aedResponses = new ArrayList<>();
+
+        try {
+            while (true) {
+                String urlStr = aedUrl + "?serviceKey=" + serviceKey + "&pageNo=" + pageNo + "numOfRows=" + numOfRows;
+                String response = OpenApiUtil.getHttpResponse(urlStr);
+
+                JSONObject jsonResponse = XML.toJSONObject(response);
+                String jsonStr = jsonResponse.toString();
+
+                JsonNode root = objectMapper.readTree(jsonStr);
+                JsonNode itemArray = root.path("response").path("body").path("items").path("item");
+
+                if (itemArray.isEmpty()) {
+                    break;
+                }
+
+                for (JsonNode item : itemArray) {
+                    Aed savedAed = aedRepository.save(modelMapper.map(AedResponse.builder()
+                            .aedAddress(item.path("buildAddress").asText())
+                            .aedPlace(item.path("buildPlace").asText())
+                            .aedLatitude(item.path("wgs84Lat").asDouble())
+                            .aedLongitude(item.path("wgs84Lon").asDouble())
+                            .build(), Aed.class));
+
+                    AedResponse aedResponse = modelMapper.map(savedAed, AedResponse.class);
+                    aedResponses.add(aedResponse);
+                }
+                pageNo++;
+            }
+            return ResponseEntity.ok().body(ResponseUtil.success(aedResponses, "AED DB 저장 성공"));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> saveMedication() {
+        // medi_category 1에 저장
+        MediCategory category = mediCategoryRepository.findById(1)
+                .orElseThrow(() -> new RuntimeException("해당 카테고리를 찾을 수 없습니다."));
+        List<MediDto> mediDtos = new ArrayList<>();
+
+        int pageNo = 1;
+        int numOfRows = 100;
+
+        try {
+            while (true) {
+                String urlStr = medicationUrl + "?serviceKey=" + serviceKey +
+                        "&pageNo=" + pageNo + "&numOfRows=" + numOfRows + "&type=" + dataType;
+                String response = OpenApiUtil.getHttpResponse(urlStr);
+
+                JsonNode root = objectMapper.readTree(response);
+                JsonNode itemsArray = root.path("body").path("items");
+
+
+                if (itemsArray.isEmpty()) {
+                    break;
+                }
+
+                for (JsonNode item : itemsArray) {
+                    Medi saveMedi = mediRepository.save(modelMapper.map(MediDto.builder()
+                            .mediName(item.path("ITEM_NAME").asText())
+                            .mediCategory(category)
+                            .build(), Medi.class));
+                    mediDtos.add(MediDto.builder()
+                            .mediId(saveMedi.getMediId())
+                            .mediName(saveMedi.getMediName())
+                            .build());
+                }
+                pageNo++;
+            }
+            MediCategoryDto categoryDto = MediCategoryDto.builder()
+                    .categoryId(category.getMediCategoryId())
+                    .categoryName(category.getMediCategoryName())
+                    .mediList(mediDtos)
+                    .build();
+            return ResponseEntity.ok().body(ResponseUtil.success(categoryDto, "복용약물 DB 저장 성공"));
 
         } catch (IOException e) {
             throw new RuntimeException(e);

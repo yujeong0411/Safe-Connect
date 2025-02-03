@@ -193,7 +193,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         }
     };
 
-    public List<AvailableHospitalResponse> getAvailableHospital(String siDo, String siGunGu) {
+    public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu) {
         List<AvailableHospitalResponse> responses = new ArrayList<>();
         HttpURLConnection urlConnection = null;
 
@@ -227,7 +227,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
                 responses.add(availableHospitalResponse);
             }
-            return responses;
+            return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
+
 
         } catch (Exception e) {
             throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
