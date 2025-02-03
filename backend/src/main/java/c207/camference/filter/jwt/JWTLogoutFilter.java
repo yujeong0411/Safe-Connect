@@ -90,6 +90,8 @@ public class JWTLogoutFilter extends GenericFilterBean {
             return;
         }
 
+        String role = jwtUtil.getRole(refresh);
+
         //DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefresh(refresh);
         if (!isExist) {

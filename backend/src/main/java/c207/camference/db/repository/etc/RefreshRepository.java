@@ -1,6 +1,7 @@
 package c207.camference.db.repository.etc;
 
 import c207.camference.db.entity.etc.Refresh;
+import c207.camference.util.jwt.JWTUtil;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -28,6 +29,15 @@ public interface RefreshRepository extends CrudRepository<Refresh, String> {
             }
         }
 
+    }
+
+    default void deleteByUsernameAndRole(String username, String role, JWTUtil jwtUtil) {
+        Iterable<Refresh> all = findAll();
+        for (Refresh token : all) {
+            if (token.getUsername().equals(username) && jwtUtil.getRole(token.getRefresh()).equals(role)) {
+                delete(token);
+            }
+        }
     }
 
 
