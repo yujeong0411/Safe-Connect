@@ -15,5 +15,4 @@ public class Refresh {
     private String username;
     private String refresh;
     private String expiration;
-    private String role;
 }

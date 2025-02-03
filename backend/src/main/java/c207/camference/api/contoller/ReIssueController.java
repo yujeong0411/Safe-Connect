@@ -73,7 +73,7 @@ public class ReIssueController {
         //DB에 저장되어 있는지 확인
         String username = jwtUtil.getLoginId(refresh);
         String role = jwtUtil.getRole(refresh);
-        Boolean isExist = refreshRepository.existsByRefresh(refresh,role);
+        Boolean isExist = refreshRepository.existsByRefresh(refresh);
 
         if (!isExist) {
             //response body
@@ -88,7 +88,7 @@ public class ReIssueController {
         String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
         //Refresh 토큰 저장 DB  에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
-        refreshRepository.deleteByRefresh(refresh,role);
+        refreshRepository.deleteByRefresh(refresh);
         addRefreshEntity(username, newRefresh,role, 86400000L);
 
         //response
@@ -111,7 +111,7 @@ public class ReIssueController {
     }
     private void addRefreshEntity(String username, String refresh, String role, Long expiredMs) {
         // 동일한 사용자의 이전 리프레시 토큰 삭제
-        refreshRepository.deleteByUsernameAndRole(username, role);
+        refreshRepository.deleteByUsernameAndRole(username, role,jwtUtil);
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
@@ -119,7 +119,6 @@ public class ReIssueController {
         refreshEntity.setUsername(username);
         refreshEntity.setRefresh(refresh);
         refreshEntity.setExpiration(date.toString());
-        refreshEntity.setRole(role);
 
         refreshRepository.save(refreshEntity);
     }

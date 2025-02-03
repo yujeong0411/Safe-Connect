@@ -68,7 +68,7 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
     }
     private void addRefreshEntity(String username, String refresh, String role, Long expiredMs) {
         // 동일한 사용자의 이전 리프레시 토큰 삭제
-        refreshRepository.deleteByUsernameAndRole(username, role);
+        refreshRepository.deleteByUsernameAndRole(username, role,jwtUtil);
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
@@ -76,7 +76,6 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
         refreshEntity.setUsername(username);
         refreshEntity.setRefresh(refresh);
         refreshEntity.setExpiration(date.toString());
-        refreshEntity.setRole(role);
 
         refreshRepository.save(refreshEntity);
     }
