@@ -1,7 +1,8 @@
 package c207.camference.api.contoller.webrtc;
 
 import c207.camference.api.service.webrtc.WebRtcService;
-import c207.camference.api.service.webrtc.WebRtcServiceImpl;
+import io.openvidu.java.client.*;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,30 +11,18 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Map;
 
-import java.util.Map;
-
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.openvidu.java.client.Connection;
-import io.openvidu.java.client.ConnectionProperties;
-import io.openvidu.java.client.OpenVidu;
-import io.openvidu.java.client.OpenViduHttpException;
-import io.openvidu.java.client.OpenViduJavaClientException;
-import io.openvidu.java.client.Session;
-import io.openvidu.java.client.SessionProperties;
 import org.springframework.web.multipart.MultipartFile;
 
 //@CrossOrigin(origins = "*")
 @RestController
+@Log4j2
 public class WebRtcController {
     @Value("${OPENVIDU_URL}")
     private String OPENVIDU_URL;
@@ -56,8 +45,6 @@ public class WebRtcController {
         this.webRtcService = webRtcService;
     }
 
-
-
     /**
      * @param params The Session properties
      * @return The Session ID
@@ -74,6 +61,7 @@ public class WebRtcController {
 
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
+
 
     /**
      * @param sessionId The Session in which to create the Connection
@@ -94,7 +82,7 @@ public class WebRtcController {
         System.out.println(connection.getConnectionId());
 
         // 테스트용으로 우선 여기에 넣었다.
-        webRtcService.sendUrlMsg("01028372243");
+        // webRtcService.sendUrlMsg("01028372243");
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
@@ -124,5 +112,6 @@ public class WebRtcController {
 //
 //        return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.CREATED);
 //    }
+
 
 }

@@ -4,6 +4,7 @@ import DispatchRoutes from '@/routes/DispatchRoutes.tsx';
 import HospitalRoutes from '@/routes/HospitalRoutes.tsx';
 import AdminRoutes from '@/routes/AdminRoutes.tsx';
 import ControlRoutes from '@/routes/ControlRoutes.tsx';
+import TestRoutes from '@/test/testRoute/TestRoutes.tsx';
 
 const Router = () => {
   return (
@@ -23,6 +24,11 @@ const Router = () => {
 
         {/*관리자*/}
         <Route path="/admin/*" element={<AdminRoutes />} />
+
+
+        {/*test*/}
+        <Route path="/test/*" element={<TestRoutes />} />
+
       </Routes>
     </BrowserRouter>
   );

@@ -50,7 +50,6 @@ public class ReIssueController {
         if (refresh == null) {
             //response status code
             return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
-
         }
 
         //expired check

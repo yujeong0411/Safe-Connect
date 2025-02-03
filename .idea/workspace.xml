@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="426fbe23-767e-40e9-83fe-0fdf60e0af42" name="변경" comment="feat/backend init 김민철 20250120">
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/call/Caller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/call/VideoCall.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/call/VideoCallUser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/Source.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/firestaff/DispatchGroup.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/firestaff/DispatchStaff.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/hospital/ReqHospital.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/patient/Patient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/report/Dispatch.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/report/Transfer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/contoller/ReIssueController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/contoller/ReIssueController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/MediService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/MediService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/UserMediService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/UserMediService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/user/ControlServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/user/ControlServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/Call.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/report/Call.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/Medi.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/Medi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/MediCategory.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/MediCategory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/Refresh.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/Refresh.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediDetail.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediMapping.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediMapping.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/CallRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/CallRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediCategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediCategoryRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/RefreshRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/RefreshRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/AdminLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/AdminLoginFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/ControlLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/ControlLoginFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/DispatchLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/DispatchLoginFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/HospitalLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/HospitalLoginFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/temp/spring-entities.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="study" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="SYNC" />
+  </component>
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;kmc4889&quot;,
+      &quot;fullname&quot;: &quot;김민철&quot;
+    }
+  }
+}</component>
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;https://lab.ssafy.com/s12-webmobile1-sub1/S12P11C207.git&quot;,
+    &quot;second&quot;: &quot;caa470ca-7a72-4b74-9199-072e72ec5f42&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2rYut9C1aeb7gtOk13ELKtkFY9H" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenDatabaseViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "develop",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/SSAFY/Desktop/mincheol/1.commonproject/1.firstweek",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Markdown",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql_aurora",
+      "azure",
+      "mariadb",
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\SSAFY\Desktop\mincheol\1.commonproject\1.firstweek\김민철\src" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="애플리케이션 수준" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="426fbe23-767e-40e9-83fe-0fdf60e0af42" name="변경" comment="" />
+      <created>1736748543291</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1736748543291</updated>
+      <workItem from="1736748544700" duration="2600000" />
+      <workItem from="1736756492396" duration="330000" />
+      <workItem from="1736758081340" duration="353000" />
+      <workItem from="1736838145572" duration="5961000" />
+      <workItem from="1736903021088" duration="250000" />
+      <workItem from="1736903282641" duration="2950000" />
+      <workItem from="1736919629117" duration="3174000" />
+      <workItem from="1737348664994" duration="247000" />
+    </task>
+    <task id="LOCAL-00001" summary="[김민철] init 김민철 readme.md 초기 화면 링크 생성">
+      <option name="closed" value="true" />
+      <created>1736749125653</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1736749125653</updated>
+    </task>
+    <task id="LOCAL-00002" summary="[김민철] 20250113 공부내용 추가">
+      <option name="closed" value="true" />
+      <created>1736756812780</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1736756812780</updated>
+    </task>
+    <task id="LOCAL-00003" summary="[김민철] 20250113 study branch 추가">
+      <option name="closed" value="true" />
+      <created>1736758245538</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1736758245538</updated>
+    </task>
+    <task id="LOCAL-00004" summary="[김민철] 20250113 study branch 추가">
+      <option name="closed" value="true" />
+      <created>1736758405380</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1736758405380</updated>
+    </task>
+    <task id="LOCAL-00005" summary="[김민철] 20250113 study branch 추가에 따른 기본 branch 초기화">
+      <option name="closed" value="true" />
+      <created>1736758424640</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1736758424640</updated>
+    </task>
+    <task id="LOCAL-00006" summary="[김민철] 20250114 Pjm study 및 내용 추가">
+      <option name="closed" value="true" />
+      <created>1736844941614</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1736844941614</updated>
+    </task>
+    <task id="LOCAL-00007" summary="[김민철] 20250115 test">
+      <option name="closed" value="true" />
+      <created>1736903095007</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1736903095007</updated>
+    </task>
+    <task id="LOCAL-00008" summary="[김민철] 20250115 test">
+      <option name="closed" value="true" />
+      <created>1736903321700</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1736903321700</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat/backend init 김민철 20250120">
+      <option name="closed" value="true" />
+      <created>1737348769966</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1737348769966</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/study" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="[김민철] init 김민철 readme.md 초기 화면 링크 생성" />
+    <MESSAGE value="[김민철] 20250113 공부내용 추가" />
+    <MESSAGE value="[김민철] 20250113 study branch 추가" />
+    <MESSAGE value="[김민철] 20250113 study branch 추가에 따른 기본 branch 초기화" />
+    <MESSAGE value="[김민철] 20250114 Pjm study 및 내용 추가" />
+    <MESSAGE value="[김민철] 20250115 test" />
+    <MESSAGE value="feat/backend init 김민철 20250120" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat/backend init 김민철 20250120" />
+  </component>
+</project>
