@@ -24,7 +24,7 @@ public class HosptialController {
 
     @GetMapping("/transfer_accepted/detail")
     public ResponseEntity<?> transferAcceptedDetail(@RequestParam int transferId) {
-        return hospitalService.getTransferAcceptedDetail(int transferId)
+        return hospitalService.getTransferAcceptedDetail(transferId);
     }
 
 
