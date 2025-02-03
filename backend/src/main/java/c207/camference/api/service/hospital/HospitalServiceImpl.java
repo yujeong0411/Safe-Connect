@@ -1,6 +1,7 @@
 package c207.camference.api.service.hospital;
 
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.patient.Patient;
@@ -8,6 +9,7 @@ import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.db.repository.patient.PatientRepository;
 import c207.camference.db.repository.report.TransferRepository;
+import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,11 +27,13 @@ public class HospitalServiceImpl implements HospitalService {
     TransferRepository transferRepository;
     HospitalRepository hospitalRepository;
     PatientRepository patientRepository;
+    UserMediDetailRepository userMediDetailRepository;
 
-    public HospitalServiceImpl(TransferRepository transferRepository, HospitalRepository hospitalRepository, PatientRepository patientRepository) {
+    public HospitalServiceImpl(TransferRepository transferRepository, HospitalRepository hospitalRepository, PatientRepository patientRepository, UserMediDetailRepository userMediDetailRepository) {
         this.transferRepository = transferRepository;
         this.hospitalRepository = hospitalRepository;
         this.patientRepository = patientRepository;
+        this.userMediDetailRepository = userMediDetailRepository;
     }
 
     @Override
@@ -67,7 +71,7 @@ public class HospitalServiceImpl implements HospitalService {
                     .orElseThrow(() -> new EntityNotFoundException(String.valueOf(transferId)));
             Patient patient = patientRepository.findByTransfer(transfer);
 
-            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient);
+            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient,userMediDetailRepository);
 
             ResponseData<TransferDetailResponse> response = ResponseUtil.success(transferResponse, "전체 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
