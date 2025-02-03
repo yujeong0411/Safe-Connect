@@ -28,9 +28,9 @@ public class Transfer {
     @Comment(value = "병원ID")
     private Integer hospitalId;
 
-    @Column(name = "fire_staff_team_id", nullable = false)
-    @Comment(value = "출동그룹ID")
-    private Integer fireStaffTeamId;
+//    @Column(name = "fire_staff_team_id", nullable = false)
+//    @Comment(value = "출동그룹ID")
+//    private Integer fireStaffTeamId;
 
     @Column(name = "transfer_is_complete")
     @Comment(value = "병원인계여부")
