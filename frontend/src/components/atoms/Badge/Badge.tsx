@@ -3,7 +3,7 @@ import React from 'react';
 interface BadgeProps {
   variant?: 'primary' | 'secondary' | 'status';
   status?: 'pending' | 'in-progress' | 'completed';
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 

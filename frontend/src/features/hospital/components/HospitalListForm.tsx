@@ -133,7 +133,7 @@ const HospitalListForm = () => {
                       <TableRow
                           key={index}
                           onClick={() => handleRowClick(data)}
-                          className="cursor-pointer  hover:bg-[#FAF7F0]"
+                          className="cursor-pointer bg-white hover:bg-[#FAF7F0]"
                       >
                         {columns.map((column) => (
                             <TableCell key={column.key}>

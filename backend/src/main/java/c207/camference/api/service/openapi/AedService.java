@@ -3,6 +3,7 @@ package c207.camference.api.service.openapi;
 import c207.camference.api.response.openapi.AedResponse;
 import c207.camference.db.entity.etc.Aed;
 import c207.camference.db.repository.openapi.AedRepository;
+import c207.camference.util.openapi.OpenApiUtil;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,8 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static c207.camference.util.openapi.OpenApiUtil.convertXmlToJson;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,7 @@ public class AedService {
                 String urlStr = aedUrl + "?serviceKey=" + serviceKey
                         + "&numOfRows=" + numOfRows + "&pageNo=" + pageNo;
 
-                JSONObject jsonResponse = convertXmlToJson(urlStr);
+                JSONObject jsonResponse = OpenApiUtil.convertXmlToJson(urlStr);
                 // JSON 데이터 추출
                 JSONObject response = jsonResponse.optJSONObject("response");
                 if (response == null) {

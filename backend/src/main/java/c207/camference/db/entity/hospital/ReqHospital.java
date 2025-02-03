@@ -21,7 +21,7 @@ public class ReqHospital {
 
     @Column(name = "hospital_id", length = 30, nullable = false)
     @Comment(value = "병원ID")
-    private String hospitalId;
+    private Integer hospitalId;
 
     @Column(name = "dispatch_id", nullable = false)
     @Comment(value = "출동 ID")

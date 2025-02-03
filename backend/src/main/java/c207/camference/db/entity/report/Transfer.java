@@ -26,7 +26,7 @@ public class Transfer {
 
     @Column(name = "hospital_id", nullable = false, length = 30)
     @Comment(value = "병원ID")
-    private String hospitalId;
+    private Integer hospitalId;
 
     @Column(name = "fire_staff_team_id", nullable = false)
     @Comment(value = "출동그룹ID")

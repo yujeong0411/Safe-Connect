@@ -20,9 +20,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // 백엔드 서버 주소
+        target: 'http://i12c207.p.ssafy.io:8080', // 백엔드 서버 주소
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        secure: false  // 추가
       },
     },
   },
