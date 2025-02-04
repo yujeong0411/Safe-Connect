@@ -1,6 +1,6 @@
 package c207.camference.api.service.fireStaff;
 
-import c207.camference.api.response.report.CallResponse;
+import c207.camference.api.request.control.CallUpdateRequest;
 import c207.camference.temp.request.FireStaffCreateRequest;
 import org.springframework.http.ResponseEntity;
 
@@ -11,5 +11,5 @@ public interface ControlService {
     ResponseEntity<?> getUser(String callerPhone);
 
     ResponseEntity<?> getReadyDispatchGroups();
-    ResponseEntity<?> updateCall(CallResponse request);
+    ResponseEntity<?> updateCall(CallUpdateRequest request);
 }
