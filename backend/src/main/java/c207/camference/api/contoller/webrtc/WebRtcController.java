@@ -91,10 +91,7 @@ public class WebRtcController {
         }
         ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
         Connection connection = session.createConnection(properties);
-        System.out.println(connection.getConnectionId());
-
-        // 테스트용으로 우선 여기에 넣었다.
-        // webRtcService.sendUrlMsg("01028372243");
+        System.out.println(connection.getToken());
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
@@ -114,6 +111,13 @@ public class WebRtcController {
         System.out.println("요약 후 : " + summary);
 
         return ResponseEntity.ok("ok");
+    }
+
+    @PostMapping("/control/video")
+    public ResponseEntity<?> sendUrl(@RequestParam("callerPhone") String callerPhone) throws OpenViduJavaClientException, OpenViduHttpException {
+        webRtcService.sendUrlMsg(callerPhone);
+
+        return ResponseEntity.ok().build();
     }
 
 }

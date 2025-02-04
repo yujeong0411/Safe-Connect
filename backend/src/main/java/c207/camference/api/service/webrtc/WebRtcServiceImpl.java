@@ -102,11 +102,18 @@ public class WebRtcServiceImpl implements WebRtcService {
 
         Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
         ConnectionProperties connProps = ConnectionProperties.fromJson(connectedParams).build();
-        Connection connection = session.createConnection(connProps);
-        String Token = connection.getToken();
 
-        URL = "http://localhost:3000/" + "?sessionid=" + session.getSessionId() + "token=" + Token;
+        Connection connCaller = session.createConnection(connProps);
+        Connection connFireStaff = session.createConnection(connProps);
 
+        String tokenCaller = connCaller.getToken();
+        String tokenFireStaff = connFireStaff.getToken();
+
+        URL = "http://localhost:3000/" + "?sessionid=" + session.getSessionId() + "token=" + tokenCaller;
+
+        // todo : video_call(영상통화방) 테이블 생성
+
+        // todo : vidoe_call_user(영상통화참여) 테이블에 신고자, 상황실 직원 정보 2개 INSERT
 
         System.out.println(URL); // 디버그용. 삭제할것
 
@@ -115,6 +122,36 @@ public class WebRtcServiceImpl implements WebRtcService {
 
         return ResponseEntity.ok().build();
     }
+
+    // todo : 구급대원용 토큰 생성
+    /*
+    입력 : 세션ID
+    return : Map<> tokenId
+     */
+    @Override
+    public String createStaffToken(String sessionId)
+            throws OpenViduJavaClientException, OpenViduHttpException {
+        Session session = openvidu.getActiveSession(sessionId);
+
+        Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
+        ConnectionProperties properties = ConnectionProperties.fromJson(connectedParams).build();
+        Connection connStaff = session.createConnection(properties);
+        System.out.println(connStaff.getToken());
+
+        return connStaff.getToken();
+    }
+
+
+    // todo : 구급대원 영상통화 참여 (출동시간 수정)
+    /**
+     * params: sessionId
+     * @return URL
+     */
+//    @Override
+//    public String dispatch
+
+    // todo : 신고자와 영상통화 종료 (현장 도착시간 수정)
+
 
     // 화상통화중 녹음된 파일을 텍스트로 변환해주는 메서드
     @Override
