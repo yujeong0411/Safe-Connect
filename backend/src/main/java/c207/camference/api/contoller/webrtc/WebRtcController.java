@@ -49,18 +49,18 @@ public class WebRtcController {
      * @param params The Session properties
      * @return The Session ID
      */
-    @PostMapping("/api/sessions")
-    public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-
-        System.out.println(params);
-
-        SessionProperties properties = SessionProperties.fromJson(params).build();
-        Session session = openvidu.createSession(properties);
-        System.out.println(session.getSessionId()); // 테스트용
-
-        return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
-    }
+//    @PostMapping("/api/sessions")
+//    public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
+//            throws OpenViduJavaClientException, OpenViduHttpException {
+//
+//        System.out.println(params);
+//
+//        SessionProperties properties = SessionProperties.fromJson(params).build();
+//        Session session = openvidu.createSession(properties);
+//        System.out.println(session.getSessionId()); // 테스트용
+//
+//        return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
+//    }
 
 
     /**
@@ -68,24 +68,62 @@ public class WebRtcController {
      * @param params    The Connection properties
      * @return The Token associated to the Connection
      */
+//    @PostMapping("/api/sessions/{sessionId}/connections")
+//    public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
+//                                                   @RequestBody(required = false) Map<String, Object> params)
+//            throws OpenViduJavaClientException, OpenViduHttpException {
+//        System.out.println(params);
+//        Session session = openvidu.getActiveSession(sessionId);
+//        if (session == null) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//        ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
+//        Connection connection = session.createConnection(properties);
+//        System.out.println(connection.getConnectionId());
+//
+//        // 테스트용으로 우선 여기에 넣었다.
+//        // webRtcService.sendUrlMsg("01028372243");
+//
+//        return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);}
+
+    @PostMapping("/api/sessions")
+    public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
+            throws OpenViduJavaClientException, OpenViduHttpException {
+
+        String customSessionId = params != null ? (String) params.get("customSessionId") : null;
+
+        SessionProperties properties = new SessionProperties.Builder()
+                .customSessionId(customSessionId)
+                .build();
+
+        Session session = openvidu.createSession(properties);
+
+        return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
+    }
+
     @PostMapping("/api/sessions/{sessionId}/connections")
     public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
                                                    @RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
-        System.out.println(params);
         Session session = openvidu.getActiveSession(sessionId);
         if (session == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            session = openvidu.createSession(
+                    new SessionProperties.Builder()
+                            .customSessionId(sessionId)
+                            .build()
+            );
         }
-        ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
-        Connection connection = session.createConnection(properties);
-        System.out.println(connection.getConnectionId());
 
-        // 테스트용으로 우선 여기에 넣었다.
-        // webRtcService.sendUrlMsg("01028372243");
+        ConnectionProperties properties = new ConnectionProperties.Builder()
+                .type(ConnectionType.WEBRTC)
+                .data("") // 필요하다면 사용자 데이터 추가 가능
+                .build();
+
+        Connection connection = session.createConnection(properties);
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
+
 
     @PostMapping("/control/whisper")
     public ResponseEntity<?> sendUrl(@PathVariable("sessionId") String sessionId,
