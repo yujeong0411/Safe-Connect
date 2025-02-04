@@ -1,7 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
-import c207.camference.api.response.report.CallDto;
+import c207.camference.api.response.report.CallResponse;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.user.ControlUserResponse;
@@ -33,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,12 +145,13 @@ public class ControlServiceImpl implements ControlService {
     }
 
     @Override
-    public ResponseEntity<?> updateCall(CallDto callRequest){
+    public ResponseEntity<?> updateCall(CallResponse callRequest){
         Call call = callRepository.findCallByCallId(callRequest.getCallId());
         call.setCallIsDispatched(callRequest.getCallIsDispatched());
         call.setCallSummary(callRequest.getCallSummary());
         call.setCallText(callRequest.getCallText());
-        CallDto response = modelMapper.map(call, CallDto.class);
+        call.setCallTextCreatedAt(LocalDateTime.now()); // 저장 버튼을 누른다 -> 신고 작성 시각이 업데이트된다
+        CallResponse response = modelMapper.map(call, CallResponse.class);
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
     }
 

@@ -1,6 +1,6 @@
 package c207.camference.api.contoller.firestaff;
 
-import c207.camference.api.response.report.CallDto;
+import c207.camference.api.response.report.CallResponse;
 import c207.camference.api.service.fireStaff.ControlService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class FireStaffController {
     }
 
     @PutMapping("/call")
-    public ResponseEntity<?> updateCall(@RequestBody CallDto request) {
+    public ResponseEntity<?> updateCall(@RequestBody CallResponse request) {
         return controlService.updateCall(request);
     }
 }
