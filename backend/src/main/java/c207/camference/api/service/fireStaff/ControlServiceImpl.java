@@ -1,20 +1,26 @@
 package c207.camference.api.service.fireStaff;
 
+import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.response.report.CallDto;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
+import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.FireDept;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.users.User;
+import c207.camference.db.entity.users.UserMediDetail;
+import c207.camference.db.entity.users.UserMediMapping;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.FireDeptRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
 import c207.camference.db.repository.report.CallRepository;
+import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.db.repository.users.UserRepository;
 import c207.camference.temp.request.FireStaffCreateRequest;
 import c207.camference.temp.response.FireStaffResponse;
+import c207.camference.util.medi.MediUtil;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -39,7 +45,7 @@ public class ControlServiceImpl implements ControlService {
     private final UserRepository userRepository;
     private final FireDeptRepository fireDeptRepository;
     private final DispatchGroupRepository dispatchGroupRepository;
-
+    private final UserMediDetailRepository userMediDetailRepository;
 
 
     @Override
@@ -105,8 +111,18 @@ public class ControlServiceImpl implements ControlService {
         try{
             User user = userRepository.findByUserPhone(callerPhone)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
-            //비밀번호 암호화
-            ResponseData<User> response = ResponseUtil.success(user, "상세 조회 완료");
+
+            UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
+                    .orElse(null);
+            System.out.println("userMediDetail = " + userMediDetail.toString());
+
+            List<MediCategoryDto> mediCategoryDto = null;
+            if (userMediDetail != null) {
+                List<Medi> medis = getUserActiveMedis(userMediDetail);
+                mediCategoryDto = MediUtil.createMediCategoryResponse(medis);
+            }
+
+            ResponseData<List<MediCategoryDto>> response = ResponseUtil.success(mediCategoryDto, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }catch (Exception e){
             ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
@@ -136,4 +152,12 @@ public class ControlServiceImpl implements ControlService {
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
     }
 
+
+    // 활성화된 의약품/질환 목록 조회
+    private List<Medi> getUserActiveMedis(UserMediDetail userMediDetail) {
+        return userMediDetail.getUserMediMappings().stream()
+                .filter(mapping -> mapping.getMediIsActive())
+                .map(UserMediMapping::getMedi)
+                .collect(Collectors.toList());
+    }
 }
