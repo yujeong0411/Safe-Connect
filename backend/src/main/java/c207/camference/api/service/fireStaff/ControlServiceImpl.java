@@ -4,6 +4,7 @@ import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.response.report.CallDto;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
+import c207.camference.api.response.user.ControlUserResponse;
 import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.FireDept;
@@ -112,17 +113,17 @@ public class ControlServiceImpl implements ControlService {
             User user = userRepository.findByUserPhone(callerPhone)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
 
+            List<MediCategoryDto> mediCategoryDto = null;
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
                     .orElse(null);
-            System.out.println("userMediDetail = " + userMediDetail.toString());
 
-            List<MediCategoryDto> mediCategoryDto = null;
             if (userMediDetail != null) {
                 List<Medi> medis = getUserActiveMedis(userMediDetail);
                 mediCategoryDto = MediUtil.createMediCategoryResponse(medis);
             }
 
-            ResponseData<List<MediCategoryDto>> response = ResponseUtil.success(mediCategoryDto, "상세 조회 완료");
+            ControlUserResponse controlUserResponse = ControlUserResponse.from(user, mediCategoryDto);
+            ResponseData<ControlUserResponse> response = ResponseUtil.success(controlUserResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }catch (Exception e){
             ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
