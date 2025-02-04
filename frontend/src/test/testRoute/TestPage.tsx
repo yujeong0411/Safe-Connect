@@ -1,10 +1,8 @@
 import { OpenVidu, Publisher, Session, StreamManager, Subscriber } from 'openvidu-browser';
-import axios from 'axios';
 import React, { Component } from 'react';
 import './App.css';
 import VideoSessionUI from './VideoSessionUI';
-
-const APPLICATION_SERVER_URL = 'http://localhost:8080/';
+import {testStore} from '@/test/store/testAuthStore.tsx';
 
 interface Device {
   deviceId: string;
@@ -26,9 +24,9 @@ class TestPage extends Component<{}, State> {
 
   private OV: OpenVidu | null = null;
 
+
   constructor(props: {}) {
     super(props);
-
     this.state = {
       mySessionId: 'SessionA',
       myUserName: 'Participant' + Math.floor(Math.random() * 100),
@@ -214,23 +212,16 @@ class TestPage extends Component<{}, State> {
     }
   }
 
+
   async getToken() {
-    const sessionId = await this.createSession(this.state.mySessionId);
-    return await this.createToken(sessionId);
-  }
-
-  async createSession(sessionId: string) {
-    const response = await axios.post(APPLICATION_SERVER_URL + 'api/sessions', { customSessionId: sessionId }, {
-      headers: { 'Content-Type': 'application/json', },
-    });
-    return response.data;
-  }
-
-  async createToken(sessionId: string) {
-    const response = await axios.post(APPLICATION_SERVER_URL + 'api/sessions/' + sessionId + '/connections', {}, {
-      headers: { 'Content-Type': 'application/json', },
-    });
-    return response.data;
+    try {
+      // testStore() 대신 testStore.getState() 사용
+      const sessionId = await testStore.getState().createSession(this.state.mySessionId);
+      return await testStore.getState().createToken(sessionId);
+    } catch (error) {
+      console.error('Error getting token:', error);
+      throw error;
+    }
   }
 
   render() {

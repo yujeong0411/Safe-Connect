@@ -43,32 +43,32 @@ const VideoSessionUI: React.FC<VideoSessionUIProps> = ({
           <div id="join-dialog" className="jumbotron vertical-center">
             <h1> Join a video session </h1>
             <form className="form-group" onSubmit={joinSession}>
-              <p>
-                <label>Participant: </label>
-                {/*만일 user이면 User_Role과 loginId를 이용해서 username을 만든다. 나중 이야기...*/}
-                <Input
-                  id="userName"
-                  type="text"
-                  value={myUserName}
-                  onChange={handleChangeUserName}
-                  width="full"
-                  variant="blue"
-                  isRequired// 필수 필드
-                />
-              </p>
-              <p>
-                {/*생성 시간이랑 해서 보내면 back에서 만들어 받아와야한다.*/}
-                <label> Session: </label>
-                <Input
-                  id="sessionId"
-                  type="text"
-                  value={mySessionId}
-                  onChange={handleChangeSessionId}
-                  width="full"
-                  variant="blue"
-                  isRequired// 필수 필드
-                />
-              </p>
+
+
+              <label>Participant: </label>
+              {/*만일 user이면 User_Role과 loginId를 이용해서 username을 만든다. 나중 이야기...*/}
+              <Input
+                id="userName"
+                type="text"
+                value={myUserName}
+                onChange={handleChangeUserName}
+                width="full"
+                variant="blue"
+                isRequired// 필수 필드
+              />
+
+              {/*생성 시간이랑 해서 보내면 back에서 만들어 받아와야한다.*/}
+              <label> Session: </label>
+              <Input
+                id="sessionId"
+                type="text"
+                value={mySessionId}
+                onChange={handleChangeSessionId}
+                width="full"
+                variant="blue"
+                isRequired// 필수 필드
+              />
+
               <p className="text-center">
                 <Button
                   type="submit"
