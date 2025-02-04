@@ -50,11 +50,11 @@ public class UserLoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access",userDetails.getUsername(), "ROLE_USER",1*60*1000L);
+        String access = jwtUtil.createJwt("access",userDetails.getUsername(), "ROLE_USER",10*60*1000L);
         String refresh = jwtUtil.createJwt("refresh",userDetails.getUsername(), "ROLE_USER",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
-        addRefreshEntity(userDetails.getUsername(), refresh, 24 * 60 * 60*1000L);
+        addRefreshEntity(userDetails.getUsername(), refresh,"ROLE_USER", 24 * 60 * 60*1000L);
 
         //응답 헤더 설정
         response.setHeader("access", access);
@@ -63,7 +63,10 @@ public class UserLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     }
 
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+
+    private void addRefreshEntity(String username, String refresh, String role, Long expiredMs) {
+        // 동일한 사용자의 이전 리프레시 토큰 삭제
+        refreshRepository.deleteByUsernameAndRole(username, role,jwtUtil);
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 

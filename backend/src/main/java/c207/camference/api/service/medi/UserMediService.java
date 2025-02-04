@@ -6,7 +6,7 @@ import c207.camference.db.entity.etc.MediCategory;
 import c207.camference.db.entity.users.User;
 import c207.camference.db.entity.users.UserMediDetail;
 import c207.camference.db.entity.users.UserMediMapping;
-import c207.camference.db.repository.etc.MediRepository;
+import c207.camference.db.repository.openapi.MediRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.db.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;

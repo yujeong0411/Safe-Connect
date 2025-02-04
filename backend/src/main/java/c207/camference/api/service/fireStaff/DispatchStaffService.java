@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DispatchStaffService {
     ResponseEntity<?> getReports();
-    List<AvailableHospitalResponse> getAvailableHospital(String siDo, String siGunGu);
+    ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu);
     ResponseEntity<?> dispatchDetail(int DispatchId);
     ResponseEntity<?> transferDetail(int transferId);
     ResponseEntity<?> getReqHospital(int dispatchId);

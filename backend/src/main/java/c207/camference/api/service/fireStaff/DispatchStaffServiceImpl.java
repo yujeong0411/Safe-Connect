@@ -5,12 +5,14 @@ import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
+import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.hospital.ReqHospital;
+import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
@@ -18,8 +20,10 @@ import c207.camference.db.repository.firestaff.DispatchStaffRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
 import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.db.repository.hospital.ReqHospitalRepository;
+import c207.camference.db.repository.patient.PatientRepository;
 import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.report.TransferRepository;
+import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.util.openapi.OpenApiUtil;
 import c207.camference.util.response.ResponseUtil;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,6 +58,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final HospitalRepository hospitalRepository;
     private final ReqHospitalRepository reqHospitalRepository;
     private final ModelMapper modelMapper;
+    private final PatientRepository patientRepository;
+    private final UserMediDetailRepository userMediDetailRepository;
     private final ObjectMapper objectMapper;
 
     @Value("${openApi.serviceKey}")
@@ -144,10 +150,12 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         try{
             Transfer transfer = transferRepository.findByTransferId(transferId)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 이송내역이 없습니다."));
+            Patient patient = patientRepository.findByTransferId(transfer.getTransferId())
+                    .orElseThrow(() -> new EntityNotFoundException("일치하는 환자가 없습니다."));
 
-            TransferResponse transferResponse = new TransferResponse(transfer);
+            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient, userMediDetailRepository);
 
-            ResponseData<TransferResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
+            ResponseData<TransferDetailResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
         } catch (EntityNotFoundException e) {
@@ -185,7 +193,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         }
     };
 
-    public List<AvailableHospitalResponse> getAvailableHospital(String siDo, String siGunGu) {
+    public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu) {
         List<AvailableHospitalResponse> responses = new ArrayList<>();
         HttpURLConnection urlConnection = null;
 
@@ -219,7 +227,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
                 responses.add(availableHospitalResponse);
             }
-            return responses;
+            return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
+
 
         } catch (Exception e) {
             throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
