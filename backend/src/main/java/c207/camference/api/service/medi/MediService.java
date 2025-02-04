@@ -5,7 +5,7 @@ import c207.camference.api.dto.medi.MediDto;
 import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.etc.MediCategory;
 import c207.camference.db.repository.etc.MediCategoryRepository;
-import c207.camference.db.repository.etc.MediRepository;
+import c207.camference.db.repository.openapi.MediRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

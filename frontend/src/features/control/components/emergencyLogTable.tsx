@@ -7,7 +7,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { useState } from 'react';
-import EmergencyDetailDialog from './EmergencyDetailDialog';
+import CallDetailDialog from './CallDetailDialog.tsx';
 import { EmergencyDetailData } from '@/features/control/types/emergencyDetail.types';
 
 interface EmergencyLogData {
@@ -102,7 +102,7 @@ const EmergencyLogTable = () => {
         </TableBody>
       </Table>
 
-      <EmergencyDetailDialog
+      <CallDetailDialog
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         data={selectedEmergency}

@@ -21,13 +21,21 @@ public class OpenApiController {
 
     @PostMapping("/save_fire_dept")
     public ResponseEntity<?> saveFireDept() {
-        List<FireDeptDto> response = openApiService.saveFireDept();
-        return ResponseEntity.ok().body(ResponseUtil.success(response, "소방서 저장 성공"));
+        return openApiService.saveFireDept();
     }
 
     @PostMapping("save_hospital")
     public ResponseEntity<?> saveHospital() {
-        List<HospitalDto> response = openApiService.saveHospital();
-        return ResponseEntity.ok().body(ResponseUtil.success(response, "병원 저장 성공"));
+        return openApiService.saveHospital();
+    }
+
+    @PostMapping("save_aed")
+    public ResponseEntity<?> saveAed() {
+        return openApiService.saveAed();
+    }
+
+    @PostMapping("save_medication")
+    public ResponseEntity<?> saveMedication() {
+        return openApiService.saveMedication();
     }
 }

@@ -1,10 +1,14 @@
 package c207.camference.api.service.fireStaff;
 
+import c207.camference.api.response.report.CallDto;
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
+import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.FireDept;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.users.User;
+import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.FireDeptRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
 import c207.camference.db.repository.report.CallRepository;
@@ -23,6 +27,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,8 @@ public class ControlServiceImpl implements ControlService {
     private final CallRepository callRepository;
     private final UserRepository userRepository;
     private final FireDeptRepository fireDeptRepository;
+    private final DispatchGroupRepository dispatchGroupRepository;
+
 
 
     @Override
@@ -106,4 +113,27 @@ public class ControlServiceImpl implements ControlService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @Override
+    public ResponseEntity<?> getReadyDispatchGroups() {
+        List<DispatchGroup> readyDispatchGroups = dispatchGroupRepository.findByDispatchGroupIsReadyTrue();
+        List<DispatchGroupResponse> response = readyDispatchGroups.stream()
+                .map(dispatchGroup -> DispatchGroupResponse.builder()
+                        .dispatchGroupId(dispatchGroup.getDispatchGroupId())
+                        .fireDeptId(dispatchGroup.getFireDeptId())
+                        .build())
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(ResponseUtil.success(response, "가용 가능한 소방팀 목록 조회 성공"));
+    }
+
+    @Override
+    public ResponseEntity<?> updateCall(CallDto callRequest){
+        Call call = callRepository.findCallByCallId(callRequest.getCallId());
+        call.setCallIsDispatched(callRequest.getCallIsDispatched());
+        call.setCallSummary(callRequest.getCallSummary());
+        call.setCallText(callRequest.getCallText());
+        CallDto response = modelMapper.map(call, CallDto.class);
+        return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
+    }
+
 }

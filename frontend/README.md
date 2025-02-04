@@ -10,7 +10,7 @@
 9. ESLint 설치 및 설정 : `npm install -D eslint eslint-plugin-react @typescript-eslint/parser @typescript-eslint/eslint-plugin` <br/>
 10. Prettier 설치 및 설정 : `npm install -D prettier eslint-config-prettier eslint-plugin-prettier` <br/>
 11. shadcn-ui 설치 및 설정 : `npx shadcn-ui@latest init`, `npm install tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react`
-
+12. kakao SDK 설치 : `npm i react-kakao-maps-sdk`, `npm install kakao.maps.d.ts --save-dev`
 
 ### Prettier 설정 방법
 - WebStorm에서 Prettier 설정:

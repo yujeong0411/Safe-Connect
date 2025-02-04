@@ -29,8 +29,7 @@ public class DispatchStaffController {
     // 신고자의 위치 정보(시도, 시군구)를 바탕으로 응급실 실시간 가용병상정보 조회
     public ResponseEntity<?> getAvailableEmergencyRooms(@RequestParam String siDo,
                                                         @RequestParam String siGunGu) {
-        List<AvailableHospitalResponse> response = dispatchStaffService.getAvailableHospital(siDo, siGunGu);
-        return ResponseEntity.ok().body(ResponseUtil.success(response, "가용 가능한 응급실 조회 성공"));
+        return dispatchStaffService.getAvailableHospital(siDo, siGunGu);
     }
 
     @GetMapping("/dispatch/detail")

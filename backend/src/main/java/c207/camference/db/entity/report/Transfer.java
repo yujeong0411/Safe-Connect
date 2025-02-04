@@ -28,9 +28,9 @@ public class Transfer {
     @Comment(value = "병원ID")
     private Integer hospitalId;
 
-    @Column(name = "fire_staff_team_id", nullable = false)
-    @Comment(value = "출동그룹ID")
-    private Integer fireStaffTeamId;
+    @Column(name = "dispatch_id", nullable = false)
+    @Comment(value = "출동ID")
+    private Integer dispatchId;
 
     @Column(name = "transfer_is_complete")
     @Comment(value = "병원인계여부")
@@ -51,4 +51,8 @@ public class Transfer {
     @ManyToOne
     @JoinColumn(name = "hospital_id", insertable = false, updatable = false)
     private Hospital hospital;
+
+    @ManyToOne
+    @JoinColumn(name = "dispatch_id", insertable = false, updatable = false)
+    private Dispatch dispatch;
 }
