@@ -13,10 +13,10 @@ export interface PatientInfo {
 
 // 전화 시 받는 응답
 export interface CallInfo {
-  callId: number;
-  callIsDispatch: boolean;
+  callId?: number;
+  callIsDispatch?: boolean;
   callSummary: string;
-  callText: string;
+  callText?: string;
 }
 
 // 응답
@@ -31,7 +31,8 @@ export interface PatientStore {
   patientInfo: PatientInfo | null;
   isLoading: boolean;
   error: string | null;
-  searchByPhone: (phone: string) => Promise<void>;
+  isSuccess?: boolean;
+  searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (info: CallInfo) => Promise<void>;
   resetPatientInfo: () => void;
 }

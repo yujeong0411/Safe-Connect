@@ -67,6 +67,9 @@ public class OpenApiServiceImpl implements OpenApiService {
     @Value("${openApi.serviceKey}")
     private String serviceKey;
 
+    @Value("${openApi.aedServiceKey}")
+    private String aedServiceKey;
+
     @Override
     @Transactional
     public ResponseEntity<?> saveFireDept() {
@@ -173,7 +176,7 @@ public class OpenApiServiceImpl implements OpenApiService {
 
         try {
             while (true) {
-                String urlStr = aedUrl + "?serviceKey=" + serviceKey + "&pageNo=" + pageNo + "numOfRows=" + numOfRows;
+                String urlStr = aedUrl + "?serviceKey=" + aedServiceKey + "&numOfRows=" + numOfRows + "&pageNo=" + pageNo;
                 String response = OpenApiUtil.getHttpResponse(urlStr);
 
                 JSONObject jsonResponse = XML.toJSONObject(response);
@@ -188,10 +191,10 @@ public class OpenApiServiceImpl implements OpenApiService {
 
                 for (JsonNode item : itemArray) {
                     Aed savedAed = aedRepository.save(modelMapper.map(AedResponse.builder()
-                            .aedAddress(item.path("buildAddress").asText())
-                            .aedPlace(item.path("buildPlace").asText())
-                            .aedLatitude(item.path("wgs84Lat").asDouble())
-                            .aedLongitude(item.path("wgs84Lon").asDouble())
+                            .aedAddress(item.path("ADDRES").asText())
+                            .aedPlace(item.path("BUILDPLACE").asText())
+                            .aedLatitude(item.path("LAT").asDouble())
+                            .aedLongitude(item.path("LON").asDouble())
                             .build(), Aed.class));
 
                     AedResponse aedResponse = modelMapper.map(savedAed, AedResponse.class);

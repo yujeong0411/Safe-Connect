@@ -6,26 +6,30 @@ export const usePatientStore = create<PatientStore>((set) => ({
   patientInfo: null,
   isLoading: false,
   error: null,
+  isError: false,
 
-  searchByPhone: async (phone: string) => {
+  searchByPhone: async (callerPhone: string) => {
     try {
       set({ isLoading: true, error: null });
 
-      const response = await patientService.serarchByPhone(phone);
-
+      const response = await patientService.searchByPhone(callerPhone);
+      console.log('전화번호 조회 응답', response);
       if (response.isSuccess) {
         set({
           patientInfo: response.data as PatientInfo,
           isLoading: false,
+          isSuccess: true,
         });
+        return response;
       } else {
         set({
           error: response.message,
           isLoading: false,
+          isSuccess: false,
         });
       }
     } catch (error) {
-      set({ error: '환자 정보를 찾을 수 없습니다.', isLoading: false });
+      set({ error: '환자 정보를 찾을 수 없습니다.', isLoading: false, isSuccess: false });
     }
   },
 
@@ -38,10 +42,11 @@ export const usePatientStore = create<PatientStore>((set) => ({
         set({
           patientInfo: response.data as PatientInfo,
           isLoading: false,
+          isSuccess: true,
         });
       }
     } catch (error) {
-      set({ error: '정보 저장에 실패했습니다.', isLoading: false });
+      set({ error: '정보 저장에 실패했습니다.', isLoading: false, isSuccess: false });
     }
   },
 

@@ -1,10 +1,10 @@
 import ControlMainTemplate from '@features/control/components/ControlMainTemplate.tsx';
-import CallDetailForm from '@features/control/components/CallDetailForm.tsx';
+import CallRecordForm from '@features/control/components/CallRecordForm.tsx';
 
 const ControlMainPage = () => {
   return (
     <ControlMainTemplate>
-      <CallDetailForm />
+      <CallRecordForm />
     </ControlMainTemplate>
   );
 };
