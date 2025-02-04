@@ -5,6 +5,7 @@ const ControlRoutes = () => {
   return (
     <Routes>
 
+      {/*<Route path="" element={<TestPage/> }  />*/}
       <Route path="" element={<TestPage />} />
 
     </Routes>

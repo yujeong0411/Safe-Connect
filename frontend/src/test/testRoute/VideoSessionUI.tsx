@@ -1,6 +1,8 @@
 import React from 'react';
 import UserVideoComponent from './UserVideoComponent';
 import { StreamManager, Session, Publisher, Subscriber } from 'openvidu-browser';
+import Button from '@components/atoms/Button/Button.tsx';
+import Input from '@components/atoms/Input/Input.tsx';
 
 interface VideoSessionUIProps {
   session: Session | undefined;
@@ -36,61 +38,77 @@ const VideoSessionUI: React.FC<VideoSessionUIProps> = ({
       {session === undefined ? (
         <div id="join">
           <div id="img-div">
-            <img src="@/test/testRoute/images/openvidu_grey_bg_transp_cropped.png" alt="OpenVidu logo" />
+            <img src="src/test/sources/Cat01.webp" alt="OpenVidu logo" />
           </div>
           <div id="join-dialog" className="jumbotron vertical-center">
             <h1> Join a video session </h1>
             <form className="form-group" onSubmit={joinSession}>
               <p>
                 <label>Participant: </label>
-                <input
-                  className="form-control"
-                  type="text"
+                {/*만일 user이면 User_Role과 loginId를 이용해서 username을 만든다. 나중 이야기...*/}
+                <Input
                   id="userName"
+                  type="text"
                   value={myUserName}
                   onChange={handleChangeUserName}
-                  required
+                  width="full"
+                  variant="blue"
+                  isRequired// 필수 필드
                 />
               </p>
               <p>
+                {/*생성 시간이랑 해서 보내면 back에서 만들어 받아와야한다.*/}
                 <label> Session: </label>
-                <input
-                  className="form-control"
-                  type="text"
+                <Input
                   id="sessionId"
+                  type="text"
                   value={mySessionId}
                   onChange={handleChangeSessionId}
-                  required
+                  width="full"
+                  variant="blue"
+                  isRequired// 필수 필드
                 />
               </p>
               <p className="text-center">
-                <input className="btn btn-lg btn-success" name="commit" type="submit" value="JOIN" />
+                <Button
+                  type="submit"
+                  variant="blue"
+                  width="full"
+                  className="mb-3"
+                  onClick={leaveSession}
+                >
+                  JOIN
+                </Button>
               </p>
             </form>
           </div>
         </div>
       ) : null}
 
+      {/*세션 정의 여부 확인*/}
       {session !== undefined ? (
         <div id="session">
           <div id="session-header">
             <h1 id="session-title">{mySessionId}</h1>
-            <input
-              className="btn btn-large btn-danger"
-              type="button"
-              id="buttonLeaveSession"
+            <Button
+              variant="blue"
+              width="full"
+              className="mb-3"
               onClick={leaveSession}
-              value="Leave session"
-            />
-            <input
-              className="btn btn-large btn-success"
-              type="button"
-              id="buttonSwitchCamera"
+            >
+              Leave session
+            </Button>
+            <Button
+              variant="blue"
+              width="full"
+              className="mb-3"
               onClick={switchCamera}
-              value="Switch Camera"
-            />
+            >
+              Switch Camera
+            </Button>
           </div>
 
+          {/*mainStream이 있으면 UserVideoComponent가 작동하고, 아니면 null*/}
           {mainStreamManager !== undefined ? (
             <div id="main-video" className="col-md-6">
               <UserVideoComponent streamManager={mainStreamManager} />

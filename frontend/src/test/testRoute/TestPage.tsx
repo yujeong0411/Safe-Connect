@@ -23,6 +23,7 @@ interface State {
 }
 
 class TestPage extends Component<{}, State> {
+
   private OV: OpenVidu | null = null;
 
   constructor(props: {}) {

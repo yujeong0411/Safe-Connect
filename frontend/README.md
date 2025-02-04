@@ -24,3 +24,4 @@ https://react-slick.neostack.com/docs/example/simple-slider
 ### Shadcn-ui
 https://ui.shadcn.com/docs/installation/vite
 원하는 컴포넌트 패키지 설치 후 사용 : src/components/ui
+
