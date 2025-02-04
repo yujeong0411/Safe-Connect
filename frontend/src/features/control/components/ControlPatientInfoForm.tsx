@@ -2,7 +2,7 @@ import SearchBar_ver2 from '@components/molecules/SearchBar/SearchBar_ver2.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
 import Button from '@components/atoms/Button/Button.tsx';
 import { formatPhoneNumber } from '@features/auth/servies/signupService.ts';
-import { usePatientStore } from '@/store/control/PatientStore.tsx';
+import { usePatientStore } from '@/store/control/patientStore.tsx';
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 

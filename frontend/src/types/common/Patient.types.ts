@@ -35,4 +35,18 @@ export interface PatientStore {
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (info: CallInfo) => Promise<void>;
   resetPatientInfo: () => void;
+  sendProtectorMessage?: (patientId: number) => Promise<boolean>;
+}
+
+export interface ProtectorMessageRequest {
+  patientId: number;
+}
+
+export interface ProtectorMessageResponse {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+  data: {
+    patientId: number;
+  };
 }

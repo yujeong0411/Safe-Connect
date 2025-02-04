@@ -7,7 +7,7 @@ import { format } from 'date-fns'; // 날짜 포맷팅용 라이브러리
 interface CallDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  data?: CallRecord;
+  data?: CallRecord | null;
 }
 
 const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) => {

@@ -9,15 +9,12 @@ import {
 } from '@components/ui/table.tsx';
 import { Button } from '@components/ui/button.tsx';
 import CallDetailDialog from '@features/control/components/CallDetailDialog.tsx';
-import { useCallListStore } from '@/store/control/CallListStore.tsx';
+import { useCallListStore } from '@/store/control/callListStore.tsx';
 import { CallRecord } from '@/types/control/ControlRecord.types.ts';
-import { axiosInstance } from '@utils/axios.ts';
 
 const CallRecordForm = () => {
   const [isCallDetailOpen, setIsCallDetailOpen] = React.useState(false);
-  const [selectedCall, setSelectedCall] = React.useState<CallRecord | null>(null);
-
-  const { callList, fetchCallList } = useCallListStore();
+  const { callList, callDetail, fetchCallList, fetchCallDetail } = useCallListStore();
 
   useEffect(() => {
     fetchCallList();
@@ -30,24 +27,20 @@ const CallRecordForm = () => {
     { key: 'CallSummary', header: '신고 요약' },
   ];
 
-  const handleRowClick = (data: CallRecord) => {
-    setSelectedCall(data);
-    setIsCallDetailOpen(true);
+  const handleRowClick = async (data: CallRecord) => {
+    try {
+      await fetchCallDetail(data.callId);
+      setIsCallDetailOpen(true);
+    } catch (error) {
+      console.error('상세조회 실패', error);
+    }
   };
 
   // 상세 조회 API 테스트
   const testDetailAPI = async () => {
     try {
-      const response = await axiosInstance.get('/control/call/detail', {
-        params: {
-          callId: 1,
-        },
-      }); // callId 1로 테스트
-      console.log('상세 조회 응답:', response.data);
-      if (response.data.isSuccess) {
-        setSelectedCall(response.data.data);
-        setIsCallDetailOpen(true);
-      }
+      await fetchCallDetail(1); // store의 함수 사용
+      setIsCallDetailOpen(true);
     } catch (error) {
       console.error('상세 조회 실패:', error);
     }
@@ -109,7 +102,7 @@ const CallRecordForm = () => {
       <CallDetailDialog
         open={isCallDetailOpen}
         onOpenChange={setIsCallDetailOpen}
-        data={selectedCall}
+        data={callDetail}
       />
     </div>
   );

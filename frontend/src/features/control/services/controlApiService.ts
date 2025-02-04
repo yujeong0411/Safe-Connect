@@ -1,7 +1,10 @@
 import { axiosInstance } from '@utils/axios.ts';
-import { PatientResponse, CallInfo } from '@/types/common/Patient.types.ts';
+import {
+  PatientResponse,
+  CallInfo,
+  ProtectorMessageResponse,
+} from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
-import { CallRecord } from '@/types/control/ControlRecord.types.ts';
 
 export const patientService = {
   searchByPhone: async (phone: string): Promise<PatientResponse> => {
@@ -61,7 +64,7 @@ export const controlService = {
     }
   },
 
-  fetchCallDetail: async (callId: number): Promise<CallRecord> => {
+  fetchCallDetail: async (callId: number): Promise<CallListResponse> => {
     try {
       const response = await axiosInstance.get<CallListResponse>('/control/call/detail', {
         params: { callId },
@@ -69,6 +72,20 @@ export const controlService = {
       return response.data;
     } catch (error: any) {
       console.log('신고 상세 조회 실패', error.message);
+      throw error;
+    }
+  },
+};
+
+export const protectorService = {
+  sendProtectorMessage: async (patientId: number): Promise<ProtectorMessageResponse> => {
+    try {
+      const response = await axiosInstance.put<ProtectorMessageResponse>('/control/message', {
+        patientId,
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('보호자 메세지 전송 실패', error);
       throw error;
     }
   },

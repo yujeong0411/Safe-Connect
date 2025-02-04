@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { PatientInfo, PatientStore, CallInfo } from '@/types/common/Patient.types.ts';
-import { patientService } from '@features/control/services/controlApiService.ts';
+import { patientService, protectorService } from '@features/control/services/controlApiService.ts';
 
 export const usePatientStore = create<PatientStore>((set) => ({
   patientInfo: null,
@@ -52,5 +52,29 @@ export const usePatientStore = create<PatientStore>((set) => ({
 
   resetPatientInfo: async () => {
     set({ patientInfo: null, error: null });
+  },
+  messageStatus: null,
+  sendProtectorMessage: async (patientId: number) => {
+    try {
+      set({ isLoading: true, error: null });
+      const response = await protectorService.sendProtectorMessage(patientId);
+
+      if (response.isSuccess) {
+        set({ messageStatus: response.data, isLoading: true });
+        return true;
+      } else {
+        set({
+          error: response.message,
+          isLoading: false,
+        });
+        return false;
+      }
+    } catch (error: any) {
+      set({
+        error: error.message || '보호자 메시지 전송 중 오류 발생',
+        isLoading: false,
+      });
+      return false;
+    }
   },
 }));
