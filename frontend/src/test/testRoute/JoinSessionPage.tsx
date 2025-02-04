@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Route, Routes, useParams, useSearchParams } from 'react-router-dom';
 import { testStore } from '@/test/store/testAuthStore';
-import VideoSessionUI from './VideoSessionUI';
+// import VideoSessionUI from './VideoSessionUI';
 import { OpenVidu, Publisher, Session, StreamManager, Subscriber } from 'openvidu-browser';
-import Button from '@components/atoms/Button/Button';
-import Input from '@components/atoms/Input/Input';
+// import Button from '@components/atoms/Button/Button';
+// import Input from '@components/atoms/Input/Input';
 import JoinSessionForm from '@/test/testRoute/JoinSessionForm.tsx';
 import ActiveSessionPage from '@/test/testRoute/ActiveSessionPage.tsx';
 
@@ -12,7 +12,7 @@ const JoinSessionPage: React.FC = () => {
   const { sessionId } = useParams();
   const [searchParams] = useSearchParams();
   const [isJoined, setIsJoined] = useState(false);
-  const [customUsername, setCustomUsername] = useState('');
+  // const [customUsername, setCustomUsername] = useState('');
 
   // 기본 사용자 이름 설정 (URL의 username 파라미터 or Guest + 랜덤 숫자)
   const defaultUsername = searchParams.get('username') ||
@@ -29,16 +29,16 @@ const JoinSessionPage: React.FC = () => {
 
   const OV = new OpenVidu();
 
-  const handleJoinAsGuest = async () => {
-    const userName = customUsername || defaultUsername;
-
-    setOvState(prev => ({
-      ...prev,
-      myUserName: userName
-    }));
-
-    await joinSession(userName);
-  };
+  // const handleJoinAsGuest = async () => {
+  //   const userName = customUsername || defaultUsername;
+  //
+  //   setOvState(prev => ({
+  //     ...prev,
+  //     myUserName: userName
+  //   }));
+  //
+  //   await joinSession(userName);
+  // };
 
   const joinSession = async (userName: string) => {
     const session = OV.initSession();
@@ -89,20 +89,20 @@ const JoinSessionPage: React.FC = () => {
     }
   };
 
-  const leaveSession = () => {
-    if (ovState.session) {
-      ovState.session.disconnect();
-    }
-    setOvState({
-      mySessionId: sessionId || 'DefaultSession',
-      myUserName: defaultUsername,
-      session: undefined,
-      mainStreamManager: undefined,
-      publisher: undefined,
-      subscribers: [],
-    });
-    setIsJoined(false);
-  };
+  // const leaveSession = () => {
+  //   if (ovState.session) {
+  //     ovState.session.disconnect();
+  //   }
+  //   setOvState({
+  //     mySessionId: sessionId || 'DefaultSession',
+  //     myUserName: defaultUsername,
+  //     session: undefined,
+  //     mainStreamManager: undefined,
+  //     publisher: undefined,
+  //     subscribers: [],
+  //   });
+  //   setIsJoined(false);
+  // };
 
   // 세션 입장 전 화면
   // const renderJoinScreen = () => (

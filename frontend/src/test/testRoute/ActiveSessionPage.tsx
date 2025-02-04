@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { testStore } from '@/test/store/testAuthStore';
 import VideoSessionUI from './VideoSessionUI';
 import { OpenVidu, Publisher, Session, StreamManager, Subscriber } from 'openvidu-browser';
@@ -10,6 +10,7 @@ interface ActiveSessionPageProps {
 
 const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const userName = searchParams.get('username') ||
     `Guest${Math.floor(Math.random() * 1000)}`;
 
@@ -22,32 +23,43 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
     subscribers: [] as Subscriber[],
   });
 
-  const OV = new OpenVidu();
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
     const initializeSession = async () => {
-      const session = OV.initSession();
-
-      session.on('streamCreated', (event) => {
-        const subscriber = session.subscribe(event.stream, undefined);
-        setOvState(prev => ({
-          ...prev,
-          subscribers: [...prev.subscribers, subscriber]
-        }));
-      });
-
-      session.on('streamDestroyed', (event) => {
-        const deletedSubscriber = event.stream.streamManager;
-        setOvState(prev => ({
-          ...prev,
-          subscribers: prev.subscribers.filter(sub => sub !== deletedSubscriber)
-        }));
-      });
-
       try {
-        const token = await testStore.getState().createToken(ovState.mySessionId);
-        await session.connect(token, { clientData: userName });
+        // OpenVidu 초기화 로그
+        console.log('Initializing session with:', {
+          sessionId: ovState.mySessionId,
+          userName: ovState.myUserName
+        });
 
+        // 세션 생성 및 토큰 획득 로직 추가
+        const createdSessionId = await testStore.getState().createSession(ovState.mySessionId);
+        console.log('Created Session ID:', createdSessionId);
+
+        const token = await testStore.getState().createToken(createdSessionId);
+        console.log('Received Token:', token);
+
+        const OV = new OpenVidu();
+        const session = OV.initSession();
+
+        // 이벤트 리스너 추가 (에러 포함)
+        session.on('connectionCreated', (event) => {
+          console.log('Connection Created:', event);
+        });
+
+        session.on('exception', (exception) => {
+          console.error('Session Exception:', exception);
+          setConnectionError(exception.message);
+        });
+
+        // 세션 연결 시도
+        await session.connect(token, {
+          clientData: ovState.myUserName
+        });
+
+        // 퍼블리셔 초기화
         const publisher = await OV.initPublisherAsync(undefined, {
           audioSource: undefined,
           videoSource: undefined,
@@ -59,16 +71,20 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
           mirror: false,
         });
 
+        // 세션에 퍼블리셔 추가
         await session.publish(publisher);
 
+        // 상태 업데이트
         setOvState(prev => ({
           ...prev,
           session,
           mainStreamManager: publisher,
           publisher: publisher
         }));
+
       } catch (error) {
-        console.error('세션 참여 실패:', error);
+        console.error('세션 초기화 중 오류:', error);
+        setConnectionError(error instanceof Error ? error.message : '알 수 없는 오류');
       }
     };
 
@@ -82,10 +98,23 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
     };
   }, []);
 
-  const leaveSession = () => {
-    // 세션 나가기 로직 (필요에 따라 홈이나 세션 목록 페이지로 이동)
-  };
+  // 에러 발생 시 렌더링
+  if (connectionError) {
+    return (
+      <div className="container mx-auto p-4 text-center">
+        <h2 className="text-2xl text-red-500">Connection Error</h2>
+        <p>{connectionError}</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
+  // 세션 UI 렌더링
   return (
     <VideoSessionUI
       session={ovState.session}
@@ -97,7 +126,7 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
       handleChangeSessionId={() => {}}
       handleChangeUserName={() => {}}
       joinSession={(e) => e.preventDefault()}
-      leaveSession={leaveSession}
+      leaveSession={() => navigate(-1)}
       switchCamera={() => {}}
       handleMainVideoStream={() => {}}
     />
