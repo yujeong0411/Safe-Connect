@@ -23,41 +23,46 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
     subscribers: [] as Subscriber[],
   });
 
-  const [connectionError, setConnectionError] = useState<string | null>(null);
-
   useEffect(() => {
     const initializeSession = async () => {
       try {
-        // OpenVidu 초기화 로그
-        console.log('Initializing session with:', {
-          sessionId: ovState.mySessionId,
-          userName: ovState.myUserName
-        });
-
-        // 세션 생성 및 토큰 획득 로직 추가
+        // 세션 생성 및 토큰 획득
         const createdSessionId = await testStore.getState().createSession(ovState.mySessionId);
-        console.log('Created Session ID:', createdSessionId);
-
         const token = await testStore.getState().createToken(createdSessionId);
-        console.log('Received Token:', token);
 
+        // OpenVidu 초기화
         const OV = new OpenVidu();
         const session = OV.initSession();
 
-        // 이벤트 리스너 추가 (에러 포함)
-        session.on('connectionCreated', (event) => {
-          console.log('Connection Created:', event);
+        // 스트림 생성 이벤트 리스너
+        session.on('streamCreated', (event) => {
+          console.log('New stream created:', event);
+
+          // 새로운 구독자(subscriber) 생성
+          const subscriber = session.subscribe(event.stream, undefined);
+
+          // 구독자 목록에 추가
+          setOvState(prevState => ({
+            ...prevState,
+            subscribers: [...prevState.subscribers, subscriber]
+          }));
         });
 
-        session.on('exception', (exception) => {
-          console.error('Session Exception:', exception);
-          setConnectionError(exception.message);
+        // 스트림 제거 이벤트 리스너
+        session.on('streamDestroyed', (event) => {
+          console.log('Stream destroyed:', event);
+
+          // 제거된 구독자 필터링
+          setOvState(prevState => ({
+            ...prevState,
+            subscribers: prevState.subscribers.filter(
+              sub => sub !== event.stream.streamManager
+            )
+          }));
         });
 
-        // 세션 연결 시도
-        await session.connect(token, {
-          clientData: ovState.myUserName
-        });
+        // 세션 연결
+        await session.connect(token, { clientData: userName });
 
         // 퍼블리셔 초기화
         const publisher = await OV.initPublisherAsync(undefined, {
@@ -71,12 +76,12 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
           mirror: false,
         });
 
-        // 세션에 퍼블리셔 추가
+        // 세션에 퍼블리셔 게시
         await session.publish(publisher);
 
         // 상태 업데이트
-        setOvState(prev => ({
-          ...prev,
+        setOvState(prevState => ({
+          ...prevState,
           session,
           mainStreamManager: publisher,
           publisher: publisher
@@ -84,7 +89,7 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
 
       } catch (error) {
         console.error('세션 초기화 중 오류:', error);
-        setConnectionError(error instanceof Error ? error.message : '알 수 없는 오류');
+        // 오류 처리 로직 (예: 알림, 리다이렉트)
       }
     };
 
@@ -96,25 +101,15 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
         ovState.session.disconnect();
       }
     };
-  }, []);
+  }, []); // 빈 의존성 배열로 마운트 시 한 번만 실행
 
-  // 에러 발생 시 렌더링
-  if (connectionError) {
-    return (
-      <div className="container mx-auto p-4 text-center">
-        <h2 className="text-2xl text-red-500">Connection Error</h2>
-        <p>{connectionError}</p>
-        <button
-          onClick={() => navigate(-1)}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Go Back
-        </button>
-      </div>
-    );
-  }
+  const leaveSession = () => {
+    if (ovState.session) {
+      ovState.session.disconnect();
+    }
+    navigate('/test'); // 세션 나가기 후 이동할 페이지
+  };
 
-  // 세션 UI 렌더링
   return (
     <VideoSessionUI
       session={ovState.session}
@@ -126,7 +121,7 @@ const ActiveSessionPage: React.FC<ActiveSessionPageProps> = ({ sessionId }) => {
       handleChangeSessionId={() => {}}
       handleChangeUserName={() => {}}
       joinSession={(e) => e.preventDefault()}
-      leaveSession={() => navigate(-1)}
+      leaveSession={leaveSession}
       switchCamera={() => {}}
       handleMainVideoStream={() => {}}
     />

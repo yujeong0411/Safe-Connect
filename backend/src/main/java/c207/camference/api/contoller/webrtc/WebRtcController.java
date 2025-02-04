@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -151,5 +153,36 @@ public class WebRtcController {
 //        return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.CREATED);
 //    }
 
+
+    @PostMapping("/api/sessions/{sessionId}/disconnect")
+    public ResponseEntity<String> disconnectSession(@PathVariable("sessionId") String sessionId)
+            throws OpenViduJavaClientException, OpenViduHttpException {
+
+        Session session = openvidu.getActiveSession(sessionId);
+
+        if (session != null) {
+            // 세션의 모든 연결 종료
+            session.close();
+
+            return ResponseEntity.ok("Session closed successfully");
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+    @GetMapping("/api/sessions")
+    public ResponseEntity<List<String>> getAllActiveSessions()
+            throws OpenViduJavaClientException, OpenViduHttpException {
+
+        // 활성 세션 목록 가져오기
+        List<Session> activeSessions = openvidu.getActiveSessions();
+
+        // 세션 ID 목록 추출
+        List<String> sessionIds = activeSessions.stream()
+                .map(Session::getSessionId)
+                .collect(Collectors.toList());
+
+        // 세션 ID 목록 반환
+        return ResponseEntity.ok(sessionIds);
+    }
 
 }
