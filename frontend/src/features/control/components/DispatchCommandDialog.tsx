@@ -5,7 +5,7 @@ import { DialogProps } from '../types/dialog.types';
 const DispatchCommandDialog = ({ open, onOpenChange }: DialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[600px] p-8 bg-bg">
+      <DialogContent className="max-w-[600px] p-8 bg-dialog_color">
         <h2 className="text-2xl font-bold mb-6">출동 지령</h2>
         
         <div className="space-y-6">

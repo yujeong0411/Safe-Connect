@@ -80,7 +80,7 @@ export const controlService = {
 export const protectorService = {
   sendProtectorMessage: async (callerPhone: string): Promise<ProtectorMessageResponse> => {
     try {
-      const response = await axiosInstance.put<ProtectorMessageResponse>('/control/message', {
+      const response = await axiosInstance.post<ProtectorMessageResponse>('/control/message', {
         callerPhone,
       });
       return response.data;

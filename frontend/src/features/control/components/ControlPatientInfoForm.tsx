@@ -7,14 +7,15 @@ import React, { useState } from 'react';
 import { useEffect } from 'react';
 
 interface SaveForm {
-  userName: string;
-  userGender: string;
-  userAge: string;
+  userName?: string;
+  userGender?: string;
+  userAge?: string;
   userPhone: string;
-  userProtectorPhone: string;
-  diseases: string;
-  medications: string;
+  userProtectorPhone?: string;
+  diseases?: string;
+  medications?: string;
   callSummary: string;
+  symptom?: string;
 }
 
 const ControlPatientInfoForm = () => {
@@ -30,6 +31,7 @@ const ControlPatientInfoForm = () => {
     diseases: '',
     medications: '',
     callSummary: '',
+    symptom: '',
   });
 
   // patientInfo가 변경될 때 폼 데이터 업데이트
@@ -46,30 +48,25 @@ const ControlPatientInfoForm = () => {
           : '',
         diseases:
           patientInfo?.mediInfo
+             ? patientInfo.mediInfo
             .find((m) => m.categoryName === '기저질환')
             ?.mediList.map((m) => m.mediName)
-            .join(',') || '',
+            .join(',') || '' :'',
         medications:
           patientInfo?.mediInfo
+              ? patientInfo.mediInfo
             .find((m) => m.categoryName === '복용약물')
             ?.mediList.map((m) => m.mediName)
-            .join(', ') || '',
+            .join(', ') || '' : '',
       }));
     }
   }, [patientInfo]);
 
-  // AI 요약본 업데이트 함수
-  const updateAiSummary = (summary: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      callSummary: summary,
-    }));
-  };
 
   // 전화번호 검색
   const handleSearch = async (phone: string) => {
     try {
-      const formattedPhone = formatPhoneNumber(phone).replace(/-/g, '');
+      const formattedPhone = formatPhoneNumber(phone)
       const response = await searchByPhone(formattedPhone);
 
       if (!response?.isSuccess) {
@@ -116,85 +113,98 @@ const ControlPatientInfoForm = () => {
       <div className="flex-1 p-4 max-w-4xl">
         <div className="bg-white rounded-lg p-6">
           <div className="flex justify-between items-center mb-6">
-            <SearchBar_ver2 placeholder="환자 전화번호" buttonText="조회" onSearch={handleSearch} />
+            <SearchBar_ver2 placeholder="환자 전화번호" buttonText="조회" formatValue={formatPhoneNumber}
+                            onSearch={handleSearch}/>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
               <Input
-                className="w-full"
-                value={patientInfo?.userName}
-                onChange={handleInputChange('userName')}
+                  className="w-full"
+                  value={formData.userName}
+                  onChange={handleInputChange('userName')}
               />
             </div>
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">성별</label>
               <Input
-                className="w-full"
-                value={patientInfo?.userGender}
-                onChange={handleInputChange('userGender')}
+                  className="w-full"
+                  value={formData.userGender}
+                  onChange={handleInputChange('userGender')}
               />
             </div>
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">나이</label>
               <Input
-                className="w-full"
-                value={patientInfo?.userAge}
-                onChange={handleInputChange('userAge')}
+                  className="w-full"
+                  value={formData.userAge}
+                  onChange={handleInputChange('userAge')}
               />
             </div>
           </div>
+
 
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
               <Input
-                className="w-full"
-                value={patientInfo?.userPhone ? formatPhoneNumber(patientInfo.userPhone) : ''}
-                onChange={handleInputChange('userPhone')}
+                  className="w-full"
+                  value={formData.userPhone ? formatPhoneNumber(formData.userPhone) : ''}
+                  onChange={handleInputChange('userPhone')}
               />
             </div>
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">보호자 연락처</label>
               <Input
-                className="w-full"
-                value={
-                  patientInfo?.userProtectorPhone
-                    ? formatPhoneNumber(patientInfo.userProtectorPhone)
-                    : ''
-                }
-                onChange={handleInputChange('userProtectorPhone')}
+                  className="w-full"
+                  value={
+                    formData.userProtectorPhone
+                        ? formatPhoneNumber(formData.userProtectorPhone)
+                        : ''
+                  }
+                  onChange={handleInputChange('userProtectorPhone')}
               />
             </div>
+          </div>
+
+          <div className="col-span-1 mt-6">
+            <label className="block text-sm font-medium text-gray-700 mb-1">증상</label>
+            <Input
+                className="w-full"
+                value={formData.symptom}
+                onChange={handleInputChange('symptom')}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">현재 병력</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
-                value={
-                  patientInfo?.mediInfo
-                    .find((m) => m.categoryName === '기저질환')
-                    ?.mediList.map((m) => m.mediName)
-                    .join(',') || ''
-                }
-                onChange={handleInputChange('medications')}
+                  className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  value={
+                    patientInfo?.mediInfo
+                        ? patientInfo.mediInfo
+                            .find((m) => m.categoryName === '기저질환')
+                            ?.mediList.map((m) => m.mediName)
+                            .join(',') : ''
+                  }
+                  onChange={handleInputChange('medications')}
               />
             </div>
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">복용 약물</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none
+                  className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none
                 focus:ring-2 focus:ring-blue-200"
-                value={
-                  patientInfo?.mediInfo
-                    .find((m) => m.categoryName === '복용약물')
-                    ?.mediList.map((m) => m.mediName)
-                    .join(',') || ''
-                }
-                onChange={handleInputChange('medications')}
+                  value={
+                    patientInfo?.mediInfo
+                        ? patientInfo.mediInfo
+                            .find((m) => m.categoryName === '복용약물')
+                            ?.mediList.map((m) => m.mediName)
+                            .join(',') : ''
+                  }
+                  onChange={handleInputChange('medications')}
               />
             </div>
           </div>
@@ -203,8 +213,8 @@ const ControlPatientInfoForm = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
-                onChange={handleInputChange('callSummary')}
+                  className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  onChange={handleInputChange('callSummary')}
               />
             </div>
           </div>
