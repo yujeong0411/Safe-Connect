@@ -1,6 +1,12 @@
 import { OpenVidu, Publisher, Session, StreamManager, Subscriber } from 'openvidu-browser';
 import React from 'react';
 
+export interface LocalUser {
+  connectionId: string | undefined;
+  streamManager: StreamManager | undefined;
+  userName: string | undefined;
+}
+
 export interface openViduStore {
   // State
   OV: OpenVidu;
@@ -10,6 +16,7 @@ export interface openViduStore {
   mainStreamManager: StreamManager | undefined;
   publisher: Publisher | undefined;
   subscribers: Subscriber[];
+  localUser: LocalUser
 
   // Actions
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -17,7 +24,7 @@ export interface openViduStore {
   joinSession: () => Promise<void>;
   leaveSession: () => void;
   // switchCamera: () => void;
-  handleMainVideoStream: (stream: StreamManager) => void;
+  // handleMainVideoStream: (stream: StreamManager) => void;
   createSession: (sessionId: string) => Promise<any>;
   createToken: (sessionId: string) => Promise<any>;
   createAndJoinSession: (e: React.FormEvent)=> Promise<void>;

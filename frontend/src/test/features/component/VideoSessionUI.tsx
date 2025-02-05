@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import UserVideoComponent from './UserVideoComponent';
 import { useOpenViduStore } from '@/test/store/OpenViduStore';
+import { StreamManager } from 'openvidu-browser';
 
 const VideoSessionUI: React.FC = () => {
   const {
     session,
     sessionId,
-    mainStreamManager,
+    localUser,
     publisher,
     subscribers,
-    joinSession,
-    handleMainVideoStream
+    joinSession
   } = useOpenViduStore();
 
   useEffect(() => {
@@ -27,40 +27,41 @@ const VideoSessionUI: React.FC = () => {
     initializeSession();
   }, [session, sessionId]);
 
+  // 다른 참가자들 (로컬 사용자 제외)
+  const otherParticipants = useMemo(() => {
+    return subscribers.filter(
+      (subscriber) =>
+        localUser &&
+        subscriber.stream.connection.connectionId !== localUser.connectionId
+    );
+  }, [subscribers, localUser]);
+
+  // 메인 스트림 (다른 참가자 중 첫 번째, 없으면 null)
+  const mainStream = otherParticipants.length > 0
+    ? otherParticipants[0]
+    : null;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {mainStreamManager && (
-        <div className="main-video-container w-full aspect-video">
+    <div className="flex w-full h-screen">
+      {/* 메인 스트림 (왼쪽) */}
+      <div className="w-3/4 h-full">
+        {mainStream && (
           <UserVideoComponent
-            streamManager={mainStreamManager}
-            key={mainStreamManager.stream.streamId}
+            streamManager={mainStream}
+            key={mainStream.stream.streamId}
+          />
+        )}
+      </div>
+
+      {/* 로컬 사용자 (오른쪽 하단) */}
+      {localUser && localUser.streamManager && (
+        <div className="absolute bottom-4 right-4 w-1/6 aspect-video">
+          <UserVideoComponent
+            streamManager={localUser.streamManager}
+            key={localUser.streamManager.stream.streamId}
           />
         </div>
       )}
-
-      <div className="grid grid-cols-2 gap-2">
-        {publisher && (
-          <div
-            className="stream-container w-full aspect-video cursor-pointer"
-            onClick={() => handleMainVideoStream(publisher)}
-          >
-            <UserVideoComponent
-              streamManager={publisher}
-              key={publisher.stream.streamId}
-            />
-          </div>
-        )}
-
-        {subscribers.map((sub) => (
-          <div
-            key={sub.stream.streamId}
-            className="stream-container w-full aspect-video cursor-pointer"
-            onClick={() => handleMainVideoStream(sub)}
-          >
-            <UserVideoComponent streamManager={sub} />
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

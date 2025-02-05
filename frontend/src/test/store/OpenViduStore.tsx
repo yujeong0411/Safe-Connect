@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { openViduStore } from '@/test/types/openvidu.types.ts';
 import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
-import { OpenVidu, StreamManager } from 'openvidu-browser';
+import { OpenVidu } from 'openvidu-browser';
 import React from 'react';
 
 
@@ -16,6 +16,11 @@ export const useOpenViduStore =
   mainStreamManager: undefined,
   publisher: undefined,
   subscribers: [],
+  localUser: {
+    connectionId: undefined,
+    streamManager: undefined,
+    userName: undefined,
+  },
 
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ sessionId: e.target.value });
@@ -24,9 +29,9 @@ export const useOpenViduStore =
     set({ userName: e.target.value });
   },
 
-  handleMainVideoStream: (stream: StreamManager) => {
-    set({ mainStreamManager: stream });
-  },
+  // handleMainVideoStream: (stream: StreamManager) => {
+  //   set({ mainStreamManager: stream });
+  // },
 
 
     createAndJoinSession: async (e: React.FormEvent) => {
@@ -86,11 +91,16 @@ export const useOpenViduStore =
 
         // 세션에 퍼블리시
         await session.publish(publisher);
-
+        const localUser = {
+          connectionId: session.connection.connectionId,
+          streamManager: publisher,
+          userName: userName,
+        };
         set({
           session,
           mainStreamManager: publisher,
           publisher,
+          localUser: localUser,
         });
 
       } catch (error) {
@@ -101,6 +111,11 @@ export const useOpenViduStore =
           mainStreamManager: undefined,
           publisher: undefined,
           subscribers: [],
+          localUser: {
+            connectionId: undefined,
+            streamManager: undefined,
+            userName: undefined,
+          },
         });
         throw error;
       }
