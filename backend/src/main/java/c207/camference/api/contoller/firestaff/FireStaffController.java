@@ -25,16 +25,9 @@ public class FireStaffController {
     }
 
     // 영상통화방 URL 전송, 영상통화방 생성
-    @PostMapping("/control/video")
+    @PostMapping("/video")
     public ResponseEntity<?> createRoom(@RequestBody CallRoomRequest request) {
-        // 영상통화방 테이블 생성
-
-        // URL 전송
-
-        // 신고자 생성
-
-
-        return 
+        return controlService.createRoom(request);
     }
 
 }
