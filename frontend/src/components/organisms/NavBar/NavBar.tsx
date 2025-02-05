@@ -11,7 +11,7 @@ const NavBar = ({ navItems }: NavBarProps) => {
 
   return (
     <nav className="w-flex h-[50px] relative">
-      <div className="w-full h-full absolute bg-[#545f71]" />
+      <div className="w-full h-full absolute bg-banner" />
       <div className=" h-full flex justify-start items-center pl-20 gap-20">
         {navItems.map((item, index) => (
           <Link
