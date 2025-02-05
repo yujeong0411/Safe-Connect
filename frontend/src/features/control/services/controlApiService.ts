@@ -5,6 +5,7 @@ import {
   ProtectorMessageResponse,
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
+import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
 
 export const patientService = {
   searchByPhone: async (phone: string): Promise<PatientResponse> => {
@@ -90,3 +91,15 @@ export const protectorService = {
     }
   },
 };
+
+
+export const fetchDispatchGroups = async () => {
+  try{
+    const response = await axiosInstance.get<DispatchGroupResponse>('/control/dispatch_group')
+    console.log("소방팀 조회", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('소방팀 조회 실패', error)
+    throw error;
+  }
+}

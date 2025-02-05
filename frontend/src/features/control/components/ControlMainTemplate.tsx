@@ -48,7 +48,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   ];
 
   return (
-    <div className="mih-screen bg-bg flex flex-col">
+    <div className="mih-h-screen bg-bg flex flex-col">
       <div className="-space-y-4">
         <PublicHeader
           labels={[
