@@ -10,7 +10,7 @@ const JoinSessionPage: React.FC = () => {
   const openViduStore = useOpenViduStore();
 
   useEffect(() => {
-    const username = searchParams.get('username');
+    const username = searchParams.get('username') || `Guest_${Math.floor(Math.random() * 100)}`;
     const directJoin = searchParams.get('direct');
 
     if (sessionId) {
@@ -18,13 +18,12 @@ const JoinSessionPage: React.FC = () => {
         target: { value: sessionId }
       } as React.ChangeEvent<HTMLInputElement>);
 
-      if (username && directJoin === 'true') {
-        // URL에 username과 direct=true가 있으면 바로 세션 참여
+      if (directJoin === 'true') {
         openViduStore.handleChangeUserName({
           target: { value: username }
         } as React.ChangeEvent<HTMLInputElement>);
 
-        navigate(`/openvidu/room/${sessionId}`);
+        navigate(`/openvidu/join/${sessionId}/room`);
       }
     }
   }, [sessionId, searchParams]);
