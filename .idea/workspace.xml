@@ -5,36 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="426fbe23-767e-40e9-83fe-0fdf60e0af42" name="변경" comment="feat/backend init 김민철 20250120">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/call/Caller.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/call/VideoCall.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/call/VideoCallUser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/Source.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/firestaff/DispatchGroup.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/firestaff/DispatchStaff.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/hospital/ReqHospital.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/patient/Patient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/report/Dispatch.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/report/Transfer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/contoller/ReIssueController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/contoller/ReIssueController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/MediService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/MediService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/UserMediService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/medi/UserMediService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/user/ControlServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/api/service/user/ControlServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/Call.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/report/Call.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/Medi.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/Medi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/MediCategory.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/MediCategory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/others/Refresh.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/etc/Refresh.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediDetail.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediMapping.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/entity/users/UserMediMapping.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/CallRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/CallRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediCategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediCategoryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/MediRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/RefreshRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/db/repository/RefreshRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/AdminLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/AdminLoginFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/ControlLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/ControlLoginFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/DispatchLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/DispatchLoginFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/HospitalLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/HospitalLoginFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/c207/camference/filter/jwt/UserLoginFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/c207/camference/temp/spring-entities.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/e40c1268-069d-48f7-bf84-9616d9c570bc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/e40c1268-069d-48f7-bf84-9616d9c570bc/storage_v2/_src_/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/e40c1268-069d-48f7-bf84-9616d9c570bc/storage_v2/_src_/schema/s12p11c207.snhJ4w.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/test/store/testAuthStore.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/test/store/useOpenViduStore.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/test/testRoute/ActiveSessionPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/test/testRoute/ActiveSessionPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/test/testRoute/CreateSessionPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/test/testRoute/CreateSessionPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/test/testRoute/JoinSessionPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/test/testRoute/JoinSessionPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/test/testRoute/TestPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/test/testRoute/TestPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/test/testRoute/TestRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/test/routes/OpenViduRoutes.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/test/types/test.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/test/types/test.types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +62,7 @@
     "RunOnceActivity.OpenDatabaseViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "test/webrtc__min",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/SSAFY/Desktop/mincheol/1.commonproject/1.firstweek",
     "node.js.detected.package.eslint": "true",
@@ -94,8 +77,8 @@
     "DatabaseDriversLRU": [
       "mysql_aurora",
       "azure",
-      "mariadb",
-      "mysql"
+      "mysql",
+      "mariadb"
     ]
   }
 }]]></component>
