@@ -1,6 +1,6 @@
 import { MedicalCategory } from '@/types/common/medical.types.ts';
 
-// 전화번호 조회시 얻는 정보
+// 전화번호 조회시 얻는 정보(현재 신고 중인 환자)
 export interface PatientInfo {
   userName: string;
   userGender: string;
@@ -35,18 +35,15 @@ export interface PatientStore {
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (info: CallInfo) => Promise<void>;
   resetPatientInfo: () => void;
-  sendProtectorMessage?: (patientId: number) => Promise<boolean>;
+  sendProtectorMessage?: (callerPhone: string) => Promise<boolean>;
 }
 
 export interface ProtectorMessageRequest {
-  patientId: number;
+  callerPhone: string;
 }
 
 export interface ProtectorMessageResponse {
   isSuccess: boolean;
   code: number;
   message: string;
-  data: {
-    patientId: number;
-  };
 }

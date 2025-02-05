@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class ControlUserResponse {
 
+    private Integer userId;
     private String userName;
     private Character userGender;
     private String userBirthday;
@@ -22,8 +23,10 @@ public class ControlUserResponse {
 
     private List<MediCategoryDto> mediInfo;
 
+
     public static ControlUserResponse from(User user, List<MediCategoryDto> mediInfo) {
         return ControlUserResponse.builder()
+                .userId(user.getUserId())
                 .userName(user.getUserName())
                 .userGender(user.getUserGender())
                 .userBirthday(user.getUserBirthday())
@@ -35,7 +38,7 @@ public class ControlUserResponse {
     }
 
 
-    private static int calculateAge(String birthday) {
+    public static int calculateAge(String birthday) {
         int year = Integer.parseInt(birthday.substring(0, 2));
         int month = Integer.parseInt(birthday.substring(2, 4));
         int day = Integer.parseInt(birthday.substring(4, 6));

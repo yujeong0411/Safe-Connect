@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@components/ui/table.tsx';
-import { Button } from '@components/ui/button.tsx';
+import Pagination from '@components/atoms/Pagination/Pagination.tsx';
 import CallDetailDialog from '@features/control/components/CallDetailDialog.tsx';
 import { useCallListStore } from '@/store/control/callListStore.tsx';
 import { CallRecord } from '@/types/control/ControlRecord.types.ts';
@@ -15,18 +15,25 @@ import { CallRecord } from '@/types/control/ControlRecord.types.ts';
 const CallRecordForm = () => {
   const [isCallDetailOpen, setIsCallDetailOpen] = React.useState(false);
   const { callList, callDetail, fetchCallList, fetchCallDetail } = useCallListStore();
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
 
   useEffect(() => {
     fetchCallList();
   }, []);
 
+  // 디버깅을 위한 useEffect 추가
+  useEffect(() => {
+    console.log('현재 callList:', callList);
+  }, [callList]);
+
   const columns = [
-    { key: 'CallStartedAt', header: '신고 일시' },
-    { key: 'CallFinishedAt', header: '신고 종료 일시' },
-    { key: 'IsDispatch', header: '출동 여부' },
-    { key: 'CallSummary', header: '신고 요약' },
+    { key: 'callStartedAt', header: '신고 일시' },
+    { key: 'callFinishedAt', header: '신고 종료 일시' },
+    { key: 'callIsDispatched', header: '출동 여부' },
+    { key: 'callSummary', header: '신고 요약' },
   ];
 
+  // 열 클릭 시 디테일 연결
   const handleRowClick = async (data: CallRecord) => {
     try {
       await fetchCallDetail(data.callId);
@@ -36,14 +43,21 @@ const CallRecordForm = () => {
     }
   };
 
-  // 상세 조회 API 테스트
-  const testDetailAPI = async () => {
-    try {
-      await fetchCallDetail(1); // store의 함수 사용
-      setIsCallDetailOpen(true);
-    } catch (error) {
-      console.error('상세 조회 실패:', error);
-    }
+  // 한 페이지당 항목 수
+  const itemsPerPage = 10;
+
+  // 전체 페이지 수 (전체 항목 수/한 페이지당 수)
+  const totalPages = Math.ceil(callList.length / itemsPerPage);
+
+  // 현재 페이지의 데이터만 필터링
+  const currentItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return callList.slice(startIndex, startIndex + itemsPerPage);
+  }, [callList, currentPage]);
+
+  // 페이지 변경
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -67,7 +81,8 @@ const CallRecordForm = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {callList.map((data) => (
+              {/*현재 페이제 10개만 필터링*/}
+              {currentItems.map((data) => (
                 <TableRow
                   key={data.callId}
                   onClick={() => handleRowClick(data)}
@@ -75,7 +90,13 @@ const CallRecordForm = () => {
                 >
                   {columns.map((column) => (
                     <TableCell key={column.key}>
-                      {data[(column.key as keyof CallRecord) || '-']}
+                      {column.key.includes('At')
+                        ? new Date(data[column.key as keyof CallRecord]).toLocaleString()
+                        : column.key === 'callIsDispatched'
+                          ? data[column.key]
+                            ? '출동'
+                            : '미출동'
+                          : data[column.key as keyof CallRecord]}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -84,20 +105,15 @@ const CallRecordForm = () => {
           </Table>
 
           <div className="flex justify-center gap-2 mt-4">
-            <Button variant="outline">이전</Button>
-            {[1, 2, 3, 4, 5].map((page) => (
-              <Button key={page} variant={page === 1 ? 'default' : 'outline'}>
-                {page}
-              </Button>
-            ))}
-            <Button variant="outline">다음</Button>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              siblingCount={1}
+            />
           </div>
         </div>
       </div>
-      {/* API 테스트 버튼 */}
-      <Button onClick={testDetailAPI} className="mb-4">
-        상세 조회 API 테스트 (ID: 1)
-      </Button>
 
       <CallDetailDialog
         open={isCallDetailOpen}

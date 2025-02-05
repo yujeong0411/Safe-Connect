@@ -78,10 +78,10 @@ export const controlService = {
 };
 
 export const protectorService = {
-  sendProtectorMessage: async (patientId: number): Promise<ProtectorMessageResponse> => {
+  sendProtectorMessage: async (callerPhone: string): Promise<ProtectorMessageResponse> => {
     try {
       const response = await axiosInstance.put<ProtectorMessageResponse>('/control/message', {
-        patientId,
+        callerPhone,
       });
       return response.data;
     } catch (error: any) {

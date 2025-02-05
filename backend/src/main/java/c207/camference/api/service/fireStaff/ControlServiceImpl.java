@@ -1,7 +1,8 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
-import c207.camference.api.response.report.CallDto;
+import c207.camference.api.request.control.CallUpdateRequest;
+import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.user.ControlUserResponse;
@@ -33,6 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,8 +109,7 @@ public class ControlServiceImpl implements ControlService {
     }
     @Override
     @Transactional
-    public
-    ResponseEntity<?> getUser(String callerPhone){
+    public ResponseEntity<?> getUser(String callerPhone){
         try{
             User user = userRepository.findByUserPhone(callerPhone)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
@@ -144,12 +145,41 @@ public class ControlServiceImpl implements ControlService {
     }
 
     @Override
-    public ResponseEntity<?> updateCall(CallDto callRequest){
-        Call call = callRepository.findCallByCallId(callRequest.getCallId());
-        call.setCallIsDispatched(callRequest.getCallIsDispatched());
-        call.setCallSummary(callRequest.getCallSummary());
-        call.setCallText(callRequest.getCallText());
-        CallDto response = modelMapper.map(call, CallDto.class);
+    @Transactional
+    public ResponseEntity<?> updateCall(CallUpdateRequest request) {
+        // Call 엔티티 업데이트
+        Call call = callRepository.findCallByCallId(request.getCallId());
+        call.setCallSummary(request.getCallSummary());
+        call.setCallText(request.getCallText());
+        call.setCallTextCreatedAt(LocalDateTime.now());
+
+        User user = null;
+        List<MediCategoryDto> mediCategoryDto = null;
+
+        if (request.getUserId() != null) {
+            user = userRepository.findById(request.getUserId()).orElse(null);
+            UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
+                    .orElse(null);
+
+            if (userMediDetail != null) {
+                List<Medi> medis = getUserActiveMedis(userMediDetail);
+                mediCategoryDto = MediUtil.createMediCategoryResponse(medis);
+            }
+        }
+
+        // 응답 생성
+        CallUpdateResponse response = CallUpdateResponse.builder()
+                .userName(user != null ? user.getUserName() : null)
+                .userGender(user != null ? user.getUserGender() : null)
+                .userAge(user != null ? ControlUserResponse.calculateAge(user.getUserBirthday()) : null)
+                .userPhone(user != null ? user.getUserPhone() : null)
+                .userProtectorPhone(user != null ? user.getUserProtectorPhone() : null)
+                .mediInfo(mediCategoryDto)
+                .symptom(request.getSymptom())
+                .callSummary(request.getCallSummary())
+                .callText(request.getCallText())
+                .build();
+
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
     }
 
