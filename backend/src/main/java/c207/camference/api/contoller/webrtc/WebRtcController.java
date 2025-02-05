@@ -137,9 +137,6 @@ public class WebRtcController {
 
         //
 
-
-
         return ResponseEntity.ok().build();
     }
-
 }
