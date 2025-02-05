@@ -12,4 +12,6 @@ public interface ControlService {
 
     ResponseEntity<?> getReadyDispatchGroups();
     ResponseEntity<?> updateCall(CallDto request);
+
+    ResponseEntity<?> createCaller();
 }

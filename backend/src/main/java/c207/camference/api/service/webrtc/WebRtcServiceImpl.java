@@ -124,9 +124,9 @@ public class WebRtcServiceImpl implements WebRtcService {
     }
 
     // todo : 구급대원용 토큰 생성
-    /*
-    입력 : 세션ID
-    return : Map<> tokenId
+    /**
+    @param : 세션ID
+    @return : Map<> tokenId
      */
     @Override
     public String createStaffToken(String sessionId)

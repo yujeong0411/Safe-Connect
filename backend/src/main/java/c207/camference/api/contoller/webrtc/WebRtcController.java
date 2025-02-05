@@ -1,5 +1,6 @@
 package c207.camference.api.contoller.webrtc;
 
+import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.api.service.webrtc.WebRtcServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Map;
 
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 
@@ -44,9 +45,13 @@ public class WebRtcController {
     private OpenVidu openvidu;
 
     private WebRtcService webRtcService;
+    private ControlService controlService;
 
-    public WebRtcController(WebRtcService webRtcService) {
+    public WebRtcController(WebRtcService webRtcService,
+                            ControlService controlService) {
+
         this.webRtcService = webRtcService;
+        this.controlService = controlService;
     }
 
     @PostConstruct
@@ -101,21 +106,34 @@ public class WebRtcController {
     @PostMapping("/control/whisper")
     public ResponseEntity<?> sendUrl(@RequestParam("audioFile") MultipartFile audioFile) throws IOException {
 
-        String text = webRtcService.speechToText(audioFile);
-        System.out.println("요약전 : " + text); // 테스트용.
-
-        // 텍스트로 변환한 통화 음성 내역을 AI를 통해서 요약한다.
-        // 원래대로라면 DB에 넣은 후, 다른 컨트롤러에서 DB에서 select한후 요약을 해야 하지만,
-        // 지금은 본격적인 개발 전이니까 하나의 컨트롤러에 합친다.(2025.02.03)
+        String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
         String summary = webRtcService.textSummary(text);
+
+        System.out.println("요약전 : " + text); // 테스트용.
         System.out.println("요약 후 : " + summary);
 
-        return ResponseEntity.ok("ok");
+//        controlService.updateCall(text);
+//        controlService.updateCall(summary);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("text", text);
+        response.put("summary", summary);
+
+        return ResponseEntity.ok(response);
     }
 
+    // 영상통화방 URL 전송
+    // 이때 신고자(caller), 신고 테이블(call), 영상통화(video_call),영상통화참여(video_call_user) insert
+    //
     @PostMapping("/control/video")
     public ResponseEntity<?> sendUrl(@RequestParam("callerPhone") String callerPhone) throws OpenViduJavaClientException, OpenViduHttpException {
-        webRtcService.sendUrlMsg(callerPhone);
+        webRtcService.sendUrlMsg(callerPhone); //영상통화방 URL 전송
+
+        // 신고자 컬럼 생성
+
+        //
+
+
 
         return ResponseEntity.ok().build();
     }
