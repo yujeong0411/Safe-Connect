@@ -2,24 +2,41 @@ package c207.camference.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-public class WebSocketConfig implements WebMvcConfigurer {
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/topic", "/queue");
+        config.setApplicationDestinationPrefixes("/app");
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws")
+//                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns("http://localhost:8080")  // CORS 설정을 여기서
+                .withSockJS();
+    }
+
+
+/*
+    // CORS 설정
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/ws/**")
                 .allowedOrigins("http://localhost:8080")
-                .allowedMethods("POST")
+                .allowedMethods("GET", "POST")  // WebSocket handshake를 위해 GET도 필요
                 .allowCredentials(true)
-                .maxAge(3600); //  "preflight 요청의 결과를 3600초(1시간) 동안 캐시해도 된다"는 의미
+                .maxAge(3600);
     }
 
+*/
 /*
 
     @Override
