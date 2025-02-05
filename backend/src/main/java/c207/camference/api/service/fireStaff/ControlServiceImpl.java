@@ -203,12 +203,11 @@ public class ControlServiceImpl implements ControlService {
     // 상황실 직원이 '영상통화방 생성 및 url 전송' 버튼을 눌렀을 시
     @Override
     public ResponseEntity<?> createRoom(CallRoomRequest request) {
-        // request로 받은 전화번호로 신고자 조회
-
+        // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
         Caller caller = callerRepository.findByCallerPhone(callerPhone);
 
-        // 신고자 정보가 없다면, 신고자 테이블을 만든다.
+        // 신고자(caller)에 insert
         if (caller == null) {
             caller = new Caller();
             caller.setCallerPhone(callerPhone);
@@ -229,14 +228,22 @@ public class ControlServiceImpl implements ControlService {
 
         }
 
-        // 영상통화(video_call) 테이블 생성
+        // 영상통화(video_call)에 insert
+        Call call = new Call();
+        //call.setFireStaff(1); // 02.06 : fireStaffId값은 어디에?
+        call.setCallIsDispatched(false);
+        call.setCallStartedAt(LocalDateTime.now());
+        call.setCallFinishedAt(LocalDateTime.now()); // nullabe = false로 고칠것
+        call = callRepository.save(call);
 
+        System.out.println(call.toString());
 
         // 영상통화 참여(video_call_user)테이블 생성
 
-        // URL 전송
 
-        // 신고자(caller) 테이블 생성
+        // URL 전송 (추후 webrtc 기능 develop에 추가되면 수정)
+
+
 
         return null;
     }
