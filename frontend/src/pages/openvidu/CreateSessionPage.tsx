@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
-import { useOpenViduStore } from '@/test/store/OpenViduStore';
-import Button from '@components/atoms/Button/Button';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import Button from '@components/atoms/Button/Button.tsx';
 import { useNavigate } from 'react-router-dom';
 const CreateSessionPage: React.FC = () => {
   const navigate = useNavigate();

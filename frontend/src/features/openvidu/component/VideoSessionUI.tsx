@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
-import UserVideoComponent from './UserVideoComponent';
-import { useOpenViduStore } from '@/test/store/OpenViduStore';
-import { StreamManager } from 'openvidu-browser';
+import UserVideoComponent from './UserVideoComponent.tsx';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 const VideoSessionUI: React.FC = () => {
   const {
     session,
     sessionId,
     localUser,
-    publisher,
     subscribers,
     joinSession
   } = useOpenViduStore();

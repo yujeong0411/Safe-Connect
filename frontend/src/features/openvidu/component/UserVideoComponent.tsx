@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import OpenViduVideoComponent from './OvVideo.tsx';
 import { StreamManager } from 'openvidu-browser';
-import '../../style/UserVideo.css';
+import '@/styles/UserVideo.css';
 
 interface  Props {
     streamManager: StreamManager;

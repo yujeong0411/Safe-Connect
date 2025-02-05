@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import VideoSessionUI from '../features/component/VideoSessionUI';
-import { useOpenViduStore } from '@/test/store/OpenViduStore';
+import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 const ActiveSessionPage: React.FC = () => {
   const navigate = useNavigate();

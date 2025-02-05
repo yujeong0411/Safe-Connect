@@ -193,23 +193,26 @@ public class WebRtcController {
     }
 
     @DeleteMapping("/api/sessions/disconnect")
-    public ResponseEntity<String> deleteAllActiveSessions()
-            throws OpenViduJavaClientException, OpenViduHttpException {
+    public ResponseEntity<String> deleteAllActiveSessions() {
+        try {
+            List<Session> activeSessions = openvidu.getActiveSessions();
+            for (Session session : activeSessions) {
+                try {
+                    session.close();
+                } catch (OpenViduHttpException e) {
+                    if (e.getStatus() != 404) throw e;
+                    // 404 에러는 무시
+                }
+            }
+            List<String> closedSessionIds = activeSessions.stream()
+                    .map(Session::getSessionId)
+                    .collect(Collectors.toList());
 
-        // Get the list of active sessions
-        List<Session> activeSessions = openvidu.getActiveSessions();
-
-        // Close each active session
-        for (Session session : activeSessions) {
-            session.close();
+            return ResponseEntity.ok("Closed sessions: " + closedSessionIds);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to close sessions: " + e.getMessage());
         }
-
-        // Extract and return session IDs that were closed
-        List<String> closedSessionIds = activeSessions.stream()
-                .map(Session::getSessionId)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok("Closed sessions: " + closedSessionIds);
     }
 
 }

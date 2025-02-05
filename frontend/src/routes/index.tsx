@@ -4,7 +4,7 @@ import DispatchRoutes from '@/routes/DispatchRoutes.tsx';
 import HospitalRoutes from '@/routes/HospitalRoutes.tsx';
 import AdminRoutes from '@/routes/AdminRoutes.tsx';
 import ControlRoutes from '@/routes/ControlRoutes.tsx';
-import OpenViduRoutes from '@/test/routes/OpenViduRoutes.tsx';
+import OpenViduRoutes from '@/routes/OpenViduRoutes.tsx';
 
 const Router = () => {
   return (

@@ -1,7 +1,7 @@
 // JoinSessionPage.tsx
 import React, { useEffect } from 'react';
 import { Outlet, useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { useOpenViduStore } from '@/test/store/OpenViduStore';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 const JoinSessionPage: React.FC = () => {
   const { sessionId } = useParams();

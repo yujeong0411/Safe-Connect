@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { openViduStore } from '@/test/types/openvidu.types.ts';
+import { openViduStore } from '@/types/openvidu/openvidu.types.ts';
 import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
 import { OpenVidu } from 'openvidu-browser';
