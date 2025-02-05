@@ -1,10 +1,19 @@
 package c207.camference.api.service.webrtc;
 
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.service.sms.SmsService;
 import c207.camference.util.response.ResponseUtil;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.cloud.speech.v1.*;
+import com.google.protobuf.ByteString;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.NurigoApp;
@@ -33,6 +42,21 @@ import java.time.format.DateTimeFormatter;
 
 import java.util.*;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 @Service
 @RequiredArgsConstructor
@@ -43,13 +67,25 @@ public class WebRtcServiceImpl implements WebRtcService {
     @Value("${OPENVIDU_SECRET}")
     private String OPENVIDU_SECRET;
 
+    @Value("${openai.api.key}")
+    private String openaiApiKey;
+
+
     private OpenVidu openvidu;
     private final SpeechClient speechClient;
+    private final SmsService smsService;
+    private final ObjectMapper objectMapper;
 
     @PostConstruct
     public void init() {
         this.openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
     }
+
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS) // 연결 타임아웃
+            .readTimeout(60, TimeUnit.SECONDS)   // 읽기 타임아웃
+            .writeTimeout(60, TimeUnit.SECONDS)  // 쓰기 타임아웃
+            .build();
 
     // 신고자에게 영상통화방 URL 전송
     @Override
@@ -72,21 +108,56 @@ public class WebRtcServiceImpl implements WebRtcService {
 
         Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
         ConnectionProperties connProps = ConnectionProperties.fromJson(connectedParams).build();
-        Connection connection = session.createConnection(connProps);
-        String Token = connection.getToken();
 
-        URL = "http://localhost:3000/" + "?sessionid=" + session.getSessionId() + "token=" + Token;
+        Connection connCaller = session.createConnection(connProps);
+        Connection connFireStaff = session.createConnection(connProps);
 
+        String tokenCaller = connCaller.getToken();
+        String tokenFireStaff = connFireStaff.getToken();
+
+        URL = "http://localhost:3000/" + "?sessionid=" + session.getSessionId() + "token=" + tokenCaller;
+
+        // todo : video_call(영상통화방) 테이블 생성
+
+        // todo : vidoe_call_user(영상통화참여) 테이블에 신고자, 상황실 직원 정보 2개 INSERT
 
         System.out.println(URL); // 디버그용. 삭제할것
 
         // 생성한 URL을 SMS로 전송하는 로직 추가
-
-
-
+        smsService.sendMessage(callerPhone, URL);
 
         return ResponseEntity.ok().build();
     }
+
+    // todo : 구급대원용 토큰 생성
+    /**
+    @param : 세션ID
+    @return : Map<> tokenId
+     */
+    @Override
+    public String createStaffToken(String sessionId)
+            throws OpenViduJavaClientException, OpenViduHttpException {
+        Session session = openvidu.getActiveSession(sessionId);
+
+        Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
+        ConnectionProperties properties = ConnectionProperties.fromJson(connectedParams).build();
+        Connection connStaff = session.createConnection(properties);
+        System.out.println(connStaff.getToken());
+
+        return connStaff.getToken();
+    }
+
+
+    // todo : 구급대원 영상통화 참여 (출동시간 수정)
+    /**
+     * params: sessionId
+     * @return URL
+     */
+//    @Override
+//    public String dispatch
+
+    // todo : 신고자와 영상통화 종료 (현장 도착시간 수정)
+
 
     // 화상통화중 녹음된 파일을 텍스트로 변환해주는 메서드
     @Override
@@ -98,9 +169,7 @@ public class WebRtcServiceImpl implements WebRtcService {
         // 오디오 파일을 byte array로 decode
         byte[] audioBytes = audioFile.getBytes();
 
-        // 클라이언트 인스턴스화
-        //try (SpeechClient speechClient = SpeechClient.create()) {
-        //try (SpeechClient speechClient = speechClinet()) { // 넣고 싶은 부분
+
             // 오디오 객체 생성
             ByteString audioData = ByteString.copyFrom(audioBytes);
             RecognitionAudio recognitionAudio = RecognitionAudio.newBuilder()
@@ -128,8 +197,94 @@ public class WebRtcServiceImpl implements WebRtcService {
                 return "";
             }
         }
-//        catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+
+    // 텍스트로 변환한 음성을 요약해주는 기능
+    @Override
+    public String textSummary(String speechToText) {
+// 요약을 요청하는 프롬프트 생성
+        String prompt = String.format(
+                "다음 텍스트를 간결하게 요약해줘:\n\n%s\n\n요약:",
+                speechToText
+        );
+
+        try {
+            // 요청 바디 생성
+            ObjectNode requestBody = objectMapper.createObjectNode();
+            requestBody.put("model", "gpt-4o-mini");
+            requestBody.put("temperature", 0.7);
+
+            // messages 배열 생성 (대화형 요청)
+            ArrayNode messages = objectMapper.createArrayNode();
+            ObjectNode message = objectMapper.createObjectNode();
+            message.put("role", "user");
+            message.put("content", prompt);
+            messages.add(message);
+
+            // messages 배열을 requestBody에 추가
+            requestBody.set("messages", messages);
+
+            // 요청 바디를 JSON 문자열로 변환 (디버깅용 로그 출력 가능)
+            String requestBodyString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(requestBody);
+            System.out.println("Request Body: " + requestBodyString);
+
+            // 요청 바디 생성
+            RequestBody body = RequestBody.create(
+                    requestBodyString,
+                    MediaType.parse("application/json")
+            );
+
+            // OpenAI API 엔드포인트로 요청 생성
+            Request request = new Request.Builder()
+                    .url("https://api.openai.com/v1/chat/completions")
+                    .addHeader("Authorization", "Bearer " + openaiApiKey)
+                    .addHeader("Content-Type", "application/json")
+                    .post(body)
+                    .build();
+
+            // API 호출 및 응답 처리
+            try (Response response = client.newCall(request).execute()) {
+                String responseBody = response.body().string();
+                //System.out.println("Response Body: " + responseBody);
+
+                if (!response.isSuccessful()) {
+                    System.out.println("OpenAI API error: " + responseBody);
+                    throw new IOException("Unexpected code " + response);
+                }
+
+                // 응답 파싱
+                JsonNode responseJson = objectMapper.readTree(responseBody);
+                String content = responseJson
+                        .path("choices")
+                        .get(0)
+                        .path("message")
+                        .path("content")
+                        .asText()
+                        .trim();
+
+                // 코드 블록 제거 (예: ```json ... ```)
+                content = removeCodeBlock(content);
+
+                return content;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    /**
+     * 응답 내용에서 코드 블록을 제거하는 메소드
+     * 예: ```json\n[ ... ]\n```
+     */
+    private String removeCodeBlock(String content) {
+        // 정규 표현식을 사용하여 ```json과 ``` 제거
+        Pattern pattern = Pattern.compile("```json\\n([\\s\\S]*?)\\n```");
+        Matcher matcher = pattern.matcher(content);
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+        return content; // 코드 블록이 없을 경우 원본 반환
+    }
+
+
 }

@@ -137,5 +137,35 @@ public class SmsServiceImpl implements SmsService {
         }
 
     }
+
+    // 인증번호 전송하기
+    @Override
+    public ResponseEntity<?> sendMessage(String userPhone, String url) {
+
+        try {
+            DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(apiKey, secretKey, "https://api.coolsms.co.kr");
+            // Message 패키지가 중복될 경우 net.nurigo.sdk.message.model.Message로 치환하여 주세요
+            Message message = new Message();
+
+            message.setFrom(userPhone);
+            message.setTo(userPhone);
+            message.setText("[SafeConnect] 화상지원 URL" + "[" + url + "]");
+
+            // send 메소드로 ArrayList<Message> 객체를 넣어도 동작합니다!
+            messageService.send(message);
+            ResponseData<?> response = ResponseUtil.success("인증번호 송부됐습니다.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (NurigoMessageNotReceivedException exception) {
+            // 발송에 실패한 메시지 목록을 확인할 수 있습니다!
+            System.out.println(exception.getFailedMessageList());
+            System.out.println(exception.getMessage());
+            ResponseData<?> response = ResponseUtil.fail(500,"누리고 서버 문제입니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            ResponseData<?> response = ResponseUtil.fail(500,"서버 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }
 

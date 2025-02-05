@@ -10,6 +10,7 @@ import java.io.IOException;
 public interface WebRtcService {
     ResponseEntity<?> sendUrlMsg(String callerPhone) throws OpenViduJavaClientException, OpenViduHttpException;
     String speechToText(MultipartFile audioFile) throws IOException;
-
+    String textSummary(String speechToText);
+    String createStaffToken(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException;
 
 }

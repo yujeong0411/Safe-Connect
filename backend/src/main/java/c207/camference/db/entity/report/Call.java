@@ -27,12 +27,12 @@ public class Call {
     @JoinColumn(name="fire_staff_id")
     private FireStaff fireStaff;
 
-    @Column(name = "call_summary", nullable = false)
+    @Column(name = "call_summary")
     @Comment(value="신고 요약본")
     @Lob
     private String callSummary;
 
-    @Column(name = "call_text", nullable = false, length = 64)
+    @Column(name = "call_text", length = 64)
     @Comment(value="신고 내용")
     @Lob
     private String callText;
@@ -43,11 +43,11 @@ public class Call {
     private LocalDateTime callStartedAt;
 
 
-    @Column(name = "call_text_created_at", nullable = false)
+    @Column(name = "call_text_created_at")
     @Comment(value = "신고내용 작성 시간")
     private LocalDateTime callTextCreatedAt;
 
-    @Column(name = "call_finished_at", nullable = false)
+    @Column(name = "call_finished_at")
     @Comment(value = "신고 종료 시간")
     private LocalDateTime callFinishedAt;
 }

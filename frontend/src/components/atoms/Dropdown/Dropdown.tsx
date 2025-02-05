@@ -1,4 +1,3 @@
-// Dropdown.tsx
 import { useState, useRef, useEffect } from 'react';
 import { DropdownProps } from './Dropdown.types';
 
@@ -9,9 +8,8 @@ const Dropdown = ({
   placeholder = '선택하세요',
   label,
   disabled = false,
-  isMulti = true, // 다중 선택 여부
 }: DropdownProps) => {
-  const [inputValue, setInputValue] = useState(''); // 사용자 입력
+  const [_inputValue, setInputValue] = useState(''); // 사용자 입력
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,9 +17,8 @@ const Dropdown = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // 다중 선택을 위한 배열 처리
-  const selectedValues = Array.isArray(value) ? value : [value].filter(Boolean);
+  const selectedValues = value || [];
   const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
-
   // 검색어에 따른 필터링
   const filteredOptions = options.filter((option) =>
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -38,15 +35,13 @@ const Dropdown = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+
   const handleOptionClick = (optionValue: number) => {
-    if (isMulti) {
-      const newValues = selectedValues.includes(optionValue)
+    const newValues = selectedValues.includes(optionValue)
         ? selectedValues.filter((v) => v !== optionValue)
         : [...selectedValues, optionValue];
-      onChange(newValues);
-    } else {
-      onChange(optionValue);
-    }
+    onChange(newValues);
     setIsOpen(false);
     setSearchTerm('');
   };
@@ -54,7 +49,7 @@ const Dropdown = ({
   const handleRemoveOption = (optionValue: number, e: React.MouseEvent) => {
     e.stopPropagation();
     const newValues = selectedValues.filter((v) => v !== optionValue);
-    onChange(isMulti ? newValues : null);
+    onChange(newValues);
   };
 
   const [focusedIndex, setFocusedIndex] = useState(-1); // 현재 포커스된 항목의 인덱스

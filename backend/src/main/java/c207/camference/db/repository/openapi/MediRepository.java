@@ -1,4 +1,4 @@
-package c207.camference.db.repository.etc;
+package c207.camference.db.repository.openapi;
 
 import c207.camference.db.entity.etc.Medi;
 import org.springframework.data.jpa.repository.JpaRepository;

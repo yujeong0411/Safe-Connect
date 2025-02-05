@@ -2,10 +2,7 @@ package c207.camference.api.contoller.hospital;
 
 import c207.camference.api.service.hospital.HospitalService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -27,5 +24,9 @@ public class HosptialController {
         return hospitalService.getTransferAcceptedDetail(transferId);
     }
 
-
+    @PostMapping("/transfer/status")
+    public ResponseEntity<?> transferStatus(@RequestParam int patientId,
+                                            @RequestParam String status) {
+        return hospitalService.respondToTransfer(patientId, status);
+    }
 }
