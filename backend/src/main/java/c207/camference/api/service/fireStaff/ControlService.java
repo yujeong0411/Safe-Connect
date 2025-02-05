@@ -11,5 +11,7 @@ public interface ControlService {
     ResponseEntity<?> getUser(String callerPhone);
 
     ResponseEntity<?> getReadyDispatchGroups();
+
     ResponseEntity<?> updateCall(CallUpdateRequest request);
+
 }
