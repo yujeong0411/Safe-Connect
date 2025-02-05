@@ -8,10 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.NurigoApp;

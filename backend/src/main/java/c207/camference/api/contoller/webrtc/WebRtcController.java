@@ -1,5 +1,10 @@
 package c207.camference.api.contoller.webrtc;
 
+<<<<<<< HEAD
+=======
+import c207.camference.api.service.webrtc.WebRtcService;
+import c207.camference.api.service.webrtc.WebRtcServiceImpl;
+>>>>>>> 70c95d38cb34dd51e941b141ae356ce01b695d04
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.api.service.webrtc.WebRtcServiceImpl;
@@ -97,6 +102,7 @@ public class WebRtcController {
         ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
         Connection connection = session.createConnection(properties);
         System.out.println(connection.getToken());
+
         System.out.println(connection.getConnectionId());
 
         // 테스트용으로 우선 여기에 넣었다.
@@ -137,6 +143,11 @@ public class WebRtcController {
 
         //
 
+
+
+
         return ResponseEntity.ok().build();
     }
+
+
 }
