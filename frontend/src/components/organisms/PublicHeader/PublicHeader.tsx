@@ -10,17 +10,16 @@ const PublicHeader = ({ labels = [] }: PublicHeaderProps) => {
   // 경로에 따른 메인 페이지 이동
   const getMainPath = () => {
     if (location.pathname.includes('/hospital')) return '/hospital';
-    if (location.pathname.includes('/control')) return '/control';
+    if (location.pathname.includes('/Control')) return '/control';
     if (location.pathname.includes('/dispatch')) return '/dispatch';
     if (location.pathname.includes('/admin')) return '/admin';
     return '/user';
-
   };
 
   return (
     <header className="flex relative justify-between items-center pl-4 pr-10">
       <div onClick={() => navigate(getMainPath())}>
-        <Logo/>
+        <Logo />
       </div>
 
       <div className="flex gap-4">
