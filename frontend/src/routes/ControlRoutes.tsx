@@ -1,23 +1,27 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import PatientInfoPage from '@/pages/ControlPage/PatientInfoPage';
-import DispatchPage from '@/pages/ControlPage/DispatchPage';
+import { Routes, Route } from 'react-router-dom';
+import PrivateRoute from '@/routes/PrivateRoute.tsx';
+import PublicRoute from '@/routes/PublicRoute';
+import ControlPatientInfoPage from '@/pages/ControlPage/ControlPatientInfoPage';
+import ControlDispatchOrderPage from '@pages/ControlPage/ControlDispatchOrderPage.tsx';
 import ControlLoginPage from '@/pages/ControlPage/ControlLoginPage';
-import ControlLogPage from '@/pages/ControlPage/ControlLogPage';
+import ControlMainPage from '@/pages/ControlPage/ControlMainPage';
+import Maps from '@features/control/components/KakaoMap.tsx';
 
 const ControlRoutes = () => {
   return (
     <Routes>
-      {/* /Control로 접근시 /Control/main으로 리다이렉트 */}
-      <Route path="" element={<Navigate to="logs" replace />} />
+      {/*인증된 사용자*/}
+      <Route element={<PrivateRoute />}>
+        <Route path="main" element={<ControlMainPage />} />
+        <Route path="patient-info" element={<ControlPatientInfoPage />} />
+        <Route path="dispatch-order" element={<ControlDispatchOrderPage />} />
+      </Route>
 
-      {/* 메인 라우트들 */}
-      <Route path="login" element={<ControlLoginPage />} />
-      <Route path="patient-info" element={<PatientInfoPage />} />
-      <Route path="dispatch" element={<DispatchPage />} />
-      <Route path="logs" element={<ControlLogPage />} />
-
-      {/* 잘못된 경로로 접근시 메인으로 리다이렉트 */}
-      <Route path="*" element={<Navigate to="logs" replace />} />
+      {/*인증되지 않은 사용자*/}
+      <Route element={<PublicRoute />}>
+        <Route path="" element={<ControlLoginPage />} />
+        <Route path="map" element={<Maps />} />
+      </Route>
     </Routes>
   );
 };
