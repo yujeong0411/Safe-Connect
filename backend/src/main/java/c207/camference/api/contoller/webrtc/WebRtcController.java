@@ -7,20 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import org.springframework.web.multipart.MultipartFile;
 
 //@CrossOrigin(origins = "*")
 @RestController
@@ -183,6 +176,26 @@ public class WebRtcController {
 
         // 세션 ID 목록 반환
         return ResponseEntity.ok(sessionIds);
+    }
+
+    @DeleteMapping("/api/sessions/disconnect")
+    public ResponseEntity<String> deleteAllActiveSessions()
+            throws OpenViduJavaClientException, OpenViduHttpException {
+
+        // Get the list of active sessions
+        List<Session> activeSessions = openvidu.getActiveSessions();
+
+        // Close each active session
+        for (Session session : activeSessions) {
+            session.close();
+        }
+
+        // Extract and return session IDs that were closed
+        List<String> closedSessionIds = activeSessions.stream()
+                .map(Session::getSessionId)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok("Closed sessions: " + closedSessionIds);
     }
 
 }
