@@ -1,6 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
+import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
 import c207.camference.api.response.common.ResponseData;
@@ -254,7 +255,6 @@ public class ControlServiceImpl implements ControlService {
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCallRepository.save(videoCall);
 
-        System.out.println(videoCall);
 
         // ---
         // 영상통화 참여(video_call_user)레코드 생성
@@ -262,12 +262,37 @@ public class ControlServiceImpl implements ControlService {
         videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
         videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
-        // videoCallUser.setVideoCallUserId(); // 상황실 직원의 아이디가 들어가야 한다.
-        videoCallUser.setVideoCallId(caller.getCallerId()); // 일단은 신고자아이디
+        //videoCallUser.setVideoCallUserId(fireStaffLoginId); // 상황실 직원의 아이디가 들어가야 한다.
+        // videoCallUser.setVideoCallId(caller.getCallerId()); // 일단은 신고자아이디
         videoCallUserRepository.save(videoCallUser);
 
-        System.out.println(videoCallUser);
         
+        return null; // 여기 수정할것
+    }
+
+    @Override
+    public ResponseEntity<?> callEnd(CallEndRequest request) {
+        // 상황실 직원 아이디
+        String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 요청으로부터 신고(call)테이블의 신고ID 값 추출
+        Integer callId = request.getCallId();
+        System.out.println(callId);
+
+        Call call = callRepository.findById(callId).orElse(null);
+        if (call == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("신고 정보를 찾을 수 없습니다.");
+        }
+
+        // 신고(call) 종료시각(call_finished_at) 수정
+        call.setCallFinishedAt(LocalDateTime.now());
+        callRepository.save(call);
+
+        // ---
+
+        // 영상통화참여(video_call_user) 나간시간(video_call_out_at) 수정
+
+
+
         return null;
     }
 
