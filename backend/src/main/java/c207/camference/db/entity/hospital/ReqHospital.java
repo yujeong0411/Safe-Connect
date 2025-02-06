@@ -1,7 +1,7 @@
 package c207.camference.db.entity.hospital;
 
 
-import c207.camference.db.entity.firestaff.DispatchGroup;
+import c207.camference.db.entity.report.Dispatch;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -38,5 +38,5 @@ public class ReqHospital {
 
     @ManyToOne
     @JoinColumn(name = "dispatch_id", insertable = false, updatable = false)
-    private DispatchGroup dispatchGroup;
+    private Dispatch dispatch;
 }

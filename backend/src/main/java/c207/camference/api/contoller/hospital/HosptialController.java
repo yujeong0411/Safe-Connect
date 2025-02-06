@@ -31,7 +31,12 @@ public class HosptialController {
     }
 
     @GetMapping("/transfer_request")
-    public ResponseEntity<?> transferRequest(@RequestParam int hospitalId) {
-        return hospitalService.transferRequest(hospitalId);
+    public ResponseEntity<?> transferRequest() {
+        return hospitalService.transferRequest();
+    }
+
+    @GetMapping("/transfer_request/detail")
+    public ResponseEntity<?> transferRequestDetail(@RequestParam int dispatchId) {
+        return hospitalService.transferRequestDetail(dispatchId);
     }
 }

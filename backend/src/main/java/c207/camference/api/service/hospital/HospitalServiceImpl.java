@@ -2,10 +2,11 @@ package c207.camference.api.service.hospital;
 
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.hospital.AcceptTransferResponse;
+import c207.camference.api.response.hospital.TransferRequestResponse;
+import c207.camference.api.response.patient.PatientDetailResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
 import c207.camference.db.entity.hospital.Hospital;
-import c207.camference.db.entity.hospital.ReqHospital;
 import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.hospital.HospitalRepository;
@@ -113,18 +114,39 @@ public class HospitalServiceImpl implements HospitalService {
 
         throw new IllegalArgumentException("Invalid status: " + status);
     }
-    public ResponseEntity<?> transferRequest(int hospitalId){
+    public ResponseEntity<?> transferRequest(){
 
         try{
             String HospitalLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-            Hospital hospital = hospitalRepository.findByHospitalLoginId(HospitalLoginId)
-                    .orElseThrow(() -> new EntityNotFoundException(HospitalLoginId));
+            int hospitalId = hospitalRepository.findByHospitalLoginId(HospitalLoginId)
+                    .orElseThrow(() -> new EntityNotFoundException(HospitalLoginId)).getHospitalId();
 
-            List<ReqHospital> reqHospitals = reqHospitalRepository.findReqHospitalsByHospitalAndDispatch(hospital);
+            List<TransferRequestResponse> responses = TransferRequestResponse.of(hospitalId, reqHospitalRepository, patientRepository);
 
+            ResponseData<List> response = ResponseUtil.success(responses, "전체 조회 완료");
 
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (EntityNotFoundException e) {
+            System.out.println("EntityNotFoundException: " + e.getMessage());
+            ResponseData<Void> response = ResponseUtil.fail(404, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+            ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
 
-//            return ResponseEntity.status(HttpStatus.Ok).body(response);
+    }
+    public ResponseEntity<?> transferRequestDetail(int dispatchId){
+        try{
+            List<Patient> patients = patientRepository.findAllByDispatchId(dispatchId);
+
+            List<PatientDetailResponse> responses = patients.stream().map(patient -> new PatientDetailResponse(patient,userMediDetailRepository))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.status(HttpStatus.OK).body(responses);
+
         }catch (EntityNotFoundException e) {
             System.out.println("EntityNotFoundException: " + e.getMessage());
             ResponseData<Void> response = ResponseUtil.fail(404, e.getMessage());
