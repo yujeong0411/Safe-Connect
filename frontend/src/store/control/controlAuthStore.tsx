@@ -6,6 +6,8 @@ import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 export const useControlAuthStore = create<FireAuthStore>((set) => ({
   token: localStorage.getItem('accessToken'),
   isAuthenticated: !!localStorage.getItem('accessToken'),
+  userName : null,
+
 
   // 타입 변환 함수 추가
   login: async (data: FireLoginRequest) => {
@@ -25,6 +27,7 @@ export const useControlAuthStore = create<FireAuthStore>((set) => ({
     set({
       token: accessToken,
       isAuthenticated: true,
+      userName: data.fireStaffLoginId,
     });
   },
 
@@ -36,6 +39,7 @@ export const useControlAuthStore = create<FireAuthStore>((set) => ({
     set({
       token: null,
       isAuthenticated: false,
+      userName : null,
     });
     window.location.href = LOGIN_PATH.CONTROL
   },

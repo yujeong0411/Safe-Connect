@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
-import UserVideoComponent from './UserVideoComponent.tsx';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import { useEffect, useMemo, useState } from 'react';
+import UserVideoComponent from '@features/openvidu/component/UserVideoComponent.tsx';
 
 const VideoSessionUI: React.FC = () => {
   const {
@@ -11,49 +11,79 @@ const VideoSessionUI: React.FC = () => {
     joinSession
   } = useOpenViduStore();
 
+  const [isSessionReady, setIsSessionReady] = useState(false);
+
   useEffect(() => {
+    let isMounted = true;
+
     const initializeSession = async () => {
-      if (!session && sessionId) {
-        try {
+      try {
+        if (sessionId && !session) {
           await joinSession();
-        } catch (error) {
-          console.error('Failed to initialize session:', error);
+          if (isMounted) {
+            // 약간의 지연 후 준비 상태 설정
+            setTimeout(() => {
+              setIsSessionReady(true);
+            }, 1000);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to initialize session:', error);
+        if (isMounted) {
+          setIsSessionReady(false);
         }
       }
     };
 
     initializeSession();
-  }, [session, sessionId]);
 
-  // 다른 참가자들 (로컬 사용자 제외)
+    return () => {
+      isMounted = false;
+      setIsSessionReady(false);
+    };
+  }, [sessionId, joinSession]); // session 제거하고 joinSession 추가
+
+  // 다른 참가자들 필터링
   const otherParticipants = useMemo(() => {
-    return subscribers.filter(
-      (subscriber) =>
-        localUser &&
-        subscriber.stream.connection.connectionId !== localUser.connectionId
-    );
-  }, [subscribers, localUser]);
+    if (!isSessionReady || !session) return [];
 
-  // 메인 스트림 (다른 참가자 중 첫 번째, 없으면 null)
-  const mainStream = otherParticipants.length > 0
-    ? otherParticipants[0]
-    : null;
+    return subscribers.filter(subscriber => {
+      if (!localUser?.streamManager) return true;
+      return subscriber.stream.connection.connectionId !== localUser.streamManager.stream.connection.connectionId;
+    });
+  }, [subscribers, localUser, isSessionReady, session]);
+
+  // 메인 스트림
+  const mainStream = otherParticipants.length > 0 ? otherParticipants[0] : null;
+
+  // 세션이 준비되지 않았거나 초기화 중일 때
+  if (!isSessionReady || !session) {
+    return (
+      <div className="w-full h-full bg-gray-900 rounded-lg flex items-center justify-center">
+        <span className="text-gray-400">연결 중...</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex w-full h-screen">
-      {/* 메인 스트림 (왼쪽) */}
-      <div className="w-3/4 h-full">
-        {mainStream && (
+    <div className="flex w-full h-full relative">
+      {/* 메인 스트림 */}
+      <div className="w-full h-full">
+        {mainStream ? (
           <UserVideoComponent
             streamManager={mainStream}
             key={mainStream.stream.streamId}
           />
+        ) : (
+          <div className="w-full h-full bg-gray-900 rounded-lg flex items-center justify-center">
+            <span className="text-gray-400">대기 중...</span>
+          </div>
         )}
       </div>
 
-      {/* 로컬 사용자 (오른쪽 하단) */}
-      {localUser && localUser.streamManager && (
-        <div className="absolute bottom-4 right-4 w-1/6 aspect-video">
+      {/* 로컬 사용자 */}
+      {isSessionReady && localUser?.streamManager && (
+        <div className="absolute bottom-4 right-4 w-1/4 aspect-video">
           <UserVideoComponent
             streamManager={localUser.streamManager}
             key={localUser.streamManager.stream.streamId}
