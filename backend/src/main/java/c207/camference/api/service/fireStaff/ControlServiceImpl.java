@@ -43,7 +43,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -208,6 +210,14 @@ public class ControlServiceImpl implements ControlService {
     public ResponseEntity<?> createRoom(CallRoomRequest request) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("fireStaffLoginId: " + fireStaffLoginId);
+        Optional<FireStaff> fireStaffOpt = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId);
+
+        Integer fireStaffId = null;
+        if (fireStaffOpt.isPresent()) {
+            FireStaff fireStaff = fireStaffOpt.get();
+            fireStaffId = fireStaff.getFireStaffId();
+        }
 
         // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
@@ -231,12 +241,13 @@ public class ControlServiceImpl implements ControlService {
         }
 
         // ---
-        
+
         // 신고(call) 생성
+
         Call call = new Call();
-        //call.setFireStaff(1); // 02.06 : fireStaffId값은 어디에?
         call.setCallIsDispatched(false);
-        // call.setCallFinishedAt(LocalDateTime.now()); // nullabe = false로 고칠것
+        call.setFireStaff(fireStaffOpt.get());
+        System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
         call = callRepository.save(call);
 
         // ---
@@ -258,20 +269,27 @@ public class ControlServiceImpl implements ControlService {
         videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
         videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
-        videoCallUser.setVideoCallId(Integer.valueOf(fireStaffLoginId)); // 상황실 직원의 아이디가 들어가야 한다.
+        videoCallUser.setVideoCallId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
 
         videoCallUserRepository.save(videoCallUser);
 
-        
+
         return null; // 여기 수정할것
     }
 
     @Override
     public ResponseEntity<?> callEnd(CallEndRequest request) {
         // 상황실 직원 아이디
-        Integer fireStaffLoginId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<FireStaff> fireStaffOpt = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId);
 
-        // 요청으로부터 신고(call)테이블의 신고ID 값 추출
+        Integer fireStaffId = null;
+        if (fireStaffOpt.isPresent()) {
+            FireStaff fireStaff = fireStaffOpt.get();
+            fireStaffId = fireStaff.getFireStaffId();
+        }
+
+        // 신고(call) 종료시각(call_finished_at) 수정
         Integer callId = request.getCallId();
         System.out.println(callId);
 
@@ -280,18 +298,33 @@ public class ControlServiceImpl implements ControlService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("신고 정보를 찾을 수 없습니다.");
         }
 
-        // 신고(call) 종료시각(call_finished_at) 수정
         call.setCallFinishedAt(LocalDateTime.now());
+        System.out.println(call.toString()); // 디버그용
         callRepository.save(call);
 
         // ---
 
-        // 영상통화참여(video_call_user) 나간시간(video_call_out_at) 수정
-        videoCallUserRepository.findByVideoCallIdAndVideoCallOutAtIsNull(fireStaffLoginId);
+        // 영상통화참여(video_call_user) 의 나간시간(video_call_out_at) 수정
+        List<VideoCallUser> videoCallUsers = videoCallUserRepository
+                .findByVideoCallIdAndVideoCallOutAtIsNullAndVideoCall_Call_CallId(fireStaffId, callId);
 
+        if (videoCallUsers != null && !videoCallUsers.isEmpty()) {
+            for (VideoCallUser videoCallUser : videoCallUsers) {
+                videoCallUser.setVideoCallOutAt(LocalDateTime.now());
 
+                System.out.println(videoCallUser.toString()); // 디버그용
+                
+                videoCallUserRepository.save(videoCallUser);
+            }
+        }
 
-        return null;
+        // 응답 객체 구성 (예: Map을 사용)
+        Map<String, Object> response = new HashMap<>();
+        response.put("isSuccess", true);
+        response.put("code", 200);
+        response.put("message", "신고 종료 시각 수정 성공");
+
+        return ResponseEntity.ok(response);
     }
 
     // 활성화된 의약품/질환 목록 조회
