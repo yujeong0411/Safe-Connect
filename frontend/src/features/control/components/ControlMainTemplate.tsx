@@ -22,7 +22,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/control/login');
+      navigate('/control');
     } catch (error) {
       console.error('로그아웃 실패', error);
     }
@@ -36,19 +36,19 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       onModalOpen: () => setIsVideoModalOpen(true),
     },
     { label: '전화 업무', path: '#', hasModal: true, onModalOpen: () => setIsOpen(true) },
-    { label: '신고 업무', path: '/Control/patient-info' },
-    { label: '출동 지령', path: '/Control/dispatch-order' },
+    { label: '신고 업무', path: '/control/patient-info' },
+    { label: '출동 지령', path: '/control/dispatch-order' },
     {
       label: '보호자 알림',
       path: '#',
       hasModal: true,
       onModalOpen: () => setIsNotifyModalOpen(true),
     },
-    { label: '신고 목록', path: '/Control/main' },
+    { label: '신고 목록', path: '/control/main' },
   ];
 
   return (
-    <div className="mih-screen bg-bg flex flex-col">
+    <div className="mih-h-screen bg-bg flex flex-col">
       <div className="-space-y-4">
         <PublicHeader
           labels={[

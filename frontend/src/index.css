@@ -127,3 +127,28 @@
     @apply bg-background text-foreground;
     }
 }
+
+
+@layer utilities {
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+
+    .hide-scrollbar {
+        scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;  /* IE and Edge */
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;  /* Chrome, Safari, Opera */
+    }
+}

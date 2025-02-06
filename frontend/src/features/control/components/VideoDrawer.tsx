@@ -16,7 +16,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       {/* 왼쪽 패널 - top 위치를 헤더 높이만큼 내림 */}
       <div
         className={`
-          fixed left-0 h-full bg-bg overflow-y-auto z-50
+          fixed left-0 h-[calc(100vh-8rem)] bg-bg overflow-y-auto z-50
           transform transition-all duration-300 ease-in-out
           top-50
           ${isOpen ? 'w-1/2 translate-x-0' : 'w-0 -translate-x-full'}

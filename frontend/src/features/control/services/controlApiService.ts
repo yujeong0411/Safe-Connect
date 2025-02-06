@@ -5,8 +5,10 @@ import {
   ProtectorMessageResponse,
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
+import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
 
 export const patientService = {
+  // 신고자 전화번호 검색
   searchByPhone: async (phone: string): Promise<PatientResponse> => {
     try {
       console.log('API 호출 전화번호:', phone);
@@ -26,6 +28,7 @@ export const patientService = {
     }
   },
 
+  // 환자 정보 저장
   savePatientInfo: async (info: CallInfo): Promise<PatientResponse> => {
     try {
       console.log('저장할 정보:', info);
@@ -43,6 +46,7 @@ export const patientService = {
 };
 
 export const controlService = {
+  // 신고 전체 조회
   fetchCallList: async (): Promise<CallListResponse> => {
     try {
       console.log('API 호출 시작');
@@ -64,6 +68,7 @@ export const controlService = {
     }
   },
 
+  // 신고 상세 조회
   fetchCallDetail: async (callId: number): Promise<CallListResponse> => {
     try {
       const response = await axiosInstance.get<CallListResponse>('/control/call/detail', {
@@ -77,6 +82,7 @@ export const controlService = {
   },
 };
 
+// 상황실 보호자 알림.
 export const protectorService = {
   sendProtectorMessage: async (callerPhone: string): Promise<ProtectorMessageResponse> => {
     try {
@@ -90,3 +96,30 @@ export const protectorService = {
     }
   },
 };
+
+// 가용 가능한 출동 그룹 조회
+export const fetchDispatchGroups = async () => {
+  try{
+    const response = await axiosInstance.get<DispatchGroupResponse>('/control/dispatch_group')
+    console.log("소방팀 조회", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('소방팀 조회 실패', error)
+    throw error;
+  }
+}
+
+// 출동 지령
+export const dispatchOrder = {
+  // 출동 지령 내리기
+  orderDispatch: async (dispatchGroupId:number) => {
+    try {
+      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group/order', {dispatchGroupId})
+      return response.data;
+    } catch (error: any) {
+      console.error('출동 지령 실패', error)
+      throw error;
+    }
+  },
+
+}
