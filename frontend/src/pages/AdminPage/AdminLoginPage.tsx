@@ -16,7 +16,7 @@ const AdminLoginPage = () => {
             UserPassword: 'adminPassword',
           }}
           loginStore={login}
-          onSuccess={() => navigate('/admin/serviceall')}
+          onSuccess={() => navigate('/admin/main')}
         />
       </LoginTemplate>
     </div>

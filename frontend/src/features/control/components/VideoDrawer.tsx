@@ -18,6 +18,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       <div
         className={`
           left-0 h-full bg-bg overflow-y-auto z-50
+          fixed left-0 h-[calc(100vh-8rem)] bg-bg overflow-y-auto z-50
           transform transition-all duration-300 ease-in-out
           top-50
           ${isOpen ? 'w-1/2' : 'w-0'}

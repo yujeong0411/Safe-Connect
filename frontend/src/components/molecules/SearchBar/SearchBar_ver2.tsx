@@ -6,8 +6,14 @@ const SearchBar_ver2 = ({
   buttonText = '검색',
   onSearch,
   className,
+    formatValue,
 }: SearchBarProps) => {
   const [value, setValue] = useState('');
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = formatValue ? formatValue(e.target.value) : e.target.value;
+        setValue(newValue);
+    };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,7 +23,7 @@ const SearchBar_ver2 = ({
     <form onSubmit={handleSubmit} className={`flex gap-5 w-full ${className}`}>
       <input
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={handleChange}
         placeholder={placeholder}
         className="flex-1 h-10 px-4 bg-white border border-black  focus:border-focus focus:ring-1 text-base focus:outline-none rounded max-w-full w-full" // h-10은 40px
       />

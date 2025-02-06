@@ -15,7 +15,7 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[700px] w-[90%] max-h-[90vh] overflow-y-auto p-8 bg-bg">
+      <DialogContent className="max-w-[700px] w-[90%] max-h-[90vh] overflow-y-auto p-8 bg-dialog_color">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">신고 상세내역</DialogTitle>
         </DialogHeader>

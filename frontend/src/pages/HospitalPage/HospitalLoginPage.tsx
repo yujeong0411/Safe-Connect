@@ -15,7 +15,7 @@ const HospitalLoginPage = () => {
             UserPassword: 'hospitalPassword',
           }}
           loginStore={login}
-          onSuccess={() => navigate('/hospital/request')}
+          onSuccess={() => navigate('/hospital/main')}
         />
       </LoginTemplate>
     </div>

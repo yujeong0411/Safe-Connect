@@ -12,4 +12,5 @@ export interface SearchBarProps {
   error?: string;
   onButtonClick?: () => void;
   className?: string;
+  formatValue?:(value: string) => string;
 }

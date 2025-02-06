@@ -5,4 +5,5 @@ export const LOGIN_PATH = {
     HOSPITAL:'/hospital',
     CONTROL:'/control',
     DISPATCH:'/dispatch',
+    ADMIN:'/admin',
 } as const;
