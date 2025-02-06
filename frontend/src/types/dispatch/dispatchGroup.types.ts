@@ -1,7 +1,8 @@
 // 구급대 그룹 정보를 나타내는 인터페이스
 export interface DispatchGroup {
-  dispatchDeptId: number;  // 소방서 
-  dispatchGroupId: number;  // 그룹
+  fireDeptId: number;
+  dispatchGroupId: number;
+  fireDeptName: string;
 }
 
 

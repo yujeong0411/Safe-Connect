@@ -8,6 +8,7 @@ export default {
         bg: '#F3F5F9',
         banner: '#545F71',
         dialog_color: '#F8F8F8',
+        dialog_content: '#EBEDF3',
         graybtn: '#DDDDDD',
         focus: '#545F71',
         background: 'hsl(var(--background))',

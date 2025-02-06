@@ -5,7 +5,8 @@ import { useControlAuthStore } from '@/store/control/controlAuthStore.tsx';
 
 const ControlLoginPage = () => {
   const navigate = useNavigate();
-  const login = useControlAuthStore();
+  const {login} = useControlAuthStore();
+
 
   return (
     <div>
@@ -15,7 +16,7 @@ const ControlLoginPage = () => {
             UserId: 'fireStaffLoginId',
             UserPassword: 'fireStaffPassword',
           }}
-          loginStore={login}
+          loginStore={{login}}
           onSuccess={() => navigate('/control/main')}
         />
       </LoginTemplate>
