@@ -21,7 +21,7 @@ const PublicRoute = () => {
 
   // 각 도메인별 메인 페이지 경로 반환
   const getRedirectPath = () => {
-    if (path.includes('/hospital')) return '/hospital/main';
+    if (path.includes('/hospital')) return '/hospital/request';
     if (path.includes('/control')) return '/control/main';
     if (path.includes('/dispatch')) return '/dispatch/main';
     if (path.includes('/admin')) return '/admin/main';

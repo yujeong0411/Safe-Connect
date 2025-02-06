@@ -30,7 +30,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
   const navItems = [
     {
-      label: '영상 URL 생성',
+      label: '영상통화 생성',
       path: '#',
       hasModal: true,
       onModalOpen: () => setIsVideoModalOpen(true),
@@ -44,7 +44,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       hasModal: true,
       onModalOpen: () => setIsNotifyModalOpen(true),
     },
-    { label: '신고 목록', path: '/control/main' },
+    { label: '신고 내역', path: '/control/main' },
   ];
 
   return (
@@ -61,7 +61,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
         />
         <NavBar navItems={navItems} />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 min-h-[calc(100vh-100px)]">
         <VideoCallDrawer>{children}</VideoCallDrawer>
       </div>
       <VideoCallCreateDialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen} />

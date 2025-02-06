@@ -16,6 +16,7 @@ const CallRecordForm = () => {
   const [isCallDetailOpen, setIsCallDetailOpen] = React.useState(false);
   const { callList, callDetail, fetchCallList, fetchCallDetail } = useCallListStore();
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
+  const [is24HourFilter, setIs24HourFilter] = useState(false);
 
   useEffect(() => {
     fetchCallList();
@@ -33,6 +34,20 @@ const CallRecordForm = () => {
     { key: 'callSummary', header: '신고 요약' },
   ];
 
+  // 24시간 이내 필터링
+  const filteredCallList = useMemo(() => {
+    if (!is24HourFilter) return callList;
+
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours()-24);
+
+    return callList.filter(call => {
+      const callTime = new Date(call.callStartedAt)
+      return callTime >= twentyFourHoursAgo;
+    });
+  }, [callList, is24HourFilter]);
+
+
   // 열 클릭 시 디테일 연결
   const handleRowClick = async (data: CallRecord) => {
     try {
@@ -47,13 +62,14 @@ const CallRecordForm = () => {
   const itemsPerPage = 10;
 
   // 전체 페이지 수 (전체 항목 수/한 페이지당 수)
-  const totalPages = Math.ceil(callList.length / itemsPerPage);
+  //const totalPages = Math.ceil(callList.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredCallList.length / itemsPerPage);
 
   // 현재 페이지의 데이터만 필터링
   const currentItems = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return callList.slice(startIndex, startIndex + itemsPerPage);
-  }, [callList, currentPage]);
+    return filteredCallList.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredCallList, currentPage]);
 
   // 페이지 변경
   const handlePageChange = (pageNumber: number) => {
@@ -63,12 +79,12 @@ const CallRecordForm = () => {
   return (
     <div className="p-6">
       <div className="space-y-6">
-        <div className="bg-white rounded-lg p-4">
+        <div className="bg-white rounded-lg p-6 min-h-[42rem]">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">신고접수 목록</h2>
+            <h2 className="text-xl font-bold">신고 내역</h2>
             <div className="flex items-center">
-              <span className="text-sm text-gray-600">24시간 이내</span>
-              <input type="checkbox" className="ml-2" />
+              <span className="text-md text-gray-900">24시간 이내</span>
+              <input type="checkbox" checked={is24HourFilter} onChange={() => setIs24HourFilter(!is24HourFilter)} className="ml-2 w-4 h-4" />
             </div>
           </div>
 
