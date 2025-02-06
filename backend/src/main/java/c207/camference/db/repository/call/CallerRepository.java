@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CallerRepository extends JpaRepository<Caller, Integer> {
+    Caller findByCallerPhone(String callerPhone);
 }
