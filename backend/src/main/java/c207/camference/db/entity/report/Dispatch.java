@@ -2,7 +2,10 @@ package c207.camference.db.entity.report;
 
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -10,6 +13,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="dispatch")
 public class Dispatch {
 

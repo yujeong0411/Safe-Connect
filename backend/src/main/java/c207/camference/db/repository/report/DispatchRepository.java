@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface DispatchRepository extends JpaRepository<Dispatch, Integer> {
     List<Dispatch> findByDispatchGroup(DispatchGroup dispatchGroup);
     Optional<Dispatch> findByDispatchId(int dispatchId);
+
+    Optional<Dispatch> findByDispatchGroupId(int dispatchGroupId);
+
 }
