@@ -26,7 +26,7 @@ public class VideoCall {
     @Comment(value = "신고ID")
     private Integer callId;
 
-    @Column(name = "dispatch_id", nullable = false)
+    @Column(name = "dispatch_id")
     @Comment(value = "출동 ID")
     private Integer dispatchId;
 

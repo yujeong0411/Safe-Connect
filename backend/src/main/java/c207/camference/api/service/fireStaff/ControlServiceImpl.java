@@ -8,6 +8,8 @@ import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.user.ControlUserResponse;
 import c207.camference.db.entity.call.Caller;
+import c207.camference.db.entity.call.VideoCall;
+import c207.camference.db.entity.call.VideoCallUser;
 import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.FireDept;
@@ -17,6 +19,8 @@ import c207.camference.db.entity.users.User;
 import c207.camference.db.entity.users.UserMediDetail;
 import c207.camference.db.entity.users.UserMediMapping;
 import c207.camference.db.repository.call.CallerRepository;
+import c207.camference.db.repository.call.VideoCallRepository;
+import c207.camference.db.repository.call.VideoCallUserRepository;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.FireDeptRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
@@ -54,6 +58,8 @@ public class ControlServiceImpl implements ControlService {
     private final DispatchGroupRepository dispatchGroupRepository;
     private final UserMediDetailRepository userMediDetailRepository;
     private final CallerRepository callerRepository;
+    private final VideoCallUserRepository videoCallUserRepository;
+    private final VideoCallRepository videoCallRepository;
 
 
     @Override
@@ -201,8 +207,12 @@ public class ControlServiceImpl implements ControlService {
     }
 
     // 상황실 직원이 '영상통화방 생성 및 url 전송' 버튼을 눌렀을 시
+    // 신고자(caller), 신고(call), 영상통화(video_call), 영상통화 참여(video_call_user) 레코드 생성
     @Override
     public ResponseEntity<?> createRoom(CallRoomRequest request) {
+        // 상황실 직원 아이디
+        String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+
         // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
         Caller caller = callerRepository.findByCallerPhone(callerPhone);
@@ -228,7 +238,9 @@ public class ControlServiceImpl implements ControlService {
 
         }
 
-        // 영상통화(video_call)에 insert
+        // ---
+        
+        // 신고(call) 생성
         Call call = new Call();
         //call.setFireStaff(1); // 02.06 : fireStaffId값은 어디에?
         call.setCallIsDispatched(false);
@@ -236,15 +248,35 @@ public class ControlServiceImpl implements ControlService {
         call.setCallFinishedAt(LocalDateTime.now()); // nullabe = false로 고칠것
         call = callRepository.save(call);
 
-        System.out.println(call.toString());
+        // System.out.println(call.toString());
 
-        // 영상통화 참여(video_call_user)테이블 생성
-
-
+        // ---
         // URL 전송 (추후 webrtc 기능 develop에 추가되면 수정)
 
+        // ---
 
+        // 영상통화(video_call) 생성
+        VideoCall videoCall = new VideoCall();
+        videoCall.setCallId(call.getCallId());
+        videoCall.setVideoCallUrl("http://localhost:5173/openvidu/join/{sessionId}?direct=true"); // 해당 메서드 완성전까지는 일단 하드코딩(2025.02.06)
+        videoCall.setVideoCallIsActivate(true);
+        videoCall.setVideoCallCreatedAt(LocalDateTime.now());
+        videoCallRepository.save(videoCall);
 
+        System.out.println(videoCall.toString());
+
+        // ---
+        // 영상통화 참여(video_call_user)레코드 생성
+        VideoCallUser videoCallUser = new VideoCallUser();
+        videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
+        videoCallUser.setVideoCallUserCategory("C");
+        videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
+        // videoCallUser.setVideoCallUserId(); // 상황실 직원의 아이디가 들어가야 한다.
+        videoCallUser.setVideoCallId(caller.getCallerId()); // 일단은 신고자아이디
+        videoCallUserRepository.save(videoCallUser);
+
+        System.out.println(videoCallUser.toString());
+        
         return null;
     }
 }

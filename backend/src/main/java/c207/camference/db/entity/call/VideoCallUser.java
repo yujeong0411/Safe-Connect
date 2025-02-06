@@ -39,6 +39,6 @@ public class VideoCallUser {
     private LocalDateTime videoCallOutAt=null;
 
     @ManyToOne
-    @JoinColumn(name = "video_call_id", insertable = false, updatable = false)
+    @JoinColumn(name = "video_call_room_id", insertable = false, updatable = false)
     private VideoCall videoCall;
 }
