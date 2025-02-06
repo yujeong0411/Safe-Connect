@@ -236,11 +236,8 @@ public class ControlServiceImpl implements ControlService {
         Call call = new Call();
         //call.setFireStaff(1); // 02.06 : fireStaffId값은 어디에?
         call.setCallIsDispatched(false);
-        call.setCallStartedAt(LocalDateTime.now());
-        call.setCallFinishedAt(LocalDateTime.now()); // nullabe = false로 고칠것
+        // call.setCallFinishedAt(LocalDateTime.now()); // nullabe = false로 고칠것
         call = callRepository.save(call);
-
-        // System.out.println(call.toString());
 
         // ---
         // URL 전송 (추후 webrtc 기능 develop에 추가되면 수정)
@@ -255,15 +252,14 @@ public class ControlServiceImpl implements ControlService {
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCallRepository.save(videoCall);
 
-
         // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
         videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
-        //videoCallUser.setVideoCallUserId(fireStaffLoginId); // 상황실 직원의 아이디가 들어가야 한다.
-        // videoCallUser.setVideoCallId(caller.getCallerId()); // 일단은 신고자아이디
+        videoCallUser.setVideoCallId(Integer.valueOf(fireStaffLoginId)); // 상황실 직원의 아이디가 들어가야 한다.
+
         videoCallUserRepository.save(videoCallUser);
 
         
@@ -273,7 +269,8 @@ public class ControlServiceImpl implements ControlService {
     @Override
     public ResponseEntity<?> callEnd(CallEndRequest request) {
         // 상황실 직원 아이디
-        String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer fireStaffLoginId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
         // 요청으로부터 신고(call)테이블의 신고ID 값 추출
         Integer callId = request.getCallId();
         System.out.println(callId);
@@ -290,6 +287,7 @@ public class ControlServiceImpl implements ControlService {
         // ---
 
         // 영상통화참여(video_call_user) 나간시간(video_call_out_at) 수정
+        videoCallUserRepository.findByVideoCallIdAndVideoCallOutAtIsNull(fireStaffLoginId);
 
 
 
