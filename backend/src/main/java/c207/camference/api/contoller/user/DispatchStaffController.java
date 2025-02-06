@@ -1,15 +1,9 @@
 package c207.camference.api.contoller.user;
 
-import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
+import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.service.fireStaff.DispatchStaffService;
-import c207.camference.util.response.ResponseUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/dispatch_staff")
@@ -45,6 +39,11 @@ public class DispatchStaffController {
     @GetMapping("/emergency_rooms/request/detail")
     public ResponseEntity<?> emergencyRoomsRequestDetail(@RequestParam int dispatchId){
         return dispatchStaffService.getReqHospital(dispatchId);
+    }
+
+    @PostMapping("/transfer/update")
+    public ResponseEntity<?> transferUpdate(@RequestBody TransferUpdateRequest request) {
+        return dispatchStaffService.transferUpdate(request);
     }
 
 }
