@@ -139,6 +139,7 @@ public class ControlServiceImpl implements ControlService {
                 .map(dispatchGroup -> DispatchGroupResponse.builder()
                         .dispatchGroupId(dispatchGroup.getDispatchGroupId())
                         .fireDeptId(dispatchGroup.getFireDeptId())
+                        .fireDeptName(dispatchGroup.getFireDept().getFireDeptName())
                         .build())
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(ResponseUtil.success(response, "가용 가능한 소방팀 목록 조회 성공"));

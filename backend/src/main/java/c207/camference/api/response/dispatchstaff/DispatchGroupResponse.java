@@ -13,5 +13,6 @@ public class DispatchGroupResponse {
 
     private Integer dispatchGroupId;
     private Integer fireDeptId;
+    private String fireDeptName;
 
 }
