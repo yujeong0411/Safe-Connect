@@ -1,7 +1,9 @@
 package c207.camference.api.contoller.webrtc;
 
+
 import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.api.service.webrtc.WebRtcServiceImpl;
+
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.webrtc.WebRtcService;
 import io.openvidu.java.client.*;
@@ -145,19 +147,19 @@ public class WebRtcController {
     // 영상통화방 URL 전송
     // 이때 신고자(caller), 신고 테이블(call), 영상통화(video_call),영상통화참여(video_call_user) insert
     //
-    @PostMapping("/control/video")
-    public ResponseEntity<?> sendUrl(@RequestParam("callerPhone") String callerPhone) throws OpenViduJavaClientException, OpenViduHttpException {
-        webRtcService.sendUrlMsg(callerPhone); //영상통화방 URL 전송
-
-        // 신고자 컬럼 생성
-
-        //
-
-
-
-
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/control/video")
+//    public ResponseEntity<?> sendUrl(@RequestParam("callerPhone") String callerPhone) throws OpenViduJavaClientException, OpenViduHttpException {
+//        webRtcService.sendUrlMsg(callerPhone); //영상통화방 URL 전송
+//
+//        // 신고자 컬럼 생성
+//
+//        //
+//
+//
+//
+//
+//        return ResponseEntity.ok().build();
+//    }
 
 
 

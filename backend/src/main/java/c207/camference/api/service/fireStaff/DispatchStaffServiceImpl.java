@@ -1,7 +1,9 @@
 package c207.camference.api.service.fireStaff;
 
+import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
+import c207.camference.api.response.dispatchstaff.TransferUpdateResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
@@ -11,7 +13,6 @@ import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.hospital.Hospital;
-import c207.camference.db.entity.hospital.ReqHospital;
 import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
@@ -30,7 +31,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 import org.modelmapper.ModelMapper;
@@ -42,10 +42,9 @@ import org.springframework.stereotype.Service;
 
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.openvidu.java.client.ConnectionProperties.DefaultValues.data;
 
 @Service
 @RequiredArgsConstructor
@@ -239,4 +238,17 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         }
     }
 
+    @Override
+    public ResponseEntity<?> transferUpdate(TransferUpdateRequest request) {
+        Transfer transfer = transferRepository.findByTransferId(request.getTransferId())
+                .orElseThrow(() -> new RuntimeException("일치하는 이송 내역이 없습니다."));
+
+        transfer.setTransferIsComplete(true);
+        transfer.setTransferArriveAt(LocalDateTime.now());
+        transferRepository.save(transfer);
+
+        TransferUpdateResponse response = new TransferUpdateResponse(transfer);
+
+        return ResponseEntity.ok().body(ResponseUtil.success(response, "병원 인계여부 수정 성공"));
+    }
 }

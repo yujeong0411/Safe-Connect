@@ -223,7 +223,8 @@ public class OpenApiServiceImpl implements OpenApiService {
             while (true) {
                 String urlStr = medicationUrl + "?serviceKey=" + serviceKey +
                         "&pageNo=" + pageNo + "&numOfRows=" + numOfRows + "&type=" + dataType;
-                String response = OpenApiUtil.getHttpResponse(urlStr);
+//                String response = OpenApiUtil.getHttpResponse(urlStr);
+                String response = new String(OpenApiUtil.getHttpResponse(urlStr).getBytes("ISO-8859-1"), "UTF-8");
 
                 JsonNode root = objectMapper.readTree(response);
                 JsonNode itemsArray = root.path("body").path("items");
