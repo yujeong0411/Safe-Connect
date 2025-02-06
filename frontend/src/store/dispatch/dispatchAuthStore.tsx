@@ -6,6 +6,9 @@ import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 export const useDispatchAuthStore = create<FireAuthStore>((set) => ({
   token: localStorage.getItem('accessToken'),
   isAuthenticated: !!localStorage.getItem('accessToken'),
+  userName : null,
+
+  // setUserName: (value: string) => set({ userName: value }),
 
   // 타입 변환 함수 추가
   login: async (data: FireLoginRequest) => {

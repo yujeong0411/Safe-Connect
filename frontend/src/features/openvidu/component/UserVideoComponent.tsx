@@ -1,29 +1,26 @@
-import { Component } from 'react';
-import OpenViduVideoComponent from './OvVideo.tsx';
+import { useEffect, useRef } from 'react';
 import { StreamManager } from 'openvidu-browser';
-import '@/styles/UserVideo.css';
 
-interface  Props {
+interface Props {
     streamManager: StreamManager;
 }
 
-export default class UserVideoComponent extends Component<Props> {
+const UserVideoComponent = ({ streamManager }: Props) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
 
-    getNicknameTag() {
-        // Gets the nickName of the user
-        return JSON.parse(this.props.streamManager.stream.connection.data).clientData;
-    }
+    useEffect(() => {
+        if (streamManager && videoRef.current) {
+            streamManager.addVideoElement(videoRef.current);
+        }
+    }, [streamManager]);
 
-    render() {
-        return (
-            <div>
-                {this.props.streamManager !== undefined ? (
-                    <div className="streamcomponent">
-                        <OpenViduVideoComponent streamManager={this.props.streamManager} />
-                        <div><p>{this.getNicknameTag()}</p></div>
-                    </div>
-                ) : null}
-            </div>
-        );
-    }
-}
+    return (
+      <video
+        autoPlay
+        ref={videoRef}
+        className="w-full h-full object-cover rounded-lg"
+      />
+    );
+};
+
+export default UserVideoComponent;

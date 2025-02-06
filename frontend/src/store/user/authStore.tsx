@@ -11,6 +11,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: !!localStorage.getItem('token'), // 토큰 존재 여부로 인증 상태 초기화
   userEmail: '',
 
+  setAuthenticated: (value: boolean) => set({ isAuthenticated: value }),
   // 로그인
   login: async (data: EmailLoginRequest) => {
     // 벡엔드에서 form-data 형식으로 받음.

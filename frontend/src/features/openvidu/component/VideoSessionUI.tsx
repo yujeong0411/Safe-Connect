@@ -1,63 +1,42 @@
-import React, { useEffect, useMemo } from 'react';
-import UserVideoComponent from './UserVideoComponent.tsx';
+import UserVideoComponent from './UserVideoComponent';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import { useEffect, useState } from 'react';
+import { Subscriber } from 'openvidu-browser';
 
-const VideoSessionUI: React.FC = () => {
-  const {
-    session,
-    sessionId,
-    localUser,
-    subscribers,
-    joinSession
-  } = useOpenViduStore();
+const VideoSessionUI = () => {
+  const { publisher, subscribers, localUser } = useOpenViduStore();
+  const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
 
   useEffect(() => {
-    const initializeSession = async () => {
-      if (!session && sessionId) {
-        try {
-          await joinSession();
-        } catch (error) {
-          console.error('Failed to initialize session:', error);
-        }
-      }
+    // 자신의 스트림을 제외한 subscribers만 필터링
+    const filterSubscribers = () => {
+      const filtered = subscribers.filter(sub => {
+        // localUser의 connectionId와 다른 것만 포함
+        return sub.stream?.connection?.connectionId !== localUser?.connectionId;
+      });
+      setFilteredSubscribers(filtered);
     };
 
-    initializeSession();
-  }, [session, sessionId]);
+    filterSubscribers();
+    // 주기적으로 체크
+    const interval = setInterval(filterSubscribers, 2000);
 
-  // 다른 참가자들 (로컬 사용자 제외)
-  const otherParticipants = useMemo(() => {
-    return subscribers.filter(
-      (subscriber) =>
-        localUser &&
-        subscriber.stream.connection.connectionId !== localUser.connectionId
-    );
+    return () => clearInterval(interval);
   }, [subscribers, localUser]);
 
-  // 메인 스트림 (다른 참가자 중 첫 번째, 없으면 null)
-  const mainStream = otherParticipants.length > 0
-    ? otherParticipants[0]
-    : null;
-
   return (
-    <div className="flex w-full h-screen">
-      {/* 메인 스트림 (왼쪽) */}
-      <div className="w-3/4 h-full">
-        {mainStream && (
-          <UserVideoComponent
-            streamManager={mainStream}
-            key={mainStream.stream.streamId}
-          />
-        )}
-      </div>
+    <div className="w-full h-full relative">
+      {/* 다른 참가자들의 비디오 (전체 화면) */}
+      {filteredSubscribers.length > 0 && filteredSubscribers.map((sub) => (
+        <div key={sub.stream.streamId} className="w-full h-full">
+          <UserVideoComponent streamManager={sub} />
+        </div>
+      ))}
 
-      {/* 로컬 사용자 (오른쪽 하단) */}
-      {localUser && localUser.streamManager && (
-        <div className="absolute bottom-4 right-4 w-1/6 aspect-video">
-          <UserVideoComponent
-            streamManager={localUser.streamManager}
-            key={localUser.streamManager.stream.streamId}
-          />
+      {/* 자신의 화면 (오른쪽 아래 작은 화면) */}
+      {publisher && (
+        <div className="absolute bottom-4 right-4 w-48 h-36 rounded-lg overflow-hidden shadow-lg">
+          <UserVideoComponent streamManager={publisher} />
         </div>
       )}
     </div>
