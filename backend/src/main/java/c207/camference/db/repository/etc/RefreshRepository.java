@@ -32,13 +32,12 @@ public interface RefreshRepository extends CrudRepository<Refresh, String> {
     }
 
     default void deleteByUsernameAndRole(String username, String role, JWTUtil jwtUtil) {
-        Iterable<Refresh> all = findAll();
-        for (Refresh token : all) {
-            if (token.getUsername().equals(username) && jwtUtil.getRole(token.getRefresh()).equals(role)) {
+        for (Refresh token : findAll()) {
+            if (token != null &&
+                    token.getUsername().equals(username) &&
+                    jwtUtil.getRole(token.getRefresh()).equals(role)) {
                 delete(token);
             }
         }
     }
-
-
 }

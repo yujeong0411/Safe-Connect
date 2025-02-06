@@ -6,8 +6,8 @@ export interface AdminAuthStore {
 }
 
 export interface AdminLoginRequest {
-  AdminUserId: string;
-  AdminUserPassword: string;
+  adminLoginId: string;
+  adminPassword: string;
 }
 
 // 소방청 생성 요청 인터페이스

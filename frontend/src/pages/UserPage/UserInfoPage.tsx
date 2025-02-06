@@ -9,7 +9,7 @@ import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
 
 const UserInfoPage = () => {
   const { loadUserInfo } = useLoadUserInfo('user');
-  const { updateUserInfo } = useAuthStore();
+  const { updateUserInfo, logout } = useAuthStore();
   const { formData, validateFields } = useSignupStore();
 
   // 정보 가져오기
@@ -57,6 +57,7 @@ const UserInfoPage = () => {
         { label: '의료 정보 수정', path: '/user/medi' },
         { label: '비밀번호 수정', path: '/user/updatepassword' },
       ]}
+      logoutDirect={logout}
     >
       <UserInfoTemplate
         title="개인 정보 수정"

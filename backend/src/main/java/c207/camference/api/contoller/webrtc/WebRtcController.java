@@ -1,19 +1,20 @@
 package c207.camference.api.contoller.webrtc;
 
-<<<<<<< HEAD
-=======
 import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.api.service.webrtc.WebRtcServiceImpl;
->>>>>>> 70c95d38cb34dd51e941b141ae356ce01b695d04
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.webrtc.WebRtcService;
-import c207.camference.api.service.webrtc.WebRtcServiceImpl;
+import io.openvidu.java.client.*;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import java.util.*;
@@ -37,9 +38,11 @@ import io.openvidu.java.client.OpenViduJavaClientException;
 import io.openvidu.java.client.Session;
 import io.openvidu.java.client.SessionProperties;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.stream.Collectors;
 
 //@CrossOrigin(origins = "*")
 @RestController
+@Log4j2
 public class WebRtcController {
     @Value("${OPENVIDU_URL}")
     private String OPENVIDU_URL;
@@ -76,30 +79,36 @@ public class WebRtcController {
     public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
 
-        System.out.println(params);
+        String customSessionId = params != null ? (String) params.get("customSessionId") : null;
 
-        SessionProperties properties = SessionProperties.fromJson(params).build();
+        SessionProperties properties = new SessionProperties.Builder()
+                .customSessionId(customSessionId)
+                .build();
+
         Session session = openvidu.createSession(properties);
         System.out.println(session.getSessionId()); // 테스트용
 
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 
-    /**
-     * @param sessionId The Session in which to create the Connection
-     * @param params    The Connection properties
-     * @return The Token associated to the Connection
-     */
     @PostMapping("/api/sessions/{sessionId}/connections")
     public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
                                                    @RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
-        System.out.println(params);
         Session session = openvidu.getActiveSession(sessionId);
         if (session == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            session = openvidu.createSession(
+                    new SessionProperties.Builder()
+                            .customSessionId(sessionId)
+                            .build()
+            );
         }
-        ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
+
+        ConnectionProperties properties = new ConnectionProperties.Builder()
+                .type(ConnectionType.WEBRTC)
+                .data("") // 필요하다면 사용자 데이터 추가 가능
+                .build();
+
         Connection connection = session.createConnection(properties);
         System.out.println(connection.getToken());
 
@@ -110,6 +119,7 @@ public class WebRtcController {
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
+
 
 
 
@@ -149,5 +159,60 @@ public class WebRtcController {
         return ResponseEntity.ok().build();
     }
 
+
+
+    @PostMapping("/api/sessions/{sessionId}/disconnect")
+    public ResponseEntity<String> disconnectSession(@PathVariable("sessionId") String sessionId)
+            throws OpenViduJavaClientException, OpenViduHttpException {
+
+        Session session = openvidu.getActiveSession(sessionId);
+
+        if (session != null) {
+            // 세션의 모든 연결 종료
+            session.close();
+
+            return ResponseEntity.ok("Session closed successfully");
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+    @GetMapping("/api/sessions")
+    public ResponseEntity<List<String>> getAllActiveSessions()
+            throws OpenViduJavaClientException, OpenViduHttpException {
+
+        // 활성 세션 목록 가져오기
+        List<Session> activeSessions = openvidu.getActiveSessions();
+
+        // 세션 ID 목록 추출
+        List<String> sessionIds = activeSessions.stream()
+                .map(Session::getSessionId)
+                .collect(Collectors.toList());
+
+        // 세션 ID 목록 반환
+        return ResponseEntity.ok(sessionIds);
+    }
+
+    @DeleteMapping("/api/sessions/disconnect")
+    public ResponseEntity<String> deleteAllActiveSessions() {
+        try {
+            List<Session> activeSessions = openvidu.getActiveSessions();
+            for (Session session : activeSessions) {
+                try {
+                    session.close();
+                } catch (OpenViduHttpException e) {
+                    if (e.getStatus() != 404) throw e;
+                    // 404 에러는 무시
+                }
+            }
+            List<String> closedSessionIds = activeSessions.stream()
+                    .map(Session::getSessionId)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok("Closed sessions: " + closedSessionIds);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to close sessions: " + e.getMessage());
+        }
+    }
 
 }

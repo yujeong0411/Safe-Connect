@@ -1,5 +1,5 @@
 export interface FireLoginRequest {
-  fireStaffLogInId: string;
+  fireStaffLoginId: string;
   fireStaffPassword: string;
 }
 

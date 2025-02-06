@@ -39,6 +39,7 @@ export interface SignupStore {
   setMedicationOptions: (options: { value: number; label: string }[]) => void;
   validateFields: (name: keyof FormData, value: string) => string;
 }
+
 type FormData = SignupStore['formData'];
 
 export const useSignupStore = create<SignupStore>((set, get) => ({
