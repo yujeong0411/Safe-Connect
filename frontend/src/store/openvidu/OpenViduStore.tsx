@@ -37,24 +37,24 @@ export const useOpenViduStore =
   // },
 
 
-    createAndJoinSession: async (e: React.FormEvent) => {
-      e.preventDefault();
-      const { sessionId, userName, createSession, joinSession } = get();
+  createAndJoinSession: async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { sessionId, userName, createSession, joinSession } = get();
 
-      if (!userName || userName === '') {
-        throw new Error('사용자 이름이 설정되지 않았습니다.');
-      }
+    if (!userName || userName === '') {
+      throw new Error('사용자 이름이 설정되지 않았습니다.');
+    }
 
-      try {
-        await createSession(sessionId);
-        set({ sessionId });
-        await joinSession();
-      } catch (error) {
-        console.error('Session creation failed:', error);
-        set({ sessionId: '' });
-        throw error;
-      }
-    },
+    try {
+      await createSession(sessionId);
+      set({ sessionId });
+      await joinSession();
+    } catch (error) {
+      console.error('Session creation failed:', error);
+      set({ sessionId: '' });
+      throw error;
+    }
+  },
 
   joinSession: async () => {
     const { OV, sessionId, userName } = get();
