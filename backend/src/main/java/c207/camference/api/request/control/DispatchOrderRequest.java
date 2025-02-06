@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class DispatchOrderRequest {
     private Integer dispatchGroupId;
+    private Integer callId;
 }
