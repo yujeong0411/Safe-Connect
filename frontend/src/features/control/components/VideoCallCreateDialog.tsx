@@ -29,7 +29,7 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
 
     // 호스트 이름 설정
     handleChangeUserName({
-      target: { value: `` }
+      target: { value: `userName` }
     } as React.ChangeEvent<HTMLInputElement>);
   }, [handleChangeSessionId, handleChangeUserName]);
 

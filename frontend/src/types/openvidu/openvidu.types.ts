@@ -9,6 +9,7 @@ export interface LocalUser {
 
 export interface openViduStore {
   // State
+  isActive : boolean
   OV: OpenVidu;
   sessionId: string;
   userName: string;
@@ -23,6 +24,7 @@ export interface openViduStore {
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => void;
   joinSession: () => Promise<void>;
   leaveSession: () => void;
+  setSessionActive: (active: boolean) => void;
   // switchCamera: () => void;
   // handleMainVideoStream: (stream: StreamManager) => void;
   createSession: (sessionId: string) => Promise<any>;
