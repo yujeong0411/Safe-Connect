@@ -159,7 +159,7 @@ const PatientInfoPage = () => {
               <Input
                 label="신고 일시"
                 value="2025-01-19 10:11"
-                disabled
+                readOnly  
                 width="auto"
               />
             </div>
