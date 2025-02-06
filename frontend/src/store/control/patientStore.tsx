@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import {persist } from 'zustand/middleware';
 import { PatientInfo, PatientStore, CallInfo, CurrentCall } from '@/types/common/Patient.types.ts';
 import { patientService, protectorService } from '@features/control/services/controlApiService.ts';
 
@@ -20,7 +21,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
         return response;
       }
     } catch (error) {
-      set({ error: '환자 정보를 찾을 수 없습니다.', isLoading: false, isSuccess: false });
+      console.error("전화번호 조회 실패", error);
     }
   },
 
@@ -37,7 +38,6 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
         callSummary: info.callSummary,
         //callText: info.callText
         callText: "테스트"
-
       };
 
       const response = await patientService.savePatientInfo(callInfo);
@@ -53,7 +53,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   },
 
   resetPatientInfo: async () => {
-    set({ patientInfo: null });
+    set({ patientInfo: null, currentCall: null });
   },
 
   // 보호자 문자 전송
@@ -63,6 +63,10 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
       return response.isSuccess;
     } catch (error: any) {
       console.error('보호자 문자 전송 실패', error);
+      throw error;
     }
   },
-}));
+}), {
+  name: 'patient-storage',  // localstorage 이름
+  getStorage: () => localStorage
+});

@@ -2,7 +2,11 @@ import MainTemplate from '@components/templates/MainTemplate.tsx';
 import HospitalListForm from '@features/hospital/components/HospitalListForm.tsx';
 import {useHospitalAuthStore} from "@/store/hospital/hospitalAuthStore.tsx";
 
-const HospitalMainPage = () => {
+interface HospitalMainPageProps {
+    type: 'request' | 'accept';  // 리터럴 타입으로 정의
+}
+
+const HospitalMainPage = ({type}:HospitalMainPageProps) => {
     const {logout} = useHospitalAuthStore();
 
   return (
@@ -13,7 +17,8 @@ const HospitalMainPage = () => {
       ]}
       logoutDirect={logout}
     >
-      <HospitalListForm />
+        <HospitalListForm
+        type={type}/>
     </MainTemplate>
   );
 };

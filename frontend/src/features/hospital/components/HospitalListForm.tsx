@@ -8,7 +8,12 @@ import {
 } from '@/components/ui/table';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import {useHospitalTransferStore} from "@/store/hospital/hospitalTransferStore.tsx";
+
+export interface HospitalListFormProps {
+  type: 'request' | 'accept';  // 요청 목록인지 수락 목록인지 구분
+}
 
 interface PatientData {
   name: string;
@@ -21,16 +26,16 @@ interface PatientData {
   symptom: string;
 }
 
-type ColumnDef = {
-  key: keyof PatientData;
-  header: string;
-  render?: (value: string | number) => React.ReactNode;
-};
-
-const HospitalListForm = () => {
+const HospitalListForm = ({type}:HospitalListFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data'] | undefined>(); // null 대신 undefined 전달
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
+
+  const {transfers, fetchTransfers} = useHospitalTransferStore();
+
+  useEffect(() => {
+    fetchTransfers()
+  }, [])
 
   // 테이블 행 클릭 시
   const handleRowClick = (patientData: PatientData) => {
@@ -58,43 +63,33 @@ const HospitalListForm = () => {
   };
 
   // 컬럼 정의
-  const columns: ColumnDef[] = [
-    { key: 'callStartAt', header: '이송요청 일시' },
-    { key: 'name', header: '이름' },
-    { key: 'sex/age', header: '성별/나이' },
-    { key: 'pre-KTAS', header: 'pre-KTAS' },
-    { key: 'symptom', header: '증상' },
-    { key: 'fire', header: '관할 소방서' },
-    { key: 'transferAcceptAt', header: '요청수락 일시' },
-  ];
+  const getColumns = () => {
+    if (type === 'request') {
+      return [
+        { key: 'requestAt', header: '이송요청 일시' },
+        { key: 'sex/age', header: '성별/나이' },
+        { key: 'pre-KTAS', header: 'pre-KTAS' },
+        { key: 'fireDeptName', header: '관할 소방서' },
+        { key: 'transferAcceptAt', header: '요청수락 일시' },
+      ]
+    } else {
+        return [
+          { key: 'requestAt', header: '이송요청 일시' },
+          { key: 'patientGender', header: '성별/나이' },
+          { key: 'fireDeptId', header: '관할 소방서' },
+          { key: 'transferAcceptAt', header: '수락 일시' },
+          { key: 'transferIsComplete', header: '도착 여부' },
+        ]
+      }
+  }
 
-  // 더미 데이터
-  const dummyData: PatientData[] = [
-    {
-      name: '000',
-      id: 'dbwjd0411',
-      fire: '광산구 소방서',
-      'sex/age': 'M/50',
-      callStartAt: '20250115',
-      transferAcceptAt: '20250115',
-      'pre-KTAS': 4,
-      symptom: '흉통',
-    },
-    {
-      name: '000',
-      id: 'dbwjd0411',
-      fire: '광산구 소방서',
-      'sex/age': 'M/50',
-      callStartAt: '20250115',
-      transferAcceptAt: '-',
-      'pre-KTAS': 3,
-      symptom: '흉통',
-    },
-  ];
+  const columns = getColumns();
 
   return (
       <div className="w-full p-10">
-        <h1 className="text-[32px] font-bold mb-5">실시간 이송 요청</h1>
+        <h1 className="text-[32px] font-bold mb-5">{
+          type === 'request' ? '실시간 이송 요청' : '이송 수락 목록'
+        }</h1>
 
         {/* 필터 영역 추가 */}
         <div className="flex gap-4 items-center mb-6 pt-4 px-10">
@@ -111,7 +106,9 @@ const HospitalListForm = () => {
               onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
               className="border p-2 rounded"
           />
-          <button className="px-4 py-2 rounded bg-banner text-white">검색</button>
+          <button
+              onClick={() => fetchTransfers(1234)}
+              className="px-4 py-2 rounded bg-banner text-white">검색</button>
         </div>
 
 
@@ -128,8 +125,8 @@ const HospitalListForm = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dummyData.length > 0 ? (
-                  dummyData.map((data, index) => (
+              {transfers.length > 0 ? (
+                  transfers.map((data, index) => (
                       <TableRow
                           key={index}
                           onClick={() => handleRowClick(data)}

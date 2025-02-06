@@ -1,23 +1,22 @@
 import { useState } from 'react';
 import ControlMainTemplate from '@features/control/components/ControlMainTemplate.tsx';
 import Button from '@/components/atoms/Button/Button';
-import DispatchOrderDialog from '@features/control/components/DispatchOrderDialog.tsx';
 import KakaoMap from '@features/control/components/KakaoMap.tsx';
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
-import {Terminal, CircleAlert, CircleCheckBig} from 'lucide-react';
+import {CircleAlert, CircleCheckBig} from 'lucide-react';
 import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
-  const { selectedStation, setSelectedStation, dispatchGroups } = useDispatchGroupStore();
+  const { selectedStation, setSelectedStation, dispatchGroups, sendDispatchOrder } = useDispatchGroupStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
-    type: 'info' as 'info' | 'success' | 'error',
+    type: 'default' as 'default' |'destructive',
   });
 
   // 3초 후 사라지는 로직
@@ -35,16 +34,16 @@ const ControlDispatchOrderPage = () => {
       handleAlertClose({
         title: '소방팀 미선택',
         description: '소방팀을 선택해주세요.',
-        type: 'error',
+        type: 'destructive',
       });
       return;
     }
     try {
-      await dispatchAlert(selectedTeam);
+      await sendDispatchOrder(selectedTeam);
       handleAlertClose({
         title: '출동 지령 전송',
         description: '출동 지령이 전송되었습니다.',
-        type: 'success',
+        type: 'default',
       });
       setSelectedTeam(null);
       setSelectedStation(null);
@@ -52,7 +51,7 @@ const ControlDispatchOrderPage = () => {
       handleAlertClose({
         title: '출동 지령 실패',
         description: '출동 지령 전송에 실패했습니다.',
-        type: 'error',
+        type: 'destructive',
       });
     }
   };
@@ -75,19 +74,17 @@ const ControlDispatchOrderPage = () => {
         {showAlert && (
             <div className="fixed left-1/2 top-80 -translate-x-1/2  z-50 ">
               <Alert
-                  variant={alertConfig.type === 'info' ? 'destructive' : alertConfig.type}
+                  variant={alertConfig.type}  // 조건문 제거, 직접 type 사용
                   className={`w-[400px] shadow-lg bg-white ${
-                      alertConfig.type === 'success' ? '[&>svg]:text-blue-600 text-blue-600 ' :
-                          alertConfig.type === 'error' ? '[&>svg]:text-red-500 text-red-500' :
-                              '[&>svg]:text-black text-black'
-                  }`} // 너비와 그림자 추가
+                      alertConfig.type === 'default'
+                          ? '[&>svg]:text-blue-600 text-blue-600'
+                          : '[&>svg]:text-red-500 text-red-500'
+                  }`}
               >
-                {alertConfig.type === 'success' ? (
+                {alertConfig.type === 'default' ? (
                     <CircleCheckBig className="h-6 w-6 " />
-                ) : alertConfig.type === 'error' ? (
-                    <CircleAlert className="h-6 w-6" />
                 ) : (
-                    <Terminal className="h-6 w-6" />
+                    <CircleAlert className="h-6 w-6" />
                 )}
                 <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
                 <AlertDescription className="text-sm m-2">
@@ -117,7 +114,6 @@ const ControlDispatchOrderPage = () => {
                 width="auto"
                 className="bg-red-500 hover:bg-red-600"
                 onClick={handleDispatchAlert}
-                disabled={!selectedTeam} // 팀이 선택되지 않았을때 비활성화
               >
                 출동 지령
               </Button>

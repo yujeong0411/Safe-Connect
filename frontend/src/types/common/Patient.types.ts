@@ -1,18 +1,18 @@
 import { MedicalCategory } from '@/types/common/medical.types.ts';
 
 // 현재 신고 중인 정보
-interface CurrentCall {
+export interface CurrentCall {
   userName?: string;
   userGender?: string;
   userAge?: string;
-  userPhone: string;
+  userPhone?: string;
   userProtectorPhone?: string;
   diseases?: string;
   medications?: string;
   callSummary: string;
   symptom?: string;
   callId: number;
-  userId?: number;
+  userId: number | null;
 }
 
 // 전화번호 조회시 얻는 정보(현재 신고 중인 환자)
@@ -30,7 +30,7 @@ export interface PatientInfo {
 // 전화 시 받는 응답
 export interface CallInfo {
   callId: number;
-  userId?: number;
+  userId: number | null;
   symptom?: string;
   callSummary: string;
   callText?: string;
@@ -48,8 +48,6 @@ export interface PatientStore {
   patientInfo: PatientInfo | null;
   currentCall: CurrentCall | null;
   setCurrentCall: (callInfo: CallInfo) => void;
-  isLoading: boolean;
-  error: string | null;
   isSuccess?: boolean;
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (info: CurrentCall) => Promise<void>;
