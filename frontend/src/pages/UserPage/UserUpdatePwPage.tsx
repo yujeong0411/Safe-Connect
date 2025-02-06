@@ -5,11 +5,10 @@ import UserPwForm from '@features/user/components/UserPwForm.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useAuthStore } from '@/store/user/authStore.tsx';
 import { validatePassword, validatePasswordConfirm } from '@utils/validation.ts';
-// import { signOut } from '@features/auth/servies/apiService.ts';
 
 const UserUpdatePassword = () => {
   const { formData } = useSignupStore();
-  const { updatePassword } = useAuthStore();
+  const { updatePassword, logout } = useAuthStore();
 
   // 비밀번호 변경 요청 처리
   const handlePasswordUpdate = async () => {
@@ -44,6 +43,7 @@ const UserUpdatePassword = () => {
         { label: '의료 정보 수정', path: '/user/medi' },
         { label: '비밀번호 수정', path: '/user/updatepassword' },
       ]}
+      logoutDirect={logout}
     >
       <UserInfoTemplate
         title="비밀번호 수정"

@@ -6,6 +6,8 @@ import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.entity.users.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "patient")
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Patient {
 

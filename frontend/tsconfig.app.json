@@ -33,7 +33,7 @@
       "@utils/*": [ "src/utils/*" ],
       "@features/*": [ "src/features/*" ]
     },
-    "types": ["vite/client"]  // Vite 프로젝트에서 자동 완성 및 타입 정보를 제공 (Vite 관련 타입을 포함)
+    "types": ["vite/client", "kakao.maps.d.ts"] // Vite 프로젝트에서 자동 완성 및 타입 정보를 제공 (Vite 관련 타입을 포함)
   },
   "exclude": [
     "node_modules",  // 'node_modules' 폴더는 검사하지 않음

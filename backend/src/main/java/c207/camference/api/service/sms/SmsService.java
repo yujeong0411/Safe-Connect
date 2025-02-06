@@ -8,4 +8,5 @@ public interface SmsService {
     ResponseEntity<?> userPhoneValid(String userPhone);
     ResponseEntity<?> userPhoneValidCheck(UserValidPhoneCheckRequest request);
     ResponseEntity<?> controlSendMessage(MessageRequest request);
+    ResponseEntity<?> sendMessage(String userPhone, String url);
 }
