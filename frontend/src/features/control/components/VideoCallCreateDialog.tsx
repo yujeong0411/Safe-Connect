@@ -5,6 +5,8 @@ import { DialogProps } from '../types/dialog.types';
 import { useControlAuthStore } from '@/store/control/controlAuthStore.tsx';
 import React, { useEffect } from 'react';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import { useVideoCallStore } from '@/store/control/videoCallStore.ts';
+import { useNavigate } from 'react-router-dom';
 
 const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const {
@@ -13,6 +15,9 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
     handleChangeUserName,
     createAndJoinSession
   } = useOpenViduStore();
+
+  const navigate = useNavigate();
+  const { setIsOpen } = useVideoCallStore();
 
   const {userName} = useControlAuthStore();
 
@@ -39,7 +44,9 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
       await createAndJoinSession(e);
       const inviteUrl = `/openvidu/join/${sessionId}?direct=true`;
       await navigator.clipboard.writeText(window.location.origin + inviteUrl);
-      onOpenChange(false);
+      onOpenChange(false)
+      setIsOpen(true);
+      navigate('/Control/patient-info')
 
     } catch (error) {
       console.error('세션 생성 실패:', error);
