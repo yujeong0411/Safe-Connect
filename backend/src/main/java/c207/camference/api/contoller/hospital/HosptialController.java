@@ -29,4 +29,9 @@ public class HosptialController {
                                             @RequestParam String status) {
         return hospitalService.respondToTransfer(patientId, status);
     }
+
+    @GetMapping("/transfer_request")
+    public ResponseEntity<?> transferRequest(@RequestParam int hospitalId) {
+        return hospitalService.transferRequest(hospitalId);
+    }
 }
