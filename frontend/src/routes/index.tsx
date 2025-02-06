@@ -5,6 +5,7 @@ import HospitalRoutes from '@/routes/HospitalRoutes.tsx';
 import AdminRoutes from '@/routes/AdminRoutes.tsx';
 import ControlRoutes from '@/routes/ControlRoutes.tsx';
 import OpenViduRoutes from '@/routes/OpenViduRoutes.tsx';
+import AEDPage from '@pages/Caller/AEDPage.tsx';
 
 const Router = () => {
   return (
@@ -28,6 +29,8 @@ const Router = () => {
         {/*openvidu*/}
         <Route path="/openvidu/*" element={<OpenViduRoutes />} />
 
+        {/*신고자*/}
+        <Route path="/aed" element={<AEDPage />} />
       </Routes>
     </BrowserRouter>
   );
