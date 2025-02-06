@@ -11,11 +11,11 @@ const ControlRoutes = () => {
   return (
     <Routes>
       {/*인증된 사용자*/}
-      <Route element={<PrivateRoute />}>
+      {/* <Route element={<PrivateRoute />}> */}
         <Route path="main" element={<ControlMainPage />} />
         <Route path="patient-info" element={<ControlPatientInfoPage />} />
         <Route path="dispatch-order" element={<ControlDispatchOrderPage />} />
-      </Route>
+      {/* </Route> */}
 
       {/*인증되지 않은 사용자*/}
       <Route element={<PublicRoute />}>

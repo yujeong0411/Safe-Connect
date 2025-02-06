@@ -35,7 +35,7 @@ const DispatchTable = ({
               <th className="px-4 py-3 text-left">이송 종료 일시</th>
               <th className="px-4 py-3 text-left">구조 상세정보</th>
               <th className="px-4 py-3 text-left">환자 정보 작성</th>
-              <th className="px-4 py-3 text-left">알림톡톡 여부</th>
+              <th className="px-4 py-3 text-left">영상통화 연결</th>
             </tr>
           </thead>
           <tbody>
@@ -59,7 +59,7 @@ const DispatchTable = ({
                   <Button variant="blue" size="sm">작성하기</Button>
                 </td>
                 <td className="px-4 py-3">
-                  <Badge variant="primary">전송완료</Badge>
+                  <Button variant="blue" size="sm">영상통화</Button>
                 </td>
               </tr>
             ))}
