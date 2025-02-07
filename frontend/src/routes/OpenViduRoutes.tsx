@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
-import CreateSessionPage from '@pages/openvidu/CreateSessionPage.tsx';
-import JoinSessionPage from '@pages/openvidu/JoinSessionPage.tsx';
-import ActiveSessionPage from '@pages/openvidu/ActiveSessionPage.tsx';
+import CreateSessionPage from '@pages/OpenviduPage/CreateSessionPage.tsx';
+import JoinSessionPage from '@pages/OpenviduPage/JoinSessionPage.tsx';
+import ActiveSessionPage from '@pages/OpenviduPage/ActiveSessionPage.tsx';
 
 const OpenViduRoutes = () => {
   return (

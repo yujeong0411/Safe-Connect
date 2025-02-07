@@ -37,6 +37,10 @@ public class Dispatch {
     @Comment(value = "병원이송(현장종결)여부")
     private Boolean dispatchIsTransfer = false;
 
+    @Column(name = "dispatch_transfer_accepted")
+    @Comment(value = "병원 이송 수락여부")
+    private Boolean dispatchTransferAccepted = false;
+
     @CreationTimestamp
     @Column(name = "dispatch_create_at", nullable = false)
     @Comment(value = "출동요청생성시각")

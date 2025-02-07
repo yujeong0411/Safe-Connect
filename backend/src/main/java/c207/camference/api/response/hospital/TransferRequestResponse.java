@@ -20,12 +20,14 @@ public class TransferRequestResponse {
     private LocalDateTime reqHospitalCreatedAt;  // 요청 시각
     private Boolean dispatchIsTransfer;      // 이송 여부
     private List<PatientSimpleResponse> patients;  // 환자 목록
+    private Boolean dispatchTransferAccepted;
 
     private TransferRequestResponse(ReqHospital reqHospital, List<Patient> patients) {
         this.fireDeptName = reqHospital.getDispatch().getDispatchGroup().getFireDept().getFireDeptName();
         this.reqHospitalCreatedAt = reqHospital.getReqHospitalCreatedAt();
         this.dispatchIsTransfer = reqHospital.getDispatch().getDispatchIsTransfer();
         this.dispatchId = reqHospital.getDispatch().getDispatchId();
+        this.dispatchTransferAccepted = reqHospital.getDispatch().getDispatchTransferAccepted();
         this.patients = patients.stream()
                 .map(patient -> PatientSimpleResponse.builder()
                         .patientPreKtas(patient.getPatientPreKtas())

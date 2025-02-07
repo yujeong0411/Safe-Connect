@@ -1,6 +1,7 @@
 package c207.camference.api.service.user;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
+import c207.camference.api.dto.user.CustomUserDetails;
 import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.etc.MediCategory;
 import c207.camference.db.entity.users.User;
@@ -10,11 +11,11 @@ import c207.camference.db.repository.etc.MediCategoryRepository;
 import c207.camference.db.repository.openapi.MediRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.db.repository.users.UserRepository;
-import c207.camference.util.jwt.JWTUtil;
 import c207.camference.util.medi.MediUtil;
 import c207.camference.util.response.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,18 +28,18 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class UserMediServiceImpl implements UserMediService {
 
-    private final JWTUtil jwtUtil;
-
-    private final UserRepository userRepository;
     private final UserMediDetailRepository userMediDetailRepository;
     private final MediRepository mediRepository;
     private final MediCategoryRepository mediCategoryRepository;
+    private final UserRepository userRepository;
 
 
     @Override
     @Transactional
-    public ResponseEntity<?> getUserMediInfo(String token) {
-        User user = getUserFromToken(token);
+    public ResponseEntity<?> getUserMediInfo() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userEmail = userDetails.getUserEmail();
+        User user = userRepository.findUserByUserEmail(userEmail);
 
         UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("User medi detail not found"));
@@ -50,8 +51,10 @@ public class UserMediServiceImpl implements UserMediService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> saveMediInfo(String token, List<Integer> mediIds) {
-        User user = getUserFromToken(token);
+    public ResponseEntity<?> saveMediInfo(List<Integer> mediIds) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userEmail = userDetails.getUserEmail();
+        User user = userRepository.findUserByUserEmail(userEmail);
 
         // userMediDetail 조회 | 생성
         UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
@@ -67,8 +70,11 @@ public class UserMediServiceImpl implements UserMediService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> updateMediInfo(String token, List<Integer> mediIds) {
-        User user = getUserFromToken(token);
+    public ResponseEntity<?> updateMediInfo(List<Integer> mediIds) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userEmail = userDetails.getUserEmail();
+        User user = userRepository.findUserByUserEmail(userEmail);
+
 
         // userMediDetail 조회 | 생성
         UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
@@ -97,20 +103,6 @@ public class UserMediServiceImpl implements UserMediService {
         return ResponseEntity.ok().body(ResponseUtil.success(mediCategoryDtos, "약물, 기저질환 전체 조회 성공"));
     }
 
-    // 토큰을 통해 유저 객체 가져오기
-    public User getUserFromToken(String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-
-        if (jwtUtil.isExpired(token)) {
-            throw new IllegalArgumentException("만료된 토큰입니다.");
-        }
-
-        String userEmail = jwtUtil.getLoginId(token);
-
-        return userRepository.findUserByUserEmail(userEmail);
-    }
 
     // UserMediDetail 생성
     private UserMediDetail createUserMediDetail(User user) {

@@ -1,5 +1,6 @@
 package c207.camference.api.contoller.firestaff;
 
+import c207.camference.api.request.dispatchstaff.DispatchRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientCallRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
@@ -61,4 +62,8 @@ public class DispatchStaffController {
         return smsService.dispatchSendMessage(request);
     }
 
+    @PostMapping("/finish")
+    public ResponseEntity<?> finishDispatch(@RequestBody DispatchRequest request) {
+        return dispatchStaffService.finishDispatch(request);
+    }
 }
