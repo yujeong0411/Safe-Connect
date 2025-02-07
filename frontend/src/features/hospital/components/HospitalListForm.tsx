@@ -10,8 +10,7 @@ import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDi
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
 import { useState, useEffect } from 'react';
 import { useHospitalTransferStore } from '@/store/hospital/hospitalTransferStore.tsx';
-import { useAcceptedTransfer } from '@features/hospital/services/hospitalApiService.ts';
-import { TransferData } from '@/types/hospital/hospitalTransfer.types.ts';
+import {CombinedTransfer} from '@/types/hospital/hospitalTransfer.types.ts';
 import { format } from 'date-fns';
 
 export interface HospitalListFormProps {
@@ -21,7 +20,7 @@ export interface HospitalListFormProps {
 interface Column {
   key: string;
   header: string;
-  render?: (data: TransferData) => string;
+  render?: (data: CombinedTransfer) => string;
 }
 
 const HospitalListForm = ({ type }: HospitalListFormProps) => {
@@ -29,22 +28,29 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
   const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>();
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
-  const { transfers, fetchTransfers } = useHospitalTransferStore();
-  const { data: combinedData } = useAcceptedTransfer(); // 병합한 이송 조회 데이터
-
-  // 타입에 따라 데이터 필터링
-  const displayData = combinedData
-    ? type === 'accept'
-      ? combinedData.filter((item) => item.acceptedTransfer) // 수락된 이송만, 객체 전체
-      : combinedData.filter((item) => !item.acceptedTransfer) // 수락되지 않은 이송
-    : [];
+  const {combinedTransfers, fetchCombinedTransfers} = useHospitalTransferStore();
 
   useEffect(() => {
-    fetchTransfers(type);
-  }, [type]);
+    const fetchData = async () => {
+      try {
+        await fetchCombinedTransfers();
+      } catch (error) {
+        console.error("이송 데이터 로드 실패", error);
+      }
+    }
+    void fetchData();
+  }, []);
+
+  // 타입에 따라 데이터 필터링
+  const displayData = combinedTransfers
+    ? type === 'accept'
+      ? combinedTransfers.filter((item) => item.transferAcceptedAt) // 수락된 이송만, 객체 전체
+      : combinedTransfers.filter((item) => !item.transferAcceptedAt) // 수락되지 않은 이송
+    : [];
+
 
   // 테이블 행 클릭 시
-  const handleRowClick = async (data: TransferData) => {
+  const handleRowClick = async (data: CombinedTransfer) => {
     try {
       const detailData = await useHospitalTransferStore
         .getState()
@@ -64,9 +70,10 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         phone: detailData.userPhone,
         protectorPhone: detailData.userProtectorPhone,
         symptoms: detailData.patientSymptom,
-        diseases: detailData.patientDiseases.join(', '),
-        medications: detailData.patientMedications.join(', '),
+        diseases: detailData.patientDiseases?.join(', ')?? '-',
+        medications: detailData.patientMedications?.join(', ')?? '-',
         requestTransferAt: format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
+        transferAcceptedAt: data.transferAcceptedAt? format(new Date(data.transferAcceptedAt), 'yyyy-MM-dd HH:mm:ss') : '-',
       });
       setIsModalOpen(true);
     } catch (error) {
@@ -81,13 +88,13 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         {
           key: 'reqHospitalCreatedAt',
           header: '이송요청 일시',
-          render: (data: TransferData) =>
+          render: (data: CombinedTransfer) =>
             format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
         },
         {
           key: 'patientGender_Age',
           header: '성별/나이',
-          render: (data: TransferData) =>
+          render: (data: CombinedTransfer) =>
             data.patients?.[0]
               ? `${data.patients[0].patientGender}/${data.patients[0].patientAge}`
               : '-',
@@ -95,7 +102,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         {
           key: 'preKtas',
           header: 'pre-KTAS',
-          render: (data: TransferData) => data.patients?.[0]?.patientPreKtas || '-',
+          render: (data: CombinedTransfer) => data.patients?.[0]?.patientPreKtas || '-',
         },
         { key: 'fireDeptName', header: '관할 소방서' },
       ];
@@ -104,13 +111,13 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
       {
         key: 'reqHospitalCreatedAt',
         header: '이송요청 일시',
-        render: (data: TransferData) =>
+        render: (data: CombinedTransfer) =>
           format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
       },
       {
         key: 'patientGender_Age',
         header: '성별/나이',
-        render: (data: TransferData) =>
+        render: (data: CombinedTransfer) =>
           data.patients?.[0]
             ? `${data.patients[0].patientGender}/${data.patients[0].patientAge}`
             : '-',
@@ -118,13 +125,13 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
       {
         key: 'preKtas',
         header: 'pre-KTAS',
-        render: (data: TransferData) => data.patients?.[0]?.patientPreKtas || '-',
+        render: (data: CombinedTransfer) => data.patients?.[0]?.patientPreKtas || '-',
       },
       { key: 'fireDeptName', header: '관할 소방서' },
       {
         key: 'dispatchIsTransfer',
         header: '이송 상태',
-        render: (data: TransferData) => (data.dispatchIsTransfer ? '이송 중' : '대기 중'),
+        render: (data: CombinedTransfer) => (data.dispatchIsTransfer ? '이송 중' : '대기 중'),
       },
     ];
   };
@@ -133,7 +140,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
 
   // 날짜 필터링
   const handleSearch = () => {
-    let filteredData = combinedData.filter((transfer) => {
+    let filteredData = combinedTransfers.filter((transfer) => {
       const transferDate = new Date(transfer.reqHospitalCreatedAt);
       const start = dateRange.start ? new Date(dateRange.start) : null;
       const end = dateRange.end ? new Date(dateRange.end) : null;
@@ -148,10 +155,10 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
     // 타입에 따라 다시 필터링
     filteredData =
       type === 'accept'
-        ? filteredData.filter((itme) => itme.acceptedTransfer) // 수락된 이송만
-        : filteredData.filter((itme) => !itme.acceptedTransfer); // 수락하지 않은 이송만
+        ? filteredData.filter((item) => item.transferAcceptedAt) // 수락된 이송만
+        : filteredData.filter((item) => !item.transferAcceptedAt); // 수락하지 않은 이송만
 
-    useHospitalTransferStore.setState({ transfers: filteredData });
+    useHospitalTransferStore.setState({ transfers: filteredData, combinedTransfers: filteredData });
   };
 
   return (
@@ -213,7 +220,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
                     <TableCell key={column.key} className="px-6 py-3 text-gray-700 text-left ">
                       {column.render
                         ? column.render(data)
-                        : (data[column.key as keyof TransferData] as string)}
+                        : (data[column.key as keyof CombinedTransfer] as string)}
                     </TableCell>
                   ))}
                 </TableRow>

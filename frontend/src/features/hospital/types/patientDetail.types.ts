@@ -2,10 +2,10 @@ export interface PatientDetailProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   buttons: string;
-  data?: {
-    name?: string;
+  data: {
+    name: string | null;
     gender: string;
-    age?: string;
+    age: string | null;
     mental: string;
     preKTAS: string;
     sbp: number;
@@ -13,12 +13,14 @@ export interface PatientDetailProps {
     pr: number;
     bt: number;
     spo2: number;
-    bst?: number;
+    bst: number | null;
     phone: string;
-    protectorPhone?: string;
+    protectorPhone: string | null;
     symptoms: string;
-    diseases?: string;
-    medications?: string;
+    diseases: string | null;
+    medications: string | null;
     requestTransferAt: string;
+    transferAcceptedAt?: string;
+    transferArriveAt?: string;
   }
 }

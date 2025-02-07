@@ -7,13 +7,7 @@ import {useState} from "react";
 
 const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) => {
   const [isPreKtasOpen, setIsPreKtasOpen] = useState(false);
-  const [isAccepted, setIsAccepted] = useState(false);  // 수락, 거절
 
-  const handleAccept = () => {
-    // 수락 api 로직 추가하기
-  }
-
-  if (!data) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,21 +131,21 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
                     className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.requestTransferAt}</div>
               </div>
               <div>
-                <Label className="text-sm mb-1">이송 종료 일시</Label>
+                <Label className="text-sm mb-1">이송 수락 일시</Label>
                 <div
-                    className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.transferArrive}</div>
+                    className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.transferAcceptedAt}</div>
               </div>
               <div>
-                <Label className="text-sm mb-1">상황실 신고 일시</Label>
+                <Label className="text-sm mb-1">이송 종료 일시</Label>
                 <div
-                    className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.controlCall}</div>
+                    className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.transferArriveAt}</div>
               </div>
             </div>
 
             <div className="flex justify-end gap-2 mt-6 ml-5 h-10">
-              {!isAccepted ? (
+              {!data?.transferAcceptedAt ? (   // 수락시간이 있으면 이미 수락된 상태
                   <>
-                    <Button onClick={handleAccept} className="bg-banner hover:bg-gray-400" size="default">
+                    <Button onClick={() => onOpenChange(false)} className="bg-banner hover:bg-gray-400" size="default">
                       수락
                     </Button>
                     <Button onClick={() => onOpenChange(false)} className="bg-graybtn hover:bg-neutral-400 text-black" size="default">

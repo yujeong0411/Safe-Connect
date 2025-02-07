@@ -8,6 +8,7 @@ import c207.camference.util.response.ResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 import io.openvidu.java.client.Connection;
