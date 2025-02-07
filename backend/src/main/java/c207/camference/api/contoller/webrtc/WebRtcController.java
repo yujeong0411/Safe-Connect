@@ -80,7 +80,7 @@ public class WebRtcController {
     @PostMapping("/api/sessions")
     public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
-
+        // 상황실 직원만 해당 컨트롤러에 접근을 한다. 따라서 URL을 문자메시지로 전송하는 로직도 여기서 구현한다.
         String customSessionId = params != null ? (String) params.get("customSessionId") : null;
 
         SessionProperties properties = new SessionProperties.Builder()
@@ -89,6 +89,8 @@ public class WebRtcController {
 
         Session session = openvidu.createSession(properties);
         System.out.println(session.getSessionId()); // 테스트용
+
+
 
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
