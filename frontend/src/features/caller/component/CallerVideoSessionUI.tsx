@@ -1,55 +1,66 @@
 import { useEffect, useState } from 'react';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
-import { Subscriber } from 'openvidu-browser';
+import { Publisher, Subscriber } from 'openvidu-browser';
 import CallerVideoComponent from '@features/caller/component/CallerVideoComponent.tsx';
-
 
 const CallerVideoSessionUI = () => {
   const { publisher, subscribers, localUser } = useOpenViduStore();
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
+  const [localStream, setLocalStream] = useState<Publisher | null>(null);
 
   useEffect(() => {
-    const filterSubscribers = () => {
+    const filterAndSetStreams = () => {
       if (!localUser) return;
 
+      // 로컬 사용자의 스트림 찾기
+      if (publisher?.stream?.connection?.connectionId === localUser?.connectionId) {
+        setLocalStream(publisher);
+      }
+
+      // 다른 참가자들의 스트림 필터링
       const filtered = subscribers.filter(sub =>
         sub?.stream?.connection?.connectionId !== localUser?.connectionId
       );
       setFilteredSubscribers(filtered);
     };
 
-    filterSubscribers();
-    const interval = setInterval(filterSubscribers, 2000);
+    filterAndSetStreams();
+    const interval = setInterval(filterAndSetStreams, 2000);
 
     return () => {
       clearInterval(interval);
       setFilteredSubscribers([]);
+      setLocalStream(null);
     };
-  }, [subscribers, localUser]);
+  }, [subscribers, localUser, publisher]);
 
-  if (!publisher || !localUser) {
+  if (!localStream || !localUser) {
     return <div>연결 중...</div>;
   }
 
   return (
-    <div className="w-full h-full relative">
-      {filteredSubscribers.length > 0 ? (
-        filteredSubscribers.map((sub) => (
-          <div key={sub.stream.streamId} className="w-full h-full">
-            <CallerVideoComponent streamManager={sub} />
-          </div>
-        ))
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <p>다른 참가자를 기다리는 중...</p>
-        </div>
-      )}
+    <div className="p-1 w-full h-full relative">
+      {/* 메인 화면 (로컬 사용자) */}
+      <div className="w-full h-full border-2 border-black rounded-lg">
+        <CallerVideoComponent streamManager={localStream} />
+      </div>
 
-      {publisher && (
-        <div className="absolute bottom-4 right-4 w-48 h-36 rounded-lg overflow-hidden shadow-lg">
-          <CallerVideoComponent streamManager={publisher} />
-        </div>
-      )}
+      {/* 다른 참가자들 화면 */}
+      <div className="absolute right-4 gap-2 flex flex-col">
+        {filteredSubscribers.map((sub, index) => {
+          // 첫 번째 참가자는 아래에, 두 번째 참가자부터는 위에 쌓이도록 배치
+          const topPosition = filteredSubscribers.length > 1 && index === 0 ? 'bottom-4' : 'bottom-44';
+
+          return (
+            <div
+              key={sub.stream.streamId}
+              className={`${topPosition} right-0 w-48 h-36 rounded-lg overflow-hidden shadow-lg`}
+            >
+              <CallerVideoComponent streamManager={sub} />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
