@@ -33,7 +33,7 @@ const ActiveSessionPage: React.FC = () => {
     return () => {
       mounted = false;
       // 페이지를 완전히 벗어날 때만 세션을 종료
-      if (window.location.pathname.indexOf('/openvidu') === -1) {
+      if (window.location.pathname.indexOf('/OpenviduPage') === -1) {
         leaveSession();
       }
     };

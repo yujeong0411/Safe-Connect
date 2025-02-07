@@ -107,7 +107,7 @@ const CallRecordForm = () => {
                   {columns.map((column) => (
                     <TableCell key={column.key}>
                       {column.key.includes('At')
-                        ? new Date(data[column.key as keyof CallRecord]).toLocaleString()
+                        ? new Date(data[column.key as keyof CallRecord] as string).toLocaleString()
                         : column.key === 'callIsDispatched'
                           ? data[column.key]
                             ? '출동'
