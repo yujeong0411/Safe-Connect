@@ -1,6 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
+import c207.camference.api.request.patient.PatientInfoRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface DispatchStaffService {
@@ -9,6 +10,6 @@ public interface DispatchStaffService {
     ResponseEntity<?> dispatchDetail(int DispatchId);
     ResponseEntity<?> transferDetail(int transferId);
     ResponseEntity<?> getReqHospital(int dispatchId);
-
     ResponseEntity<?> transferUpdate(TransferUpdateRequest request);
+    ResponseEntity<?> updatePatientInfo(PatientInfoRequest request);
 }
