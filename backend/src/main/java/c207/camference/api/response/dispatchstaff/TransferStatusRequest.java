@@ -1,4 +1,4 @@
-package c207.camference.api.request.hospital;
+package c207.camference.api.response.dispatchstaff;
 
 import lombok.Getter;
 

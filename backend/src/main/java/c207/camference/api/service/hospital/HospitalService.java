@@ -1,7 +1,7 @@
 package c207.camference.api.service.hospital;
 
 
-import c207.camference.api.request.hospital.TransferStatusRequest;
+import c207.camference.api.response.dispatchstaff.TransferStatusRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface HospitalService {
