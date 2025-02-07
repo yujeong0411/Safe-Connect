@@ -1,5 +1,6 @@
 package c207.camference.api.service.hospital;
 
+import c207.camference.api.request.hospital.TransferStatusRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.hospital.AcceptTransferResponse;
 import c207.camference.api.response.hospital.TransferRequestResponse;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,24 +98,25 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> respondToTransfer(int patientId, String status) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + patientId));
+    public ResponseEntity<?> respondToTransfer(TransferStatusRequest request) {
+        Patient patient = patientRepository.findById(request.getPatientId())
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + request.getPatientId()));
 
-        if (status.equals(TransferStatus.ACCEPTED.name())) {
+        if (request.getStatus().equals(TransferStatus.ACCEPTED.name())) {
             Transfer transfer = transferRepository.findById(patient.getTransferId())
                     .orElseThrow(() -> new EntityNotFoundException("Transfer not found with id: " + patient.getTransferId()));
             LocalDateTime now = LocalDateTime.now();
             transfer.setTransferAcceptAt(now);
             transferRepository.save(transfer);
-            AcceptTransferResponse response = new AcceptTransferResponse(patientId, now);
+            AcceptTransferResponse response = new AcceptTransferResponse(request.getPatientId(), now);
             return ResponseEntity.ok().body(ResponseUtil.success(response, "환자 이송을 수락했습니다."));
         }
-        if (status.equals(TransferStatus.REJECTED.name())) {
+        if (request.getStatus().equals(TransferStatus.REJECTED.name())) {
             return ResponseEntity.ok().body(ResponseUtil.success("환자 이송을 거절했습니다."));
         }
 
-        throw new IllegalArgumentException("Invalid status: " + status);
+        return ResponseEntity.badRequest().body(request.getStatus() + " is invalid status. " +
+                "Valid status: " + Arrays.toString(TransferStatus.values()));
     }
 
     @Override

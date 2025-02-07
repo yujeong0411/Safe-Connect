@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface UserMediService {
 
-    ResponseEntity<?> getUserMediInfo(String token);
-    ResponseEntity<?> saveMediInfo(String token, List<Integer> mediIds);
-    ResponseEntity<?> updateMediInfo(String token, List<Integer> mediIds);
+    ResponseEntity<?> getUserMediInfo();
+    ResponseEntity<?> saveMediInfo(List<Integer> mediIds);
+    ResponseEntity<?> updateMediInfo(List<Integer> mediIds);
     ResponseEntity<?> getMediList();
 }

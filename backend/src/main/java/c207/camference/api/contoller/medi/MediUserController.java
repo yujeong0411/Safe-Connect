@@ -15,24 +15,22 @@ public class MediUserController {
 
     // 회원 약물, 질환 조회
     @GetMapping
-    public ResponseEntity<?> getUserMediInfo(@RequestHeader("Authorization") String token) {
-        return userMediService.getUserMediInfo(token);
+    public ResponseEntity<?> getUserMediInfo() {
+        return userMediService.getUserMediInfo();
     }
 
     // 회원 약물, 질환 저장
     @PostMapping
-    public ResponseEntity<?> saveMediInfo(@RequestHeader("Authorization") String token,
-                                          @RequestBody MediIdsRequest mediIds) {
+    public ResponseEntity<?> saveMediInfo(@RequestBody MediIdsRequest mediIds) {
 
-        return userMediService.saveMediInfo(token, mediIds.getMediIds());
+        return userMediService.saveMediInfo(mediIds.getMediIds());
     }
 
     // 회원 약물, 질환 수정
     @PutMapping
-    public ResponseEntity<?> updateMediInfo(@RequestHeader("Authorization") String token,
-                                            @RequestBody MediIdsRequest mediIds) {
+    public ResponseEntity<?> updateMediInfo(@RequestBody MediIdsRequest mediIds) {
 
-        return userMediService.updateMediInfo(token, mediIds.getMediIds());
+        return userMediService.updateMediInfo(mediIds.getMediIds());
     }
 
     @GetMapping("/list")
