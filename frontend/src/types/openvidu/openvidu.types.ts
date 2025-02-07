@@ -15,7 +15,7 @@ export interface openViduStore {
   userName: string;
   session: Session | undefined;
   mainStreamManager: StreamManager | undefined;
-  publisher: Publisher | undefined;
+  publisher: Publisher | null;
   subscribers: Subscriber[];
   localUser: LocalUser
 

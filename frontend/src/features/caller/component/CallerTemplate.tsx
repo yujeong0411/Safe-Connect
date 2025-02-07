@@ -59,11 +59,25 @@ const CallerTemplate = () => {
       onModalOpen: () => setIsMapModalOpen(true),
     }
   ];
+  const handleSessionOut = async () => {
+    try {
+      await leaveSession();
+      navigate('/caller/end');
+    } catch (error) {
+      console.error('세션 종료 실패', error);
+    }
+  };
 
   return (
     <div className="mih-h-screen bg-bg flex flex-col">
       <PublicHeader
-        labels={[]}
+        labels={[
+            {
+              label: 'x',
+              href: '#',
+              onClick: handleSessionOut,
+            },
+        ]}
       />
       <div className="-space-y-4">
         <NavBar navItems={navItems} />
