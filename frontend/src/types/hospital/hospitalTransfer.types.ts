@@ -11,9 +11,10 @@ export interface TransferData {
     reqHospitalCreatedAt: string  // 요청 시간
     dispatchIsTransfer: boolean // 이송 여부
     patients: patients[]
+    dispatchTransferAccepted: boolean | null
 }
 
-// 전체 이송 조회
+// 전체 이송 조회 시 환자 정보
 export interface patients {
     patientPreKtas:string
     patientGender:string
@@ -121,7 +122,7 @@ export interface PatientDetail {
 
 // 이송 수락 내역 조회
 export interface AcceptedTransfer {
-    transferAcceptedAt:string
+    transferAcceptAt:string
     transferArriveAt:string
     dispatchId:number   // id로 전체 조회와 연결
     hospital: {
@@ -132,7 +133,7 @@ export interface AcceptedTransfer {
 
 // 전체 이송신청 목록 + 수락 목록  -> 연결하기 위해
 export interface CombinedTransfer extends TransferData {  // TransferData 상속
-    transferAcceptedAt: string | null;  // 수락 시간
+    transferAcceptAt: string | null;  // 수락 시간
     transferArriveAt: string | null;  // 도착 시간
     hospital: {
         hospitalName: string;

@@ -25,7 +25,24 @@ interface Column {
 
 const HospitalListForm = ({ type }: HospitalListFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>();
+  const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>({
+      name: null,
+      gender: null,
+      age: null,
+      mental: '',
+      preKTAS: '',
+      sbp: 0,
+      dbp: 0,
+      pr: 0,
+      bt: 0,
+      spo2: 0,
+      bst: 0,
+      phone: '',
+      protectorPhone: null,
+      symptoms: '',
+      requestTransferAt: '',
+      transferAcceptAt:'',
+    });
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
   const {combinedTransfers, fetchCombinedTransfers} = useHospitalTransferStore();
@@ -44,8 +61,8 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
   // 타입에 따라 데이터 필터링
   const displayData = combinedTransfers
     ? type === 'accept'
-      ? combinedTransfers.filter((item) => item.transferAcceptedAt) // 수락된 이송만, 객체 전체
-      : combinedTransfers.filter((item) => !item.transferAcceptedAt) // 수락되지 않은 이송
+      ? combinedTransfers.filter((item) => item.transferAcceptAt) // 수락된 이송만, 객체 전체
+      : combinedTransfers.filter((item) => !item.transferAcceptAt) // 수락되지 않은 이송
     : [];
 
 
@@ -56,9 +73,9 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         .getState()
         .fetchTransferDetail(data.dispatchId, type);
       setSelectedPatient({
-        name: detailData.patientName,
-        gender: detailData.patientGender,
-        age: detailData.patientAge,
+        name: detailData.patientName ?? null,
+        gender: detailData.patientGender ?? null,
+        age: detailData.patientAge ?? null,
         mental: detailData.patientMental,
         preKTAS: data.patients[0].patientPreKtas,
         sbp: detailData.patientSystolicBldPress,
@@ -68,12 +85,12 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         spo2: detailData.patientSpo2,
         bst: detailData.patientBloodSugar,
         phone: detailData.userPhone,
-        protectorPhone: detailData.userProtectorPhone,
+        protectorPhone: detailData.userProtectorPhone ?? null,
         symptoms: detailData.patientSymptom,
-        diseases: detailData.patientDiseases?.join(', ')?? '-',
-        medications: detailData.patientMedications?.join(', ')?? '-',
+        diseases: detailData.patientDiseases?.join(', ')?? undefined,
+        medications: detailData.patientMedications?.join(', ')?? undefined,
         requestTransferAt: format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
-        transferAcceptedAt: data.transferAcceptedAt? format(new Date(data.transferAcceptedAt), 'yyyy-MM-dd HH:mm:ss') : '-',
+        transferAcceptAt: data.transferAcceptAt? format(new Date(data.transferAcceptAt), 'yyyy-MM-dd HH:mm:ss') : undefined,
       });
       setIsModalOpen(true);
     } catch (error) {
@@ -105,6 +122,11 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
           render: (data: CombinedTransfer) => data.patients?.[0]?.patientPreKtas || '-',
         },
         { key: 'fireDeptName', header: '관할 소방서' },
+        {
+          key: 'patientSymptom',
+          header: '증상',
+          render: (data: CombinedTransfer) => data.patients?.[0]?.patientSymptom || '-',
+        },
       ];
     }
     return [
@@ -113,6 +135,13 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         header: '이송요청 일시',
         render: (data: CombinedTransfer) =>
           format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
+      },
+      {
+        key: 'transferAcceptAt',
+        header: '이송수락 일시',
+        render: (data: CombinedTransfer) =>
+            data.transferAcceptAt ? format(new Date(data.transferAcceptAt), 'yyyy-MM-dd HH:mm:ss')
+        : '-',
       },
       {
         key: 'patientGender_Age',
@@ -126,6 +155,11 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         key: 'preKtas',
         header: 'pre-KTAS',
         render: (data: CombinedTransfer) => data.patients?.[0]?.patientPreKtas || '-',
+      },
+      {
+        key: 'patientSymptom',
+        header: '증상',
+        render: (data: CombinedTransfer) => data.patients?.[0]?.patientSymptom || '-',
       },
       { key: 'fireDeptName', header: '관할 소방서' },
       {
@@ -155,8 +189,8 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
     // 타입에 따라 다시 필터링
     filteredData =
       type === 'accept'
-        ? filteredData.filter((item) => item.transferAcceptedAt) // 수락된 이송만
-        : filteredData.filter((item) => !item.transferAcceptedAt); // 수락하지 않은 이송만
+        ? filteredData.filter((item) => item.transferAcceptAt) // 수락된 이송만
+        : filteredData.filter((item) => !item.transferAcceptAt); // 수락하지 않은 이송만
 
     useHospitalTransferStore.setState({ transfers: filteredData, combinedTransfers: filteredData });
   };

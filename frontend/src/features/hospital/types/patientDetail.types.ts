@@ -3,9 +3,9 @@ export interface PatientDetailProps {
   onOpenChange: (open: boolean) => void;
   buttons: string;
   data: {
-    name: string | null;
-    gender: string;
-    age: string | null;
+    name?: string | null;
+    gender?: string | null;
+    age?: string | null;
     mental: string;
     preKTAS: string;
     sbp: number;
@@ -13,14 +13,14 @@ export interface PatientDetailProps {
     pr: number;
     bt: number;
     spo2: number;
-    bst: number | null;
+    bst: number;
     phone: string;
-    protectorPhone: string | null;
+    protectorPhone?: string | null;
     symptoms: string;
-    diseases: string | null;
-    medications: string | null;
+    diseases?: string;
+    medications?: string;
     requestTransferAt: string;
-    transferAcceptedAt?: string;
+    transferAcceptAt?: string;
     transferArriveAt?: string;
   }
 }

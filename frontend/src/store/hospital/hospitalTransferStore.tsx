@@ -26,7 +26,7 @@ export const useHospitalTransferStore = create<TransferStore>((set) => ({
                 const acceptedInfo = acceptedList.data.find(accepted => accepted.dispatchId === transfer.dispatchId) as AcceptedTransfer
                     return {
                      ...transfer,
-                        transferAcceptedAt: acceptedInfo?.transferAcceptedAt || null,
+                        transferAcceptAt: acceptedInfo?.transferAcceptAt || null,
                         transferArriveAt: acceptedInfo?.transferArriveAt || null,
                         hospital: acceptedInfo?.hospital || null,
                     } as CombinedTransfer
