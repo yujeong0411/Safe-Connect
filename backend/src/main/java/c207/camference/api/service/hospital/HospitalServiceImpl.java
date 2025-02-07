@@ -16,11 +16,11 @@ import c207.camference.db.repository.report.TransferRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -95,6 +95,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> respondToTransfer(int patientId, String status) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + patientId));
@@ -114,6 +115,9 @@ public class HospitalServiceImpl implements HospitalService {
 
         throw new IllegalArgumentException("Invalid status: " + status);
     }
+
+    @Override
+    @Transactional
     public ResponseEntity<?> transferRequest(){
 
         try{
@@ -138,6 +142,10 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
     }
+
+
+    @Override
+    @Transactional
     public ResponseEntity<?> transferRequestDetail(int dispatchId){
         try{
             List<Patient> patients = patientRepository.findAllByDispatchId(dispatchId);

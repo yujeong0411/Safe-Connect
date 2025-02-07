@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VideoCallRepository extends JpaRepository<VideoCall, Integer> {
+    VideoCall findByCallId(Integer callId);
 }

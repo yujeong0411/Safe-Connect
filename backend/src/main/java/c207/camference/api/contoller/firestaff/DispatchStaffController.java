@@ -1,17 +1,22 @@
-package c207.camference.api.contoller.user;
+package c207.camference.api.contoller.firestaff;
 
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
+import c207.camference.api.request.patient.PatientCallRequest;
+import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.service.fireStaff.DispatchStaffService;
+import c207.camference.api.service.sms.SmsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/dispatch_staff")
 public class DispatchStaffController {
+    private final SmsService smsService;
     DispatchStaffService dispatchStaffService;
 
-    public DispatchStaffController(DispatchStaffService dispatchStaffService) {
+    public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService) {
         this.dispatchStaffService = dispatchStaffService;
+        this.smsService = smsService;
     }
 
     @GetMapping("/report")
@@ -44,6 +49,16 @@ public class DispatchStaffController {
     @PostMapping("/transfer/update")
     public ResponseEntity<?> transferUpdate(@RequestBody TransferUpdateRequest request) {
         return dispatchStaffService.transferUpdate(request);
+    }
+
+    @PutMapping("/patient_info")  // patient_info를 patient_inf로 변경
+    public ResponseEntity<?> patientInfo(@RequestBody PatientInfoRequest request) {
+        return dispatchStaffService.updatePatientInfo(request);
+    }
+
+    @PostMapping("/patient/call")
+    public ResponseEntity<?> patientCall(@RequestBody PatientCallRequest request) {
+        return smsService.dispatchSendMessage(request);
     }
 
 }

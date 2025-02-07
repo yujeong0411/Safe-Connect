@@ -17,4 +17,6 @@ public interface UserService {
     ResponseEntity<?> findEmail(String userName,String userPhone);
     ResponseEntity<?> findPassword(String userEmail);
     ResponseEntity<?> changePassword(UserPasswordChangeRequest request);
+
+    ResponseEntity<?> getAedsNearBy(double lat, double lon);
 }

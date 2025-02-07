@@ -11,7 +11,8 @@ import java.util.List;
 public interface AedRepository extends JpaRepository<Aed, Integer> {
 
     @Query(value = "SELECT a.* FROM aed a WHERE " +
-            "ST_Distance_Sphere(POINT(a.aed_longitude, a.aed_latitude), POINT(:longitude, :latitude)) <= 1000",
+            "ST_Distance(POINT(a.aed_longitude, a.aed_latitude), " +
+            "POINT(:longitude, :latitude)) * 111.195 <= 1",
             nativeQuery = true)
     List<Aed> findAedsWithin1Km(double latitude, double longitude);
 }
