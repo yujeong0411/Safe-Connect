@@ -39,11 +39,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,6 +73,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private String availableHospitalUrl;
 
 
+    @Transactional
     @Override
     public ResponseEntity<?> getReports(){
         try{
@@ -120,6 +126,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
 
     }
+
+    @Transactional
     @Override
     public ResponseEntity<?> dispatchDetail(int dispatchId){
         try{
@@ -144,6 +152,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     }
 
+    @Transactional
     @Override
     public ResponseEntity<?> transferDetail(int transferId){
         try{
@@ -170,6 +179,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     }
 
+    @Transactional
     @Override
     public ResponseEntity<?> getReqHospital(int dispatchId){
         try{
@@ -190,8 +200,10 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-    };
+    }
 
+    @Transactional
+    @Override
     public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu) {
         List<AvailableHospitalResponse> responses = new ArrayList<>();
         HttpURLConnection urlConnection = null;
@@ -199,8 +211,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         try {
             String urlStr = availableHospitalUrl +
                     "?ServiceKey=" + serviceKey +  // serviceKey는 인코딩하지 않음
-                    "&STAGE1=" + URLEncoder.encode(siDo, "UTF-8") +
-                    "&STAGE2=" + URLEncoder.encode(siGunGu, "UTF-8") +
+                    "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
+                    "&STAGE2=" + URLEncoder.encode(siGunGu, StandardCharsets.UTF_8) +
                     "&numOfRows=" + 100;
 
             String response = OpenApiUtil.getHttpResponse(urlStr);
@@ -251,4 +263,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         return ResponseEntity.ok().body(ResponseUtil.success(response, "병원 인계여부 수정 성공"));
     }
+
+
 }

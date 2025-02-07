@@ -34,7 +34,9 @@ public class UserMediServiceImpl implements UserMediService {
     private final MediRepository mediRepository;
     private final MediCategoryRepository mediCategoryRepository;
 
+
     @Override
+    @Transactional
     public ResponseEntity<?> getUserMediInfo(String token) {
         User user = getUserFromToken(token);
 
@@ -81,6 +83,7 @@ public class UserMediServiceImpl implements UserMediService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> getMediList() {
         List<MediCategory> categories = mediCategoryRepository.findByMediCategoryIsActiveTrue();
 

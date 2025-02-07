@@ -3,9 +3,9 @@ package c207.camference.api.service.fireStaff;
 import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
-import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
+import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
@@ -32,7 +32,6 @@ import c207.camference.temp.response.FireStaffResponse;
 import c207.camference.util.medi.MediUtil;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -40,6 +39,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -144,6 +144,7 @@ public class ControlServiceImpl implements ControlService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> getReadyDispatchGroups() {
         List<DispatchGroup> readyDispatchGroups = dispatchGroupRepository.findByDispatchGroupIsReadyTrue();
         List<DispatchGroupResponse> response = readyDispatchGroups.stream()
@@ -198,17 +199,11 @@ public class ControlServiceImpl implements ControlService {
 
 
 
-    // 활성화된 의약품/질환 목록 조회
-    private List<Medi> getUserActiveMedis(UserMediDetail userMediDetail) {
-        return userMediDetail.getUserMediMappings().stream()
-                .filter(mapping -> mapping.getMediIsActive())
-                .map(UserMediMapping::getMedi)
-                .collect(Collectors.toList());
-    }
-
     // 상황실 직원이 '영상통화방 생성 및 url 전송' 버튼을 눌렀을 시
     // 신고자(caller), 신고(call), 영상통화(video_call), 영상통화 참여(video_call_user) 레코드 생성
+
     @Override
+    @Transactional
     public ResponseEntity<?> createRoom(CallRoomRequest request) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -224,11 +219,7 @@ public class ControlServiceImpl implements ControlService {
 
             // 신고자가 회원인지 조회
             Optional<User> user = userRepository.findByUserPhone(callerPhone);
-            if (user.isPresent()) {
-                caller.setCallerIsUser(true);
-            } else {
-                caller.setCallerIsUser(false);
-            }
+            caller.setCallerIsUser(user.isPresent());
 
             caller.setCallerIsUser(false);
             caller.setCallerIsLocationAccept(false);
@@ -263,7 +254,7 @@ public class ControlServiceImpl implements ControlService {
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCallRepository.save(videoCall);
 
-        System.out.println(videoCall.toString());
+        System.out.println(videoCall);
 
         // ---
         // 영상통화 참여(video_call_user)레코드 생성
@@ -275,8 +266,16 @@ public class ControlServiceImpl implements ControlService {
         videoCallUser.setVideoCallId(caller.getCallerId()); // 일단은 신고자아이디
         videoCallUserRepository.save(videoCallUser);
 
-        System.out.println(videoCallUser.toString());
+        System.out.println(videoCallUser);
         
         return null;
+    }
+
+    // 활성화된 의약품/질환 목록 조회
+    private List<Medi> getUserActiveMedis(UserMediDetail userMediDetail) {
+        return userMediDetail.getUserMediMappings().stream()
+                .filter(mapping -> mapping.getMediIsActive())
+                .map(UserMediMapping::getMedi)
+                .collect(Collectors.toList());
     }
 }

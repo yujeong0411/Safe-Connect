@@ -1,4 +1,4 @@
-package c207.camference.api.contoller.user;
+package c207.camference.api.contoller.firestaff;
 
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.service.fireStaff.DispatchStaffService;
