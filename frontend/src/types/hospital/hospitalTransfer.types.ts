@@ -13,6 +13,7 @@ export interface TransferData {
     patients: patients[]
 }
 
+// 전체 이송 조회
 export interface patients {
     patientPreKtas:string
     patientGender:string
@@ -47,7 +48,22 @@ export interface PatientDetail {
     patientDiseases: string[];
 }
 
-// 이송 신청 상세 조회
-// export interface TransferDetailData {
-//
-// }
+// 이송 수락 내역 조회
+export interface AcceptedTransfer {
+    transferAcceptAt:string
+    transferArriveAt:string
+    dipatchId:number   // id로 전체 조회와 연결
+    hospital: {
+        hospitalName: string;
+        locationPoint: string;
+    };
+}
+
+export interface CombinedTransfer {
+    dispatchId: number;
+    fireDeptName: string;
+    reqHospitalCreatedAt: string;
+    dispatchIsTransfer: boolean;
+    patients: patients[];
+    acceptedTransfer: AcceptedTransfer | null;
+}
