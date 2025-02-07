@@ -1,9 +1,11 @@
 package c207.camference.api.service.fireStaff;
 
+import c207.camference.api.request.dispatchstaff.DispatchRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
+import c207.camference.api.response.dispatchstaff.FinishDispatchResponse;
 import c207.camference.api.response.dispatchstaff.TransferUpdateResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
@@ -46,10 +48,7 @@ import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -301,5 +300,18 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<?> finishDispatch(DispatchRequest request) {
+        Dispatch dispatch = dispatchRepository.findById(request.getDispatchId())
+                .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
+
+        dispatch.getDispatchGroup().setDispatchGroupIsReady(true);
+        dispatch.setDispatchArriveAt(LocalDateTime.now());
+
+        FinishDispatchResponse response = new FinishDispatchResponse(dispatch, dispatch.getDispatchGroup());
+        return ResponseEntity.ok().body(ResponseUtil.success(response, "현장에서 상황 종료"));
     }
 }
