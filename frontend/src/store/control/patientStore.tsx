@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import {persist } from 'zustand/middleware';
 import { PatientInfo, PatientStore, CallInfo, CurrentCall } from '@/types/common/Patient.types.ts';
 import { patientService, protectorService } from '@features/control/services/controlApiService.ts';
 
@@ -28,7 +27,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   // 신고 내용 저장(수정)
   savePatientInfo: async (info: CallInfo) => {
     try {
-      const { currentCall, patientInfo } = get();  // 내부 상태 가져오기
+      const {  patientInfo } = get();  // 내부 상태 가져오기
       // 현재 선택된 회원 ID와 신고 ID 추가
       const callInfo = {
         //callId: currentCall?.callId,  // 또는 별도로 관리되는 callId
@@ -64,9 +63,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
     } catch (error: any) {
       console.error('보호자 문자 전송 실패', error);
       throw error;
+      return false;
     }
   },
-}), {
-  name: 'patient-storage',  // localstorage 이름
-  getStorage: () => localStorage
-});
+}))

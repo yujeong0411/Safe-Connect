@@ -16,6 +16,8 @@ interface SaveForm {
   medications?: string;
   callSummary: string;
   symptom?: string;
+  callId: number;  // 또는 적절한 타입
+  userId: number;
 }
 
 const ControlPatientInfoForm = () => {
@@ -32,6 +34,8 @@ const ControlPatientInfoForm = () => {
     medications: '',
     callSummary: '',
     symptom: '',
+    callId: 0,
+    userId: 0
   });
 
   // patientInfo가 변경될 때 폼 데이터 업데이트
