@@ -1,6 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
+import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
 import c207.camference.api.response.dispatchstaff.TransferUpdateResponse;
@@ -39,11 +40,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,6 +74,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private String availableHospitalUrl;
 
 
+    @Transactional
     @Override
     public ResponseEntity<?> getReports(){
         try{
@@ -120,6 +127,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
 
     }
+
+    @Transactional
     @Override
     public ResponseEntity<?> dispatchDetail(int dispatchId){
         try{
@@ -144,6 +153,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     }
 
+    @Transactional
     @Override
     public ResponseEntity<?> transferDetail(int transferId){
         try{
@@ -170,6 +180,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     }
 
+    @Transactional
     @Override
     public ResponseEntity<?> getReqHospital(int dispatchId){
         try{
@@ -190,8 +201,10 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-    };
+    }
 
+    @Transactional
+    @Override
     public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu) {
         List<AvailableHospitalResponse> responses = new ArrayList<>();
         HttpURLConnection urlConnection = null;
@@ -199,8 +212,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         try {
             String urlStr = availableHospitalUrl +
                     "?ServiceKey=" + serviceKey +  // serviceKey는 인코딩하지 않음
-                    "&STAGE1=" + URLEncoder.encode(siDo, "UTF-8") +
-                    "&STAGE2=" + URLEncoder.encode(siGunGu, "UTF-8") +
+                    "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
+                    "&STAGE2=" + URLEncoder.encode(siGunGu, StandardCharsets.UTF_8) +
                     "&numOfRows=" + 100;
 
             String response = OpenApiUtil.getHttpResponse(urlStr);
@@ -239,6 +252,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> transferUpdate(TransferUpdateRequest request) {
         Transfer transfer = transferRepository.findByTransferId(request.getTransferId())
                 .orElseThrow(() -> new RuntimeException("일치하는 이송 내역이 없습니다."));
@@ -250,5 +264,42 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         TransferUpdateResponse response = new TransferUpdateResponse(transfer);
 
         return ResponseEntity.ok().body(ResponseUtil.success(response, "병원 인계여부 수정 성공"));
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<?> updatePatientInfo(PatientInfoRequest request){
+
+        try{
+            Patient patient = patientRepository.findById(request.getPatientId())
+                    .orElseThrow(()->new EntityNotFoundException("환자 정보가 없습니다."));
+
+
+            ModelMapper modelMapper = new ModelMapper();
+            modelMapper.getConfiguration().setSkipNullEnabled(true);
+
+            // 요청 객체에서 null이 아닌 필드만 user 객체에 업데이트
+            modelMapper.map(request, patient);
+
+            patientRepository.saveAndFlush(patient);
+
+
+            Map<String, Integer> data = new HashMap<>();
+            data.put("patientId", patient.getPatientId());
+
+            ResponseData<Map<String, Integer>> response = ResponseUtil.success(data, "환자 정보변경 완료");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+
+        } catch (EntityNotFoundException e) {
+            System.out.println("EntityNotFoundException: " + e.getMessage());
+            ResponseData<Void> response = ResponseUtil.fail(404, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+            ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }
