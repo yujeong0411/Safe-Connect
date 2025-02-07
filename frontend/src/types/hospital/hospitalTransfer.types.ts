@@ -23,7 +23,7 @@ export interface patients {
 export interface TransferStore {
     transfers: TransferData[]
     originalTransfers: TransferData[];  // 날짜 필터링
-    fetchTransfers: (type: 'request' | 'accept') => Promise<void>;
+    fetchTransfers: (type: 'request' | 'accept') => Promise<TransferData[]>;
     fetchTransferDetail: (dispatchId: number, type: 'request' | 'accept') => Promise<PatientDetail>;
 }
 

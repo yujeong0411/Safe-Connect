@@ -1,4 +1,3 @@
-import Badge from '@/components/atoms/Badge/Badge';
 import { format } from 'date-fns';
 import { DispatchData } from '@/features/dispatch/types/types';
 import Button from '@/components/atoms/Button/Button';
