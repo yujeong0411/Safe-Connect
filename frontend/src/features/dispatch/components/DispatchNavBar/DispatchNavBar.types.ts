@@ -1,4 +1,3 @@
-// src/components/organisms/NavBar/NavBar.types.ts
 export interface NavItem {
   label: string;
   path: string;
@@ -7,6 +6,6 @@ export interface NavItem {
   onModalOpen?: () => void;
 }
 
-export interface NavBarProps {
+export interface DispatchNavBarProps {
   navItems: NavItem[];
 }
