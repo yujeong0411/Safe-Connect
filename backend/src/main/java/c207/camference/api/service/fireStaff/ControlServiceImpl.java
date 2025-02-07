@@ -264,6 +264,7 @@ public class ControlServiceImpl implements ControlService {
         videoCallRepository.save(videoCall);
 
         // ---
+
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
@@ -291,7 +292,7 @@ public class ControlServiceImpl implements ControlService {
 
         // 신고(call) 종료시각(call_finished_at) 수정
         Integer callId = request.getCallId();
-        System.out.println(callId);
+        System.out.println("callId : " + callId);
 
         Call call = callRepository.findById(callId).orElse(null);
         if (call == null) {
@@ -317,6 +318,8 @@ public class ControlServiceImpl implements ControlService {
                 videoCallUserRepository.save(videoCallUser);
             }
         }
+
+        // ---
 
         // 응답 객체 구성 (예: Map을 사용)
         Map<String, Object> response = new HashMap<>();

@@ -125,21 +125,23 @@ public class WebRtcController {
 
 
 
-    @PostMapping("/control/whisper")
-    public ResponseEntity<?> sendUrl(@RequestParam("audioFile") MultipartFile audioFile) throws IOException {
+    @PostMapping("/control/summary")
+    public ResponseEntity<?> sendUrl(
+            @RequestParam("callId") Integer callId,
+            @RequestParam("audioFile") MultipartFile audioFile) throws IOException {
 
         String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
         String summary = webRtcService.textSummary(text);
 
-        System.out.println("요약전 : " + text); // 테스트용.
-        System.out.println("요약 후 : " + summary);
-
-//        controlService.updateCall(text);
-//        controlService.updateCall(summary);
+//        System.out.println("요약전 : " + text); // 테스트용.
+//        System.out.println("요약 후 : " + summary);
+        
+        webRtcService.save(callId, text, summary);
 
         Map<String, String> response = new HashMap<>();
-        response.put("text", text);
-        response.put("summary", summary);
+        response.put("callSummary", summary);
+        response.put("message", "신고내역요약 조회 성공");
+
 
         return ResponseEntity.ok(response);
     }
