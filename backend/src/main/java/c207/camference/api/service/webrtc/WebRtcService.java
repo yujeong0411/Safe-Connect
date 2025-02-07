@@ -12,5 +12,5 @@ public interface WebRtcService {
     String speechToText(MultipartFile audioFile) throws IOException;
     String textSummary(String speechToText);
     String createStaffToken(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException;
-    ResponseEntity<?> save(Integer callId, String text, String summary);
+    ResponseEntity<?> saveSummary(Integer callId, String text, String summary);
 }

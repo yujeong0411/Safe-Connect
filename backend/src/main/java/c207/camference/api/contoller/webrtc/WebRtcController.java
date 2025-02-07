@@ -133,10 +133,10 @@ public class WebRtcController {
         String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
         String summary = webRtcService.textSummary(text);
 
-//        System.out.println("요약전 : " + text); // 테스트용.
-//        System.out.println("요약 후 : " + summary);
+        System.out.println("요약전 : " + text); // 테스트용.
+        System.out.println("요약 후 : " + summary);
         
-        webRtcService.save(callId, text, summary);
+        webRtcService.saveSummary(callId, text, summary);
 
         Map<String, String> response = new HashMap<>();
         response.put("callSummary", summary);
@@ -180,6 +180,7 @@ public class WebRtcController {
 
         return ResponseEntity.notFound().build();
     }
+
     @GetMapping("/api/sessions")
     public ResponseEntity<List<String>> getAllActiveSessions()
             throws OpenViduJavaClientException, OpenViduHttpException {

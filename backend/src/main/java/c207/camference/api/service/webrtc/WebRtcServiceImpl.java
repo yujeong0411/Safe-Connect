@@ -125,11 +125,13 @@ public class WebRtcServiceImpl implements WebRtcService {
     }
 
     @Override
-    public ResponseEntity<?> save(Integer callId, String text, String summary) {
+    public ResponseEntity<?> saveSummary(Integer callId, String text, String summary) {
         Call call = callRepository.findCallByCallId(callId);
         call.setCallText(text);
         call.setCallSummary(summary);
         call.setCallTextCreatedAt(LocalDateTime.now());
+
+        callRepository.save(call);
 
         return null;
     }
