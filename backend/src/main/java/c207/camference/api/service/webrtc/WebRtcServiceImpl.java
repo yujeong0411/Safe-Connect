@@ -1,7 +1,10 @@
 package c207.camference.api.service.webrtc;
 
 import c207.camference.api.service.sms.SmsService;
-import com.fasterxml.jackson.databind.JsonNode;
+import c207.camference.db.entity.report.Call;
+import c207.camference.db.repository.report.CallRepository;
+import c207.camference.util.response.ResponseUtil;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,6 +34,7 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class WebRtcServiceImpl implements WebRtcService {
+    private final CallRepository callRepository;
     @Value("${OPENVIDU_URL}")
     private String OPENVIDU_URL;
 
@@ -119,6 +123,16 @@ public class WebRtcServiceImpl implements WebRtcService {
         return connStaff.getToken();
     }
 
+    @Override
+    public ResponseEntity<?> save(Integer callId, String text, String summary) {
+        Call call = callRepository.findCallByCallId(callId);
+        call.setCallText(text);
+        call.setCallSummary(summary);
+        call.setCallTextCreatedAt(LocalDateTime.now());
+
+        return null;
+    }
+
 
     // todo : 구급대원 영상통화 참여 (출동시간 수정)
     /**
@@ -178,7 +192,9 @@ public class WebRtcServiceImpl implements WebRtcService {
     public String textSummary(String speechToText) {
 // 요약을 요청하는 프롬프트 생성
         String prompt = String.format(
-                "다음 텍스트를 간결하게 요약해줘:\n\n%s\n\n요약:",
+                "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
+                        "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘.",
+                "\n\n%s\n\n요약:",
                 speechToText
         );
 

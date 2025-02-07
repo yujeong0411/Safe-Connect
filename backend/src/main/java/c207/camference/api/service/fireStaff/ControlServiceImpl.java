@@ -1,6 +1,7 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
+import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
 import c207.camference.api.response.common.ResponseData;
@@ -42,7 +43,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -207,6 +210,14 @@ public class ControlServiceImpl implements ControlService {
     public ResponseEntity<?> createRoom(CallRoomRequest request) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("fireStaffLoginId: " + fireStaffLoginId);
+        Optional<FireStaff> fireStaffOpt = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId);
+
+        Integer fireStaffId = null;
+        if (fireStaffOpt.isPresent()) {
+            FireStaff fireStaff = fireStaffOpt.get();
+            fireStaffId = fireStaff.getFireStaffId();
+        }
 
         // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
@@ -230,16 +241,14 @@ public class ControlServiceImpl implements ControlService {
         }
 
         // ---
-        
-        // 신고(call) 생성
-        Call call = new Call();
-        //call.setFireStaff(1); // 02.06 : fireStaffId값은 어디에?
-        call.setCallIsDispatched(false);
-        call.setCallStartedAt(LocalDateTime.now());
-        call.setCallFinishedAt(LocalDateTime.now()); // nullabe = false로 고칠것
-        call = callRepository.save(call);
 
-        // System.out.println(call.toString());
+        // 신고(call) 생성
+
+        Call call = new Call();
+        call.setCallIsDispatched(false);
+        call.setFireStaff(fireStaffOpt.get());
+        System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
+        call = callRepository.save(call);
 
         // ---
         // URL 전송 (추후 webrtc 기능 develop에 추가되면 수정)
@@ -254,21 +263,71 @@ public class ControlServiceImpl implements ControlService {
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCallRepository.save(videoCall);
 
-        System.out.println(videoCall);
-
         // ---
+
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
         videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
-        // videoCallUser.setVideoCallUserId(); // 상황실 직원의 아이디가 들어가야 한다.
-        videoCallUser.setVideoCallId(caller.getCallerId()); // 일단은 신고자아이디
+        videoCallUser.setVideoCallId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
+
         videoCallUserRepository.save(videoCallUser);
 
-        System.out.println(videoCallUser);
-        
-        return null;
+
+        return null; // 여기 수정할것
+    }
+
+    @Override
+    public ResponseEntity<?> callEnd(CallEndRequest request) {
+        // 상황실 직원 아이디
+        String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<FireStaff> fireStaffOpt = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId);
+
+        Integer fireStaffId = null;
+        if (fireStaffOpt.isPresent()) {
+            FireStaff fireStaff = fireStaffOpt.get();
+            fireStaffId = fireStaff.getFireStaffId();
+        }
+
+        // 신고(call) 종료시각(call_finished_at) 수정
+        Integer callId = request.getCallId();
+        System.out.println("callId : " + callId);
+
+        Call call = callRepository.findById(callId).orElse(null);
+        if (call == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("신고 정보를 찾을 수 없습니다.");
+        }
+
+        call.setCallFinishedAt(LocalDateTime.now());
+        System.out.println(call.toString()); // 디버그용
+        callRepository.save(call);
+
+        // ---
+
+        // 영상통화참여(video_call_user) 의 나간시간(video_call_out_at) 수정
+        List<VideoCallUser> videoCallUsers = videoCallUserRepository
+                .findByVideoCallIdAndVideoCallOutAtIsNullAndVideoCall_Call_CallId(fireStaffId, callId);
+
+        if (videoCallUsers != null && !videoCallUsers.isEmpty()) {
+            for (VideoCallUser videoCallUser : videoCallUsers) {
+                videoCallUser.setVideoCallOutAt(LocalDateTime.now());
+
+                System.out.println(videoCallUser.toString()); // 디버그용
+                
+                videoCallUserRepository.save(videoCallUser);
+            }
+        }
+
+        // ---
+
+        // 응답 객체 구성 (예: Map을 사용)
+        Map<String, Object> response = new HashMap<>();
+        response.put("isSuccess", true);
+        response.put("code", 200);
+        response.put("message", "신고 종료 시각 수정 성공");
+
+        return ResponseEntity.ok(response);
     }
 
     // 활성화된 의약품/질환 목록 조회

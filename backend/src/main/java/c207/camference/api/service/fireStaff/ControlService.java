@@ -1,5 +1,6 @@
 package c207.camference.api.service.fireStaff;
 
+import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
 import c207.camference.temp.request.FireStaffCreateRequest;
@@ -16,4 +17,5 @@ public interface ControlService {
     ResponseEntity<?> updateCall(CallUpdateRequest request);
 
     ResponseEntity<?> createRoom(CallRoomRequest request);
+    ResponseEntity<?> callEnd(CallEndRequest request);
 }
