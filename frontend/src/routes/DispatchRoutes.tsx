@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom';
-import PrivateRoute from '@/routes/PrivateRoute';
 import PublicRoute from '@/routes/PublicRoute';
 import DispatchPage from '@/pages/DispatchPage';
 import PatientInfoPage from '@/pages/DispatchPage/PatientInfoPage';

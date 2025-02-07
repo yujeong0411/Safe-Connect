@@ -13,6 +13,7 @@ const PublicHeader = ({ labels = [] }: PublicHeaderProps) => {
     if (location.pathname.includes('/control')) return '/control';
     if (location.pathname.includes('/dispatch')) return '/dispatch';
     if (location.pathname.includes('/admin')) return '/admin';
+    if (location.pathname.includes('/caller')) return '/caller';
     return '/user/login';
   };
 
