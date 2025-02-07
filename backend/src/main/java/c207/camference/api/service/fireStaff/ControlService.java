@@ -17,7 +17,7 @@ public interface ControlService {
 
     ResponseEntity<?> updateCall(CallUpdateRequest request);
 
-    ResponseEntity<?> createRoom(CallRoomRequest request);
+    ResponseEntity<?> createRoom(CallRoomRequest request, String url);
     ResponseEntity<?> callEnd(CallEndRequest request);
 
     ResponseEntity<?> resendUrl(ResendRequest request);

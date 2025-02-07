@@ -63,70 +63,7 @@ public class WebRtcServiceImpl implements WebRtcService {
             .writeTimeout(60, TimeUnit.SECONDS)  // 쓰기 타임아웃
             .build();
 
-    // 신고자에게 영상통화방 URL 전송
-    /*
-    @Override
-    @Transactional
-    public ResponseEntity<?> sendUrlMsg(String callerPhone)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-        String URL = "";
 
-        // 현재 시간 가져오기
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-        String formattedNow = now.format(formatter);
-
-        // 직접 세션 속성을 담을 Map을 생성
-        Map<String, Object> params = new HashMap<>();
-        params.put("customSessionId", formattedNow);
-
-        // 세션아이디는 어떤걸로 해도 무방하기는 한데, 매 방마다 달라야 하고, 어차피 DB에도 넣어야 하는 값인 생성 시각으로 한다.(02.01 김성준)
-        SessionProperties sessionPros = SessionProperties.fromJson(params).build();
-        Session session = openvidu.createSession(sessionPros);
-
-        Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
-        ConnectionProperties connProps = ConnectionProperties.fromJson(connectedParams).build();
-
-        Connection connCaller = session.createConnection(connProps);
-        Connection connFireStaff = session.createConnection(connProps);
-
-        String tokenCaller = connCaller.getToken();
-        String tokenFireStaff = connFireStaff.getToken();
-
-        URL = "http://localhost:3000/" + "?sessionid=" + session.getSessionId() + "token=" + tokenCaller;
-
-        // todo : video_call(영상통화방) 테이블 생성
-
-        // todo : vidoe_call_user(영상통화참여) 테이블에 신고자, 상황실 직원 정보 2개 INSERT
-
-        System.out.println(URL); // 디버그용. 삭제할것
-
-        // 생성한 URL을 SMS로 전송하는 로직 추가
-        smsService.sendMessage(callerPhone, URL);
-
-        return ResponseEntity.ok().build();
-    }
-    */
-
-
-    // todo : 구급대원용 토큰 생성
-    /**
-    @param : 세션ID
-    @return : Map<> tokenId
-     */
-    @Override
-    @Transactional
-    public String createStaffToken(String sessionId)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-        Session session = openvidu.getActiveSession(sessionId);
-
-        Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
-        ConnectionProperties properties = ConnectionProperties.fromJson(connectedParams).build();
-        Connection connStaff = session.createConnection(properties);
-        System.out.println(connStaff.getToken());
-
-        return connStaff.getToken();
-    }
 
     @Override
     public ResponseEntity<?> saveSummary(Integer callId, String text, String summary) {
@@ -140,6 +77,33 @@ public class WebRtcServiceImpl implements WebRtcService {
         return null;
     }
 
+    /** 상황실 직원이 영상통화방 생성
+     *
+     * @param customSessionId
+     * @return sessionId
+     */
+    @Override
+    public String makeSession(String customSessionId) throws OpenViduJavaClientException, OpenViduHttpException {
+        SessionProperties properties = new SessionProperties.Builder()
+                .customSessionId(customSessionId)
+                .build();
+
+        Session session = openvidu.createSession(properties);
+        String sessionId = session.getSessionId();
+
+        return sessionId;
+    }
+
+    /** 상황실 직원이 영상통화방 session을 만들었으면 이를 바탕으로 접속가능한 URL만든다.
+     *
+     * @param sessionId
+     * @return url
+     */
+    public String makeUrl(String sessionId){
+        String url = "http://localhost:5173/caller/join/" + sessionId + "?direct=true";
+
+        return url;
+    }
 
     // todo : 구급대원 영상통화 참여 (출동시간 수정)
     /**

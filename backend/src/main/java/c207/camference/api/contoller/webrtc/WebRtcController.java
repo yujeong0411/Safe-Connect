@@ -100,6 +100,7 @@ public class WebRtcController {
         System.out.println(session.getSessionId()); // 테스트용
 
         // 만들어진 URL을 문자로 전송
+        // 상황실 컨트롤러에서 전송? 여기서 전송?
         String URL = "http://localhost:5173/caller/join/" + customSessionId + "?direct=true";
         smsService.sendMessage(callerPhone, URL);
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
