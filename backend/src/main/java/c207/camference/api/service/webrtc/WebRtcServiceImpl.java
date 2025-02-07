@@ -1,64 +1,35 @@
 package c207.camference.api.service.webrtc;
 
-import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.db.entity.report.Call;
 import c207.camference.db.repository.report.CallRepository;
 import c207.camference.util.response.ResponseUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.cloud.speech.v1.*;
-import com.google.protobuf.ByteString;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
-import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.service.DefaultMessageService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-
 import io.openvidu.java.client.Connection;
-import io.openvidu.java.client.ConnectionProperties;
-import io.openvidu.java.client.OpenVidu;
-import io.openvidu.java.client.OpenViduHttpException;
-import io.openvidu.java.client.OpenViduJavaClientException;
-import io.openvidu.java.client.Session;
-import io.openvidu.java.client.SessionProperties;
+import io.openvidu.java.client.*;
+import lombok.RequiredArgsConstructor;
+import okhttp3.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import java.util.*;
-
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 @Service
 @RequiredArgsConstructor
@@ -92,6 +63,7 @@ public class WebRtcServiceImpl implements WebRtcService {
 
     // 신고자에게 영상통화방 URL 전송
     @Override
+    @Transactional
     public ResponseEntity<?> sendUrlMsg(String callerPhone)
             throws OpenViduJavaClientException, OpenViduHttpException {
         String URL = "";
@@ -138,6 +110,7 @@ public class WebRtcServiceImpl implements WebRtcService {
     @return : Map<> tokenId
      */
     @Override
+    @Transactional
     public String createStaffToken(String sessionId)
             throws OpenViduJavaClientException, OpenViduHttpException {
         Session session = openvidu.getActiveSession(sessionId);
@@ -174,6 +147,7 @@ public class WebRtcServiceImpl implements WebRtcService {
 
     // 화상통화중 녹음된 파일을 텍스트로 변환해주는 메서드
     @Override
+    @Transactional
     public String speechToText(MultipartFile audioFile) throws IOException {
         if (audioFile.isEmpty()) {
             throw new IOException("전달받은 음성 데이터 audioFile 빈파일.");
@@ -212,7 +186,9 @@ public class WebRtcServiceImpl implements WebRtcService {
         }
 
     // 텍스트로 변환한 음성을 요약해주는 기능
+
     @Override
+    @Transactional
     public String textSummary(String speechToText) {
 // 요약을 요청하는 프롬프트 생성
         String prompt = String.format(

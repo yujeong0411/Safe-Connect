@@ -19,7 +19,6 @@ import c207.camference.util.openapi.OpenApiUtil;
 import c207.camference.util.response.ResponseUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.json.XML;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -168,6 +168,8 @@ public class OpenApiServiceImpl implements OpenApiService {
         }
     }
 
+    @Override
+    @Transactional
     public ResponseEntity<?> saveAed() {
         int pageNo = 1;
         int numOfRows = 100;
@@ -209,7 +211,9 @@ public class OpenApiServiceImpl implements OpenApiService {
         }
     }
 
+
     @Override
+    @Transactional
     public ResponseEntity<?> saveMedication() {
         // medi_category 1에 저장
         MediCategory category = mediCategoryRepository.findById(1)
@@ -224,7 +228,7 @@ public class OpenApiServiceImpl implements OpenApiService {
                 String urlStr = medicationUrl + "?serviceKey=" + serviceKey +
                         "&pageNo=" + pageNo + "&numOfRows=" + numOfRows + "&type=" + dataType;
 //                String response = OpenApiUtil.getHttpResponse(urlStr);
-                String response = new String(OpenApiUtil.getHttpResponse(urlStr).getBytes("ISO-8859-1"), "UTF-8");
+                String response = new String(OpenApiUtil.getHttpResponse(urlStr).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 
                 JsonNode root = objectMapper.readTree(response);
                 JsonNode itemsArray = root.path("body").path("items");
