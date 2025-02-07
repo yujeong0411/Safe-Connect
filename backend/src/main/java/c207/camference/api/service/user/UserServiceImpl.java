@@ -4,9 +4,12 @@ import c207.camference.api.request.user.UserCreateRequest;
 import c207.camference.api.request.user.UserPasswordChangeRequest;
 import c207.camference.api.request.user.UserUpdateRequest;
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.openapi.AedResponse;
 import c207.camference.api.response.user.UserEmailResponse;
 import c207.camference.api.response.user.UserResponse;
+import c207.camference.db.entity.etc.Aed;
 import c207.camference.db.entity.users.User;
+import c207.camference.db.repository.openapi.AedRepository;
 import c207.camference.db.repository.users.UserRepository;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,7 +26,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ModelMapper modelMapper;
     private final JavaMailSender javaMailSender;
+    private final AedRepository aedRepository;
 
 
 
@@ -239,4 +245,21 @@ public class UserServiceImpl implements UserService {
         }
         return password.toString();
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity<?> getAedsNearBy(double lat, double lon) {
+        List<Aed> aeds = aedRepository.findAedsWithin1Km(lat, lon);
+        System.out.println("aeds = " + aeds);
+        List<AedResponse> response = aeds.stream()
+                .map(aed -> new AedResponse(aed.getAedId(), aed.getAedAddress(),aed.getAedPlace() , aed.getAedLatitude(), aed.getAedLongitude()))
+                .collect(Collectors.toList());
+
+        if (response.isEmpty()) {
+            return ResponseEntity.ok().body(ResponseUtil.success("신고자 근처 1km 이내에 AED가 없습니다"));
+        }
+
+        return ResponseEntity.ok().body(ResponseUtil.success(response, "신고자 근처 AED 위치 조회 완료"));
+    }
+
 }
