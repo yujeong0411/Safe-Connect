@@ -9,7 +9,7 @@ import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
 // import { signOut } from '@features/auth/servies/apiService.ts';
 
 const UserMediPage = () => {
-  const { updateMediInfo } = useAuthStore();
+  const { updateMediInfo, logout } = useAuthStore();
   const { formData, setFormData } = useSignupStore();
   const { loadUserInfo } = useLoadUserInfo('medi'); // 사용자 정보 가져오기
 
@@ -77,6 +77,7 @@ const UserMediPage = () => {
         { label: '의료 정보 수정', path: '/user/medi' },
         { label: '비밀번호 수정', path: '/user/updatepassword' },
       ]}
+      logoutDirect={logout}
     >
       <UserInfoTemplate
         title="의료 정보 수정"

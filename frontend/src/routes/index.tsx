@@ -4,6 +4,8 @@ import DispatchRoutes from '@/routes/DispatchRoutes.tsx';
 import HospitalRoutes from '@/routes/HospitalRoutes.tsx';
 import AdminRoutes from '@/routes/AdminRoutes.tsx';
 import ControlRoutes from '@/routes/ControlRoutes.tsx';
+import OpenViduRoutes from '@/routes/OpenViduRoutes.tsx';
+import CallerRoutes from '@/routes/CallerRoutes.tsx';
 
 const Router = () => {
   return (
@@ -23,6 +25,13 @@ const Router = () => {
 
         {/*관리자*/}
         <Route path="/admin/*" element={<AdminRoutes />} />
+
+        {/*OpenviduPage*/}
+        <Route path="/openvidu/*" element={<OpenViduRoutes />} />
+
+        {/*  Caller*/}
+        <Route path="/caller/*" element={<CallerRoutes/>} />
+
       </Routes>
     </BrowserRouter>
   );

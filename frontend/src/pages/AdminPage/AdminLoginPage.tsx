@@ -12,11 +12,11 @@ const AdminLoginPage = () => {
       <LoginTemplate>
         <IdLoginForm
           fields={{
-            UserId: 'AdminUserId',
-            UserPassword: 'AdminUserPassword',
+            UserId: 'adminLoginId',
+            UserPassword: 'adminPassword',
           }}
           loginStore={login}
-          onSuccess={() => navigate('/admin/serviceall')}
+          onSuccess={() => navigate('/admin/main')}
         />
       </LoginTemplate>
     </div>

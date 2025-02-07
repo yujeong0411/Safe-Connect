@@ -1,15 +1,18 @@
 package c207.camference.api.service.fireStaff;
 
-import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
-import c207.camference.db.entity.hospital.Hospital;
+import c207.camference.api.request.dispatchstaff.DispatchRequest;
+import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
+import c207.camference.api.request.patient.PatientInfoRequest;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 public interface DispatchStaffService {
     ResponseEntity<?> getReports();
-    List<AvailableHospitalResponse> getAvailableHospital(String siDo, String siGunGu);
+    ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu);
     ResponseEntity<?> dispatchDetail(int DispatchId);
     ResponseEntity<?> transferDetail(int transferId);
     ResponseEntity<?> getReqHospital(int dispatchId);
+    ResponseEntity<?> transferUpdate(TransferUpdateRequest request);
+    ResponseEntity<?> updatePatientInfo(PatientInfoRequest request);
+
+    ResponseEntity<?> finishDispatch(DispatchRequest request);
 }

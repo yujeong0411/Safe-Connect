@@ -11,7 +11,7 @@ const HospitalLoginPage = () => {
       <LoginTemplate>
         <IdLoginForm
           fields={{
-            UserId: 'hospitalId',
+            UserId: 'hospitalLoginId',
             UserPassword: 'hospitalPassword',
           }}
           loginStore={login}

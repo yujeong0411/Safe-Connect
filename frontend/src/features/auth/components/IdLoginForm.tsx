@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Button from '@components/atoms/Button/Button.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
+import { useAuthStore } from '@/store/user/authStore.tsx';
 
 // Id를 이용하는 4명의 유저 공유
 export interface IdLoginFormProps {
@@ -30,6 +31,8 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
   const [error, setError] = useState<string | null>(null);
   const [_isLoading, setIsLoading] = useState<boolean>(false);
 
+  const setAuthenticated = useAuthStore(state => state.setAuthenticated);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     console.log('1. handleSubmit 시작'); // 디버깅 로그
     event.preventDefault();
@@ -47,11 +50,13 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
       });
       console.log('4. login 완료');
 
+
       // 로그인 성공 시 폼 초기화
       setFormData({
         UserId: '',
         UserPassword: '',
       });
+      setAuthenticated(true);
 
       onSuccess?.();
     } catch (error) {

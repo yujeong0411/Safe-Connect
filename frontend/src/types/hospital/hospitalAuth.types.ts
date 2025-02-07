@@ -9,3 +9,4 @@ export interface HospitalAuthStore {
   login: (data: HospitalLoginRequest) => Promise<void>; // 타입 변경
   logout: () => void;
 }
+

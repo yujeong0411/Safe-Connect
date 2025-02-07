@@ -21,6 +21,7 @@ export interface AuthState {
 
 // 상태와 액션을 포함한 스토어 타입
 export interface AuthStore {
+  setAuthenticated : (value: boolean) => void;
   userEmail: string;
   token: string | null;
   isAuthenticated: boolean;

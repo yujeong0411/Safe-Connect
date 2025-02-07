@@ -8,130 +8,219 @@ import {
 } from '@/components/ui/table';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useHospitalTransferStore } from '@/store/hospital/hospitalTransferStore.tsx';
+import { TransferData } from '@/types/hospital/hospitalTransfer.types.ts';
+import {format} from 'date-fns'
 
-interface PatientData {
-  name: string;
-  id: string;
-  fire: string;
-  'sex/age': string;
-  callStartAt: string;
-  transferAcceptAt: string;
-  'pre-KTAS': number;
-  symptom: string;
+export interface HospitalListFormProps {
+  type: 'request' | 'accept'; // 요청 목록인지 수락 목록인지 구분
 }
 
-type ColumnDef = {
-  key: keyof PatientData;
+interface Column {
+  key: string;
   header: string;
-  render?: (value: string | number) => React.ReactNode;
-};
+  render?: (data: TransferData) => string;
+}
 
-const HospitalListForm = () => {
+const HospitalListForm = ({ type }: HospitalListFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data'] | undefined>(); // null 대신 undefined 전달
+  const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>();
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+
+  const { transfers, fetchTransfers } = useHospitalTransferStore();
+
+  useEffect(() => {
+    fetchTransfers(type);
+  }, [type]);
 
   // 테이블 행 클릭 시
-  const handleRowClick = (patientData: PatientData) => {
-    // PatientData를 PatientDetailProps['data'] 형식으로 변환
-    setSelectedPatient({
-      name: patientData.name,
-      gender: patientData['sex/age'].split('/')[0],
-      age: parseInt(patientData['sex/age'].split('/')[1]),
-      mental: '',
-      preKTAS: patientData['pre-KTAS'],
-      contact: '',
-      sbp: 0,
-      dbp: 0,
-      pr: 0,
-      bt: 0,
-      spo2: 0,
-      bst: 0,
-      phone: '',
-      protectorPhone: '',
-      symptoms: patientData.symptom,
-      diseases: '',
-      medications: '',
-    });
-    setIsModalOpen(true);
+  const handleRowClick = async (data: TransferData) => {
+    try {
+      const detailData = await useHospitalTransferStore.getState().fetchTransferDetail(data.dispatchId, type);
+      setSelectedPatient({
+        name: detailData.patientName,
+        gender: detailData.patientGender,
+        age: detailData.patientAge,
+        mental: detailData.patientMental,
+        preKTAS: data.patients[0].patientPreKtas,
+        sbp: detailData.patientSystolicBldPress,
+        dbp: detailData.patientDiastolicBldPress,
+        pr: detailData.patientPulseRate,
+        bt: detailData.patientTemperature,
+        spo2: detailData.patientSpo2,
+        bst: detailData.patientBloodSugar,
+        phone: detailData.userPhone,
+        protectorPhone: detailData.userProtectorPhone,
+        symptoms: detailData.patientSymptom,
+        diseases: detailData.patientDiseases.join(', '),
+        medications: detailData.patientMedications.join(', '),
+        requestTransferAt:format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
+      });
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('상세 조회 실패:', error);
+    }
   };
 
   // 컬럼 정의
-  const columns: ColumnDef[] = [
-    { key: 'callStartAt', header: '이송요청 일시' },
-    { key: 'name', header: '이름' },
-    { key: 'sex/age', header: '성별/나이' },
-    { key: 'pre-KTAS', header: 'pre-KTAS' },
-    { key: 'symptom', header: '증상' },
-    { key: 'fire', header: '관할 소방서' },
-    { key: 'transferAcceptAt', header: '요청수락 일시' },
-  ];
+  const getColumns = (): Column[] => {
+    if (type === 'request') {
+      return [
+        { key: 'reqHospitalCreatedAt', header: '이송요청 일시', render: (data: TransferData) =>
+              format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss')},
+        {
+          key: 'patientGender_Age',
+          header: '성별/나이',
+          render: (data: TransferData) =>
+            data.patients?.[0]
+              ? `${data.patients[0].patientGender}/${data.patients[0].patientAge}`
+              : '-',
+        },
+        {
+          key: 'preKtas',
+          header: 'pre-KTAS',
+          render: (data: TransferData) => data.patients?.[0]?.patientPreKtas || '-',
+        },
+        { key: 'fireDeptName', header: '관할 소방서' },
+      ];
+    }
+    return [
+      { key: 'reqHospitalCreatedAt', header: '이송요청 일시', render: (data: TransferData) =>
+            format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss' )},
+      {
+        key: 'patientGender_Age',
+        header: '성별/나이',
+        render: (data: TransferData) =>
+          data.patients?.[0]
+            ? `${data.patients[0].patientGender}/${data.patients[0].patientAge}`
+            : '-',
+      },
+      {
+        key: 'preKtas',
+        header: 'pre-KTAS',
+        render: (data: TransferData) => data.patients?.[0]?.patientPreKtas || '-',
+      },
+      { key: 'fireDeptName', header: '관할 소방서' },
+      {
+        key: 'dispatchIsTransfer',
+        header: '이송 상태',
+        render: (data: TransferData) => (data.dispatchIsTransfer ? '이송 중' : '대기 중'),
+      },
+    ];
+  };
 
-  // 더미 데이터
-  const dummyData: PatientData[] = [
-    {
-      name: '000',
-      id: 'dbwjd0411',
-      fire: '광산구 소방서',
-      'sex/age': 'M/50',
-      callStartAt: '20250115',
-      transferAcceptAt: '20250115',
-      'pre-KTAS': 4,
-      symptom: '흉통',
-    },
-    {
-      name: '000',
-      id: 'dbwjd0411',
-      fire: '광산구 소방서',
-      'sex/age': 'M/50',
-      callStartAt: '20250115',
-      transferAcceptAt: '-',
-      'pre-KTAS': 3,
-      symptom: '흉통',
-    },
-  ];
+  const columns = getColumns();
+
+  // 날짜 필터링
+  const handleSearch = () => {
+    const { originalTransfers} = useHospitalTransferStore.getState();
+
+    const filterTransfers = originalTransfers.filter(transfer => {
+      const transferDate = new Date(transfer.reqHospitalCreatedAt)
+      const start = dateRange.start ? new Date(dateRange.start) : null
+      const end = dateRange.end ? new Date(dateRange.end) : null
+
+
+      // 시작과 끝 날짜가 설정되었을 때
+      if (start && end) {
+        return transferDate >= start && transferDate <= end
+      }
+      return true
+    })
+    useHospitalTransferStore.setState({transfers:filterTransfers})
+  }
+
 
   return (
-    <div className="w-full p-10">
-      <h1 className="text-[32px] font-bold pl-20 mb-5">실시간 이송 요청</h1>
-      <div className="flex flex-col items-center">
-        <div className="w-[80%] min-w-[800px] border border-[#dde1e6] bg-white">
+      <div className="w-full p-10 ">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">
+          {type === 'request' ? '실시간 이송 요청' : '이송 수락 목록'}
+        </h1>
+
+        {/* 필터 영역 */}
+        <div className="flex gap-4 items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
+          <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+              className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+          <span className="text-gray-500">~</span>
+          <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+              className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+          <button
+              onClick={handleSearch}
+              className="px-4 py-2 rounded-md bg-banner text-white"
+          >
+            조회
+          </button>
+          <button
+              onClick={() => setDateRange({start: '', end: ''})}
+              className="px-4 py-2 rounded-md border bg-graybtn text-black"
+          >
+            초기화
+          </button>
+        </div>
+
+        {/* 테이블 */}
+        <div className="bg-white rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-banner hover:bg-banner">
+              <TableRow className="bg-gray-200 hover:bg-gray-100">
                 {columns.map((column) => (
-                  <TableHead key={column.header} className="text-white font-medium">
-                    {column.header}
-                  </TableHead>
+                    <TableHead
+                        key={column.header}
+                        className="text-gray-700 font-semibold text-left px-6 py-3 uppercase tracking-wider text-base"
+                    >
+                      {column.header}
+                    </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dummyData.map((data, index) => (
-                <TableRow
-                  key={index}
-                  onClick={() => handleRowClick(data)}
-                  className="cursor-pointer hover:bg-gray-100"
-                >
-                  {columns.map((column) => (
-                    <TableCell key={column.key}>
-                      {column.render ? column.render(data[column.key]) : data[column.key]}
+              {transfers.length > 0 ? (
+                  transfers.map((data) => (
+                      <TableRow
+                          key={data.dispatchId}
+                          onClick={() => handleRowClick(data)}
+                          className="cursor-pointer hover:bg-blue-50 transition-colors"
+                      >
+                        {columns.map((column) => (
+                            <TableCell
+                                key={column.key}
+                                className="px-6 py-3 text-gray-700 text-left "
+                            >
+                              {column.render
+                                  ? column.render(data)
+                                  : (data[column.key as keyof TransferData] as string)}
+                            </TableCell>
+                        ))}
+                      </TableRow>
+                  ))
+              ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="text-center text-gray-500 py-4">
+                      데이터가 없습니다.
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+                  </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
-      </div>
 
-      <HospitalDetailDialog
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        data={selectedPatient}
-        buttons="수락"
-      />
-    </div>
+        <HospitalDetailDialog
+            open={isModalOpen}
+            onOpenChange={setIsModalOpen}
+            data={selectedPatient}
+            buttons="수락"
+        />
+      </div>
   );
 };
+
 export default HospitalListForm;

@@ -1,5 +1,6 @@
 import { axiosInstance } from '@utils/axios.ts';
 import { AxiosError } from 'axios';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 // 공통 로그인 유틸리티
 export interface CommonLoginParams {
@@ -60,6 +61,13 @@ export const commonLogout = async (logoutPath: string) => {
       headers: axiosInstance.defaults.headers,
       cookies: document.cookie,
     });
+
+    if(useOpenViduStore.getState().session) {
+      const store = useOpenViduStore.getState();
+      await store.leaveSession();
+      store.setSessionActive(false); // 세션 비활성화
+    }
+
     await axiosInstance.post(logoutPath);
     console.log('로그아웃 요청 성공');
 

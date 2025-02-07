@@ -2,7 +2,10 @@ package c207.camference.db.entity.report;
 
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -10,6 +13,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="dispatch")
 public class Dispatch {
 
@@ -30,6 +36,10 @@ public class Dispatch {
     @Column(name = "dispatch_is_transfer")
     @Comment(value = "병원이송(현장종결)여부")
     private Boolean dispatchIsTransfer = false;
+
+    @Column(name = "dispatch_transfer_accepted")
+    @Comment(value = "병원 이송 수락여부")
+    private Boolean dispatchTransferAccepted = false;
 
     @CreationTimestamp
     @Column(name = "dispatch_create_at", nullable = false)

@@ -3,26 +3,22 @@ export interface PatientDetailProps {
   onOpenChange: (open: boolean) => void;
   buttons: string;
   data?: {
-    name: string;
+    name?: string;
     gender: string;
-    age: number;
+    age?: string;
     mental: string;
-    preKTAS: number;
-    contact: string;
-    // 생체 징후
+    preKTAS: string;
     sbp: number;
     dbp: number;
     pr: number;
     bt: number;
     spo2: number;
-    bst: number;
+    bst?: number;
     phone: string;
-    protectorPhone: string;
+    protectorPhone?: string;
     symptoms: string;
-    diseases: string;
-    medications: string;
-    transferCall?: string;
-    transferArrive?: string;
-    controlCall?: string;
-  };
+    diseases?: string;
+    medications?: string;
+    requestTransferAt: string;
+  }
 }

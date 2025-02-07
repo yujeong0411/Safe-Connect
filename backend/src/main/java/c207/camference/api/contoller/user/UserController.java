@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -86,6 +87,12 @@ public class UserController {
     @PutMapping("/password/change")
     public ResponseEntity<?> changePassword(@RequestBody UserPasswordChangeRequest request) {
         return userService.changePassword(request);
+    }
+
+    @GetMapping("/nearby_aed")
+    public ResponseEntity<?> getNearbyAed(@RequestParam double lat,
+                                          @RequestParam double lon) {
+        return userService.getAedsNearBy(lat, lon);
     }
 
 }
