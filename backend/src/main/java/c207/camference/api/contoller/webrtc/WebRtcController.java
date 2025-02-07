@@ -87,6 +87,7 @@ public class WebRtcController {
         // 상황실 직원만 해당 컨트롤러에 접근을 한다. 따라서 URL을 문자메시지로 전송하는 로직도 여기서 구현한다.
 
         String customSessionId = params != null ? (String) params.get("customSessionId") : null;
+        String callerPhone = (String) params.get("callerPhone");
 
         SessionProperties properties = new SessionProperties.Builder()
                 .customSessionId(customSessionId)
@@ -97,8 +98,8 @@ public class WebRtcController {
 
         // 만들어진 URL을 문자로 전송
         String URL = "http://localhost:5173/caller/join/" + customSessionId + "?direct=true";
-        smsService.sendMessage("01028372243", URL);
-
+        // smsService.sendMessage("010-8438-4887", URL);
+        smsService.sendMessage(callerPhone, URL);
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 

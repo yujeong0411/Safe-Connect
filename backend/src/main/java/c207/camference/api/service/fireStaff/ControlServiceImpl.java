@@ -248,17 +248,13 @@ public class ControlServiceImpl implements ControlService {
         call.setCallIsDispatched(false);
         call.setFireStaff(fireStaffOpt.get());
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
-        call = callRepository.save(call);
+        callRepository.save(call);
 
-        // ---
-        // URL 전송 (추후 webrtc 기능 develop에 추가되면 수정)
-
-        // ---
 
         // 영상통화(video_call) 생성
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
-        videoCall.setVideoCallUrl("http://localhost:5173/openvidu/join/{sessionId}?direct=true"); // 해당 메서드 완성전까지는 일단 하드코딩(2025.02.06)
+        videoCall.setVideoCallUrl(callerPhone);
         videoCall.setVideoCallIsActivate(true);
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCallRepository.save(videoCall);
@@ -274,8 +270,12 @@ public class ControlServiceImpl implements ControlService {
 
         videoCallUserRepository.save(videoCallUser);
 
+        Map<String, Object> response = new HashMap<>();
+        response.put("videoCallUser", videoCallUser);
+        response.put("videoCall", videoCall);
+        response.put("call", call);
 
-        return null; // 여기 수정할것
+        return ResponseEntity.ok(response);
     }
 
     @Override

@@ -63,6 +63,7 @@ public class WebRtcServiceImpl implements WebRtcService {
             .build();
 
     // 신고자에게 영상통화방 URL 전송
+    /*
     @Override
     @Transactional
     public ResponseEntity<?> sendUrlMsg(String callerPhone)
@@ -104,6 +105,8 @@ public class WebRtcServiceImpl implements WebRtcService {
 
         return ResponseEntity.ok().build();
     }
+    */
+
 
     // todo : 구급대원용 토큰 생성
     /**

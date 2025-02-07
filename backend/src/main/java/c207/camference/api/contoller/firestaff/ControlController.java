@@ -1,5 +1,6 @@
 package c207.camference.api.contoller.firestaff;
 
+import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
 import c207.camference.api.service.fireStaff.ControlService;
@@ -60,7 +61,14 @@ public class ControlController {
     // 영상통화방 URL 전송, 영상통화방 생성
     @PostMapping("/video")
     public ResponseEntity<?> createRoom(@RequestBody CallRoomRequest request) {
+
         return controlService.createRoom(request);
+    }
+
+    // 영상통화 종료시
+    @PutMapping("/call_end")
+    public ResponseEntity<?> callEnd(@RequestBody CallEndRequest request) {
+        return controlService.callEnd(request);
     }
 
 }
