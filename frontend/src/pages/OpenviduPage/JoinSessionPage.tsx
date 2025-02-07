@@ -1,4 +1,4 @@
-// JoinSessionPage.tsx
+// CallerJoinPage.tsx
 import React, { useEffect } from 'react';
 import { Outlet, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';

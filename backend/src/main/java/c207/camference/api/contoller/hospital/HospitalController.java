@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/hospital")
-public class HosptialController {
+public class HospitalController {
     private final HospitalService hospitalService;
 
-    public HosptialController(HospitalService hospitalService) {
+    public HospitalController(HospitalService hospitalService) {
         this.hospitalService = hospitalService;
     }
 

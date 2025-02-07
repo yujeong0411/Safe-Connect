@@ -15,7 +15,7 @@ export const useOpenViduStore =
   userName: `Guest_${Math.floor(Math.random() * 100)}`,
   session: undefined,
   mainStreamManager: undefined,
-  publisher: undefined,
+  publisher: null,
   subscribers: [],
   localUser: {
     connectionId: undefined,
