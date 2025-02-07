@@ -4,10 +4,12 @@ import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
+import c207.camference.api.request.control.ResendRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
+import c207.camference.api.service.sms.SmsService;
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -63,6 +65,7 @@ public class ControlServiceImpl implements ControlService {
     private final CallerRepository callerRepository;
     private final VideoCallUserRepository videoCallUserRepository;
     private final VideoCallRepository videoCallRepository;
+    private final SmsService smsService;
 
 
     @Override
@@ -279,6 +282,7 @@ public class ControlServiceImpl implements ControlService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> callEnd(CallEndRequest request) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -326,6 +330,21 @@ public class ControlServiceImpl implements ControlService {
         response.put("isSuccess", true);
         response.put("code", 200);
         response.put("message", "신고 종료 시각 수정 성공");
+
+        return ResponseEntity.ok(response);
+    }
+
+    // URL 메시지 재전송
+    @Override
+    @Transactional
+    public ResponseEntity<?> resendUrl(ResendRequest request) {
+        Integer callId = Integer.valueOf(request.getCallId());
+        String userPhone = request.getUserPhone();
+
+        VideoCall videoCall = videoCallRepository.findByCallId(callId);
+        String url = videoCall.getVideoCallUrl();
+
+        ResponseEntity<?> response = smsService.sendMessage(userPhone, url);
 
         return ResponseEntity.ok(response);
     }

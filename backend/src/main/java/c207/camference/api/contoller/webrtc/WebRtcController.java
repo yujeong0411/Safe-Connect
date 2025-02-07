@@ -7,6 +7,7 @@ import c207.camference.api.service.webrtc.WebRtcServiceImpl;
 
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.webrtc.WebRtcService;
+import c207.camference.db.repository.call.VideoCallRepository;
 import io.openvidu.java.client.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
 @Log4j2
 public class WebRtcController {
     private final SmsService smsService;
+    private final VideoCallRepository videoCallRepository;
     @Value("${OPENVIDU_URL}")
     private String OPENVIDU_URL;
 
@@ -60,11 +62,12 @@ public class WebRtcController {
     private ControlService controlService;
 
     public WebRtcController(WebRtcService webRtcService,
-                            ControlService controlService, SmsService smsService) {
+                            ControlService controlService, SmsService smsService, VideoCallRepository videoCallRepository) {
 
         this.webRtcService = webRtcService;
         this.controlService = controlService;
         this.smsService = smsService;
+        this.videoCallRepository = videoCallRepository;
     }
 
     @PostConstruct
@@ -98,7 +101,6 @@ public class WebRtcController {
 
         // 만들어진 URL을 문자로 전송
         String URL = "http://localhost:5173/caller/join/" + customSessionId + "?direct=true";
-        // smsService.sendMessage("010-8438-4887", URL);
         smsService.sendMessage(callerPhone, URL);
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
