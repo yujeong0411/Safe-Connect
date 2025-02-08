@@ -1,10 +1,13 @@
 import PublicHeader from '@components/organisms/PublicHeader/PublicHeader.tsx';
 import NavBar from '@components/organisms/NavBar/NavBar';
 import React from 'react';
+// NavBar props type 변경으로 추가...
+import {NavItem} from "@components/organisms/NavBar/NavBar.types.ts";
+
 
 interface MainTemplateProps {
   children?: React.ReactNode;
-  navItems: Array<{ label: string; path: string }>;
+  navItems: NavItem[];
   logoutDirect: () => void | Promise<void>;
 }
 

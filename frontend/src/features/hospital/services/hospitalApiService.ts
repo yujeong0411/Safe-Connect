@@ -55,10 +55,10 @@ export const fetchAcceptedTransferDetail = async (dispatchId: number) => {
 // 이송 신청 응답 (수락/거절)
 export const updateTransferStatus = async (patientId:number, status: 'ACCEPTED' | 'REJECTED') => {
     try {
-
-    const response = await axiosInstance.post('hospital/transfer/status', {patientId, status})
-    console.log("이송 수락/거절 응답", response)
-    return response.data
+        console.log('API 호출 파라미터:', { patientId, status });  // 파라미터 확인
+        const response = await axiosInstance.post('hospital/transfer/status', {patientId, status})
+        console.log("이송 수락/거절 응답", response)
+        return response.data
     } catch (error) {
         console.error("이송 답변 실패", error)
         throw error;
