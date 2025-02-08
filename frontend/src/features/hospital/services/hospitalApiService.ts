@@ -1,6 +1,5 @@
 import {axiosInstance} from "@utils/axios.ts";
-import {TransferResponse} from "@/types/hospital/hospitalTransfer.types.ts";
-
+import {AcceptedTransferResponse, TransferResponse} from "@/types/hospital/hospitalTransfer.types.ts";
 
 // 이송 요청 목록
 export const fetchTransferRequest = async (): Promise<TransferResponse> => {
@@ -15,10 +14,10 @@ export const fetchTransferRequest = async (): Promise<TransferResponse> => {
 }
 
 // 이송 요청 상세목록
-export const fetchTransferDetail = async (dispatchId:number)=> {
+export const fetchTransferDetail = async (dispatchId: number) => {
     try {
         console.log('요청 dispatchId:', dispatchId);
-        const response = await axiosInstance.get('hospital/transfer_request/detail', {params:{dispatchId}})
+        const response = await axiosInstance.get('hospital/transfer_request/detail', {params: {dispatchId}})
         console.log("이송 신청 응답", response.data)
         return response.data
     } catch (error) {
@@ -28,10 +27,10 @@ export const fetchTransferDetail = async (dispatchId:number)=> {
 }
 
 // 수락한 이송 목록
-export const fetchAcceptedTransfer = async (): Promise<TransferResponse> => {
+export const fetchAcceptedTransfer = async (): Promise<AcceptedTransferResponse> => {
     try {
 
-        const response = await axiosInstance.get<TransferResponse>('/hospital/transfer_accepted');
+        const response = await axiosInstance.get<AcceptedTransferResponse>('/hospital/transfer_accepted');
         console.log("수락한 이송 응답", response.data)
         return response.data;
     } catch (error) {
@@ -42,13 +41,26 @@ export const fetchAcceptedTransfer = async (): Promise<TransferResponse> => {
 
 
 // 수락한 이송 상세
-export const fetchAcceptedTransferDetail = async (dispatchId:number) => {
-    try{
-        const response = await axiosInstance.get('hospital/transfer_accepted/detail', {params:{dispatchId}})
+export const fetchAcceptedTransferDetail = async (dispatchId: number) => {
+    try {
+        const response = await axiosInstance.get('hospital/transfer_accepted/detail', {params: {dispatchId}})
         console.log("이송 상세 응답", response.data)
         return response.data;
     } catch (error) {
         console.error("수락한 이송 상세 실패", error)
+        throw error;
+    }
+}
+
+// 이송 신청 응답 (수락/거절)
+export const updateTransferStatus = async (patientId:number, status: 'ACCEPTED' | 'REJECTED') => {
+    try {
+
+    const response = await axiosInstance.post('hospital/transfer/status', {patientId, status})
+    console.log("이송 수락/거절 응답", response)
+    return response.data
+    } catch (error) {
+        console.error("이송 답변 실패", error)
         throw error;
     }
 }

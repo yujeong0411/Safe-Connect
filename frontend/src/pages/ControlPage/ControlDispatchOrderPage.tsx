@@ -139,7 +139,7 @@ const ControlDispatchOrderPage = () => {
                   <div className="mt-2 text-sm space-y-1">
                     <div className="flex justify-between">
                       <span>거리</span>
-                      <span className="font-medium">{station.distance}km</span>
+                      <span className="font-medium">{station.distance}m</span>
                     </div>
                     <div className="flex justify-between">
                       <span>도착 예상 시간</span>
