@@ -149,7 +149,7 @@ public class SmsServiceImpl implements SmsService {
 
     }
 
-    // 인증번호 전송하기
+    // URL 전송하기
     @Override
     @Transactional
     public ResponseEntity<?> sendMessage(String userPhone, String url) {
@@ -159,8 +159,8 @@ public class SmsServiceImpl implements SmsService {
             // Message 패키지가 중복될 경우 net.nurigo.sdk.message.model.Message로 치환하여 주세요
             Message message = new Message();
 
-            message.setFrom(userPhone);
-            message.setTo(userPhone);
+            message.setFrom("01030854889");
+            message.setTo(userPhone.replace("-", ""));
             message.setText("[SafeConnect] 화상지원 URL" + "[" + url + "]");
 
             // send 메소드로 ArrayList<Message> 객체를 넣어도 동작합니다!
