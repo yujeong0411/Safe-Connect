@@ -14,7 +14,7 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
 
     try {
       // 스토어 함수 호출
-      await useHospitalTransferStore.getState().updateTransferStatus(2, status);
+      await useHospitalTransferStore.getState().updateTransferStatus(data.patientId, status);   // 벡엔드 추가 후 수정
       onOpenChange(false);  // 답변 후 모달 닫기
     }catch(error) {
       console.error("모달 응답 실패", error);
@@ -52,12 +52,12 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
             <div>
               <Label className="text-sm mb-1 text-red-600">pre-KTAS</Label>
               <div
-                  className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.mental}</div>
+                  className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.preKTAS}</div>
             </div>
             <div>
               <Label className="text-sm mb-1">의식상태</Label>
               <div
-                  className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.preKTAS}</div>
+                  className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.mental}</div>
             </div>
             <div>
               <Label className="text-sm mb-1">환자 연락처</Label>

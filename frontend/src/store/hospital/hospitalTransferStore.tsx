@@ -16,7 +16,7 @@ export const useHospitalTransferStore = create<TransferStore>((set) => ({
             // 통합 데이터
             const combined = transferList.data.map(transfer => {
                 // dispatchId로 연결
-                const acceptedInfo = acceptedList.data.find(accepted => accepted.dispatchId === transfer.dispatchId) as AcceptedTransfer
+                const acceptedInfo = acceptedList.data.find(accepted => accepted.dispatchId === transfer.dispatchId)
                     return {
                      ...transfer,
                         transferAcceptAt: acceptedInfo?.transferAcceptAt || null,
