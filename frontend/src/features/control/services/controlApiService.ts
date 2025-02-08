@@ -80,6 +80,30 @@ export const controlService = {
       throw error;
     }
   },
+
+  // 신고 종료
+  endCall : async (callId:number): Promise<CallListResponse> => {
+    try {
+      const response = await axiosInstance.put<CallListResponse>('/control/call_end', {callId})
+      console.log("상황실 신고 종료", response);
+      return response.data
+    } catch (error: any) {
+      console.error("신고 종료 실패", error);
+      throw error;
+    }
+  },
+  
+  // URL 재전송
+  resendUrl: async (callId:number, userPhone:String): Promise<CallListResponse> => {
+    try {
+      const response = await axiosInstance.post<CallListResponse>('/control/resend', {callId, userPhone});
+      console.log("url 재전송", response)
+      return response.data
+    } catch (error: any) {
+      console.error("url 재전송 실패", error)
+      throw error;
+    }
+  },
 };
 
 // 상황실 보호자 알림.

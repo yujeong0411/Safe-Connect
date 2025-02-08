@@ -6,6 +6,7 @@ import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 export const useControlAuthStore = create<FireAuthStore>((set) => ({
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
+  userName:'',
 
   // 타입 변환 함수 추가
   login: async (data: FireLoginRequest) => {
@@ -21,21 +22,28 @@ export const useControlAuthStore = create<FireAuthStore>((set) => ({
       formData,
     });
 
+    // userName이 계속 필요하다면
+    const userName = data.fireStaffLoginId
+    localStorage.setItem('userName', userName);
+
     // 상태 변경
     set({
       token: accessToken,
       isAuthenticated: true,
+      userName, // 로그인한 사용자 아이디 저장
     });
   },
 
   // 로그아웃 시 토큰 제거 및 상태 초기화
   logout: async () => {
     await commonLogout('/control/logout');
+    localStorage.removeItem('userName');
 
     // 상태 변경
     set({
       token: null,
       isAuthenticated: false,
+      userName: '',
     });
     window.location.href = LOGIN_PATH.CONTROL
   },
