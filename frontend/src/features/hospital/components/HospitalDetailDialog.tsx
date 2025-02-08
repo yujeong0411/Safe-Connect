@@ -2,12 +2,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
-import PreKtasDialog from "@features/hospital/components/PreKtasDialog.tsx";
-import {useState} from "react";
+import {useHospitalTransferStore} from "@/store/hospital/hospitalTransferStore.tsx";
 
 const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) => {
-  const [isPreKtasOpen, setIsPreKtasOpen] = useState(false);
+  // 이송 신청 답변
+  const handleTransferStatus = async (status:'ACCEPTED' | 'REJECTED') => {
+      if (!data?.patientId) {
+        console.error('환자 ID가 없습니다');
+        return
+      }
 
+    try {
+      // 스토어 함수 호출
+      await useHospitalTransferStore.getState().updateTransferStatus(2, status);
+      onOpenChange(false);  // 답변 후 모달 닫기
+    }catch(error) {
+      console.error("모달 응답 실패", error);
+    }
+  }
+
+  // data가 없으면 렌더링하지 않음
+  if (!data) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,17 +50,12 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
                   className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.age}</div>
             </div>
             <div>
-              <Label className="text-sm mb-1">의식상태</Label>
+              <Label className="text-sm mb-1 text-red-600">pre-KTAS</Label>
               <div
                   className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.mental}</div>
             </div>
             <div>
-              <Label
-                  className="text-sm  text-white bg-red-600 rounded p-1 cursor-pointer hover:bg-red-700 transition-colors"
-                  onClick={() => setIsPreKtasOpen(true)}
-              >
-                pre-KTAS
-              </Label>
+              <Label className="text-sm mb-1">의식상태</Label>
               <div
                   className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.preKTAS}</div>
             </div>
@@ -133,7 +143,7 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
               <div>
                 <Label className="text-sm mb-1">이송 수락 일시</Label>
                 <div
-                    className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.transferAcceptedAt}</div>
+                    className="p-2.5 bg-dialog_content rounded-lg min-h-[48px] text-sm flex items-center">{data.transferAcceptAt}</div>
               </div>
               <div>
                 <Label className="text-sm mb-1">이송 종료 일시</Label>
@@ -142,18 +152,18 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 mt-6 ml-5 h-10">
-              {!data?.transferAcceptedAt ? (   // 수락시간이 있으면 이미 수락된 상태
+            <div className="flex justify-end gap-4 mt-8 ml-5 h-10">
+              {!data?.transferAcceptAt ? (   // 수락시간이 있으면 이미 수락된 상태
                   <>
-                    <Button onClick={() => onOpenChange(false)} className="bg-banner hover:bg-gray-400" size="default">
+                    <Button onClick={() => handleTransferStatus('ACCEPTED')} variant="destructive" className=" hover:bg-red-400" size="default">
                       수락
                     </Button>
-                    <Button onClick={() => onOpenChange(false)} className="bg-graybtn hover:bg-neutral-400 text-black" size="default">
+                    <Button onClick={() => handleTransferStatus('REJECTED')} className="bg-graybtn hover:bg-neutral-300 text-black" size="default">
                       거절
                     </Button>
                   </>
               ) : (
-                  <Button onClick={() => onOpenChange(false)} className="bg-banner hover:bg-neutral-400" size="default">
+                  <Button onClick={() => onOpenChange(false)} className="bg-banner hover:bg-neutral-300" size="default">
                     닫기
                   </Button>
               )}
@@ -161,7 +171,6 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
           </div>
           </div>
 
-          <PreKtasDialog open={isPreKtasOpen} onOpenChange={setIsPreKtasOpen}/>
       </DialogContent>
     </Dialog>
 );

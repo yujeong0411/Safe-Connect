@@ -52,38 +52,15 @@ export const fetchAcceptedTransferDetail = async (dispatchId: number) => {
     }
 }
 
-// 스토어로 이동
-// export const useAcceptedTransfer = () => {
-//     const [combinedTransfer, setCombinedTransfer] = useState<CombinedTransfer[]>([])
-//
-//     useEffect(() => {
-//         const fetchData = async () => {
-//             try {
-//                 const [transferList, acceptedList] = await Promise.all([
-//                     fetchTransferRequest(),
-//                     fetchAcceptedTransfer(),
-//                 ])
-//
-//                 const combined = transferList.data.map(transfer => {
-//                     const acceptedInfo = acceptedList.data.find(
-//                         accepted => accepted.dispatchId === transfer.dispatchId
-//                     )
-//                     return {
-//                         dispatchId: transfer.dispatchId,
-//                         fireDeptName: transfer.fireDeptName,
-//                         reqHospitalCreatedAt: transfer.reqHospitalCreatedAt,
-//                         dispatchIsTransfer: transfer.dispatchIsTransfer,
-//                         patients: transfer.patients,
-//                         acceptedTransfer: acceptedInfo || null
-//                     } as CombinedTransfer
-//                 })
-//
-//                 setCombinedTransfer(combined)
-//             } catch (error) {
-//                 console.error("병합 이송신청 조회 실패", error)
-//             }
-//         };
-//         fetchData();
-//     }, [])
-//     return { data:combinedTransfer}
-// }
+// 이송 신청 응답 (수락/거절)
+export const updateTransferStatus = async (patientId:number, status: 'ACCEPTED' | 'REJECTED') => {
+    try {
+
+    const response = await axiosInstance.post('hospital/transfer/status', {patientId, status})
+    console.log("이송 수락/거절 응답", response)
+    return response.data
+    } catch (error) {
+        console.error("이송 답변 실패", error)
+        throw error;
+    }
+}

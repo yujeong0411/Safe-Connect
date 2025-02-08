@@ -1,10 +1,8 @@
 import {create} from 'zustand'
 import {TransferStore, CombinedTransfer, AcceptedTransfer} from "@/types/hospital/hospitalTransfer.types.ts";
-import {fetchTransferRequest, fetchTransferDetail, fetchAcceptedTransfer} from "@features/hospital/services/hospitalApiService.ts";
+import {fetchTransferRequest, fetchTransferDetail, fetchAcceptedTransfer, updateTransferStatus} from "@features/hospital/services/hospitalApiService.ts";
 
 export const useHospitalTransferStore = create<TransferStore>((set) => ({
-    transfers:[],  // 이송요청 목록
-    originalTransfers:[],
     combinedTransfers: [], // 이송목록 + 수락목록
 
     // 이송 요청 조회
@@ -14,11 +12,6 @@ export const useHospitalTransferStore = create<TransferStore>((set) => ({
                fetchTransferRequest(),
                fetchAcceptedTransfer()
            ])
-            // 기본 이송목록
-            set({
-                transfers: transferList.data,
-                originalTransfers: transferList.data,
-            })
 
             // 통합 데이터
             const combined = transferList.data.map(transfer => {
@@ -54,4 +47,38 @@ export const useHospitalTransferStore = create<TransferStore>((set) => ({
             throw error;
         }
     },
+
+    updateTransferStatus: async (patientId: number, status: 'ACCEPTED' | 'REJECTED') => {
+        try {
+            const response = await updateTransferStatus(patientId, status);
+
+            // 상태 변경 후 목록 새로고침
+            const [transferList, acceptedList] = await Promise.all([
+                fetchTransferRequest(),
+                fetchAcceptedTransfer()
+            ])
+
+            // 통합 데이터 새로 생성
+            const combined = transferList.data.map(transfer => {
+                const acceptedInfo = acceptedList.data.find(
+                    accepted => accepted.dispatchId === transfer.dispatchId
+                ) as AcceptedTransfer | undefined;
+
+                return {
+                    ...transfer,
+                    transferAcceptAt: acceptedInfo?.transferAcceptAt || null,
+                    transferArriveAt: acceptedInfo?.transferArriveAt || null,
+                    hospital: acceptedInfo?.hospital || null,
+                } as CombinedTransfer
+            });
+
+            // 통합 데이터 업데이트
+            set({ combinedTransfers: combined });
+            return response;
+
+        } catch (error) {
+            console.error("이송상태 변경 실패", error)
+            throw error
+        }
+    }
 }))
