@@ -5,6 +5,7 @@ import { useVideoCallStore } from '@/store/control/videoCallStore';
 import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
 import {controlService} from "@features/control/services/controlApiService.ts";
 import { useParams } from 'react-router-dom'; // URL에서 callId 가져오기
+import {usePatientStore} from "@/store/control/patientStore.tsx";
 
 interface VideoProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const [reportContent, setReportContent] = React.useState('');
   const { callId } = useParams(); // URL에서 신고 ID 가져오기
+  const { callSummary, callText } = usePatientStore()
 
   const handleEndCall = async () => {
     if (!callId) {
@@ -44,6 +46,15 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       alert("URL이 재전송되었습니다.");
     } catch (error) {
       console.error("URL 재전송 실패", error);
+    }
+  }
+
+  // 신고내용 요약  (calltext는 받을수있는가?)
+  const handleCallSummary = async () => {
+    try {
+      await usePatientStore.getState().fetchCallSummary(Number(callId));
+    } catch (error) {
+      console.error("신고내용 요약 실패", error);
     }
   }
 
@@ -90,7 +101,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
             <div className="space-y-4 p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">신고 내용</h3>
-                <Button variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">
+                <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">
                   AI 요약
                 </Button>
               </div>

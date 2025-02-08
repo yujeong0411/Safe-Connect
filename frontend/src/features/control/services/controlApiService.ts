@@ -104,6 +104,18 @@ export const controlService = {
       throw error;
     }
   },
+
+  // 신고내용 요약
+  callSummary: async (callId:number): Promise<PatientResponse> => {
+    try {
+      const response = await axiosInstance.get<PatientResponse>('/control/summary', {params:{callId}})
+      console.log("신고내용 요약", response.data)
+      return response.data
+    } catch (error: any) {
+      console.error("신고내용 요약 실패", error)
+      throw error;
+    }
+  },
 };
 
 // 상황실 보호자 알림.

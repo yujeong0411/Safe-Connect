@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { PatientInfo, PatientStore, CallInfo, CurrentCall } from '@/types/common/Patient.types.ts';
-import { patientService, protectorService } from '@features/control/services/controlApiService.ts';
+import {controlService, patientService, protectorService} from '@features/control/services/controlApiService.ts';
 
 export const usePatientStore = create<PatientStore>((set, get) => ({
   patientInfo: null,
   currentCall: null, // 현재 처리 중인 신고 정보
+  callText:'',
+  callSummary: '',
 
   // 현재 신고
   setCurrentCall: (info:CurrentCall ) => {
@@ -66,4 +68,19 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
       return false;
     }
   },
+
+  // 신고내용 요약
+  fetchCallSummary: async (callId:number) => {
+    try {
+      const response= await controlService.callSummary(Number(callId))
+      if (response) {
+        set({
+          callText: response.data.callText,
+          callSummary: response.data.callSummary,
+        });
+      }
+    } catch (error) {
+      console.error("신고내용 요약 실패", error)
+    }
+  }
 }))

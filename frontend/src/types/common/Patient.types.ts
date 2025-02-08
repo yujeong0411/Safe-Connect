@@ -47,16 +47,15 @@ export interface PatientResponse {
 export interface PatientStore {
   patientInfo: PatientInfo | null;
   currentCall: CurrentCall | null;
+  callSummary: string;
+  callText: string;
   setCurrentCall: (callInfo: CallInfo) => void;
   isSuccess?: boolean;
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (info: CurrentCall) => Promise<void>;
   resetPatientInfo: () => void;
   sendProtectorMessage?: (callerPhone: string) => Promise<boolean>;
-}
-
-export interface ProtectorMessageRequest {
-  callerPhone: string;
+  fetchCallSummary : (callId:number) => Promise<void>
 }
 
 export interface ProtectorMessageResponse {
