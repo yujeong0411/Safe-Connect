@@ -1,6 +1,7 @@
 package c207.camference.api.service.sse;
 
 import c207.camference.api.request.control.DispatchOrderRequest;
+import c207.camference.api.request.dispatchstaff.DispatchCurrentPositionRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.PatientTransferResponse;
@@ -19,6 +20,7 @@ public class SseEmitterService {
     private final Map<String, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
 
 
     public SseEmitter createControlEmitter(String clientId) {
@@ -26,11 +28,24 @@ public class SseEmitterService {
     }
 
     public SseEmitter createDispatchGroupEmitter(String clientId) {
-        return createEmitter(clientId, dispatchGroupEmitters);
+        return createEmitter(String.valueOf(clientId), dispatchGroupEmitters);
     }
 
     public SseEmitter createHospitalEmitter(String clientId) {
-        return createEmitter(clientId, hospitalEmitters);
+        return createEmitter(String.valueOf(clientId), hospitalEmitters);
+    }
+
+    public SseEmitter createCallerEmitter(String clientId) {
+        SseEmitter emitter = createEmitter(String.valueOf(clientId), callerEmitters);
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("Connected!"));
+        } catch (IOException e) {
+            callerEmitters.remove(String.valueOf(clientId));
+        }
+        return emitter;
+//        return createEmitter(clientId, callerEmitters);
     }
 
 
@@ -43,7 +58,7 @@ public class SseEmitterService {
                 emitter.send(SseEmitter.event()
                         .data(ResponseUtil.success(data, "출동 지령 전송 성공")));
             } catch (IOException e) {
-                deadControlEmitters.add(clientId);
+                deadControlEmitters.add(String.valueOf(clientId));
             }
         });
         // 오류로 연결이 끊어진 clientId는 controlEmitters에서 제거
@@ -56,7 +71,7 @@ public class SseEmitterService {
                 emitter.send(SseEmitter.event()
                         .data(ResponseUtil.success(data, "출동 지령 수신")));
             } catch (IOException e) {
-                deadDispatchGroupEmitters.add(clientId);
+                deadDispatchGroupEmitters.add(String.valueOf(clientId));
             }
         });
         deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
@@ -71,7 +86,7 @@ public class SseEmitterService {
                 emitter.send(SseEmitter.event()
                         .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
             } catch (IOException e) {
-                daedHospitalEmitters.add(clientId);
+                daedHospitalEmitters.add(String.valueOf(clientId));
             }
         });
         daedHospitalEmitters.forEach(hospitalEmitters::remove);
@@ -83,12 +98,46 @@ public class SseEmitterService {
                 emitter.send(SseEmitter.event()
                         .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 승인되었습니다")));
             } catch (IOException e) {
-                deadDispatchGroupEmitters.add(clientId);
+                deadDispatchGroupEmitters.add(String.valueOf(clientId));
             }
         });
         deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
     }
 
+    // 환자 이송요청 수락/거절 알림
+    public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted) {
+        String answer = accepted ? "환자 이송 요청 승인" : "환자 이송 요청 거절";
+
+        // to 구급팀
+        List<String> deadDispatchGroupEmitters = new ArrayList<>();
+        dispatchGroupEmitters.forEach((clientId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event().name("transfer response")
+                        .data(ResponseUtil.success(response, answer)));
+                System.out.println("SSE event sent to: " + clientId); // 디버깅
+            } catch (IOException e) {
+                deadDispatchGroupEmitters.add(String.valueOf(clientId));
+            }
+        });
+        deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
+    }
+
+    // 구급차 현재 위치 전송
+    public void sendDispatchGroupPosition(DispatchCurrentPositionRequest request) {
+        String callId = String.valueOf(request.getCallId());
+        // 신고자는 해당 신고 id를 구독
+        SseEmitter emitter = callerEmitters.get(callId);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("location update")
+                        .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
+            } catch (IOException e) {
+                callerEmitters.remove(callId);
+                System.out.println("Error sending update: " + e.getMessage());
+            }
+        }
+    }
 
 
 
@@ -100,25 +149,5 @@ public class SseEmitterService {
         emitter.onTimeout(() -> emitters.remove(clientId));
 
         return emitter;
-    }
-
-    // 환자 이송요청 수락/거절 알림
-    public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted) {
-        System.out.println("Current emitters count: " + dispatchGroupEmitters.size()); // 디버깅
-
-        String answer = accepted ? "환자 이송 요청 승인" : "환자 이송 요청 거절";
-
-        // to 구급팀
-        List<String> deadDispatchGroupEmitters = new ArrayList<>();
-        dispatchGroupEmitters.forEach((clientId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event().name("transfer response")
-                        .data(ResponseUtil.success(response, answer)));
-                System.out.println("SSE event sent to: " + clientId); // 디버깅
-            } catch (IOException e) {
-                deadDispatchGroupEmitters.add(clientId);
-            }
-        });
-        deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
     }
 }

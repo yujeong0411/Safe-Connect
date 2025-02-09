@@ -27,4 +27,9 @@ public class SseController {
     public SseEmitter subscribeHospital(@RequestParam String clientId) {
         return sseEmitterService.createHospitalEmitter(clientId);
     }
+
+    @GetMapping(value = "/caller/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeCaller(@RequestParam String clientId) {
+        return sseEmitterService.createCallerEmitter(clientId);
+    }
 }
