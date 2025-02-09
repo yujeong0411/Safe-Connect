@@ -2,7 +2,7 @@ import { axiosInstance } from '@utils/axios.ts';
 import {
   PatientResponse,
   CallInfo,
-  ProtectorMessageResponse,
+  ProtectorMessageResponse, CallSummaryResponse,
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
 import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
@@ -106,9 +106,9 @@ export const controlService = {
   },
 
   // 신고내용 요약
-  callSummary: async (callId:number): Promise<PatientResponse> => {
+  callSummary: async (callId:number): Promise<CallSummaryResponse> => {
     try {
-      const response = await axiosInstance.get<PatientResponse>('/control/summary', {params:{callId}})
+      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', {params:{callId}})
       console.log("신고내용 요약", response.data)
       return response.data
     } catch (error: any) {

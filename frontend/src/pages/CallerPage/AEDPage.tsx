@@ -26,7 +26,7 @@ const AEDPage = ({FindFireStations}:KakaoMapProps) => {
                         isLoading: false,
                     });
                 },
-                (err) => {
+                (_) => {
                     setState({
                         center: { lat: 37.566826, lng: 126.9786567 }, // 기본 서울 중심
                         isLoading: false,

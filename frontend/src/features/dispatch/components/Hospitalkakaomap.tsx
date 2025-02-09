@@ -25,7 +25,7 @@ const HospitalKakaoMap = ({ FindHospitals }: KakaoMapProps) => {
             isLoading: false,
           });
         },
-        (err) => {
+        (_) => {
           setState({
             center: { lat: 37.566826, lng: 126.9786567 },
             isLoading: false,
