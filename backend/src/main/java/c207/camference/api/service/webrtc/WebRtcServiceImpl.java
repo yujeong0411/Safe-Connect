@@ -100,9 +100,33 @@ public class WebRtcServiceImpl implements WebRtcService {
      * @return url
      */
     public String makeUrl(String sessionId){
-        String url = "http://localhost:5173/caller/join/" + sessionId + "?direct=true";
+        String url = "http://localhost:5173/caller/join/" + sessionId + "?direct=true"; // 추후에 바꿔줄 것
 
         return url;
+    }
+
+    /** 토큰 생성 (상황실, 신고자, 구급대원)
+     * @params sessionId
+     * @return token
+     */
+    public String getToken(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
+        Session session = openvidu.getActiveSession(sessionId);
+        if (session == null) {
+            session = openvidu.createSession(
+                    new SessionProperties.Builder()
+                            .customSessionId(sessionId)
+                            .build()
+            );
+        }
+
+        ConnectionProperties properties = new ConnectionProperties.Builder()
+                .type(ConnectionType.WEBRTC)
+                .data("") // 필요하다면 사용자 데이터 추가 가능
+                .build();
+
+        Connection connection = session.createConnection(properties);
+        
+        return connection.getToken();
     }
 
     // todo : 구급대원 영상통화 참여 (출동시간 수정)

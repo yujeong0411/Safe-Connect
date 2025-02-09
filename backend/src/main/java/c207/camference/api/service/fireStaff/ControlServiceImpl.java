@@ -251,6 +251,10 @@ public class ControlServiceImpl implements ControlService {
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
         callRepository.save(call);
 
+//        VideoCall videoCall = VideoCall.builder()
+//                .videoCallIsActivate(true)
+//                .videoCallId().
+//                .build();
 
         // ---
         // 영상통화(video_call) 생성
@@ -275,6 +279,8 @@ public class ControlServiceImpl implements ControlService {
         // ---
         // URL을 신고자에게 전송
         smsService.sendMessage(callerPhone, url);
+
+        // customSessionId를
 
         Map<String, Object> response = new HashMap<>();
         response.put("videoCallUser", videoCallUser);
