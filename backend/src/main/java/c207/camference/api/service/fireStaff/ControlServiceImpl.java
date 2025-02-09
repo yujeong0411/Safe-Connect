@@ -10,11 +10,8 @@ import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
-<<<<<<< backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
 import c207.camference.api.service.sse.SseEmitterService;
-=======
 import c207.camference.api.service.sms.SmsService;
->>>>>>> backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -72,12 +69,9 @@ public class ControlServiceImpl implements ControlService {
     private final CallerRepository callerRepository;
     private final VideoCallUserRepository videoCallUserRepository;
     private final VideoCallRepository videoCallRepository;
-<<<<<<< backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
     private final SseEmitterService sseEmitterService;
     private final DispatchRepository dispatchRepository;
-=======
     private final SmsService smsService;
->>>>>>> backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
 
 
     @Override
