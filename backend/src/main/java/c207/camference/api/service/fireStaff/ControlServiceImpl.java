@@ -207,10 +207,9 @@ public class ControlServiceImpl implements ControlService {
 
     // 상황실 직원이 '영상통화방 생성 및 url 전송' 버튼을 눌렀을 시
     // 신고자(caller), 신고(call), 영상통화(video_call), 영상통화 참여(video_call_user) 레코드 생성
-
     @Override
     @Transactional
-    public ResponseEntity<?> createRoom(CallRoomRequest request) {
+    public ResponseEntity<?> createRoom(CallRoomRequest request, String url) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println("fireStaffLoginId: " + fireStaffLoginId);
@@ -244,7 +243,6 @@ public class ControlServiceImpl implements ControlService {
         }
 
         // ---
-
         // 신고(call) 생성
 
         Call call = new Call();
@@ -253,17 +251,22 @@ public class ControlServiceImpl implements ControlService {
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
         callRepository.save(call);
 
+//        VideoCall videoCall = VideoCall.builder()
+//                .videoCallIsActivate(true)
+//                .videoCallId().
+//                .build();
 
+        // ---
         // 영상통화(video_call) 생성
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
-        videoCall.setVideoCallUrl(callerPhone);
+        videoCall.setVideoCallUrl(url);
         videoCall.setVideoCallIsActivate(true);
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCallRepository.save(videoCall);
 
-        // ---
 
+        // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
@@ -272,6 +275,12 @@ public class ControlServiceImpl implements ControlService {
         videoCallUser.setVideoCallId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
 
         videoCallUserRepository.save(videoCallUser);
+
+        // ---
+        // URL을 신고자에게 전송
+        smsService.sendMessage(callerPhone, url);
+
+        // customSessionId를
 
         Map<String, Object> response = new HashMap<>();
         response.put("videoCallUser", videoCallUser);

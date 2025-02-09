@@ -66,4 +66,14 @@ public class DispatchStaffController {
     public ResponseEntity<?> finishDispatch(@RequestBody DispatchRequest request) {
         return dispatchStaffService.finishDispatch(request);
     }
+
+    @PutMapping("/depart_time")
+    public ResponseEntity<?> dispatch(@RequestBody DispatchRequest request) {
+        return dispatchStaffService.updateDepartTime(request);
+    }
+
+    @PutMapping("/departure")
+    public ResponseEntity<?> derpature(@RequestBody DispatchRequest request) {
+        return dispatchStaffService.updateDispatchArriveAt(request);
+    }
 }

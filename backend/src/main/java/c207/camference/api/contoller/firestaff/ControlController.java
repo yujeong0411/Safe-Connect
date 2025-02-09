@@ -6,8 +6,11 @@ import c207.camference.api.request.control.CallUpdateRequest;
 import c207.camference.api.request.control.ResendRequest;
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.sms.SmsService;
+import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.temp.request.FireStaffCreateRequest;
 import c207.camference.temp.request.MessageRequest;
+import io.openvidu.java.client.OpenViduHttpException;
+import io.openvidu.java.client.OpenViduJavaClientException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,10 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class ControlController {
     private final ControlService controlService;
     private final SmsService smsService;
+    private final WebRtcService webRtcService;
 
-    public ControlController(ControlService controlService, SmsService smsService) {
+    public ControlController(ControlService controlService, SmsService smsService, WebRtcService webRtcService) {
         this.controlService = controlService;
         this.smsService = smsService;
+        this.webRtcService = webRtcService;
     }
 
     @PostMapping("/signup")
@@ -61,10 +66,14 @@ public class ControlController {
 
     // 영상통화방 URL 전송, 영상통화방 생성
     @PostMapping("/video")
-    public ResponseEntity<?> createRoom(@RequestBody CallRoomRequest request) {
-        // 여기에 URL 생성 및 메시지 전송 service 삽입
+    public ResponseEntity<?> createRoom(@RequestBody CallRoomRequest request) throws OpenViduJavaClientException, OpenViduHttpException {
+        // sessionId 생성, URL 생성 및 메시지 전송
+        String sessionId = webRtcService.makeSession(request.getCustomSessionId());
+        String url = webRtcService.makeUrl(sessionId);
 
-        return controlService.createRoom(request);
+        System.out.println("sessionId: " + sessionId);
+        System.out.println("url: " + url);
+        return controlService.createRoom(request, url);
     }
 
     // 영상통화방 URL 재전송
