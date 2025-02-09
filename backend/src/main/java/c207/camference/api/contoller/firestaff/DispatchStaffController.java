@@ -1,6 +1,7 @@
 package c207.camference.api.contoller.firestaff;
 
 import c207.camference.api.request.dispatchstaff.DispatchRequest;
+import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientCallRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
@@ -40,6 +41,11 @@ public class DispatchStaffController {
     @GetMapping("/transfer/detail")
     public ResponseEntity<?> transferDetail(@RequestParam int transferId){
         return dispatchStaffService.transferDetail(transferId);
+    }
+
+    @PostMapping("/emergency_rooms/request")
+    public ResponseEntity<?> transferRequest(@RequestBody PatientTransferRequest request) {
+        return dispatchStaffService.transferRequest(request);
     }
 
     @GetMapping("/emergency_rooms/request/detail")

@@ -1,21 +1,25 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.request.dispatchstaff.DispatchRequest;
+import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
 import c207.camference.api.response.dispatchstaff.FinishDispatchResponse;
 import c207.camference.api.response.dispatchstaff.TransferUpdateResponse;
+import c207.camference.api.response.hospital.PatientTransferResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
+import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.hospital.Hospital;
+import c207.camference.db.entity.hospital.ReqHospital;
 import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
@@ -65,6 +69,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final PatientRepository patientRepository;
     private final UserMediDetailRepository userMediDetailRepository;
     private final ObjectMapper objectMapper;
+    private final SseEmitterService sseEmitterService;
 
     @Value("${openApi.serviceKey}")
     private String serviceKey;
@@ -248,6 +253,35 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 urlConnection.disconnect();
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<?> transferRequest(PatientTransferRequest request) {
+        Dispatch dispatch = dispatchRepository.findById(request.getDispatchId())
+                .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
+        Patient patient = patientRepository.findById(request.getPatientId())
+                .orElseThrow(() -> new RuntimeException("일치하는 환자 정보가 없습니다."));
+
+        Hospital hospital = hospitalRepository.findById(request.getHospitalId())
+                .orElseThrow(() -> new RuntimeException("일치하는 병원이 없습니다."));
+        if (!hospital.getHospitalIsActive()) {
+            throw new RuntimeException("현재 비활성화 상태인 병원입니다.");
+        }
+
+        // reqHospital insert
+        ReqHospital reqHospital = ReqHospital.builder()
+                .hospitalId(request.getHospitalId())
+                .dispatchId(request.getDispatchId())
+                .reqHospitalCreatedAt(LocalDateTime.now())
+                .build();
+
+        PatientTransferResponse response = new PatientTransferResponse(dispatch, patient, userMediDetailRepository);
+
+        // SSE
+        sseEmitterService.transferRequest(request, response);
+
+        return ResponseEntity.ok().body(ResponseUtil.success("응급실에 환자 수용 요청 전송 성공"));
     }
 
     @Override

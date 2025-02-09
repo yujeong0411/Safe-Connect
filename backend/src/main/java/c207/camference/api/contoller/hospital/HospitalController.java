@@ -1,6 +1,6 @@
 package c207.camference.api.contoller.hospital;
 
-import c207.camference.api.request.hospital.TransferStatusRequest;
+import c207.camference.api.response.dispatchstaff.TransferStatusRequest;
 import c207.camference.api.service.hospital.HospitalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
