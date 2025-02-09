@@ -2,6 +2,7 @@ package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.request.dispatchstaff.DispatchRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
+import c207.camference.api.request.dispatchstaff.PreKtasRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.response.common.ResponseData;
@@ -14,6 +15,7 @@ import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
+import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
@@ -21,6 +23,7 @@ import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.hospital.ReqHospital;
 import c207.camference.db.entity.patient.Patient;
+import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
@@ -29,6 +32,7 @@ import c207.camference.db.repository.firestaff.FireStaffRepository;
 import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.db.repository.hospital.ReqHospitalRepository;
 import c207.camference.db.repository.patient.PatientRepository;
+import c207.camference.db.repository.report.CallRepository;
 import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.report.TransferRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
@@ -70,6 +74,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final UserMediDetailRepository userMediDetailRepository;
     private final ObjectMapper objectMapper;
     private final SseEmitterService sseEmitterService;
+    private final CallRepository callRepository;
+    private final WebRtcService webRtcService;
 
     @Value("${openApi.serviceKey}")
     private String serviceKey;
@@ -362,7 +368,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     /**
      * 현장 도착 시간 수정 → 영상통화 종료가 트리거
      * @param request
-     * @return ResponseEntity(dispatch 테이블)
+     * @return ResponseEntity(dispatch 객체, 메시지)
      */
     @Override
     public ResponseEntity<?> updateDispatchArriveAt(DispatchRequest request) {
@@ -393,5 +399,35 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         FinishDispatchResponse response = new FinishDispatchResponse(dispatch, dispatch.getDispatchGroup());
         return ResponseEntity.ok().body(ResponseUtil.success(response, "현장에서 상황 종료"));
+    }
+
+    /**
+     * Google STT를 통해서 텍스트로 변환한 신고 내역을 바탕으로 preKTAS를 대략적으로 진단해주는 메서드
+     * @param request
+     * @return ResponseEntity(patient객체, preKTAS추측값, 메시지)
+     */
+    @Override
+    public ResponseEntity<?> getPreKtas(PreKtasRequest request) {
+        Integer patientId = request.getPatientId();
+        // 입력받은 환자의 id를 바탕으로 연결되어있는 신고 테이블의 신고 내용 텍스트를 가져고오고,
+        // 해당 내용을 바탕으로 preKTAS 추측값 진단
+        Optional<Patient> patientOpt = patientRepository.findById(patientId);
+        Patient patient = patientOpt.get();
+        Integer callId = patient.getCallId();
+
+        Optional<Call> callOpt = callRepository.findById(callId);
+        Call call = callOpt.get();
+        String callText = call.getCallText();
+
+        int preKTAS = Integer.parseInt(webRtcService.textSummary(callText, "preKTAS"));
+
+        System.out.println(callText);
+        System.out.println(preKTAS);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("patient", patient);
+        response.put("patientPreKtas", preKTAS);
+        response.put("message", "preKTAS 환자 중증도 분류 성공");
+        return null;
     }
 }

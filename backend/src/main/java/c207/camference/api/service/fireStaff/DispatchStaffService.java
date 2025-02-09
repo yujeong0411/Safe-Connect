@@ -2,6 +2,7 @@ package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.request.dispatchstaff.DispatchRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
+import c207.camference.api.request.dispatchstaff.PreKtasRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import org.springframework.http.ResponseEntity;
@@ -21,4 +22,5 @@ public interface DispatchStaffService {
     ResponseEntity<?> finishDispatch(DispatchRequest request);
 
 
+    ResponseEntity<?> getPreKtas(PreKtasRequest request);
 }

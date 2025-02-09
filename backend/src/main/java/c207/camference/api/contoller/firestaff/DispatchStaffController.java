@@ -2,6 +2,7 @@ package c207.camference.api.contoller.firestaff;
 
 import c207.camference.api.request.dispatchstaff.DispatchRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
+import c207.camference.api.request.dispatchstaff.PreKtasRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientCallRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
@@ -9,6 +10,11 @@ import c207.camference.api.service.fireStaff.DispatchStaffService;
 import c207.camference.api.service.sms.SmsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/dispatch_staff")
@@ -81,5 +87,11 @@ public class DispatchStaffController {
     @PutMapping("/departure")
     public ResponseEntity<?> derpature(@RequestBody DispatchRequest request) {
         return dispatchStaffService.updateDispatchArriveAt(request);
+    }
+
+    @PostMapping("/patient/pre_ktas")
+    public ResponseEntity<?> preKtas(
+            @RequestBody PreKtasRequest request) throws IOException {
+        return dispatchStaffService.getPreKtas(request);
     }
 }
