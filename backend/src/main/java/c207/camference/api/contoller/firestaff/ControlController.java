@@ -2,6 +2,7 @@ package c207.camference.api.contoller.firestaff;
 
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
+import c207.camference.api.request.control.DispatchOrderRequest;
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.temp.request.FireStaffCreateRequest;
@@ -63,4 +64,8 @@ public class ControlController {
         return controlService.createRoom(request);
     }
 
+    @PostMapping("/dispatch_group_order")
+    public ResponseEntity<?> dispatchOrder(@RequestBody DispatchOrderRequest request) {
+        return controlService.dispatchOrder(request);
+    }
 }

@@ -15,4 +15,8 @@ public class MediDto {
     @JsonIgnore
     private MediCategory mediCategory;
 
+    public MediDto(Integer mediId, String mediName) {
+        this.mediId = mediId;
+        this.mediName = mediName;
+    }
 }

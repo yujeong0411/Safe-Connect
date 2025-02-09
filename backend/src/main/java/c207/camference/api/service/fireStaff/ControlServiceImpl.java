@@ -4,10 +4,12 @@ import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
+import c207.camference.api.request.control.DispatchOrderRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
+import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -16,6 +18,7 @@ import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.FireDept;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.report.Call;
+import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.users.User;
 import c207.camference.db.entity.users.UserMediDetail;
 import c207.camference.db.entity.users.UserMediMapping;
@@ -26,6 +29,7 @@ import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.FireDeptRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
 import c207.camference.db.repository.report.CallRepository;
+import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.db.repository.users.UserRepository;
 import c207.camference.temp.request.FireStaffCreateRequest;
@@ -63,6 +67,8 @@ public class ControlServiceImpl implements ControlService {
     private final CallerRepository callerRepository;
     private final VideoCallUserRepository videoCallUserRepository;
     private final VideoCallRepository videoCallRepository;
+    private final SseEmitterService sseEmitterService;
+    private final DispatchRepository dispatchRepository;
 
 
     @Override
@@ -159,6 +165,30 @@ public class ControlServiceImpl implements ControlService {
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(ResponseUtil.success(response, "가용 가능한 소방팀 목록 조회 성공"));
     }
+
+    @Override
+    @Transactional
+    public ResponseEntity<?> dispatchOrder(DispatchOrderRequest request) {
+        DispatchGroup dispatchGroup = dispatchGroupRepository.findById(request.getDispatchGroupId())
+                .orElseThrow(() -> new RuntimeException("일치하는 구급팀이 존재하지 않습니다."));
+        if (!dispatchGroup.getDispatchGroupIsReady()) {
+            throw new RuntimeException("현재 출동 불가능한 구급팀입니다.");
+        }
+
+        // dispatch insert
+        Dispatch dispatch = Dispatch.builder()
+                .callId(request.getCallId())
+                .dispatchGroupId(request.getDispatchGroupId())
+                .dispatchCreateAt(LocalDateTime.now())
+                .build();
+        dispatchRepository.save(dispatch);
+
+        // SSE
+        sseEmitterService.sendDispatchOrder(request);
+
+        return ResponseEntity.ok().body(ResponseUtil.success("출동 지령 전송 성공"));
+    }
+
 
     @Override
     @Transactional
