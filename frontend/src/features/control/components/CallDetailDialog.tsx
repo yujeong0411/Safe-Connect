@@ -24,19 +24,19 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
         <div className="grid grid-cols-3 gap-4">
           <div>
             <Label className="text-sm mb-1">신고 일시</Label>
-            <div className="p-4 bg-white rounded-lg">
+            <div className="p-4 bg-dialog_content rounded-lg">
               {format(new Date(data.callStartedAt), 'yyyy-MM-dd HH:mm:ss')}
             </div>
           </div>
           <div>
             <Label className="text-sm mb-1">신고 종료 일시</Label>
-            <div className="p-4 bg-white rounded-lg">
+            <div className="p-4 bg-dialog_content rounded-lg">
               {format(new Date(data.callFinishedAt), 'yyyy-MM-dd HH:mm:ss')}
             </div>
           </div>
           <div>
             <Label className="text-sm mb-1">출동 여부</Label>
-            <div className="p-4 bg-white rounded-lg">
+            <div className="p-4 bg-dialog_content rounded-lg">
               {data.callIsDispatched ? '출동' : '미출동'}
             </div>
           </div>
@@ -45,11 +45,11 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
         {/* 여섯 번째 줄: 요약본 */}
         <div>
           <Label className="text-sm mb-1">요약본</Label>
-          <div className="min-h-[100px] p-4 bg-white rounded-lg">{data.callSummary}</div>
+          <div className="min-h-[100px] p-4 bg-dialog_content rounded-lg">{data.callSummary}</div>
         </div>
         <div>
           <Label className="text-sm mb-1">신고 내용</Label>
-          <div className="min-h-[100px] p-4 bg-white rounded-lg">{data.callText}</div>
+          <div className="min-h-[100px] p-4 bg-dialog_content rounded-lg">{data.callText}</div>
         </div>
 
         {/* 닫기 버튼 */}

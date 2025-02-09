@@ -6,7 +6,7 @@ import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 export const useControlAuthStore = create<FireAuthStore>((set) => ({
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
-  userName:'',
+  userName:localStorage.getItem('username'),
 
   // 타입 변환 함수 추가
   login: async (data: FireLoginRequest) => {

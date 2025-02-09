@@ -3,66 +3,37 @@ import Input from '@components/atoms/Input/Input.tsx';
 import Button from '@components/atoms/Button/Button.tsx';
 import { formatPhoneNumber } from '@features/auth/servies/signupService.ts';
 import { usePatientStore } from '@/store/control/patientStore.tsx';
-import React, { useState } from 'react';
+import {FormData} from '@/types/common/Patient.types.ts'
+import React from 'react';
 import { useEffect } from 'react';
 
-interface SaveForm {
-  userName?: string;
-  userGender?: string;
-  userAge?: string;
-  userPhone: string;
-  userProtectorPhone?: string;
-  diseases?: string;
-  medications?: string;
-  callSummary: string;
-  symptom?: string;
-  callId: number;  // 또는 적절한 타입
-  userId: number;
-}
-
 const ControlPatientInfoForm = () => {
-  const { patientInfo, searchByPhone, savePatientInfo } = usePatientStore();
-
-  // 폼 데이터 상태
-  const [formData, setFormData] = useState<SaveForm>({
-    userName: '',
-    userGender: '',
-    userAge: '',
-    userPhone: '',
-    userProtectorPhone: '',
-    diseases: '',
-    medications: '',
-    callSummary: '',
-    symptom: '',
-    callId: 0,
-    userId: 0
-  });
+  const { patientInfo, formData, updateFormData, searchByPhone, savePatientInfo } = usePatientStore();
 
   // patientInfo가 변경될 때 폼 데이터 업데이트
   useEffect(() => {
     if (patientInfo) {
-      setFormData((prev) => ({
-        ...prev, // 기존 요약본 등 유지
+      updateFormData({
         userName: patientInfo.userName || '',
         userGender: patientInfo.userGender || '',
         userAge: patientInfo.userAge?.toString() || '',
         userPhone: patientInfo.userPhone ? formatPhoneNumber(patientInfo.userPhone) : '',
         userProtectorPhone: patientInfo.userProtectorPhone
-          ? formatPhoneNumber(patientInfo.userProtectorPhone)
-          : '',
-        diseases:
-          patientInfo?.mediInfo
-             ? patientInfo.mediInfo
+            ? formatPhoneNumber(patientInfo.userProtectorPhone)
+            : '',
+        diseases: patientInfo?.mediInfo
+            ? patientInfo.mediInfo
             .find((m) => m.categoryName === '기저질환')
             ?.mediList.map((m) => m.mediName)
-            .join(',') || '' :'',
-        medications:
-          patientInfo?.mediInfo
-              ? patientInfo.mediInfo
+            .join(',') || ''
+            : '',
+        medications: patientInfo?.mediInfo
+            ? patientInfo.mediInfo
             .find((m) => m.categoryName === '복용약물')
             ?.mediList.map((m) => m.mediName)
-            .join(', ') || '' : '',
-      }));
+            .join(', ') || ''
+            : '',
+      });
     }
   }, [patientInfo]);
 
@@ -76,11 +47,7 @@ const ControlPatientInfoForm = () => {
       if (!response?.isSuccess) {
         // 명시적인 오류 메시지 표시
         alert(response?.message || '환자 정보를 찾을 수 없습니다.');
-
-        setFormData((prev) => ({
-          ...prev,
-          userPhone: formatPhoneNumber(formattedPhone),
-        }));
+updateFormData({userPhone: formattedPhone});
       }
     } catch (error) {
       // 네트워크 오류 등 처리
@@ -88,9 +55,11 @@ const ControlPatientInfoForm = () => {
       alert('환자 정보 조회에 실패했습니다.');
     }
   };
+
+
   // 필드 변경 핸들러
   const handleInputChange =
-    (name: keyof SaveForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { value } = e.target;
       console.log('Original value:', value); // 입력값 로깅
 
@@ -101,15 +70,14 @@ const ControlPatientInfoForm = () => {
         console.log('Processed value:', processedValue); // 포맷된 값 로깅
       }
 
-      setFormData((prev) => ({
-        ...prev,
+      updateFormData({
         [name]: processedValue,
-      }));
+      })
     };
 
   // 저장 핸들러
   const handleSubmit = async () => {
-    await savePatientInfo(formData);
+    await savePatientInfo();
   };
 
   return (
@@ -218,6 +186,7 @@ const ControlPatientInfoForm = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
                   className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  value={formData.callSummary}
                   onChange={handleInputChange('callSummary')}
               />
             </div>
