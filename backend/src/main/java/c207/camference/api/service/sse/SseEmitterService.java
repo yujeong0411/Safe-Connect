@@ -2,6 +2,7 @@ package c207.camference.api.service.sse;
 
 import c207.camference.api.request.control.DispatchOrderRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
+import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.PatientTransferResponse;
 import c207.camference.util.response.ResponseUtil;
 import org.springframework.stereotype.Service;
@@ -101,4 +102,23 @@ public class SseEmitterService {
         return emitter;
     }
 
+    // 환자 이송요청 수락/거절 알림
+    public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted) {
+        System.out.println("Current emitters count: " + dispatchGroupEmitters.size()); // 디버깅
+
+        String answer = accepted ? "환자 이송 요청 승인" : "환자 이송 요청 거절";
+
+        // to 구급팀
+        List<String> deadDispatchGroupEmitters = new ArrayList<>();
+        dispatchGroupEmitters.forEach((clientId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event().name("transfer response")
+                        .data(ResponseUtil.success(response, answer)));
+                System.out.println("SSE event sent to: " + clientId); // 디버깅
+            } catch (IOException e) {
+                deadDispatchGroupEmitters.add(clientId);
+            }
+        });
+        deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
+    }
 }
