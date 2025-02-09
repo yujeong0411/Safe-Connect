@@ -22,6 +22,11 @@ const NavBar = ({ navItems }: NavBarProps) => {
             onClick={(e) => handleClick(item, e)}
           >
             {item.label}
+              {item.alarm !== undefined && item.alarm !== 0 && (
+                  <span className="ml-2 bg-[#ED2B2A] text-white rounded-full px-[0.5rem] py-[0.2rem] text-xs">
+                {item.alarm}
+              </span>
+              )}
           </Link>
         ))}
       </div>

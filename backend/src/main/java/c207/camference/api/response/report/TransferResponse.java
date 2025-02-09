@@ -15,10 +15,12 @@ public class TransferResponse {
     private LocalDateTime transferAcceptAt;
     private LocalDateTime transferArriveAt;
     private HospitalResponse hospital;
+    private Integer dispatchId;
 
     public TransferResponse(Transfer transfer) {
         this.transferAcceptAt = transfer.getTransferAcceptAt();
         this.transferArriveAt = transfer.getTransferArriveAt();
         this.hospital = new HospitalResponse(transfer.getHospital());
+        this.dispatchId = transfer.getDispatchId();
     }
 }

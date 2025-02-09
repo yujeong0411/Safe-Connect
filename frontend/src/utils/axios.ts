@@ -91,9 +91,11 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         // 리프레시 토큰도 만료되었거나 유효하지 않은 경우
         console.error('Token refresh failed:', refreshError);
+
         // 갱신 실패 시 로그인 페이지로 리다이렉트
         localStorage.removeItem('token');
-        // window.location.href = '/user/login';
+        localStorage.removeItem('userName');
+
         return Promise.reject(refreshError);
       }
     }

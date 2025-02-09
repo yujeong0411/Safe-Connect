@@ -3,12 +3,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DialogProps } from '../types/dialog.types';
 import { useControlAuthStore } from '@/store/control/controlAuthStore.tsx';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import { useVideoCallStore } from '@/store/control/videoCallStore.ts';
 import { useNavigate } from 'react-router-dom';
+import {formatPhoneNumber} from "@features/auth/servies/signupService.ts";
 
 const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
+  const [phoneNumber, setPhoneNumber] = useState('');
   const {
     sessionId,
     handleChangeSessionId,
@@ -54,11 +56,18 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
     }
   };
 
+  // 전화번호 포맷팅
+  const handleFormatPhone = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formattedNumber = formatPhoneNumber(value);
+    setPhoneNumber(formattedNumber);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[600px] p-8 bg-bg">
+      <DialogContent className="max-w-[600px] p-8 bg-dialog_color">
 
-        <DialogTitle className="text-2xl font-bold mb-8">영상통화 생성</DialogTitle>
+        <DialogTitle className="text-2xl font-bold mb-2">영상통화 생성</DialogTitle>
 
         <div className="space-y-6">
           <div>
@@ -68,19 +77,21 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
             <Input 
               type="tel" 
               placeholder="010-0000-0000" 
-              className="bg-white" 
+              className="bg-dialog_content"
+              value={phoneNumber}
+              onChange={handleFormatPhone}
             />
           </div>
           
           <div className="flex justify-between gap-4">
             <Button 
-              className="flex-1 bg-[#545f71] hover:bg-[#697383] text-white py-6"
+              className="flex-1 bg-banner hover:bg-[#697383] text-white py-[1.4rem] text-[0.9rem]"
               onClick={handleCreateSession}
             >
-              영상통화방 생성 및 url전송
+              영상통화 생성
             </Button>
             <Button 
-              className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-6"
+              className="flex-1 bg-graybtn hover:bg-gray-300 text-gray-800 py-[1.4rem] text-[0.9rem]"
               onClick={() => onOpenChange(false)}
             >
               닫기

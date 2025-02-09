@@ -16,5 +16,9 @@ public interface DispatchStaffService {
     ResponseEntity<?> transferUpdate(TransferUpdateRequest request);
     ResponseEntity<?> updatePatientInfo(PatientInfoRequest request);
 
+    ResponseEntity<?> updateDepartTime(DispatchRequest request);
+    ResponseEntity<?> updateDispatchArriveAt(DispatchRequest request);
     ResponseEntity<?> finishDispatch(DispatchRequest request);
+
+
 }

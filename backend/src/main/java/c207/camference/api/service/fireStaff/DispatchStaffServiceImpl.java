@@ -336,6 +336,52 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         }
     }
 
+    /** 출동 시간 수정 → 영상통화 참여가 트리거
+     *
+     * @param request
+     * @return ResponseEntity(dispatch 테이블)
+     */
+    @Override
+    public ResponseEntity<?> updateDepartTime(DispatchRequest request) {
+        Integer dispatchId = request.getDispatchId();
+        Dispatch dispatch = dispatchRepository.findById(dispatchId)
+                .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
+
+        dispatch.setDispatchDepartAt(LocalDateTime.now());
+        System.out.println(dispatch.getDispatchDepartAt());
+        dispatchRepository.save(dispatch);
+
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("dispatch", dispatch);
+        response.put("message", "출동시간 수정 완료");
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    /**
+     * 현장 도착 시간 수정 → 영상통화 종료가 트리거
+     * @param request
+     * @return ResponseEntity(dispatch 테이블)
+     */
+    @Override
+    public ResponseEntity<?> updateDispatchArriveAt(DispatchRequest request) {
+        Integer dispatchId = request.getDispatchId();
+        Dispatch dispatch = dispatchRepository.findById(dispatchId)
+                .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
+
+        dispatch.setDispatchArriveAt(LocalDateTime.now());
+        System.out.println(dispatch.getDispatchArriveAt());
+        dispatchRepository.save(dispatch);
+
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("dispatch", dispatch);
+        response.put("message", "출동시간 수정 완료");
+
+        return ResponseEntity.ok().body(response);
+    }
+
     @Override
     @Transactional
     public ResponseEntity<?> finishDispatch(DispatchRequest request) {

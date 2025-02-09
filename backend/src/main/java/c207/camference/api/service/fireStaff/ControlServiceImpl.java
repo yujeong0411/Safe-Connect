@@ -5,11 +5,16 @@ import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
 import c207.camference.api.request.control.DispatchOrderRequest;
+import c207.camference.api.request.control.ResendRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
+<<<<<<< backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
 import c207.camference.api.service.sse.SseEmitterService;
+=======
+import c207.camference.api.service.sms.SmsService;
+>>>>>>> backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -67,8 +72,12 @@ public class ControlServiceImpl implements ControlService {
     private final CallerRepository callerRepository;
     private final VideoCallUserRepository videoCallUserRepository;
     private final VideoCallRepository videoCallRepository;
+<<<<<<< backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
     private final SseEmitterService sseEmitterService;
     private final DispatchRepository dispatchRepository;
+=======
+    private final SmsService smsService;
+>>>>>>> backend/src/main/java/c207/camference/api/service/fireStaff/ControlServiceImpl.java
 
 
     @Override
@@ -234,10 +243,9 @@ public class ControlServiceImpl implements ControlService {
 
     // 상황실 직원이 '영상통화방 생성 및 url 전송' 버튼을 눌렀을 시
     // 신고자(caller), 신고(call), 영상통화(video_call), 영상통화 참여(video_call_user) 레코드 생성
-
     @Override
     @Transactional
-    public ResponseEntity<?> createRoom(CallRoomRequest request) {
+    public ResponseEntity<?> createRoom(CallRoomRequest request, String url) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println("fireStaffLoginId: " + fireStaffLoginId);
@@ -271,30 +279,30 @@ public class ControlServiceImpl implements ControlService {
         }
 
         // ---
-
         // 신고(call) 생성
 
         Call call = new Call();
         call.setCallIsDispatched(false);
         call.setFireStaff(fireStaffOpt.get());
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
-        call = callRepository.save(call);
+        callRepository.save(call);
+
+//        VideoCall videoCall = VideoCall.builder()
+//                .videoCallIsActivate(true)
+//                .videoCallId().
+//                .build();
 
         // ---
-        // URL 전송 (추후 webrtc 기능 develop에 추가되면 수정)
-
-        // ---
-
         // 영상통화(video_call) 생성
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
-        videoCall.setVideoCallUrl("http://localhost:5173/openvidu/join/{sessionId}?direct=true"); // 해당 메서드 완성전까지는 일단 하드코딩(2025.02.06)
+        videoCall.setVideoCallUrl(url);
         videoCall.setVideoCallIsActivate(true);
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCallRepository.save(videoCall);
 
-        // ---
 
+        // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
@@ -304,11 +312,22 @@ public class ControlServiceImpl implements ControlService {
 
         videoCallUserRepository.save(videoCallUser);
 
+        // ---
+        // URL을 신고자에게 전송
+        smsService.sendMessage(callerPhone, url);
 
-        return null; // 여기 수정할것
+        // customSessionId를
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("videoCallUser", videoCallUser);
+        response.put("videoCall", videoCall);
+        response.put("call", call);
+
+        return ResponseEntity.ok(response);
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> callEnd(CallEndRequest request) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -356,6 +375,21 @@ public class ControlServiceImpl implements ControlService {
         response.put("isSuccess", true);
         response.put("code", 200);
         response.put("message", "신고 종료 시각 수정 성공");
+
+        return ResponseEntity.ok(response);
+    }
+
+    // URL 메시지 재전송
+    @Override
+    @Transactional
+    public ResponseEntity<?> resendUrl(ResendRequest request) {
+        Integer callId = Integer.valueOf(request.getCallId());
+        String userPhone = request.getUserPhone();
+
+        VideoCall videoCall = videoCallRepository.findByCallId(callId);
+        String url = videoCall.getVideoCallUrl();
+
+        ResponseEntity<?> response = smsService.sendMessage(userPhone, url);
 
         return ResponseEntity.ok(response);
     }

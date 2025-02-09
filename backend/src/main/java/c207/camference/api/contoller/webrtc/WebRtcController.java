@@ -1,11 +1,13 @@
 package c207.camference.api.contoller.webrtc;
 
 
+import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.api.service.webrtc.WebRtcServiceImpl;
 
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.webrtc.WebRtcService;
+import c207.camference.db.repository.call.VideoCallRepository;
 import io.openvidu.java.client.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +48,8 @@ import java.util.stream.Collectors;
 @RestController
 @Log4j2
 public class WebRtcController {
+    private final SmsService smsService;
+    private final VideoCallRepository videoCallRepository;
     @Value("${OPENVIDU_URL}")
     private String OPENVIDU_URL;
 
@@ -58,10 +62,12 @@ public class WebRtcController {
     private ControlService controlService;
 
     public WebRtcController(WebRtcService webRtcService,
-                            ControlService controlService) {
+                            ControlService controlService, SmsService smsService, VideoCallRepository videoCallRepository) {
 
         this.webRtcService = webRtcService;
         this.controlService = controlService;
+        this.smsService = smsService;
+        this.videoCallRepository = videoCallRepository;
     }
 
     @PostConstruct
@@ -77,11 +83,14 @@ public class WebRtcController {
      * @param params The Session properties
      * @return The Session ID
      */
+    // 세션 생성(상황실)
     @PostMapping("/api/sessions")
     public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
+        // 상황실 직원만 해당 컨트롤러에 접근을 한다. 따라서 URL을 문자메시지로 전송하는 로직도 여기서 구현한다.
 
         String customSessionId = params != null ? (String) params.get("customSessionId") : null;
+        String callerPhone = (String) params.get("callerPhone");
 
         SessionProperties properties = new SessionProperties.Builder()
                 .customSessionId(customSessionId)
@@ -90,9 +99,14 @@ public class WebRtcController {
         Session session = openvidu.createSession(properties);
         System.out.println(session.getSessionId()); // 테스트용
 
+        // 만들어진 URL을 문자로 전송
+        // 상황실 컨트롤러에서 전송? 여기서 전송?
+        String URL = "http://localhost:5173/caller/join/" + customSessionId + "?direct=true";
+        smsService.sendMessage(callerPhone, URL);
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 
+    // 토큰 생성(상황실, 신고자, 구급대원)
     @PostMapping("/api/sessions/{sessionId}/connections")
     public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
                                                    @RequestBody(required = false) Map<String, Object> params)
@@ -116,8 +130,6 @@ public class WebRtcController {
 
         System.out.println(connection.getConnectionId());
 
-        // 테스트용으로 우선 여기에 넣었다.
-        // webRtcService.sendUrlMsg("01028372243");
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
@@ -132,37 +144,17 @@ public class WebRtcController {
 
         String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
         String summary = webRtcService.textSummary(text);
+        webRtcService.saveSummary(callId, text, summary);
 
 //        System.out.println("요약전 : " + text); // 테스트용.
 //        System.out.println("요약 후 : " + summary);
-        
-        webRtcService.save(callId, text, summary);
 
         Map<String, String> response = new HashMap<>();
         response.put("callSummary", summary);
         response.put("message", "신고내역요약 조회 성공");
 
-
         return ResponseEntity.ok(response);
     }
-
-    // 영상통화방 URL 전송
-    // 이때 신고자(caller), 신고 테이블(call), 영상통화(video_call),영상통화참여(video_call_user) insert
-    //
-//    @PostMapping("/control/video")
-//    public ResponseEntity<?> sendUrl(@RequestParam("callerPhone") String callerPhone) throws OpenViduJavaClientException, OpenViduHttpException {
-//        webRtcService.sendUrlMsg(callerPhone); //영상통화방 URL 전송
-//
-//        // 신고자 컬럼 생성
-//
-//        //
-//
-//
-//
-//
-//        return ResponseEntity.ok().build();
-//    }
-
 
 
     @PostMapping("/api/sessions/{sessionId}/disconnect")
@@ -180,6 +172,7 @@ public class WebRtcController {
 
         return ResponseEntity.notFound().build();
     }
+
     @GetMapping("/api/sessions")
     public ResponseEntity<List<String>> getAllActiveSessions()
             throws OpenViduJavaClientException, OpenViduHttpException {
