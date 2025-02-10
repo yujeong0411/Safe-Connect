@@ -148,7 +148,7 @@ export const fetchDispatchGroups = async () => {
 // 출동 지령
 export const orderDispatch = async (dispatchGroupId:number, callId:number) => {
     try {
-      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group/order', {dispatchGroupId, callId})
+      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group_order', {dispatchGroupId, callId})
       console.log("출동 지령 성공", response.data);
       return response.data;
     } catch (error: any) {

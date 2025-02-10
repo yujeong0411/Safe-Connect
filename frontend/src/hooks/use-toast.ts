@@ -8,7 +8,7 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
+const TOAST_LIMIT = 5    // 토스트가 나오는 갯수
 const TOAST_REMOVE_DELAY = 1000000
 
 type ToasterToast = ToastProps & {

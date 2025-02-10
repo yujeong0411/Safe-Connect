@@ -16,12 +16,12 @@ export const fetchTransferRequest = async (): Promise<TransferResponse> => {
 // 이송 요청 상세목록
 export const fetchTransferDetail = async (dispatchId: number) => {
     try {
-        console.log('요청 dispatchId:', dispatchId);
+        console.log('상세 요청 dispatchId:', dispatchId);
         const response = await axiosInstance.get('hospital/transfer_request/detail', {params: {dispatchId}})
-        console.log("이송 신청 응답", response.data)
+        console.log("이송 상세 응답", response.data)
         return response.data
     } catch (error) {
-        console.error("이송 상제 조회 실패", error)
+        console.error("이송 상세 조회 실패", error)
         throw error;
     }
 }

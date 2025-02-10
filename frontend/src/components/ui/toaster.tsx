@@ -27,7 +27,8 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      {/*토스트 사이 간격 조정 추가*/}
+      <ToastViewport className="fixed top-0 z-[100] flex flex-col space-y-3 p-4 right-0 max-w-sm"/>
     </ToastProvider>
   )
 }
