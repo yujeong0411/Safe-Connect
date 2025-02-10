@@ -278,7 +278,7 @@ public class ControlServiceImpl implements ControlService {
         call.setFireStaff(fireStaffOpt.get());
         call.setCaller(caller);
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
-        callRepository.save(call);
+        call = callRepository.saveAndFlush(call);
 
 //        VideoCall videoCall = VideoCall.builder()
 //                .videoCallIsActivate(true)
