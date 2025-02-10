@@ -6,6 +6,8 @@ import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import {CircleAlert, CircleCheckBig} from 'lucide-react';
 import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
+import { useSSE } from '@/hooks/useSEE';
+import { BaseResponse, DispatchOrderData } from "@/types/sse/sse.types";
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
@@ -18,6 +20,29 @@ const ControlDispatchOrderPage = () => {
     description: '',
     type: 'default' as 'default' |'destructive',
   });
+
+  // SSE 훅 추가
+  useSSE<DispatchOrderData>({
+    subscribeUrl: "http://localhost:8080/control/subscribe",
+    clientId: 1, // 실제 로그인 한 사용자의 pk
+    onMessage: (response) => {
+      if (response.isSuccess) {
+        handleAlertClose({
+          title: "출동 지령 응답",
+          description: response.message,
+          type: "default",
+        });
+      }
+    },
+    onError: (error) => {
+      handleAlertClose({
+        title:" 연결 오류",
+        description: "서버와의 연결이 끊어졌습니다. 재연결을 시도합니다.",
+        type: "destructive",
+      });
+    }
+  });
+
 
   // 3초 후 사라지는 로직
   const handleAlertClose = (config: typeof alertConfig) => {
