@@ -14,6 +14,20 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
     center: { lat: 33.450701, lng: 126.570667 },
     isLoading: true,
   });
+  import[callerLocation, setCallerLocation] = useState<{lat:number, lng:number} | null>(null)
+
+  // 신고자 위치정보 업데이트
+  const updateCallerLocation = (lat:number, lng:number) => {
+    setCallerLocation({lat, lng})
+    if(map) {
+      // 지도 중심이 신고자 위치
+      map.setCenter(new kakao.maps.LatLng(lat, lng))
+
+      // 소방서 재검색
+      searchNearbyFireStations(lat, lng)
+    }
+  }
+
 
   useEffect(() => {
     if (navigator.geolocation) {
