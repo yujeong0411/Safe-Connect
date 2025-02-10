@@ -23,8 +23,13 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.VITE_BASE_URL,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
-          secure: false
+          secure: false,
+          rewrite: (path) =>{
+            console.log('Original path:', path);
+            const rewrittenPath = path.replace(/^\/api/, '');
+            console.log('Rewritten path:', rewrittenPath);
+            return rewrittenPath;
+        }
         },
       },
     },
