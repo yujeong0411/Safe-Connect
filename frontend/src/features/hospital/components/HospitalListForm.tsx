@@ -107,7 +107,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         .fetchTransferDetail(data.dispatchId, type);
       console.log("상세 데이터:", detailData);
       setSelectedPatient({
-        patientId: 4,     // 벡엔드 추가 시 다시 변경  data.patients[0].patientId,
+        patientId:detailData.patientId,
         name: detailData.patientName ?? null,
         gender: detailData.patientGender ?? null,
         age: detailData.patientAge ?? null,
