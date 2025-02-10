@@ -1,7 +1,6 @@
 import { create } from 'zustand/index';
 import { DispatchGroupStore } from '@/types/dispatch/dispatchGroup.types.ts';
 import { fetchDispatchGroups } from '@features/control/services/controlApiService.ts';
-import { dispatchOrder } from '@features/control/services/controlApiService.ts';
 
 export const useDispatchGroupStore = create<DispatchGroupStore>((set, get) => ({
   dispatchGroups: [],
@@ -51,14 +50,5 @@ export const useDispatchGroupStore = create<DispatchGroupStore>((set, get) => ({
     get().fetchDispatchGroups();
   },
 
-  // 출동 지령
-  sendDispatchOrder: async (dispatchGroupId: number) => {
-    try {
-      const response = await dispatchOrder.orderDispatch(dispatchGroupId);
-      return response.data;
-    } catch (error) {
-      console.error(' 출동 지령 실패', error);
-      throw error;
-    }
-  },
+
 }));

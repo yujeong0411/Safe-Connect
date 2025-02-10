@@ -6,11 +6,14 @@ import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import {CircleAlert, CircleCheckBig} from 'lucide-react';
 import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
+import {usePatientStore} from "@/store/control/patientStore.tsx";
+import {orderDispatch} from "@features/control/services/controlApiService.ts";
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
-  const { selectedStation, setSelectedStation, dispatchGroups, sendDispatchOrder } = useDispatchGroupStore();
+  const {currentCall} = usePatientStore();
+  const { selectedStation, setSelectedStation, dispatchGroups } = useDispatchGroupStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -38,8 +41,18 @@ const ControlDispatchOrderPage = () => {
       });
       return;
     }
+
+    if (!currentCall?.callId) {
+      handleAlertClose({
+        title:"신고 정보 없음",
+        description: "현재 처리 중인 신고가 없습니다.",
+        type: 'destructive',
+      })
+      return
+    }
+
     try {
-      await sendDispatchOrder(selectedTeam);
+      await orderDispatch(selectedTeam, currentCall.callId);
       handleAlertClose({
         title: '출동 지령 전송',
         description: '출동 지령이 전송되었습니다.',

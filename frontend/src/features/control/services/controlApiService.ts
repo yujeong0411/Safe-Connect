@@ -146,16 +146,13 @@ export const fetchDispatchGroups = async () => {
 }
 
 // 출동 지령
-export const dispatchOrder = {
-  // 출동 지령 내리기
-  orderDispatch: async (dispatchGroupId:number) => {
+export const orderDispatch = async (dispatchGroupId:number, callId:number) => {
     try {
-      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group/order', {dispatchGroupId})
+      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group/order', {dispatchGroupId, callId})
+      console.log("출동 지령 성공", response.data);
       return response.data;
     } catch (error: any) {
       console.error('출동 지령 실패', error)
       throw error;
     }
-  },
-
-}
+  }
