@@ -22,6 +22,7 @@ const ControlDispatchOrderPage = () => {
     type: 'default' as 'default' |'destructive',
   });
 
+
   // 3초 후 사라지는 로직
   const handleAlertClose = (config: typeof alertConfig) => {
     setAlertConfig(config);
@@ -42,17 +43,20 @@ const ControlDispatchOrderPage = () => {
       return;
     }
 
-    if (!currentCall?.callId) {
-      handleAlertClose({
-        title:"신고 정보 없음",
-        description: "현재 처리 중인 신고가 없습니다.",
-        type: 'destructive',
-      })
-      return
-    }
+    // 테스트 동안 제거
+    // if (!currentCall?.callId) {
+    //   handleAlertClose({
+    //     title:"신고 정보 없음",
+    //     description: "현재 처리 중인 신고가 없습니다.",
+    //     type: 'destructive',
+    //   })
+    //   return
+    // }
 
     try {
-      await orderDispatch(selectedTeam, currentCall.callId);
+      // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
+      await orderDispatch(selectedTeam);
+      // await orderDispatch(selectedTeam, currentCall.callId);
       handleAlertClose({
         title: '출동 지령 전송',
         description: '출동 지령이 전송되었습니다.',
