@@ -1,5 +1,6 @@
 package c207.camference.db.entity.report;
 
+import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.firestaff.FireStaff;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -37,17 +38,21 @@ public class Call {
     @Lob
     private String callText;
 
+    @OneToOne
+    @JoinColumn(name = "caller_id", nullable = false)
+    private Caller caller;
+
     @CreationTimestamp
     @Column(name = "call_started_at", nullable = false)
     @Comment(value = "신고 시작 시간")
     private LocalDateTime callStartedAt;
 
 
-    @Column(name = "call_text_created_at")
+    @Column(name = "call_text_created_at", nullable = true)
     @Comment(value = "신고내용 작성 시간")
     private LocalDateTime callTextCreatedAt;
 
-    @Column(name = "call_finished_at")
+    @Column(name = "call_finished_at", nullable = true)
     @Comment(value = "신고 종료 시간")
-    private LocalDateTime callFinishedAt;
+    private LocalDateTime callFinishedAt=null;
 }

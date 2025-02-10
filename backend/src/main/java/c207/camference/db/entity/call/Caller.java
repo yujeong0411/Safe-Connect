@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class Caller {
 
     @Id
-    @Column(name = "caller_id", nullable = false)
+    @Column(name = "caller_id")
     @Comment(value = "신고자ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer callerId;
