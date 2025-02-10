@@ -184,14 +184,33 @@ public class WebRtcServiceImpl implements WebRtcService {
 
     @Override
     @Transactional
-    public String textSummary(String speechToText) {
+    public String textSummary(String speechToText, String mode) {
 // 요약을 요청하는 프롬프트 생성
-        String prompt = String.format(
-                "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
-                        "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘.",
-                "\n\n%s\n\n요약:",
-                speechToText
-        );
+        String prompt = "";
+        if(mode.equals("summary")){
+            prompt = String.format(
+                    "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
+                            "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘.",
+                    "\n\n%s\n\n요약:",
+                    speechToText
+            );
+        } else if(mode.equals("preKTAS")){
+            prompt = String.format(
+                    "너는 응급환자의 119구급대와 의료기관 간의 원활한 의사소통을 촉진하고, 환자에게 적절한 치료를 신속히 제공하는 것을 목표" +
+                            "로 하는 분류체계인 pre-KTAS를 진단하는 구급대원이야. " +
+                            "이를 바탕으로, 1단계부터 5단계까지 단계중에서 해당 환자가 몇단계에 해당하는지는 정해줘. 아래는 분류 기준이야." +
+                            "Level 1 (소생): 심정지, 중증외상 등 즉각적인 처치가 필요한 매우 중증 상태\n" +
+                            "Level 2 (긴급): 호흡곤란, 토혈 등 생명이나 신체기능에 잠재적 위협이 있는 상태\n" +
+                            "Level 3 (응급): 경한 호흡부전 등 치료가 필요한 상태로 진행할 수 있는 잠재적 가능성이 있는 경우\n" +
+                            "Level 4 (준응급): 착란, 요로감염 등 1-2시간 내에 처치나 재평가가 필요한 상태\n" +
+                            "Level 5 (비응급): 상처소독, 약처방 등 긴급하지 않은 상태" +
+                            "다음 텍스트는 응급실 전화상담사와 환자의 대화내용이야. " +
+                            "위를 바탕으로, 해당 환자가 몇단계에 해당하는지, 답변으로 오직 숫자 하나만 대답해줘. " +
+                            "사족을 붙이지 말고, 오로지 정수 하나만 대답해야 해",
+                    "\n\n%s\n\n:",
+                    speechToText
+            );
+        }
 
         try {
             // 요청 바디 생성
