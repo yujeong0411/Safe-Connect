@@ -81,12 +81,15 @@ public class SseEmitterService {
     public void transferRequest(PatientTransferRequest dispatchGroupData, PatientTransferResponse hospitalData) {
         // 병원에 응답 전송
         List<Integer> daedHospitalEmitters = new ArrayList<>();
+        // 이송 요청 받은 병원에만
         hospitalEmitters.forEach((clientId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event()
-                        .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
-            } catch (IOException e) {
-                daedHospitalEmitters.add(clientId);
+            if (dispatchGroupData.getHospitalIds().contains(clientId)) {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
+                } catch (IOException e) {
+                    daedHospitalEmitters.add(clientId);
+                }
             }
         });
         daedHospitalEmitters.forEach(hospitalEmitters::remove);
@@ -96,7 +99,7 @@ public class SseEmitterService {
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
-                        .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 승인되었습니다")));
+                        .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 접수되었습니다")));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
             }
@@ -114,7 +117,6 @@ public class SseEmitterService {
             try {
                 emitter.send(SseEmitter.event().name("transfer response")
                         .data(ResponseUtil.success(response, answer)));
-                System.out.println("SSE event sent to: " + clientId); // 디버깅
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
             }

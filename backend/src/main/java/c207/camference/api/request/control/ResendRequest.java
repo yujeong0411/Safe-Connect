@@ -4,6 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class ResendRequest {
-    private String callId;
-    private String userPhone;
+    private Integer callId;
 }
