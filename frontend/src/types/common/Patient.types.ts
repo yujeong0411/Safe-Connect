@@ -1,4 +1,20 @@
 import { MedicalCategory } from '@/types/common/medical.types.ts';
+// 폼 데이터
+export interface FormData {
+  userName: string;
+  userGender: string;
+  userAge: string;
+  userPhone: string;
+  userProtectorPhone: string;
+  diseases: string;
+  medications: string;
+  callText: string;
+  callSummary: string;
+  symptom: string;
+  callId: number;
+  userId: number;
+}
+
 
 // 현재 신고 중인 정보
 export interface CurrentCall {
@@ -47,20 +63,31 @@ export interface PatientResponse {
 export interface PatientStore {
   patientInfo: PatientInfo | null;
   currentCall: CurrentCall | null;
+  formData: FormData;
+  reportContent:string;
+  updateReportContent:(content: string) => void;
+  updateFormData: (data:Partial<FormData>) => void;
   setCurrentCall: (callInfo: CallInfo) => void;
-  isSuccess?: boolean;
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
-  savePatientInfo: (info: CurrentCall) => Promise<void>;
+  savePatientInfo: () => Promise<void>;
   resetPatientInfo: () => void;
-  sendProtectorMessage?: (callerPhone: string) => Promise<boolean>;
-}
-
-export interface ProtectorMessageRequest {
-  callerPhone: string;
+  sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
+  fetchCallSummary : (callId:number) => Promise<void>
 }
 
 export interface ProtectorMessageResponse {
   isSuccess: boolean;
   code: number;
   message: string;
+}
+
+
+// 신고 요약 응답
+export interface CallSummaryResponse {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+  data: {
+    callSummary: string;
+  }
 }

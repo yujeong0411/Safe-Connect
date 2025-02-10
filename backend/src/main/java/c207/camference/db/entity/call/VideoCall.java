@@ -3,16 +3,21 @@ package c207.camference.db.entity.call;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.report.Call;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-
+@Builder
 @Entity
 @Data
 @Table(name = "video_call")
+@NoArgsConstructor
+@AllArgsConstructor
 public class VideoCall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

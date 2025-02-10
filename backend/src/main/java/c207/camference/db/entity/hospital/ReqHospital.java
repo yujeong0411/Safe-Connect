@@ -3,7 +3,10 @@ package c207.camference.db.entity.hospital;
 
 import c207.camference.db.entity.report.Dispatch;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,6 +15,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "req_hospital")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReqHospital {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

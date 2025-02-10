@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 import io.openvidu.java.client.Connection;
@@ -62,78 +63,71 @@ public class WebRtcServiceImpl implements WebRtcService {
             .writeTimeout(60, TimeUnit.SECONDS)  // 쓰기 타임아웃
             .build();
 
-    // 신고자에게 영상통화방 URL 전송
-    @Override
-    @Transactional
-    public ResponseEntity<?> sendUrlMsg(String callerPhone)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-        String URL = "";
 
-        // 현재 시간 가져오기
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-        String formattedNow = now.format(formatter);
-
-        // 직접 세션 속성을 담을 Map을 생성
-        Map<String, Object> params = new HashMap<>();
-        params.put("customSessionId", formattedNow);
-
-        // 세션아이디는 어떤걸로 해도 무방하기는 한데, 매 방마다 달라야 하고, 어차피 DB에도 넣어야 하는 값인 생성 시각으로 한다.(02.01 김성준)
-        SessionProperties sessionPros = SessionProperties.fromJson(params).build();
-        Session session = openvidu.createSession(sessionPros);
-
-        Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
-        ConnectionProperties connProps = ConnectionProperties.fromJson(connectedParams).build();
-
-        Connection connCaller = session.createConnection(connProps);
-        Connection connFireStaff = session.createConnection(connProps);
-
-        String tokenCaller = connCaller.getToken();
-        String tokenFireStaff = connFireStaff.getToken();
-
-        URL = "http://localhost:3000/" + "?sessionid=" + session.getSessionId() + "token=" + tokenCaller;
-
-        // todo : video_call(영상통화방) 테이블 생성
-
-        // todo : vidoe_call_user(영상통화참여) 테이블에 신고자, 상황실 직원 정보 2개 INSERT
-
-        System.out.println(URL); // 디버그용. 삭제할것
-
-        // 생성한 URL을 SMS로 전송하는 로직 추가
-        smsService.sendMessage(callerPhone, URL);
-
-        return ResponseEntity.ok().build();
-    }
-
-    // todo : 구급대원용 토큰 생성
-    /**
-    @param : 세션ID
-    @return : Map<> tokenId
-     */
-    @Override
-    @Transactional
-    public String createStaffToken(String sessionId)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-        Session session = openvidu.getActiveSession(sessionId);
-
-        Map<String, Object> connectedParams = new HashMap<>(); // 현재는 빈값이지만, 추후 필요한 설정이 있을때 채워넣어도 된다.
-        ConnectionProperties properties = ConnectionProperties.fromJson(connectedParams).build();
-        Connection connStaff = session.createConnection(properties);
-        System.out.println(connStaff.getToken());
-
-        return connStaff.getToken();
-    }
 
     @Override
-    public ResponseEntity<?> save(Integer callId, String text, String summary) {
+    public ResponseEntity<?> saveSummary(Integer callId, String text, String summary) {
         Call call = callRepository.findCallByCallId(callId);
         call.setCallText(text);
         call.setCallSummary(summary);
         call.setCallTextCreatedAt(LocalDateTime.now());
 
+        callRepository.save(call);
+
         return null;
     }
 
+    /** 상황실 직원이 영상통화방 생성
+     *
+     * @param customSessionId
+     * @return sessionId
+     */
+    @Override
+    public String makeSession(String customSessionId) throws OpenViduJavaClientException, OpenViduHttpException {
+        SessionProperties properties = new SessionProperties.Builder()
+                .customSessionId(customSessionId)
+                .build();
+
+        Session session = openvidu.createSession(properties);
+        String sessionId = session.getSessionId();
+
+        return sessionId;
+    }
+
+    /** 상황실 직원이 영상통화방 session을 만들었으면 이를 바탕으로 접속가능한 URL만든다.
+     *
+     * @param sessionId
+     * @return url
+     */
+    public String makeUrl(String sessionId){
+        String url = "http://localhost:5173/caller/join/" + sessionId + "?direct=true"; // 추후에 바꿔줄 것
+
+        return url;
+    }
+
+    /** 토큰 생성 (상황실, 신고자, 구급대원)
+     * @params sessionId
+     * @return token
+     */
+    public String getToken(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
+        Session session = openvidu.getActiveSession(sessionId);
+        if (session == null) {
+            session = openvidu.createSession(
+                    new SessionProperties.Builder()
+                            .customSessionId(sessionId)
+                            .build()
+            );
+        }
+
+        ConnectionProperties properties = new ConnectionProperties.Builder()
+                .type(ConnectionType.WEBRTC)
+                .data("") // 필요하다면 사용자 데이터 추가 가능
+                .build();
+
+        Connection connection = session.createConnection(properties);
+        
+        return connection.getToken();
+    }
 
     // todo : 구급대원 영상통화 참여 (출동시간 수정)
     /**
@@ -190,14 +184,33 @@ public class WebRtcServiceImpl implements WebRtcService {
 
     @Override
     @Transactional
-    public String textSummary(String speechToText) {
+    public String textSummary(String speechToText, String mode) {
 // 요약을 요청하는 프롬프트 생성
-        String prompt = String.format(
-                "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
-                        "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘.",
-                "\n\n%s\n\n요약:",
-                speechToText
-        );
+        String prompt = "";
+        if(mode.equals("summary")){
+            prompt = String.format(
+                    "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
+                            "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘.",
+                    "\n\n%s\n\n요약:",
+                    speechToText
+            );
+        } else if(mode.equals("preKTAS")){
+            prompt = String.format(
+                    "너는 응급환자의 119구급대와 의료기관 간의 원활한 의사소통을 촉진하고, 환자에게 적절한 치료를 신속히 제공하는 것을 목표" +
+                            "로 하는 분류체계인 pre-KTAS를 진단하는 구급대원이야. " +
+                            "이를 바탕으로, 1단계부터 5단계까지 단계중에서 해당 환자가 몇단계에 해당하는지는 정해줘. 아래는 분류 기준이야." +
+                            "Level 1 (소생): 심정지, 중증외상 등 즉각적인 처치가 필요한 매우 중증 상태\n" +
+                            "Level 2 (긴급): 호흡곤란, 토혈 등 생명이나 신체기능에 잠재적 위협이 있는 상태\n" +
+                            "Level 3 (응급): 경한 호흡부전 등 치료가 필요한 상태로 진행할 수 있는 잠재적 가능성이 있는 경우\n" +
+                            "Level 4 (준응급): 착란, 요로감염 등 1-2시간 내에 처치나 재평가가 필요한 상태\n" +
+                            "Level 5 (비응급): 상처소독, 약처방 등 긴급하지 않은 상태" +
+                            "다음 텍스트는 응급실 전화상담사와 환자의 대화내용이야. " +
+                            "위를 바탕으로, 해당 환자가 몇단계에 해당하는지, 답변으로 오직 숫자 하나만 대답해줘. " +
+                            "사족을 붙이지 말고, 오로지 정수 하나만 대답해야 해",
+                    "\n\n%s\n\n:",
+                    speechToText
+            );
+        }
 
         try {
             // 요청 바디 생성

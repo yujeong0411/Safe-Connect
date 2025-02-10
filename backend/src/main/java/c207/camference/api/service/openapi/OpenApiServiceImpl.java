@@ -28,6 +28,7 @@ import org.locationtech.jts.geom.Point;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -115,6 +116,8 @@ public class OpenApiServiceImpl implements OpenApiService {
     @Override
     @Transactional
     public ResponseEntity<?> saveHospital() {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
         int pageNo = 1;
         int numOfRows = 100;
 
@@ -137,9 +140,12 @@ public class OpenApiServiceImpl implements OpenApiService {
                 }
 
                 for (JsonNode item : itemArray) {
+                    String hospitalLoginId = item.path("hpid").asText();
+                    String hospitalPassword = passwordEncoder.encode(hospitalLoginId);
+
                     HospitalDto hospitalDto = HospitalDto.builder()
-                            .hospitalLoginId(item.path("hpid").asText())
-                            .hospitalPassword(item.path("hpid").asText())
+                            .hospitalLoginId(hospitalLoginId)
+                            .hospitalPassword(hospitalPassword)
                             .hospitalName(item.path("dutyName").asText())
                             .hospitalPhone(item.path("dutyTel1").asText())
                             .hospitalAddress(item.path("dutyAddr").asText())

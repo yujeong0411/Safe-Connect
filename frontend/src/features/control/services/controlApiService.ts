@@ -2,7 +2,7 @@ import { axiosInstance } from '@utils/axios.ts';
 import {
   PatientResponse,
   CallInfo,
-  ProtectorMessageResponse,
+  ProtectorMessageResponse, CallSummaryResponse,
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
 import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
@@ -77,6 +77,42 @@ export const controlService = {
       return response.data;
     } catch (error: any) {
       console.log('신고 상세 조회 실패', error.message);
+      throw error;
+    }
+  },
+
+  // 신고 종료
+  endCall : async (callId:number): Promise<CallListResponse> => {
+    try {
+      const response = await axiosInstance.put<CallListResponse>('/control/call_end', {callId})
+      console.log("상황실 신고 종료", response);
+      return response.data
+    } catch (error: any) {
+      console.error("신고 종료 실패", error);
+      throw error;
+    }
+  },
+  
+  // URL 재전송
+  resendUrl: async (callId:number, userPhone:String): Promise<CallListResponse> => {
+    try {
+      const response = await axiosInstance.post<CallListResponse>('/control/resend', {callId, userPhone});
+      console.log("url 재전송", response)
+      return response.data
+    } catch (error: any) {
+      console.error("url 재전송 실패", error)
+      throw error;
+    }
+  },
+
+  // 신고내용 요약
+  callSummary: async (callId:number): Promise<CallSummaryResponse> => {
+    try {
+      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', {params:{callId}})
+      console.log("신고내용 요약", response.data)
+      return response.data
+    } catch (error: any) {
+      console.error("신고내용 요약 실패", error)
       throw error;
     }
   },
