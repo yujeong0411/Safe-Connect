@@ -3,6 +3,7 @@ package c207.camference.api.contoller.firestaff;
 import c207.camference.api.request.dispatchstaff.DispatchCurrentPositionRequest;
 import c207.camference.api.request.dispatchstaff.DispatchRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
+import c207.camference.api.request.dispatchstaff.PreKtasRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientCallRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
@@ -12,6 +13,11 @@ import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.util.response.ResponseUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/dispatch_staff")
@@ -92,5 +98,10 @@ public class DispatchStaffController {
     public ResponseEntity<?> dispatchCurrentPosition(@RequestBody DispatchCurrentPositionRequest request) {
         sseEmitterService.sendDispatchGroupPosition(request);
         return ResponseEntity.ok().body(ResponseUtil.success("구급차 현재 위치 공유 성공"));
+
+    @PostMapping("/patient/pre_ktas")
+    public ResponseEntity<?> preKtas(
+            @RequestBody PreKtasRequest request) throws IOException {
+        return dispatchStaffService.getPreKtas(request);
     }
 }
