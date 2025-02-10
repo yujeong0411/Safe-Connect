@@ -59,7 +59,9 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
           });
 
           setMarkers(newMarkers);
-          FindFireStations(data);  // 검색된 소방서 정보 전달
+          if (FindFireStations) {
+            FindFireStations(data);
+          }  // 검색된 소방서 정보 전달
           map.setBounds(bounds);
         }
       },

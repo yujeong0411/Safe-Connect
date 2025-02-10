@@ -87,8 +87,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
       const {  formData, currentCall } = get();  // 내부 상태 가져오기
       // 현재 선택된 회원 ID와 신고 ID 추가
       const callInfo = {
-        // callId: currentCall?.callId || 0,  // 또는 별도로 관리되는 callId
-        callId:2,
+        callId: currentCall?.callId || 0,  // 또는 별도로 관리되는 callId
         userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
         symptom: formData.symptom,
         callSummary: formData.callSummary,
