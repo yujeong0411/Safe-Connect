@@ -29,21 +29,29 @@ export default defineConfig(({ mode }) => {
             proxy.on('error', (err) => {
               console.log('Proxy Error:', err);
             });
-            proxy.on('proxyReq', (proxyReq, req) => {
+            proxy.on('proxyReq', (proxyReq, req: any) => {
+              const fullUrl = new URL(req.url || '', env.VITE_BASE_URL);
+              const rewrittenPath = fullUrl.pathname.replace(/^\/api/, '');
+
               console.log('Sending Request:', {
                 method: req.method,
-                url: req.url,
+                originalPath: fullUrl.pathname,
+                rewrittenPath: rewrittenPath,
+                targetUrl: `${env.VITE_BASE_URL}${rewrittenPath}`,
                 headers: proxyReq.getHeaders()
               });
             });
-            proxy.on('proxyRes', (proxyRes, req) => {
+            proxy.on('proxyRes', (proxyRes, req: any) => {
+              const fullUrl = new URL(req.url || '', env.VITE_BASE_URL);
+
               console.log('Received Response:', {
                 statusCode: proxyRes.statusCode,
-                url: req.url,
+                originalPath: fullUrl.pathname,
+                targetUrl: `${env.VITE_BASE_URL}${fullUrl.pathname.replace(/^\/api/, '')}`,
                 headers: proxyRes.headers
               });
             });
-        }
+          }
         },
       },
     },
