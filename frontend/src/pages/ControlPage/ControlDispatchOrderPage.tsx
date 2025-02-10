@@ -7,12 +7,12 @@ import {CircleAlert, CircleCheckBig} from 'lucide-react';
 import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 import { useSSE } from '@/hooks/useSEE';
-import { BaseResponse, DispatchOrderData } from "@/types/sse/sse.types";
+import { BaseResponseGeneric, DispatchOrderData } from "@/types/sse/sse.types";
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
-  const { selectedStation, setSelectedStation, dispatchGroups, sendDispatchOrder } = useDispatchGroupStore();
+  const { selectedStation, setSelectedStation, dispatchGroups, sendDispatchOrder, handleDispatchResponse } = useDispatchGroupStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -26,7 +26,9 @@ const ControlDispatchOrderPage = () => {
     subscribeUrl: "http://localhost:8080/control/subscribe",
     clientId: 1, // 실제 로그인 한 사용자의 pk
     onMessage: (response) => {
+      console.log("SSE 메시지 수신:", response);
       if (response.isSuccess) {
+        handleDispatchResponse(response); // store에 응답 저장
         handleAlertClose({
           title: "출동 지령 응답",
           description: response.message,
@@ -35,6 +37,7 @@ const ControlDispatchOrderPage = () => {
       }
     },
     onError: (error) => {
+      console.error("SSE 연결 오류: ", error);
       handleAlertClose({
         title:" 연결 오류",
         description: "서버와의 연결이 끊어졌습니다. 재연결을 시도합니다.",
@@ -64,7 +67,7 @@ const ControlDispatchOrderPage = () => {
       return;
     }
     try {
-      await sendDispatchOrder(selectedTeam);
+      await sendDispatchOrder(selectedTeam, 1);
       handleAlertClose({
         title: '출동 지령 전송',
         description: '출동 지령이 전송되었습니다.',

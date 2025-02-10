@@ -2,10 +2,12 @@ import { create } from 'zustand/index';
 import { DispatchGroupStore } from '@/types/dispatch/dispatchGroup.types.ts';
 import { fetchDispatchGroups } from '@features/control/services/controlApiService.ts';
 import { dispatchOrder } from '@features/control/services/controlApiService.ts';
+import { BaseResponseGeneric, DispatchOrderData } from '@/types/sse/sse.types';
 
 export const useDispatchGroupStore = create<DispatchGroupStore>((set, get) => ({
   dispatchGroups: [],
   selectedStation: null,
+  lastDispatchResponse: null,
 
   // 출동 그룹 불러오기
   fetchDispatchGroups: async () => {
@@ -52,13 +54,23 @@ export const useDispatchGroupStore = create<DispatchGroupStore>((set, get) => ({
   },
 
   // 출동 지령
-  sendDispatchOrder: async (dispatchGroupId: number) => {
+  sendDispatchOrder: async (dispatchGroupId: number, callId: number): Promise<BaseResponseGeneric<DispatchOrderData>> => {
     try {
-      const response = await dispatchOrder.orderDispatch(dispatchGroupId);
-      return response.data;
+      const response = await dispatchOrder.orderDispatch(dispatchGroupId, callId);
+
+      // HTTP 응답 처리
+      console.log("출동 지령 HTTP 응답: ", response);
+      return response;
     } catch (error) {
       console.error(' 출동 지령 실패', error);
       throw error;
     }
   },
+
+  // SSE 응답 처리
+  handleDispatchResponse: (response) => {
+    console.log('SSE 응답 수신:', response);
+    set({ lastDispatchResponse: response });
+  }
+
 }));

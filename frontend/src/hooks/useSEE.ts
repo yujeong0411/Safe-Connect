@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { BaseResponse } from "@/types/sse/sse.types";
+import { BaseResponseGeneric } from "@/types/sse/sse.types";
 
 interface UseSSEProps<T> {
     subscribeUrl: string;
     clientId: number;
-    onMessage: (data: BaseResponse<T>) => void;
+    onMessage: (data: BaseResponseGeneric<T>) => void;
     onError?: (error: any) => void;
 }
 
@@ -28,7 +28,7 @@ export const useSSE = <T, >({ subscribeUrl, clientId, onMessage, onError }: UseS
           // 서버에서 메시지를 받으면 호출되는 이벤트 핸들러
           eventSource.onmessage = (event) => {
             try {
-              const data: BaseResponse<T> = JSON.parse(event.data); // event.data: 서버로부터 받은 메시지를 포함
+              const data: BaseResponseGeneric<T> = JSON.parse(event.data); // event.data: 서버로부터 받은 메시지를 포함
               onMessage(data);
             } catch (error) {
               console.error('Failed to parse SSE message:', error);

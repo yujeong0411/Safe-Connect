@@ -6,6 +6,7 @@ import {
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
 import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
+import { BaseResponseGeneric, DispatchOrderData } from '@/types/sse/sse.types';
 
 export const patientService = {
   // 신고자 전화번호 검색
@@ -148,14 +149,13 @@ export const fetchDispatchGroups = async () => {
 // 출동 지령
 export const dispatchOrder = {
   // 출동 지령 내리기
-  orderDispatch: async (dispatchGroupId:number) => {
+  orderDispatch: async (dispatchGroupId:number, callId: number): Promise<BaseResponseGeneric<DispatchOrderData>> => {
     try {
-      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group/order', {dispatchGroupId})
+      const response = await axiosInstance.post<BaseResponseGeneric<DispatchOrderData>>('/control/dispatch_group_order', {dispatchGroupId, callId})
       return response.data;
     } catch (error: any) {
       console.error('출동 지령 실패', error)
       throw error;
     }
   },
-
 }
