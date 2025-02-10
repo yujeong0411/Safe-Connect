@@ -269,24 +269,28 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException("일치하는 환자 정보가 없습니다."));
 
-        Hospital hospital = hospitalRepository.findById(request.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("일치하는 병원이 없습니다."));
-        if (!hospital.getHospitalIsActive()) {
-            throw new RuntimeException("현재 비활성화 상태인 병원입니다.");
+        List<Hospital> hospitals = hospitalRepository.findAllByHospitalIdIn(request.getHospitalIds());
+        List<Hospital> activeHospitals = hospitals.stream()
+                .filter(Hospital::getHospitalIsActive)
+                .collect(Collectors.toList());
+        if (activeHospitals.isEmpty()) {
+            throw new RuntimeException("활성화된 병원이 없습니다.");
         }
 
-        // reqHospital insert
-        ReqHospital reqHospital = ReqHospital.builder()
-                .hospitalId(request.getHospitalId())
-                .dispatchId(request.getDispatchId())
-                .reqHospitalCreatedAt(LocalDateTime.now())
-                .build();
+        for (Hospital hospital : activeHospitals) {
+            // reqHospital insert
+            ReqHospital reqHospital = ReqHospital.builder()
+                    .hospitalId(hospital.getHospitalId())
+                    .dispatchId(request.getDispatchId())
+                    .reqHospitalCreatedAt(LocalDateTime.now())
+                    .build();
+            reqHospitalRepository.save(reqHospital);
 
-        PatientTransferResponse response = new PatientTransferResponse(dispatch, patient, userMediDetailRepository);
+            PatientTransferResponse response = new PatientTransferResponse(dispatch, patient, userMediDetailRepository);
 
-        // SSE
-        sseEmitterService.transferRequest(request, response);
-
+            // SSE
+            sseEmitterService.transferRequest(request, response);
+        }
         return ResponseEntity.ok().body(ResponseUtil.success("응급실에 환자 수용 요청 전송 성공"));
     }
 
