@@ -253,31 +253,30 @@ public class ControlServiceImpl implements ControlService {
 
         // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
-        Caller caller = callerRepository.findByCallerPhone(callerPhone);
 
         // 신고자(caller)에 insert
-        if (caller == null) {
-            caller = new Caller();
-            caller.setCallerPhone(callerPhone);
+        Caller caller = new Caller();
+        caller.setCallerPhone(callerPhone);
 
-            // 신고자가 회원인지 조회
-            Optional<User> user = userRepository.findByUserPhone(callerPhone);
-            caller.setCallerIsUser(user.isPresent());
+        // 신고자가 회원인지 조회
+        Optional<User> user = userRepository.findByUserPhone(callerPhone);
+        caller.setCallerIsUser(user.isPresent());
 
-            caller.setCallerIsUser(false);
-            caller.setCallerIsLocationAccept(false);
-            caller.setCallerAcceptedAt(LocalDateTime.now());
+        caller.setCallerIsUser(false);
+        caller.setCallerIsLocationAccept(false);
+        caller.setCallerAcceptedAt(LocalDateTime.now());
 
-            caller = callerRepository.save(caller);
+        caller = callerRepository.saveAndFlush(caller);
 
-        }
 
+        System.out.println("callerId: " + caller.getCallerId());
         // ---
         // 신고(call) 생성
 
         Call call = new Call();
         call.setCallIsDispatched(false);
         call.setFireStaff(fireStaffOpt.get());
+        call.setCaller(caller);
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
         callRepository.save(call);
 
@@ -317,7 +316,7 @@ public class ControlServiceImpl implements ControlService {
         response.put("videoCall", videoCall);
         response.put("call", call);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 내용 생성 완료"));
     }
 
     @Override
@@ -377,8 +376,9 @@ public class ControlServiceImpl implements ControlService {
     @Override
     @Transactional
     public ResponseEntity<?> resendUrl(ResendRequest request) {
-        Integer callId = Integer.valueOf(request.getCallId());
-        String userPhone = request.getUserPhone();
+        Integer callId = request.getCallId();
+        Call call = callRepository.findCallByCallId(callId);
+        String userPhone = call.getCaller().getCallerPhone();
 
         VideoCall videoCall = videoCallRepository.findByCallId(callId);
         String url = videoCall.getVideoCallUrl();
