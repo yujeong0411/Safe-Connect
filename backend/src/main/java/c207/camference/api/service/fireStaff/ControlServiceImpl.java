@@ -292,7 +292,7 @@ public class ControlServiceImpl implements ControlService {
         videoCall.setVideoCallUrl(url);
         videoCall.setVideoCallIsActivate(true);
         videoCall.setVideoCallCreatedAt(LocalDateTime.now());
-        videoCallRepository.save(videoCall);
+        videoCall = videoCallRepository.saveAndFlush(videoCall);
 
 
         // ---
