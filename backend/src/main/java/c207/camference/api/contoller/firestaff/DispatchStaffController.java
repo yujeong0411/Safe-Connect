@@ -98,6 +98,7 @@ public class DispatchStaffController {
     public ResponseEntity<?> dispatchCurrentPosition(@RequestBody DispatchCurrentPositionRequest request) {
         sseEmitterService.sendDispatchGroupPosition(request);
         return ResponseEntity.ok().body(ResponseUtil.success("구급차 현재 위치 공유 성공"));
+    }
 
     @PostMapping("/patient/pre_ktas")
     public ResponseEntity<?> preKtas(
