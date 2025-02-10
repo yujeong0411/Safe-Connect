@@ -8,6 +8,7 @@ import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 import {usePatientStore} from "@/store/control/patientStore.tsx";
 import {orderDispatch} from "@features/control/services/controlApiService.ts";
+import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
@@ -21,6 +22,7 @@ const ControlDispatchOrderPage = () => {
     description: '',
     type: 'default' as 'default' |'destructive',
   });
+  const {callId} = useOpenViduStore()
 
 
   // 3초 후 사라지는 로직
@@ -44,7 +46,7 @@ const ControlDispatchOrderPage = () => {
     }
 
     // 테스트 동안 제거
-    // if (!currentCall?.callId) {
+    // if (!callId) {
     //   handleAlertClose({
     //     title:"신고 정보 없음",
     //     description: "현재 처리 중인 신고가 없습니다.",
@@ -56,7 +58,7 @@ const ControlDispatchOrderPage = () => {
     try {
       // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
       await orderDispatch(selectedTeam);
-      // await orderDispatch(selectedTeam, currentCall.callId);
+      // await orderDispatch(selectedTeam, callId);
       handleAlertClose({
         title: '출동 지령 전송',
         description: '출동 지령이 전송되었습니다.',
