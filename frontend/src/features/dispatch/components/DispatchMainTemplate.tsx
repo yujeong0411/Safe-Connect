@@ -1,8 +1,10 @@
+// src/features/dispatch/components/DispatchMainTemplate.tsx
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PublicHeader from '@/components/organisms/PublicHeader/PublicHeader';
 import DispatchNavBar from './DispatchNavBar/DispatchNavBar';
 import GuardianNotificationDialog from './GuardianNotificationDialog';
+import VideoCallDrawer from './VideoCall/VideoCallDrawer';
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -12,6 +14,7 @@ interface DispatchMainTemplateProps {
 const DispatchMainTemplate = ({ children, logoutDirect }: DispatchMainTemplateProps) => {
   const location = useLocation();
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [showVideoCall, setShowVideoCall] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -38,6 +41,12 @@ const DispatchMainTemplate = ({ children, logoutDirect }: DispatchMainTemplatePr
       active: location.pathname === '/dispatch/transfer-request'
     },
     {
+      label: '영상통화 연결',
+      path: '#',
+      hasModal: true,
+      onModalOpen: () => setShowVideoCall(true)
+    },
+    {
       label: '보호자 알림',
       path: '#',
       hasModal: true,
@@ -59,16 +68,24 @@ const DispatchMainTemplate = ({ children, logoutDirect }: DispatchMainTemplatePr
         />
         <DispatchNavBar navItems={navItems} />
       </div>
-      <div className="flex-1">{children}</div>
-      <GuardianNotificationDialog
-        open={showNotificationModal}
-        onClose={() => setShowNotificationModal(false)}
-        patientInfo={{
-          name: "김환자",
-          hospitalName: "서울대병원"
-        }}
-        guardianContact="010-1234-5678"
-      />
+      <div className="flex-1 relative">
+      <div className={`transition-all duration-300 ${showVideoCall ? 'ml-[50%] w-[50%]' : 'w-full'}`}>
+          {children}
+        </div>
+        <VideoCallDrawer 
+          isOpen={showVideoCall}
+          onClose={() => setShowVideoCall(false)}
+        />
+        <GuardianNotificationDialog
+          open={showNotificationModal}
+          onClose={() => setShowNotificationModal(false)}
+          patientInfo={{
+            name: "김환자",
+            hospitalName: "서울대병원"
+          }}
+          guardianContact="010-1234-5678"
+        />
+      </div>
     </div>
   );
 };
