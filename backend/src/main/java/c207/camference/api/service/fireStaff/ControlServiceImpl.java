@@ -291,16 +291,14 @@ public class ControlServiceImpl implements ControlService {
         videoCall.setCallId(call.getCallId());
         videoCall.setVideoCallUrl(url);
         videoCall.setVideoCallIsActivate(true);
-        videoCall.setVideoCallCreatedAt(LocalDateTime.now());
         videoCall = videoCallRepository.saveAndFlush(videoCall);
 
 
         // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
-        videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
+        videoCallUser.setVideoCallId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
-        videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
         videoCallUser.setVideoCallId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
 
         videoCallUserRepository.save(videoCallUser);
