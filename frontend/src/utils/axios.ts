@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL: '/api',
+  // baseURL: '/api',
   timeout: 5000, // 요청 제한 시간 5초
   // headers 초기화 시 토큰이 없을 때 문제 발생
   headers: {
