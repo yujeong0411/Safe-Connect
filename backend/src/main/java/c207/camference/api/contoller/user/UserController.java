@@ -91,7 +91,7 @@ public class UserController {
 
     @GetMapping("/nearby_aed")
     public ResponseEntity<?> getNearbyAed(@RequestParam double lat,
-                                          @RequestParam double lon) {
+                                           @RequestParam double lon) {
         return userService.getAedsNearBy(lat, lon);
     }
 
