@@ -1,23 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Map, MapMarker, MapTypeControl, ZoomControl } from 'react-kakao-maps-sdk';
+import { useState, useEffect } from 'react';
+import { CustomOverlayMap, Map, MapMarker, MapTypeControl, ZoomControl } from 'react-kakao-maps-sdk';
+import { callerService } from '@/features/caller/services/callerApiService.ts';
 import useKakaoLoader from '@/hooks/useKakaoLoader';
-import { Marker } from "@features/control/types/kakaoMap.types";
+import { Aed } from '@/types/common/aed.types.ts';
 
-interface EMTLocation {
-  latitude: number;
-  longitude: number;
-  timestamp: number;
-}
-
-const CallerKakaoMaps = () => {
+const CallerKakaoMap = () => {
   useKakaoLoader();
-  const [map, setMap] = useState<kakao.maps.Map | null>(null);
-  const [emtLocation, setEmtLocation] = useState<EMTLocation | null>(null);
-  const [info, setInfo] = useState<boolean>(false);
   const [state, setState] = useState({
     center: { lat: 33.450701, lng: 126.570667 },
     isLoading: true,
   });
+  const [aedList, setAedList] = useState<Aed[]>([]);
+  const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
+  const fetchAedLocations = async (lat: number, lng: number) => {
+    try {
+      const response = await callerService.searchAed(lat, lng);
+      setAedList(response.data);
+    } catch (error) {
+      console.error('AED 위치 조회 실패:', error);
+    }
+  };
 
   // 사용자 현재 위치 가져오기
   useEffect(() => {
@@ -32,65 +34,18 @@ const CallerKakaoMaps = () => {
             center: newCenter,
             isLoading: false,
           });
+          fetchAedLocations(newCenter.lat, newCenter.lng);
         },
         () => {
           setState({
-            center: { lat: 37.566826, lng: 126.9786567 },
+            center: { lat: 37.566826, lng: 126.9786567 }, // 서울시청 좌표 (기본값)
             isLoading: false,
           });
+
         }
       );
     }
   }, []);
-
-  // SSE 연결 설정
-  const setupSSEConnection = useCallback(() => {
-    const eventSource = new EventSource('/api/emt-location');
-
-    eventSource.onmessage = (event) => {
-      const locationUpdate: EMTLocation = JSON.parse(event.data);
-      setEmtLocation(locationUpdate);
-    };
-
-    eventSource.onerror = (error) => {
-      console.error('SSE 연결 에러:', error);
-      eventSource.close();
-      // 재연결 로직
-      setTimeout(setupSSEConnection, 5000);
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, []);
-
-  // SSE 연결 초기화
-  useEffect(() => {
-    const cleanup = setupSSEConnection();
-    return cleanup;
-  }, [setupSSEConnection]);
-
-  // 지도 범위 조정
-  useEffect(() => {
-    if (!map || !emtLocation) return;
-
-    const bounds = new kakao.maps.LatLngBounds();
-
-    // 현재 위치 포함
-    bounds.extend(new kakao.maps.LatLng(state.center.lat, state.center.lng));
-
-    // EMT 위치 포함
-    bounds.extend(new kakao.maps.LatLng(emtLocation.latitude, emtLocation.longitude));
-
-    map.setBounds(bounds);
-  }, [map, emtLocation, state.center]);
-
-  const getLocationStatus = (timestamp: number): string => {
-    const age = Date.now() - timestamp;
-    if (age < 60000) return 'online';     // 1분 이내: 온라인
-    if (age < 300000) return 'delayed';   // 5분 이내: 지연
-    return 'offline';                      // 5분 이상: 오프라인
-  };
 
   return (
     <Map
@@ -100,8 +55,7 @@ const CallerKakaoMaps = () => {
         width: '100%',
         height: '100%',
       }}
-      level={4}
-      onCreate={setMap}
+      level={5}
     >
       {/* 현재 위치 마커 */}
       {!state.isLoading && (
@@ -116,29 +70,49 @@ const CallerKakaoMaps = () => {
         />
       )}
 
-      {/* 구급대원 위치 마커 */}
-      {emtLocation && (
-        <MapMarker
-          position={{
-            lat: emtLocation.latitude,
-            lng: emtLocation.longitude,
-          }}
-          onClick={() => setInfo(!info)}
-          image={{
-            src: 'https://cdn.crowdpic.net/detail-thumb/thumb_d_95A0D99CD45AEE995519614F9B67AD41.png',
-            size: { width: 64, height: 69 },
-            options: { offset: { x: 27, y: 69 } },
-          }}
-        >
-          {info && (
-            <div style={{ color: '#000' }}>
-              <p>구급대원 위치</p>
-              <p>상태: {getLocationStatus(emtLocation.timestamp)}</p>
-              <p>최종 업데이트: {new Date(emtLocation.timestamp).toLocaleTimeString()}</p>
+      {/* AED 위치 마커들 */}
+      {aedList.map((aed) => (
+        <div key={aed.aedId}>
+          <CustomOverlayMap
+            position={{ lat: aed.aedLatitude, lng: aed.aedLongitude }}
+          >
+            <div
+              className="relative cursor-pointer"
+              onClick={() => setSelectedMarker(aed.aedId)}
+            >
+              <div className="w-10 h-10 rounded-full bg-red-500 border-2 border-white shadow-lg overflow-hidden flex items-center justify-center">
+                <img
+                  src="src/assets/image/aed.jpg"
+                  alt="AED"
+                  className="w-8 h-8 object-cover rounded-full"
+                />
+              </div>
             </div>
+          </CustomOverlayMap>
+
+          {/* 선택된 마커의 정보 창 */}
+          {selectedMarker === aed.aedId && (
+            <CustomOverlayMap
+              position={{ lat: aed.aedLatitude, lng: aed.aedLongitude }}
+              yAnchor={1.5}
+            >
+              <div className="bg-white p-4 rounded-lg shadow-lg">
+                <h3 className="font-bold mb-2">{aed.aedPlace}</h3>
+                <p className="text-sm text-gray-600">{aed.aedAddress}</p>
+                <button
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMarker(null);
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            </CustomOverlayMap>
           )}
-        </MapMarker>
-      )}
+        </div>
+      ))}
 
       <MapTypeControl position={'TOPLEFT'} />
       <ZoomControl position={'LEFT'} />
@@ -146,4 +120,4 @@ const CallerKakaoMaps = () => {
   );
 };
 
-export default CallerKakaoMaps;
+export default CallerKakaoMap;
