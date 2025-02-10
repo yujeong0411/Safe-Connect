@@ -26,3 +26,5 @@ https://react-slick.neostack.com/docs/example/simple-slider
 https://ui.shadcn.com/docs/installation/vite
 원하는 컴포넌트 패키지 설치 후 사용 : src/components/ui
 
+// session open 상태가 아니면 전화 업무 못 열도록;...
+

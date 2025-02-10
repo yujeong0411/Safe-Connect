@@ -4,8 +4,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
 import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
 import {controlService} from "@features/control/services/controlApiService.ts";
-import { useParams } from 'react-router-dom'; // URL에서 callId 가져오기
 import {usePatientStore} from "@/store/control/patientStore.tsx";
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 interface VideoProps {
   children: React.ReactNode;
@@ -14,11 +14,13 @@ interface VideoProps {
 const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {formData, updateFormData, fetchCallSummary} = usePatientStore()
-  const { callId } = useParams(); // URL에서 신고 ID 가져오기
+
+
+  const { callId,leaveSession } = useOpenViduStore();
 
   const handleEndCall = async () => {
     if (!callId) {
-      console.log("callI가 없습니다.")
+      console.log("callId가 없습니다.")
       return
     }
 
@@ -28,6 +30,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
     try {
       await controlService.endCall(Number(callId))
+      await leaveSession()
       alert('신고가 종료되었습니다.')
       setIsOpen(false);  // Drawer 닫기
     } catch (error) {
@@ -43,10 +46,9 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       return
     }
 
-    const {formData} = usePatientStore.getState()
     // 전화번호를 어떻게 가져오는지???
     try {
-      await controlService.resendUrl(Number(callId), formData.userPhone);
+      await controlService.resendUrl(Number(callId));
       alert("URL이 재전송되었습니다.");
     } catch (error) {
       console.error("URL 재전송 실패", error);
