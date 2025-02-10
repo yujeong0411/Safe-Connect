@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 public class TransferRequestResponse {
+    private Integer patientId;
     private Integer dispatchId;
     private String fireDeptName;            // 소방서 이름
     private LocalDateTime reqHospitalCreatedAt;  // 요청 시각
@@ -34,6 +35,7 @@ public class TransferRequestResponse {
                         .patientGender(patient.getPatientGender())
                         .patientAge(patient.getPatientAge())
                         .patientSymptom(patient.getPatientSympthom())
+                        .patientId(patient.getPatientId())
                         .build())
                 .collect(Collectors.toList());
     }
