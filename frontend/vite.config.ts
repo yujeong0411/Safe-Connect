@@ -24,11 +24,24 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_BASE_URL,
           changeOrigin: true,
           secure: false,
-          rewrite: (path) =>{
-            console.log('Original path:', path);
-            const rewrittenPath = path.replace(/^\/api/, '');
-            console.log('Rewritten path:', rewrittenPath);
-            return rewrittenPath;
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
+              console.log('Proxy Error:', err);
+            });
+            proxy.on('proxyReq', (proxyReq, req) => {
+              console.log('Sending Request:', {
+                method: req.method,
+                url: req.url,
+                headers: proxyReq.getHeaders()
+              });
+            });
+            proxy.on('proxyRes', (proxyRes, req) => {
+              console.log('Received Response:', {
+                statusCode: proxyRes.statusCode,
+                url: req.url,
+                headers: proxyRes.headers
+              });
+            });
         }
         },
       },
