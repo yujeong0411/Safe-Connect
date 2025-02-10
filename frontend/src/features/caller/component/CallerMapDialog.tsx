@@ -1,9 +1,9 @@
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DialogProps } from '@features/caller/types/dialog.types.ts';
+import CallerKakaoMaps from '@features/caller/component/CallerKakaoMap.tsx';
 
 const CallerMapDialog = ({ open, onOpenChange }: DialogProps) => {
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[600px] p-8 bg-bg">
@@ -12,9 +12,9 @@ const CallerMapDialog = ({ open, onOpenChange }: DialogProps) => {
         </DialogTitle>
 
         <div className="space-y-6">
-          <div>
-            <DialogDescription className="mb-2">
-              지도가 들어갈 예정...
+          <div className="h-[400px]"> {/* 고정 높이 추가 */}
+            <DialogDescription className="h-full"> {/* 높이를 100%로 설정 */}
+              <CallerKakaoMaps/>
             </DialogDescription>
           </div>
           <div className="flex justify-between gap-4">

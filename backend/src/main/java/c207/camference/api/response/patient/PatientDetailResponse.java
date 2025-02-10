@@ -15,6 +15,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class PatientDetailResponse {
+    private Integer patientId;
     private String patientName;          // 이름
     private Character patientGender;        // 성별
     private String patientAge;           // 나이
@@ -35,6 +36,7 @@ public class PatientDetailResponse {
 
 
     public PatientDetailResponse(Patient patient, UserMediDetailRepository userMediDetailrepository) {
+        this.patientId = patient.getPatientId();
         this.patientName = patient.getPatientName();
         this.patientGender = patient.getPatientGender();
         this.patientAge = patient.getPatientAge();

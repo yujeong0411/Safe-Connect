@@ -14,17 +14,22 @@ public class SseController {
     private final SseEmitterService sseEmitterService;
 
     @GetMapping(value = "/control/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribeControl(@RequestParam String clientId) {
+    public SseEmitter subscribeControl(@RequestParam Integer clientId) {
         return sseEmitterService.createControlEmitter(clientId);
     }
 
     @GetMapping(value = "/dispatchGroup/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribeDispatchGroup(@RequestParam String clientId) {
+    public SseEmitter subscribeDispatchGroup(@RequestParam Integer clientId) {
         return sseEmitterService.createDispatchGroupEmitter(clientId);
     }
 
     @GetMapping(value = "/hospital/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribeHospital(@RequestParam String clientId) {
+    public SseEmitter subscribeHospital(@RequestParam Integer clientId) {
         return sseEmitterService.createHospitalEmitter(clientId);
+    }
+
+    @GetMapping(value = "/caller/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeCaller(@RequestParam Integer clientId) {
+        return sseEmitterService.createCallerEmitter(clientId);
     }
 }

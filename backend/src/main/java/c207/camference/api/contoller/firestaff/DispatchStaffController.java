@@ -1,5 +1,6 @@
 package c207.camference.api.contoller.firestaff;
 
+import c207.camference.api.request.dispatchstaff.DispatchCurrentPositionRequest;
 import c207.camference.api.request.dispatchstaff.DispatchRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
 import c207.camference.api.request.dispatchstaff.PreKtasRequest;
@@ -8,6 +9,8 @@ import c207.camference.api.request.patient.PatientCallRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.service.fireStaff.DispatchStaffService;
 import c207.camference.api.service.sms.SmsService;
+import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.util.response.ResponseUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,11 +23,13 @@ import java.util.Map;
 @RequestMapping("/dispatch_staff")
 public class DispatchStaffController {
     private final SmsService smsService;
+    private final SseEmitterService sseEmitterService;
     DispatchStaffService dispatchStaffService;
 
-    public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService) {
+    public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService, SseEmitterService sseEmitterService) {
         this.dispatchStaffService = dispatchStaffService;
         this.smsService = smsService;
+        this.sseEmitterService = sseEmitterService;
     }
 
     @GetMapping("/report")
@@ -87,6 +92,12 @@ public class DispatchStaffController {
     @PutMapping("/departure")
     public ResponseEntity<?> derpature(@RequestBody DispatchRequest request) {
         return dispatchStaffService.updateDispatchArriveAt(request);
+    }
+
+    @PostMapping("/current_pos")
+    public ResponseEntity<?> dispatchCurrentPosition(@RequestBody DispatchCurrentPositionRequest request) {
+        sseEmitterService.sendDispatchGroupPosition(request);
+        return ResponseEntity.ok().body(ResponseUtil.success("구급차 현재 위치 공유 성공"));
     }
 
     @PostMapping("/patient/pre_ktas")

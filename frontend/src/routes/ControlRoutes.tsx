@@ -1,11 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
-import PrivateRoute from '@/routes/PrivateRoute.tsx';
 import PublicRoute from '@/routes/PublicRoute';
 import ControlPatientInfoPage from '@/pages/ControlPage/ControlPatientInfoPage';
 import ControlDispatchOrderPage from '@pages/ControlPage/ControlDispatchOrderPage.tsx';
 import ControlLoginPage from '@/pages/ControlPage/ControlLoginPage';
 import ControlMainPage from '@/pages/ControlPage/ControlMainPage';
 import Maps from '@features/control/components/KakaoMap.tsx';
+import PrivateRoute from '@/routes/PrivateRoute.tsx';
 
 const ControlRoutes = () => {
   return (

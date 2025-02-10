@@ -23,7 +23,7 @@ const DispatchOrderDialog = ({ open, onOpenChange }: DialogProps) => {
           <div>
             <p className="font-medium mb-2">요약본</p>
             <div className="bg-dialog_content p-4 rounded-md">
-              <p>갑작스러운 심합 복통, 구토</p>
+              <p>갑작스러운 심한한 복통, 구토</p>
             </div>
           </div>
 

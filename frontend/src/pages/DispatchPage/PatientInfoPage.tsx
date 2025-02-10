@@ -21,7 +21,7 @@ interface PatientFormData {
 }
 
 const PatientInfoPage = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<PatientFormData>();
+  const { register, handleSubmit } = useForm<PatientFormData>();
   
   const onSubmit = (data: PatientFormData) => {
     console.log(data);
