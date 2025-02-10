@@ -33,7 +33,7 @@ public class VideoCall {
 
     @Column(name = "dispatch_id")
     @Comment(value = "출동 ID")
-    private Integer dispatchId;
+    private Integer dispatchId=null;
 
     @Column(name = "video_call_url", length = 100, nullable = false)
     @Comment(value = "URL")

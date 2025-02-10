@@ -94,9 +94,9 @@ export const controlService = {
   },
   
   // URL 재전송
-  resendUrl: async (callId:number, userPhone:String): Promise<CallListResponse> => {
+  resendUrl: async (callId:number): Promise<CallListResponse> => {
     try {
-      const response = await axiosInstance.post<CallListResponse>('/control/resend', {callId, userPhone});
+      const response = await axiosInstance.post<CallListResponse>('/control/resend', {callId});
       console.log("url 재전송", response)
       return response.data
     } catch (error: any) {
