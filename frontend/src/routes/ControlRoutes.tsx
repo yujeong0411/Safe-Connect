@@ -5,6 +5,7 @@ import ControlDispatchOrderPage from '@pages/ControlPage/ControlDispatchOrderPag
 import ControlLoginPage from '@/pages/ControlPage/ControlLoginPage';
 import ControlMainPage from '@/pages/ControlPage/ControlMainPage';
 import Maps from '@features/control/components/KakaoMap.tsx';
+import PrivateRoute from '@/routes/PrivateRoute.tsx';
 
 const ControlRoutes = () => {
   return (

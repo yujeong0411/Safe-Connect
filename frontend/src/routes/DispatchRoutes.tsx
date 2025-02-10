@@ -4,6 +4,7 @@ import DispatchPage from '@/pages/DispatchPage';
 import PatientInfoPage from '@/pages/DispatchPage/PatientInfoPage';
 import TransferRequestPage from '@/pages/DispatchPage/TransferRequestPage';
 import DispatchLoginPage from '@/pages/DispatchPage/DispatchLoginPage';
+import PrivateRoute from '@/routes/PrivateRoute.tsx';
 
 const DispatchRoutes = () => {
   return (
