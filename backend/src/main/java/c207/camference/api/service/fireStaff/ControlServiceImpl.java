@@ -290,7 +290,6 @@ public class ControlServiceImpl implements ControlService {
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
         videoCall.setVideoCallUrl(url);
-        videoCall.setVideoCallIsActivate(true);
         videoCall = videoCallRepository.saveAndFlush(videoCall);
 
 
@@ -299,7 +298,7 @@ public class ControlServiceImpl implements ControlService {
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
-        videoCallUser.setVideoCallId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
+        videoCallUser.setVideoCallerId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
 
         videoCallUserRepository.save(videoCallUser);
 
