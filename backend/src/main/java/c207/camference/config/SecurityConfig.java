@@ -92,7 +92,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, RefreshRepository refreshRepository) throws Exception {
         http
-//                .cors(cors -> cors.configurationSource(apiConfigurationSource()))
+                .cors(cors -> cors.configurationSource(apiConfigurationSource()))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -124,23 +124,23 @@ public class SecurityConfig {
 
         return http.build();
     }
-//    @Bean
-//    public CorsConfigurationSource apiConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//
-//        configuration.setAllowedOrigins(List.of("http://i12c207.p.ssafy.io", "https://i12c207.p.ssafy.io","http://localhost"));
-//        configuration.setAllowedMethods(Collections.singletonList("*"));
-//        configuration.setAllowCredentials(true);
-//        configuration.setAllowedHeaders(Collections.singletonList("*"));
-//        configuration.setMaxAge(3600L);
-//        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//
-//        return source;
-//    }
-//
+    @Bean
+    public CorsConfigurationSource apiConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of("http://i12c207.p.ssafy.io", "https://i12c207.p.ssafy.io","http://localhost"));
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setMaxAge(3600L);
+        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
+
 
 
 }
