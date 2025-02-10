@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL : import.meta.env.MODE === 'production'
-    ? import.meta.env.VITE_BASE_URL
+  baseURL 
+  // : import.meta.env.MODE === 'production'
+  //   ? import.meta.env.VITE_BASE_URL
     : '/api',
   timeout: 5000, // 요청 제한 시간 5초
   // headers 초기화 시 토큰이 없을 때 문제 발생
