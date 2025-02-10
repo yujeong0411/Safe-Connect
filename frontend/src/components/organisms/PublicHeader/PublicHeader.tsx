@@ -7,14 +7,19 @@ const PublicHeader = ({ labels = [] }: PublicHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 경로에 따른 메인 페이지 이동
-  const getMainPath = () => {
-    if (location.pathname.includes('/hospital')) return '/hospital';
-    if (location.pathname.includes('/control')) return '/control';
-    if (location.pathname.includes('/dispatch')) return '/dispatch';
-    if (location.pathname.includes('/admin')) return '/admin';
-    return '/user/login';
-  };
+    const getMainPath = () => {
+        const pathSegments = location.pathname.split('/');
+        const domain = pathSegments[1]; // 첫 번째 경로 세그먼트 (user, hospital, control 등)
+
+        switch(domain) {
+            case 'hospital': return '/hospital/request';
+            case 'control': return '/control/main';
+            case 'dispatch': return '/dispatch/main';
+            case 'admin': return '/admin/main';
+            case 'user': return '/user/main';
+            default: return '/';  // 기본 경로 추가
+        }
+    };
 
   return (
     <header className="flex relative justify-between items-center pl-4 pr-10">

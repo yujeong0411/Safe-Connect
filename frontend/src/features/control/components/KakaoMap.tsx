@@ -26,7 +26,7 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
             isLoading: false,
           });
         },
-        (err) => {
+        () => {
           setState({
             center: { lat: 37.566826, lng: 126.9786567 }, // 기본 서울 중심
             isLoading: false,
@@ -59,7 +59,9 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
           });
 
           setMarkers(newMarkers);
-          FindFireStations(data);  // 검색된 소방서 정보 전달
+          if (FindFireStations) {
+            FindFireStations(data);
+          }  // 검색된 소방서 정보 전달
           map.setBounds(bounds);
         }
       },

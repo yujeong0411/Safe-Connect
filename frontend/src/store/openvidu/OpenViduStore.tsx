@@ -5,9 +5,34 @@ import { axiosInstance } from '@utils/axios.ts';
 import { OpenVidu } from 'openvidu-browser';
 import React from 'react';
 
+// 더 강력한 브라우저 체크 우회
+const forceOverrideBrowserCheck = () => {
+  // UserAgent 변경
+  Object.defineProperty(navigator, 'userAgent', {
+    get: function() {
+      return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    },
+    configurable: true
+  });
 
-export const useOpenViduStore =
-  create<openViduStore>((set,get) => ({
+  // Platform 변경
+  Object.defineProperty(navigator, 'platform', {
+    get: function() {
+      return 'MacIntel';
+    },
+    configurable: true
+  });
+
+  // vendor 변경
+  Object.defineProperty(navigator, 'vendor', {
+    get: function() {
+      return 'Google Inc.';
+    },
+    configurable: true
+  });
+};
+
+export const useOpenViduStore = create<openViduStore>((set, get) => ({
   isActive: false,
 
   OV: new OpenVidu(),
@@ -26,19 +51,21 @@ export const useOpenViduStore =
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ sessionId: e.target.value });
   },
+
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ userName: e.target.value });
   },
+
   setSessionActive: (active: boolean) => {
     set({ isActive: active });
   },
-  // handleMainVideoStream: (stream: StreamManager) => {
-  //   set({ mainStreamManager: stream });
-  // },
-
 
   createAndJoinSession: async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 브라우저 체크 우회를 먼저 적용
+    forceOverrideBrowserCheck();
+
     const { sessionId, userName, createSession, joinSession } = get();
 
     if (!userName || userName === '') {
@@ -57,13 +84,19 @@ export const useOpenViduStore =
   },
 
   joinSession: async () => {
-    const { OV, sessionId, userName } = get();
-    if (!sessionId) return;
-
     try {
+      // OpenVidu 초기화 전에 브라우저 체크 우회
+      forceOverrideBrowserCheck();
+
+      const OV = new OpenVidu();
+      OV.enableProdMode();  // 프로덕션 모드 활성화
+      set({ OV });
+
+      const { sessionId, userName } = get();
+      if (!sessionId) return;
+
       const session = OV.initSession();
 
-      // 이벤트 핸들러 설정
       session.on('streamCreated', (event) => {
         const subscriber = session.subscribe(event.stream, undefined);
         set((state) => ({
@@ -83,25 +116,26 @@ export const useOpenViduStore =
       const token = await get().createToken(sessionId);
       await session.connect(token, { clientData: userName });
 
-      // 퍼블리셔 초기화
+      // iOS에 최적화된 설정으로 퍼블리셔 초기화
       const publisher = await OV.initPublisherAsync(undefined, {
         audioSource: undefined,
         videoSource: undefined,
         publishAudio: true,
         publishVideo: true,
-        resolution: '640x480',
-        frameRate: 30,
+        resolution: '320x240',    // 낮은 해상도
+        frameRate: 15,            // 낮은 프레임레이트
         insertMode: 'APPEND',
         mirror: false,
       });
 
-      // 세션에 퍼블리시
       await session.publish(publisher);
+
       const localUser = {
         connectionId: session.connection.connectionId,
         streamManager: publisher,
         userName: userName,
       };
+
       set({
         session,
         mainStreamManager: publisher,
@@ -112,7 +146,6 @@ export const useOpenViduStore =
 
     } catch (error) {
       console.error('Session join failed:', error);
-      // 실패 시 상태 초기화
       set({
         session: undefined,
         mainStreamManager: undefined,
@@ -134,23 +167,23 @@ export const useOpenViduStore =
 
     if (session) {
       try {
-        // 퍼블리셔 정리
         if (publisher) {
-          publisher.stream.getMediaStream().getTracks().forEach(track => {
-            track.stop();
-          });
+          const mediaStream = publisher.stream.getMediaStream();
+          if (mediaStream) {
+            mediaStream.getTracks().forEach(track => {
+              track.stop();
+            });
+          }
           session.unpublish(publisher);
         }
-        // 세션 연결 해제
         session.disconnect();
       } catch (err) {
         console.error('Error leaving session:', err);
       }
     }
 
-    // 상태 초기화
     set({
-      OV: new OpenVidu(),
+      OV: undefined,
       sessionId: '',
       userName: `Guest_${Math.floor(Math.random() * 100)}`,
       session: undefined,
@@ -165,24 +198,19 @@ export const useOpenViduStore =
       isActive: false,
     });
   },
-// axios 쓰는 코드
+
   createSession: async (sessionId: string) => {
     try {
       const response = await axiosInstance.post(
         `/api/sessions`,
+        { customSessionId: sessionId },
         {
-          customSessionId: sessionId,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        // 이미 존재하는 세션이라면 해당 세션 ID 반환
         if (error.response?.status === 409) {
           return sessionId;
         }
@@ -199,9 +227,7 @@ export const useOpenViduStore =
         `/api/sessions/${sessionId}/connections`,
         {},
         {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
       return response.data;

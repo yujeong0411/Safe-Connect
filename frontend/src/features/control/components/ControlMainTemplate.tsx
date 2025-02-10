@@ -13,7 +13,7 @@ interface ControlTemplateProps {
 }
 
 const ControlTemplate = ({ children }: ControlTemplateProps) => {
-  const { setIsOpen } = useVideoCallStore();
+  const { setIsOpen, isOpen: isDrawerOpen } = useVideoCallStore();
   const navigate = useNavigate();
   const [isVideoModalOpen, setIsVideoModalOpen] = React.useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = React.useState(false);
@@ -35,7 +35,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       hasModal: true,
       onModalOpen: () => setIsVideoModalOpen(true),
     },
-    { label: '전화 업무', path: '#', hasModal: true, onModalOpen: () => setIsOpen(true) },
+    { label: '전화 업무', path: '#', hasModal: true, onModalOpen: () => setIsOpen(!isDrawerOpen) },
     { label: '신고 업무', path: '/control/patient-info' },
     { label: '출동 지령', path: '/control/dispatch-order' },
     {
