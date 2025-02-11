@@ -21,40 +21,14 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: env.VITE_BASE_URL,
+          target: `http://localhost:8080`,
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api/, ''),
-          configure: (proxy) => {
-            proxy.on('error', (err) => {
-              console.log('Proxy Error:', err);
-            });
-            proxy.on('proxyReq', (proxyReq, req: any) => {
-              const fullUrl = new URL(req.url || '', env.VITE_BASE_URL);
-              const rewrittenPath = fullUrl.pathname.replace(/^\/api/, '');
-
-              console.log('Sending Request:', {
-                method: req.method,
-                originalPath: fullUrl.pathname,
-                rewrittenPath: rewrittenPath,
-                targetUrl: `${env.VITE_BASE_URL}${rewrittenPath}`,
-                headers: proxyReq.getHeaders()
-              });
-            });
-            proxy.on('proxyRes', (proxyRes, req: any) => {
-              const fullUrl = new URL(req.url || '', env.VITE_BASE_URL);
-
-              console.log('Received Response:', {
-                statusCode: proxyRes.statusCode,
-                originalPath: fullUrl.pathname,
-                targetUrl: `${env.VITE_BASE_URL}${fullUrl.pathname.replace(/^\/api/, '')}`,
-                headers: proxyRes.headers
-              });
-            });
-          }
         },
       },
     },
   };
 });
+
 
