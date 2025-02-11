@@ -19,6 +19,7 @@ import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.FireDept;
 import c207.camference.db.entity.firestaff.FireStaff;
+import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.users.User;
@@ -205,8 +206,22 @@ public class ControlServiceImpl implements ControlService {
         User user = null;
         List<MediCategoryDto> mediCategoryDto = null;
 
+        // patient insert
+        Patient patient = Patient.builder()
+                .callId(call.getCallId())
+                .patientCreatedAt(LocalDateTime.now())
+                .build();
+
+        // 환자가 가입자
         if (request.getUserId() != null) {
             user = userRepository.findById(request.getUserId()).orElse(null);
+
+            patient.setUserId(request.getUserId());
+            patient.setPatientIsUser(true);
+            patient.setPatientName(user.getUserName());
+            patient.setPatientGender(user.getUserGender());
+            patient.setPatientAge(user.getUserBirthday());
+
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
                     .orElse(null);
 
@@ -231,8 +246,6 @@ public class ControlServiceImpl implements ControlService {
 
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
     }
-
-
 
 
     // 상황실 직원이 '영상통화방 생성 및 url 전송' 버튼을 눌렀을 시
