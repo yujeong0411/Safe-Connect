@@ -8,6 +8,7 @@ import { ToastAction } from '@components/ui/toast.tsx';
 import { useSSE } from '@/hooks/useSSE.ts';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
+
 //import { format } from 'date-fns';
 
 interface HospitalMainPageProps {
@@ -47,21 +48,12 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
 
       if (response.message === '환자 이송 요청이 접수되었습니다.') {
         toast({
-          title: '신규 이송 요청',
           description: (
-            <div className="mt-2 space-y-1">
-              <p className="text-base">
-                <span className="font-semibold">환자 정보:</span>
-                {patientData.patientAge}/{patientData.patientGender}
-              </p>
-              <p className="text-base">
-                <span className="font-semibold">증상:</span>
-                {patientData.patientSympthom}
-              </p>
-              <p className="text-base">
-                <span className="font-semibold">중증도:</span>
+            <div className="mt-1 space-y-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="text-lg font-sans font-semibold">신규 이송 요청</h2>
                 <span
-                  className={`ml-1 px-2 py-1 rounded text-xs ${
+                  className={`px-2 py-1 rounded text-md ${
                     patientData.patientPreKtas === '1'
                       ? 'bg-red-500 text-white'
                       : patientData.patientPreKtas === '2'
@@ -73,6 +65,14 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
                 >
                   KTAS {patientData.patientPreKtas}
                 </span>
+              </div>
+              <p>
+                <span className="text-base font-sans">
+                  환자 정보 : {patientData.patientAge}세 / {patientData.patientGender}
+                </span>
+              </p>
+              <p>
+                <span className="text-base font-sans">증상 : {patientData.patientSympthom}</span>
               </p>
             </div>
           ),
@@ -91,7 +91,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
                     gender: detailData.patientGender ?? null,
                     age: detailData.patientAge ?? null,
                     mental: detailData.patientMental,
-                    preKTAS: patientData.patients?.[0]?.patientPreKtas??'',
+                    preKTAS: patientData.patients?.[0]?.patientPreKtas ?? '',
                     sbp: detailData.patientSystolicBldPress,
                     dbp: detailData.patientDiastolicBldPress,
                     pr: detailData.patientPulseRate,
@@ -103,7 +103,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
                     symptoms: detailData.patientSymptom,
                     diseases: detailData.patientDiseases?.join(', ') ?? undefined,
                     medications: detailData.patientMedications?.join(', ') ?? undefined,
-                      requestTransferAt:'0'
+                    requestTransferAt: '0',
                     //   requestTransferAt: format(
                     //   new Date(patientData.reqHospitalCreatedAt),
                     //   'yyyy-MM-dd HH:mm:ss'
@@ -118,7 +118,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
               상세보기
             </ToastAction>
           ),
-          duration: 6000, // 시간 조정하기
+          duration: 60000, // 시간 조정하기
           className: 'bg-white border-l-4 border-pink-400',
         });
         fetchCombinedTransfers();
@@ -201,7 +201,8 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
 
   // 이송 신청 온 목록(즉, 해당 페이지에 있는 리스트 수)
   const unacceptedTransfers = combinedTransfers
-    ? combinedTransfers.filter((item) => !item.transferAcceptAt && !item.dispatchTransferAccepted).length
+    ? combinedTransfers.filter((item) => !item.transferAcceptAt && !item.dispatchTransferAccepted)
+        .length
     : 0;
 
   // 이송 중인 항목 (transferAcceptAt은 있지만 transferArriveAt은 없는 항목)
