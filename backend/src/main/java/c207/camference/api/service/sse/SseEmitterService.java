@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SseEmitterService {
 //    private final Map<Integer, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
-    private final Map<Integer, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
+//    private final Map<Integer, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
 
@@ -40,8 +41,20 @@ public class SseEmitterService {
         return emitter;
     }
 
+/*
     public SseEmitter createDispatchGroupEmitter(Integer clientId) {
         return createEmitter(clientId, dispatchGroupEmitters);
+    }
+*/
+
+    public SseEmitter createDispatchGroupEmitter(String clientId) {
+        SseEmitter emitter = new SseEmitter(60000L);
+        dispatchGroupEmitters.put(clientId, emitter);
+
+        emitter.onCompletion(() -> dispatchGroupEmitters.remove(clientId));
+        emitter.onTimeout(() -> dispatchGroupEmitters.remove(clientId));
+
+        return emitter;
     }
 
     public SseEmitter createHospitalEmitter(Integer clientId) {
@@ -79,7 +92,8 @@ public class SseEmitterService {
         deadControlEmitters.forEach(controlEmitters::remove);
 
         // 구급팀에 응답 전송
-        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
+//        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
+        List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
@@ -109,7 +123,8 @@ public class SseEmitterService {
         daedHospitalEmitters.forEach(hospitalEmitters::remove);
 
         // 구급팀에 응답 전송
-        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
+//        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
+        List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
@@ -126,7 +141,8 @@ public class SseEmitterService {
         String answer = accepted ? "환자 이송 요청 승인" : "환자 이송 요청 거절";
 
         // to 구급팀
-        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
+//        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
+        List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event().name("transfer response")

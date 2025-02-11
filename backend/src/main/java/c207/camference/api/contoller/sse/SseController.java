@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.Optional;
-
 @RestController
 @RequiredArgsConstructor
 public class SseController {
@@ -31,11 +29,17 @@ public class SseController {
         return sseEmitterService.createControlEmitter(clientId);
     }
 
+/*
     @GetMapping(value = "/dispatchGroup/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeDispatchGroup(@RequestParam Integer clientId) {
         return sseEmitterService.createDispatchGroupEmitter(clientId);
     }
+*/
 
+    @GetMapping(value = "/dispatchGroup/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeDispatchGroup(@RequestParam String clientId) {  // Integer -> String
+        return sseEmitterService.createDispatchGroupEmitter(clientId);
+    }
 
     @GetMapping(value = "/hospital/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeHospital() {

@@ -88,13 +88,13 @@ const ControlDispatchOrderPage = () => {
 
 
    try {
-    const userName = localStorage.getItem("userName");
-    if (!userName) {
+    const controlLoginId = localStorage.getItem("userName");
+    if (!controlLoginId) {
       throw new Error("사용자 정보가 없습니다.")
     }
 
     // SSE 구독
-    const eventSource = startSSESubscription(userName);
+    const eventSource = startSSESubscription(controlLoginId);
 
     // 출동 지령 HTTP 요청 전송
     await orderDispatch(selectedTeam, callId); // dispatchGroupId, callId
