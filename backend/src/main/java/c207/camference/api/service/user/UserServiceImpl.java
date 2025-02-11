@@ -1,5 +1,6 @@
 package c207.camference.api.service.user;
 
+import c207.camference.api.request.user.ShareLocationRequest;
 import c207.camference.api.request.user.UserCreateRequest;
 import c207.camference.api.request.user.UserPasswordChangeRequest;
 import c207.camference.api.request.user.UserUpdateRequest;
@@ -7,6 +8,7 @@ import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.openapi.AedResponse;
 import c207.camference.api.response.user.UserEmailResponse;
 import c207.camference.api.response.user.UserResponse;
+import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.db.entity.etc.Aed;
 import c207.camference.db.entity.users.User;
 import c207.camference.db.repository.openapi.AedRepository;
@@ -38,8 +40,7 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final JavaMailSender javaMailSender;
     private final AedRepository aedRepository;
-
-
+    private final SseEmitterService sseEmitterService;
 
 
     @Override
@@ -262,4 +263,10 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고자 근처 AED 위치 조회 완료"));
     }
 
+    @Override
+    @Transactional
+    public ResponseEntity<?> shareLocation(ShareLocationRequest request) {
+        sseEmitterService.shareCallerLocation(request);
+        return ResponseEntity.ok().body(ResponseUtil.success(request, "신고자 위치 공유 성공"));
+    }
 }
