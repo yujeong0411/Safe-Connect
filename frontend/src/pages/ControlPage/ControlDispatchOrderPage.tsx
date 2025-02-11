@@ -8,7 +8,8 @@ import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 //import {usePatientStore} from "@/store/control/patientStore.tsx";
 import {orderDispatch} from "@features/control/services/controlApiService.ts";
-//import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
+import { error } from 'console';
+import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
@@ -22,7 +23,7 @@ const ControlDispatchOrderPage = () => {
     description: '',
     type: 'default' as 'default' |'destructive',
   });
-  //const {callId} = useOpenViduStore()
+  const {callId} = useOpenViduStore()
 
 
   // 3초 후 사라지는 로직
@@ -54,26 +55,89 @@ const ControlDispatchOrderPage = () => {
     //   })
     //   return
     // }
+    
 
-    try {
-      // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
-      await orderDispatch(selectedTeam);
-      // await orderDispatch(selectedTeam, callId);
-      handleAlertClose({
-        title: '출동 지령 전송',
-        description: '출동 지령이 전송되었습니다.',
-        type: 'default',
-      });
-      setSelectedTeam(null);
-      setSelectedStation(null);
-    } catch (error) {
-      handleAlertClose({
-        title: '출동 지령 실패',
-        description: '출동 지령 전송에 실패했습니다.',
-        type: 'destructive',
-      });
+  // SSE 구독
+  const startSSESubscription = (userName: string) => {
+    const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
+
+      eventSource.onmessage = (event) => {
+        const response = JSON.parse(event.data);
+        if (response.isSuccess) {
+          handleAlertClose({
+            title: "출동 지령 전송 성공",
+            description: `소방팀 ${response.data.dispatchGroupId}팀에게 출동 지령을 보냈습니다.`,
+            type: "default"
+          });
+        } else {
+          handleAlertClose({
+            title: "출동 지령 전송 실패",
+            description: response.message || "출동 지령 전송에 실패했습니다.",
+            type: "destructive"
+          });
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("SSE 연결 에러: ", error);
+        eventSource.close();
+      };
+
+      return eventSource;
+   };
+
+
+   try {
+    const userName = localStorage.getItem("userName");
+    if (!userName) {
+      throw new Error("사용자 정보가 없습니다.")
     }
+
+    // SSE 구독
+    const eventSource = startSSESubscription(userName);
+
+    // 출동 지령 HTTP 요청 전송
+    await orderDispatch(selectedTeam, callId); // dispatchGroupId, callId
+
+    handleAlertClose({
+      title: "출동 지령 전송",
+      description: "출동 지령이 전송되었습니다.",
+      type: "default",
+    });
+
+    // 컴포넌트 unmount 시 SSE 연결 종료
+    return () => {
+      eventSource.close();
+    }
+   } catch (error) {
+    handleAlertClose({
+      title: "출동 지령 전송 실패",
+      description: "출동 지령 전송에 실패했습니다.",
+      type: "default",
+    });
+   }
+
+
+    // try {
+    //   // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
+    //   // await orderDispatch(selectedTeam);
+    //   await orderDispatch(selectedTeam, callId);
+    //   handleAlertClose({
+    //     title: '출동 지령 전송',
+    //     description: '출동 지령이 전송되었습니다.',
+    //     type: 'default',
+    //   });
+    //   setSelectedTeam(null);
+    //   setSelectedStation(null);
+    // } catch (error) {
+    //   handleAlertClose({
+    //     title: '출동 지령 실패',
+    //     description: '출동 지령 전송에 실패했습니다.',
+    //     type: 'destructive',
+    //   });
+    // }
   };
+
 
   // 예상 시간 계산 (카카오 제공 안함.)
   const calculatedEstimatedTime = (distanceInMeters: string) => {

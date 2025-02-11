@@ -17,14 +17,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SseEmitterService {
-    private final Map<Integer, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
+//    private final Map<Integer, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
 
 
+/*
     public SseEmitter createControlEmitter(Integer clientId) {
         return createEmitter(clientId, controlEmitters);
+    }
+*/
+
+    public SseEmitter createControlEmitter(String clientId) {
+        SseEmitter emitter = new SseEmitter(60000L);
+        controlEmitters.put(clientId, emitter);
+
+        emitter.onCompletion(() -> controlEmitters.remove(clientId));
+        emitter.onTimeout(() -> controlEmitters.remove(clientId));
+
+        return emitter;
     }
 
     public SseEmitter createDispatchGroupEmitter(Integer clientId) {
@@ -52,7 +65,8 @@ public class SseEmitterService {
     // 상황실-구급팀 출동 지령
     public void sendDispatchOrder(DispatchOrderRequest data) {
         // 상황실에 응답 전송
-        List<Integer> deadControlEmitters = new ArrayList<>();
+//        List<Integer> deadControlEmitters = new ArrayList<>();
+        List<String> deadControlEmitters = new ArrayList<>();
         controlEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()

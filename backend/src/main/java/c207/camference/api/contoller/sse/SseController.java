@@ -19,8 +19,15 @@ public class SseController {
     private final SseEmitterService sseEmitterService;
     private final HospitalRepository hospitalRepository;
 
+/*
     @GetMapping(value = "/control/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeControl(@RequestParam Integer clientId) {
+        return sseEmitterService.createControlEmitter(clientId);
+    }
+*/
+
+    @GetMapping(value = "/control/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeControl(@RequestParam String clientId) {  // Integer -> String
         return sseEmitterService.createControlEmitter(clientId);
     }
 
