@@ -35,6 +35,7 @@ const forceOverrideBrowserCheck = () => {
 export const useOpenViduStore = create<openViduStore>((set, get) => ({
   isActive: false,
 
+  callId : undefined,
   OV: new OpenVidu(),
   sessionId: '',
   userName: `Guest_${Math.floor(Math.random() * 100)}`,
@@ -60,9 +61,13 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     set({ isActive: active });
   },
 
-  createAndJoinSession: async (e: React.FormEvent) => {
+  createAndJoinSession: async (e: React.FormEvent,callerPhone : string) => {
     e.preventDefault();
 
+    if (!callerPhone) {
+      alert('전화번호를 입력해주세요.');
+      return;
+    }
     // 브라우저 체크 우회를 먼저 적용
     forceOverrideBrowserCheck();
 
@@ -73,7 +78,9 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     }
 
     try {
-      await createSession(sessionId);
+      await createSession(sessionId,callerPhone);
+      // 세션 제작 성공
+      console.log("세션제작 성공")
       set({ sessionId });
       await joinSession();
     } catch (error) {
@@ -196,18 +203,26 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         userName: undefined,
       },
       isActive: false,
+      callId : undefined
     });
   },
 
-  createSession: async (sessionId: string) => {
+  createSession: async (sessionId: string, callerPhone : string) => {
     try {
       const response = await axiosInstance.post(
-        `/api/sessions`,
-        { customSessionId: sessionId },
+        `/control/video`,
+        {
+          customSessionId: sessionId,
+          callerPhone:callerPhone
+        },
         {
           headers: { 'Content-Type': 'application/json' },
         }
       );
+      console.log(response.data);
+      set({
+        callId : response.data.data.call.callId
+      })
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {

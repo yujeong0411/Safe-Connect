@@ -9,6 +9,7 @@ export interface LocalUser {
 
 export interface openViduStore {
   // State
+  callId : number | undefined;
   isActive : boolean
   OV: OpenVidu;
   sessionId: string;
@@ -27,7 +28,7 @@ export interface openViduStore {
   setSessionActive: (active: boolean) => void;
   // switchCamera: () => void;
   // handleMainVideoStream: (stream: StreamManager) => void;
-  createSession: (sessionId: string) => Promise<any>;
+  createSession: (sessionId: string,callerPhone:string) => Promise<any>;
   createToken: (sessionId: string) => Promise<any>;
-  createAndJoinSession: (e: React.FormEvent)=> Promise<void>;
+  createAndJoinSession: (e: React.FormEvent,callerPhone:string)=> Promise<void>;
 }

@@ -43,7 +43,7 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const handleCreateSession = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createAndJoinSession(e);
+      await createAndJoinSession(e,phoneNumber);
       const inviteUrl = `/caller/join/${sessionId}?direct=true`;
       await navigator.clipboard.writeText(window.location.origin + inviteUrl);
       onOpenChange(false)
