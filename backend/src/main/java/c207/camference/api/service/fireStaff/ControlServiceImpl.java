@@ -1,17 +1,13 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
-import c207.camference.api.request.control.CallEndRequest;
-import c207.camference.api.request.control.CallRoomRequest;
-import c207.camference.api.request.control.CallUpdateRequest;
-import c207.camference.api.request.control.DispatchOrderRequest;
-import c207.camference.api.request.control.ResendRequest;
+import c207.camference.api.request.control.*;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
-import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.api.service.sms.SmsService;
+import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -259,10 +255,14 @@ public class ControlServiceImpl implements ControlService {
         caller.setCallerPhone(callerPhone);
 
         // 신고자가 회원인지 조회
-        Optional<User> user = userRepository.findByUserPhone(callerPhone);
-        caller.setCallerIsUser(user.isPresent());
+        User user = userRepository.findUserByUserPhone(callerPhone);
+        if(user==null){
+            caller.setCallerIsUser(false);
+        }else{
+            caller.setCallerIsUser(true);
+            caller.setUserId(user.getUserId());
+        }
 
-        caller.setCallerIsUser(false);
         caller.setCallerIsLocationAccept(false);
         caller.setCallerAcceptedAt(LocalDateTime.now());
 
@@ -278,7 +278,7 @@ public class ControlServiceImpl implements ControlService {
         call.setFireStaff(fireStaffOpt.get());
         call.setCaller(caller);
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
-        callRepository.save(call);
+        call = callRepository.saveAndFlush(call);
 
 //        VideoCall videoCall = VideoCall.builder()
 //                .videoCallIsActivate(true)
@@ -290,18 +290,15 @@ public class ControlServiceImpl implements ControlService {
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
         videoCall.setVideoCallUrl(url);
-        videoCall.setVideoCallIsActivate(true);
-        videoCall.setVideoCallCreatedAt(LocalDateTime.now());
-        videoCallRepository.save(videoCall);
+        videoCall = videoCallRepository.saveAndFlush(videoCall);
 
 
         // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
-        videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
+        videoCallUser.setVideoCallId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
-        videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
-        videoCallUser.setVideoCallId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
+        videoCallUser.setVideoCallerId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
 
         videoCallUserRepository.save(videoCallUser);
 
@@ -342,7 +339,7 @@ public class ControlServiceImpl implements ControlService {
         }
 
         call.setCallFinishedAt(LocalDateTime.now());
-        System.out.println(call.toString()); // 디버그용
+        System.out.println(call); // 디버그용
         callRepository.save(call);
 
         // ---
@@ -355,7 +352,7 @@ public class ControlServiceImpl implements ControlService {
             for (VideoCallUser videoCallUser : videoCallUsers) {
                 videoCallUser.setVideoCallOutAt(LocalDateTime.now());
 
-                System.out.println(videoCallUser.toString()); // 디버그용
+                System.out.println(videoCallUser); // 디버그용
                 
                 videoCallUserRepository.save(videoCallUser);
             }
