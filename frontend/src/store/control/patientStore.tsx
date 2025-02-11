@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { PatientInfo, PatientStore, FormData, CurrentCall } from '@/types/common/Patient.types.ts';
 import {controlService, patientService, protectorService} from '@features/control/services/controlApiService.ts';
-
+import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
+// callId 삭제 : openvidu에서만 관리 -> 영상통화 종료 시 자동으로 초기화됨.
 const initialFormData: FormData = {
   userName: '',
   userGender: '',
@@ -13,7 +14,6 @@ const initialFormData: FormData = {
   callText:'',
   callSummary: '',
   symptom: '',
-  callId: 0,
   userId: 0
 }
 
@@ -82,32 +82,35 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   },
 
   // 신고 내용 저장(수정)
-  savePatientInfo: async (callId: number) => {
+  savePatientInfo: async () => {
     try {
-      if(!callId){
-        console.error('CallId is required');
+      const {  formData } = get();  // 내부 상태 가져오기
+      const {callId} = useOpenViduStore.getState()
+
+      // callId 유효성 체크 추가
+      if (!callId) {
+        console.error('영상통화 정보가 없습니다.');
         return;
       }
 
-      const { formData } = get();
+      // 현재 선택된 회원 ID와 신고 ID 추가
       const callInfo = {
-        callId: callId,
-        userId: formData.userId || null,
+        userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
         symptom: formData.symptom,
         callSummary: formData.callSummary,
-        callText: formData.callText,
+        callText:formData.callText,
       };
 
-      const response = await patientService.savePatientInfo(callInfo);
+      // api 호출 시 callId 필요
+      const response = await patientService.savePatientInfo({
+        ...callInfo,
+        callId
+      });
 
       if (response.isSuccess) {
         set({
           patientInfo: response.data as PatientInfo,
-          currentCall: {
-            ...formData,
-            callId,
-            userId: formData.userId || null,
-          },
+          currentCall:callInfo,  // 저장 성공 시 현재 신고 정보 업데이트
         });
       }
     } catch (error) {
@@ -137,7 +140,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   // 신고내용 요약
   fetchCallSummary: async (callId:number) => {
     try {
-      const response= await controlService.callSummary(Number(callId))
+      const response= await controlService.callSummary(callId)
       if (response) {
         set(state => ({
           ...state,

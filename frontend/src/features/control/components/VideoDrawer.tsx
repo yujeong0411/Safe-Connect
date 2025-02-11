@@ -15,7 +15,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {formData, updateFormData, fetchCallSummary} = usePatientStore()
 
-
   const { callId,leaveSession } = useOpenViduStore();
 
   const handleEndCall = async () => {

@@ -11,7 +11,6 @@ export interface FormData {
   callText: string;
   callSummary: string;
   symptom: string;
-  callId: number;
   userId: number;
 }
 
@@ -27,7 +26,6 @@ export interface CurrentCall {
   medications?: string;
   callSummary: string;
   symptom?: string;
-  callId?: number;
   userId: number | null;
 }
 

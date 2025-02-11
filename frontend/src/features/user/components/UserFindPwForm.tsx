@@ -7,7 +7,7 @@ const UserFindPwForm = ({ onEmailChange }: { onEmailChange: (email: string) => v
   const [email, setEmail] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newEmail = e.target.value;
+    const newEmail = e.target.value.replace(/\s/g, '');  // 공백제거 추가
     setEmail(newEmail);
     onEmailChange(newEmail);
   };

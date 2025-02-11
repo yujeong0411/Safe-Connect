@@ -5,7 +5,7 @@ const Logo = () => {
     <img
       src={mainLogo}
       alt="safe connection"
-      className="w-[5rem] md:w-[8rem] h-auto" // 모바일에서는 w-28(7rem), 태블릿 이상에서는 w-40(10rem)
+      className="w-[4rem] md:w-[7rem] h-auto" // 모바일에서는 w-28(7rem), 태블릿 이상에서는 w-40(10rem)
     />
   );
 };

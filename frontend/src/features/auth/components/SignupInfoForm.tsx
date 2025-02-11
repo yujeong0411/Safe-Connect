@@ -16,7 +16,13 @@ const SignupInfoForm = () => {
   const { formData, setFormData, validateFields } = useSignupStore();
 
   const handleChange = (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
+    let { value } = e.target;  // 재할당 가능하게 let
+
+    // 이메일과 비밀번호는 공백제거
+    if (name === 'userEmail' || name === 'userPassword' || name === 'passwordConfirm') {
+      value = value.replace(/\s/g, '');
+    }
+
     const processedValue =
       name === 'userPhone' || name === 'userProtectorPhone' ? formatPhoneNumber(value) : value;
 

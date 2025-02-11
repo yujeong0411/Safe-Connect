@@ -11,7 +11,6 @@ export interface DispatchGroupStore {
   selectedStation: string | null;
   fetchDispatchGroups: () => Promise<void>;
   setSelectedStation: (station: string | null) => void;
-  sendDispatchOrder: (dispatchGroupId:number) => void;
 }
 
 export interface DispatchGroupResponse {
