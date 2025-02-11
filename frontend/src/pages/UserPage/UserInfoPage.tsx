@@ -4,13 +4,31 @@ import userImg from '@assets/image/userImg.png';
 import UserInfoForm from '@features/user/components/UserInfoForm.tsx';
 import { useAuthStore } from '@/store/user/authStore.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
+import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
+import { CircleCheckBig, CircleAlert } from "lucide-react";
 
 const UserInfoPage = () => {
   const { loadUserInfo } = useLoadUserInfo('user');
   const { updateUserInfo, logout } = useAuthStore();
   const { formData, validateFields } = useSignupStore();
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    description: '',
+    type: 'default' as 'default' | 'destructive',
+  });
+
+  // Alert 표시 핸들러
+  const handleShowAlert = (config: typeof alertConfig) => {
+    setAlertConfig(config);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 3000);
+  };
+
 
   // 정보 가져오기
   useEffect(() => {
@@ -32,7 +50,11 @@ const UserInfoPage = () => {
       if (phoneError) errors.push(phoneError);
       if (protectorPhoneError) errors.push(protectorPhoneError);
 
-      alert(errors.join('\n'));
+      handleShowAlert({
+        title: '입력 오류',
+        description: errors.join('\n'),
+        type: 'destructive',
+      });
       return;
     }
 
@@ -41,9 +63,17 @@ const UserInfoPage = () => {
         userPhone: formData.userPhone,
         userProtectorPhone: formData.userProtectorPhone,
       });
-      alert('저장하였습니다.');
+      handleShowAlert({
+        title: '저장 완료',
+        description: '개인정보가 저장되었습니다.',
+        type: 'default',
+      });
     } catch (error) {
-      alert('정보 저장에 실패했습니다.');
+      handleShowAlert({
+        title: '저장 실패',
+        description: '개인정보 저장에 실패했습니다.',
+        type: 'destructive',
+      });
     }
   };
 
@@ -51,6 +81,7 @@ const UserInfoPage = () => {
   const handleSignout = async () => {};
 
   return (
+      <>
     <MainTemplate
       navItems={[
         { label: '개인 정보 수정', path: '/user/info' },
@@ -69,6 +100,30 @@ const UserInfoPage = () => {
         <UserInfoForm />
       </UserInfoTemplate>
     </MainTemplate>
+
+  {showAlert && (
+      <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[9999]">
+        <Alert
+            variant={alertConfig.type}
+            className={`w-[400px] shadow-lg bg-white ${
+                alertConfig.type === 'default'
+                    ? '[&>svg]:text-blue-600 text-blue-600'
+                    : '[&>svg]:text-red-500 text-red-500'
+            }`}
+        >
+          {alertConfig.type === 'default' ? (
+              <CircleCheckBig className="h-6 w-6" />
+          ) : (
+              <CircleAlert className="h-6 w-6" />
+          )}
+          <AlertTitle className="text-xl ml-4 font-sans">{alertConfig.title}</AlertTitle>
+          <AlertDescription className="text-base m-2 font-sans whitespace-pre-line">
+            {alertConfig.description}
+          </AlertDescription>
+        </Alert>
+      </div>
+  )}
+</>
   );
 };
 

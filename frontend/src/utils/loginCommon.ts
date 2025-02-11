@@ -55,10 +55,12 @@ export const commonLogin = async function (params: CommonLoginParams) {
   }
 };
 
+
+// 로그아웃
 export const commonLogout = async (logoutPath: string) => {
   try {
     console.log('로그아웃 요청 전 설정:', {
-      url: 'user/logout',
+      url: logoutPath,
       headers: axiosInstance.defaults.headers,
       cookies: document.cookie,
     });

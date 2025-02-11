@@ -161,7 +161,7 @@ public class SmsServiceImpl implements SmsService {
 
             message.setFrom("01030854889");
             message.setTo(userPhone.replace("-", ""));
-            message.setText("[SafeConnect] 화상지원 URL" + "[" + url + "]");
+            message.setText("[safeconnect]"+url);
 
             // send 메소드로 ArrayList<Message> 객체를 넣어도 동작합니다!
             messageService.send(message);

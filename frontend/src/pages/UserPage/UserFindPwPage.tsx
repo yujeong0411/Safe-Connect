@@ -4,18 +4,31 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/user/authStore.tsx';
 // import { useSignupStore } from '@/store/user/signupStore.tsx';
 import UserFindPwForm from '@features/user/components/UserFindPwForm.tsx';
+import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
+import { CircleAlert } from "lucide-react";
 
 const UserFindPwPage = () => {
   const navigate = useNavigate();
   const [state, setState] = useState<'form' | 'success' | 'fail'>('form');
   const { findPassword } = useAuthStore();
   const [userEmail, setUserEmail] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+
+
+  const handleShowAlert = (message: string) => {
+    setAlertMessage(message);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 1000);
+  };
 
   // 비밀번호 찾기 핸들링
   const handleFindPw = async () => {
     try {
       if (!userEmail) {
-        alert('이메일을 입력해주세요.');
+        handleShowAlert('이메일을 입력해주세요.');
         return;
       }
 
@@ -23,11 +36,11 @@ const UserFindPwPage = () => {
       if (isSuccess) {
         setState('success');
       } else {
-        alert('비밀번호 찾기에 실패했습니다.');
+        handleShowAlert('비밀번호 찾기에 실패했습니다.');
       }
     } catch (error) {
       console.error('비밀번호 찾기 실패:', error);
-      alert('올바른 이메일을 입력하세요.');
+      handleShowAlert('올바른 이메일을 입력하세요.');
     }
   };
 
@@ -37,6 +50,7 @@ const UserFindPwPage = () => {
       // 이메칠 찾기 페이지
       case 'form':
         return (
+            <>
           <UserFindTemplate
             title="비밀번호 찾기"
             subtitle="회원가입 시 사용한 이메일을 입력하세요. 임시비밀번호가 이메일로 발송됩니다."
@@ -45,6 +59,22 @@ const UserFindPwPage = () => {
           >
             <UserFindPwForm onEmailChange={setUserEmail} />
           </UserFindTemplate>
+
+      {showAlert && (
+          <div className="fixed left-1/2 top-96 -translate-x-1/2 z-[9999]">
+            <Alert
+                variant="destructive"
+                className="w-[400px] shadow-lg bg-white [&>svg]:text-red-500 text-red-500"
+            >
+              <CircleAlert className="h-6 w-6" />
+              <AlertTitle className="text-xl ml-2 font-sans">비밀번호 찾기 실패</AlertTitle>
+              <AlertDescription className="text-base m-2 font-sans">
+                {alertMessage}
+              </AlertDescription>
+            </Alert>
+          </div>
+      )}
+      </>
         );
 
       // 이메일 찾기 성공 페이지

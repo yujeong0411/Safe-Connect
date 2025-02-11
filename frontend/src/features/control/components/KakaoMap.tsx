@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Map, MapMarker, MapTypeControl, ZoomControl } from 'react-kakao-maps-sdk';
 import useKakaoLoader from '@/hooks/useKakaoLoader.ts';
-import {Marker, KakaoMapProps} from "@features/control/types/kakaoMap.types.ts";
+import { Marker, KakaoMapProps } from '@features/control/types/kakaoMap.types.ts';
+import userMaker from '@assets/image/marker2.png'
+import dispatchMarker from '@assets/image/119maker.png'
 
-const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
+const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
   useKakaoLoader();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [markers, setMarkers] = useState<Marker[]>([]);
@@ -12,6 +14,7 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
     center: { lat: 33.450701, lng: 126.570667 },
     isLoading: true,
   });
+
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -52,16 +55,18 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
                 lng: parseFloat(place.x),
               },
               content: place.place_name,
-              distance:place.distance,  // 거리 정보
+              distance: place.distance, // 거리 정보
             };
             bounds.extend(new kakao.maps.LatLng(marker.position.lat, marker.position.lng));
             return marker;
           });
 
           setMarkers(newMarkers);
+
+          // 소방서가 없을 수도 있다.
           if (FindFireStations) {
-            FindFireStations(data);
-          }  // 검색된 소방서 정보 전달
+            FindFireStations(data); // 검색된 소방서 정보 전달
+          }
           map.setBounds(bounds);
         }
       },
@@ -91,7 +96,7 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
         <MapMarker
           position={state.center}
           image={{
-            src: 'https://cdn-icons-png.flaticon.com/512/7193/7193391.png',
+            src: userMaker,
             size: { width: 64, height: 69 },
             options: { offset: { x: 27, y: 69 } },
           }}
@@ -101,16 +106,16 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
 
       {/*소방서 위치*/}
       {markers.map((marker) => (
-        <MapMarker // 마커를 생성합니다
+        <MapMarker // 마커를 생성
           key={`${marker.content}-${marker.position.lat},${marker.position.lng}`}
           position={marker.position}
           onClick={() => setInfo(marker)}
           image={{
-            src: 'https://cdn.crowdpic.net/detail-thumb/thumb_d_95A0D99CD45AEE995519614F9B67AD41.png', // 마커이미지의 주소입니다
+            src: dispatchMarker, // 마커이미지의 주소입니다
             size: {
               width: 64,
               height: 69,
-            }, // 마커이미지의 크기입니다
+            }, // 마커이미지의 크기
             options: {
               offset: {
                 x: 27,
@@ -123,7 +128,6 @@ const KakaoMaps = ({FindFireStations}:KakaoMapProps) => {
             <div style={{ color: '#000' }}>{marker.content}</div>
           )}
         </MapMarker>
-
       ))}
 
       <MapTypeControl position={'TOPLEFT'} />

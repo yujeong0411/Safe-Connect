@@ -1,7 +1,7 @@
 export interface PatientDetailProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  buttons: string;
+  buttons?: string;
   data: {
     patientId: number
     name?: string | null;

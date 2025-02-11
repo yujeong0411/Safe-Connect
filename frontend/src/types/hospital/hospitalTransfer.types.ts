@@ -27,7 +27,7 @@ export interface TransferData {
 
 // 전체 이송 조회 시 환자 정보
 export interface patients {
-    patientId: number  // 벡엔드 아직 추가 안됨.
+    patientId: number  // 벡엔드 추가 완료
     patientPreKtas:string
     patientGender:string
     patientAge:string
@@ -43,6 +43,7 @@ export interface TransferStore {
 
 // 이송 신청 상세 조회
 export interface PatientDetail {
+    patientId: number   // 벡엔드 추가 완료
     patientName: string;
     patientGender: string;
     patientAge: string;

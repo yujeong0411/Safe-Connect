@@ -6,11 +6,15 @@ import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import {CircleAlert, CircleCheckBig} from 'lucide-react';
 import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
+//import {usePatientStore} from "@/store/control/patientStore.tsx";
+import {orderDispatch} from "@features/control/services/controlApiService.ts";
+//import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
-  const { selectedStation, setSelectedStation, dispatchGroups, sendDispatchOrder } = useDispatchGroupStore();
+  //const {currentCall} = usePatientStore();
+  const { selectedStation, setSelectedStation, dispatchGroups } = useDispatchGroupStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -18,6 +22,8 @@ const ControlDispatchOrderPage = () => {
     description: '',
     type: 'default' as 'default' |'destructive',
   });
+  //const {callId} = useOpenViduStore()
+
 
   // 3초 후 사라지는 로직
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -38,8 +44,21 @@ const ControlDispatchOrderPage = () => {
       });
       return;
     }
+
+    // 테스트 동안 제거
+    // if (!callId) {
+    //   handleAlertClose({
+    //     title:"신고 정보 없음",
+    //     description: "현재 처리 중인 신고가 없습니다.",
+    //     type: 'destructive',
+    //   })
+    //   return
+    // }
+
     try {
-      await sendDispatchOrder(selectedTeam);
+      // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
+      await orderDispatch(selectedTeam);
+      // await orderDispatch(selectedTeam, callId);
       handleAlertClose({
         title: '출동 지령 전송',
         description: '출동 지령이 전송되었습니다.',
