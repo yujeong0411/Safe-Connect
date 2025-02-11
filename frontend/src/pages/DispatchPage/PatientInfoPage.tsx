@@ -28,7 +28,7 @@ const PatientInfoPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
   } = useForm<PatientFormData>({
     defaultValues: {
       bt: 36.5,
