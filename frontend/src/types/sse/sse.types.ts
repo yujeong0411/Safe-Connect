@@ -24,12 +24,12 @@ export interface DispatchOrderData {
     callId: number;
 }
 
-// // 구급팀-병원 (구급팀)
-// interface DispatchToHospitalData {
-//     dispatchId: number;
-//     hospitalIds: number[];
-//     patientId: number;
-// }
+// 구급팀-병원 (구급팀)
+interface DispatchToHospitalData {
+    dispatchId: number;
+    hospitalIds: number[];
+    patientId: number;
+}
 
 export interface Patient extends PatientInfo, PatientDetail {
     patientId: number;
