@@ -14,7 +14,7 @@ const UserMainPage = () => {
       ]}
       logoutDirect={logout}
     >
-      <div className="w-full min-h-[700px] flex items-center justify-center scale-90 pr-20">
+      <div className="w-full max-w-[1200px] flex items-center justify-center mt-10">
         <Carousel />
       </div>
     </MainTemplate>
