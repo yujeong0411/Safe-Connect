@@ -29,6 +29,7 @@ public class SseController {
         return sseEmitterService.createDispatchGroupEmitter(clientId);
     }
 
+
     @GetMapping(value = "/hospital/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeHospital() {
         String hospitalLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -37,6 +38,7 @@ public class SseController {
         Integer hospitalId = hospital.getHospitalId();
         return sseEmitterService.createHospitalEmitter(hospitalId);
     }
+
 
     @GetMapping(value = "/caller/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeCaller(@RequestParam Integer clientId) {
