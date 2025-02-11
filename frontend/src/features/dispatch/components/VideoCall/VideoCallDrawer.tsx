@@ -1,12 +1,5 @@
 // src/features/dispatch/components/VideoCall/VideoCallDrawer.tsx
 import { useRef, useState, useEffect } from 'react';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from '@/components/ui/drawer';
 import DispatchButton from '../DispatchButton/DispatchButton';
 
 interface VideoCallDrawerProps {
