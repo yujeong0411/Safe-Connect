@@ -17,6 +17,7 @@ export const commonLogin = async function (params: CommonLoginParams) {
       },
       withCredentials: true, // 쿠키 전달
     });
+    console.log('Response object:', response);
     console.log('All headers:', response.headers);
     // 서버는 토큰을 access 키로 보냄.
     const accessToken = response.headers['access'];

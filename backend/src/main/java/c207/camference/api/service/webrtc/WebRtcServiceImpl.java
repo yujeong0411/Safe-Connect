@@ -46,6 +46,9 @@ public class WebRtcServiceImpl implements WebRtcService {
     @Value("${openai.api.key}")
     private String openaiApiKey;
 
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
 
     private OpenVidu openvidu;
     private final SpeechClient speechClient;
@@ -100,9 +103,11 @@ public class WebRtcServiceImpl implements WebRtcService {
      * @return url
      */
     public String makeUrl(String sessionId){
-        String url = "http://localhost:5173/caller/join/" + sessionId + "?direct=true"; // 추후에 바꿔줄 것
+        String baseUrl = activeProfile.equals("prod")
+                ? "https://i12c207.p.ssafy.io"
+                : "http://localhost:5173";
 
-        return url;
+        return baseUrl + "/caller/join/" + sessionId + "?direct=true";
     }
 
     /** 토큰 생성 (상황실, 신고자, 구급대원)
