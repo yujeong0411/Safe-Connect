@@ -1,17 +1,13 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
-import c207.camference.api.request.control.CallEndRequest;
-import c207.camference.api.request.control.CallRoomRequest;
-import c207.camference.api.request.control.CallUpdateRequest;
-import c207.camference.api.request.control.DispatchOrderRequest;
-import c207.camference.api.request.control.ResendRequest;
+import c207.camference.api.request.control.*;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
-import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.api.service.sms.SmsService;
+import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -264,7 +260,7 @@ public class ControlServiceImpl implements ControlService {
             caller.setCallerIsUser(false);
         }else{
             caller.setCallerIsUser(true);
-            caller.setCallerId(user.getUserId());
+            caller.setUserId(user.getUserId());
         }
 
         caller.setCallerIsLocationAccept(false);
@@ -343,7 +339,7 @@ public class ControlServiceImpl implements ControlService {
         }
 
         call.setCallFinishedAt(LocalDateTime.now());
-        System.out.println(call.toString()); // 디버그용
+        System.out.println(call); // 디버그용
         callRepository.save(call);
 
         // ---
@@ -356,7 +352,7 @@ public class ControlServiceImpl implements ControlService {
             for (VideoCallUser videoCallUser : videoCallUsers) {
                 videoCallUser.setVideoCallOutAt(LocalDateTime.now());
 
-                System.out.println(videoCallUser.toString()); // 디버그용
+                System.out.println(videoCallUser); // 디버그용
                 
                 videoCallUserRepository.save(videoCallUser);
             }
