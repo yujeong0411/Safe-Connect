@@ -259,10 +259,14 @@ public class ControlServiceImpl implements ControlService {
         caller.setCallerPhone(callerPhone);
 
         // 신고자가 회원인지 조회
-        Optional<User> user = userRepository.findByUserPhone(callerPhone);
-        caller.setCallerIsUser(user.isPresent());
+        User user = userRepository.findUserByUserPhone(callerPhone);
+        if(user==null){
+            caller.setCallerIsUser(false);
+        }else{
+            caller.setCallerIsUser(true);
+            caller.setCallerId(user.getUserId());
+        }
 
-        caller.setCallerIsUser(false);
         caller.setCallerIsLocationAccept(false);
         caller.setCallerAcceptedAt(LocalDateTime.now());
 
