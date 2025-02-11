@@ -12,7 +12,7 @@ import {formatPhoneNumber} from "@features/auth/servies/signupService.ts";
 const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const {
-    sessionId,
+    // sessionId,
     handleChangeSessionId,
     handleChangeUserName,
     createAndJoinSession
@@ -44,8 +44,8 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
     e.preventDefault();
     try {
       await createAndJoinSession(e,phoneNumber);
-      const inviteUrl = `/caller/join/${sessionId}?direct=true`;
-      await navigator.clipboard.writeText(window.location.origin + inviteUrl);
+      // const inviteUrl = `/caller/join/${sessionId}?direct=true`;
+      // await navigator.clipboard.writeText(window.location.origin + inviteUrl);
       onOpenChange(false)
       setIsOpen(true);
       navigate('/Control/patient-info')

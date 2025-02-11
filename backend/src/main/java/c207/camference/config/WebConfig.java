@@ -13,7 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
                 //.allowedOrigins("http://localhost:3000", "" , )// 허용할 url
                 //.allowedOrigins("/**")// 허용할 url
                 //.allowedOriginPatterns("*") // 모든 Origin 허용 (CORS 적용)
-                .allowedOrigins("http://i12c207.p.ssafy.io:80", "http://i12c207.p.ssafy.io","http://localhost:5173")
+                .allowedOrigins("http://i12c207.p.ssafy.io:80",
+                        "http://i12c207.p.ssafy.io",
+                        "http://localhost:5173",
+                        "http://localhost:3000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")//허용할 메서드
                 .allowedHeaders("*") // 허용할 헤더
                 .exposedHeaders("Authorization") // 응답에 노출 시킬 헤더->나중에 확인 필요

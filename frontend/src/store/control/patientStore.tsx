@@ -82,23 +82,32 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   },
 
   // 신고 내용 저장(수정)
-  savePatientInfo: async () => {
+  savePatientInfo: async (callId: number) => {
     try {
-      const {  formData, currentCall } = get();  // 내부 상태 가져오기
-      // 현재 선택된 회원 ID와 신고 ID 추가
+      if(!callId){
+        console.error('CallId is required');
+        return;
+      }
+
+      const { formData } = get();
       const callInfo = {
-        callId: currentCall?.callId || 0,  // 또는 별도로 관리되는 callId
-        userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
+        callId: callId,
+        userId: formData.userId || null,
         symptom: formData.symptom,
         callSummary: formData.callSummary,
-        callText:formData.callText,
+        callText: formData.callText,
       };
 
       const response = await patientService.savePatientInfo(callInfo);
+
       if (response.isSuccess) {
         set({
           patientInfo: response.data as PatientInfo,
-          currentCall:callInfo,  // 저장 성공 시 현재 신고 정보 업데이트
+          currentCall: {
+            ...formData,
+            callId,
+            userId: formData.userId || null,
+          },
         });
       }
     } catch (error) {
