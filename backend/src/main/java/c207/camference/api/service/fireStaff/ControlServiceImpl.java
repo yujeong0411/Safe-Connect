@@ -1,17 +1,13 @@
 package c207.camference.api.service.fireStaff;
 
 import c207.camference.api.dto.medi.MediCategoryDto;
-import c207.camference.api.request.control.CallEndRequest;
-import c207.camference.api.request.control.CallRoomRequest;
-import c207.camference.api.request.control.CallUpdateRequest;
-import c207.camference.api.request.control.DispatchOrderRequest;
-import c207.camference.api.request.control.ResendRequest;
+import c207.camference.api.request.control.*;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
-import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.api.service.sms.SmsService;
+import c207.camference.api.service.sse.SseEmitterService;
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -19,6 +15,7 @@ import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.FireDept;
 import c207.camference.db.entity.firestaff.FireStaff;
+import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.users.User;
@@ -30,6 +27,7 @@ import c207.camference.db.repository.call.VideoCallUserRepository;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.FireDeptRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
+import c207.camference.db.repository.patient.PatientRepository;
 import c207.camference.db.repository.report.CallRepository;
 import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
@@ -72,6 +70,7 @@ public class ControlServiceImpl implements ControlService {
     private final SseEmitterService sseEmitterService;
     private final DispatchRepository dispatchRepository;
     private final SmsService smsService;
+    private final PatientRepository patientRepository;
 
 
     @Override
@@ -200,13 +199,40 @@ public class ControlServiceImpl implements ControlService {
         Call call = callRepository.findCallByCallId(request.getCallId());
         call.setCallSummary(request.getCallSummary());
         call.setCallText(request.getCallText());
-        call.setCallTextCreatedAt(LocalDateTime.now());
+        if(!request.getCallSummary().isEmpty() || !request.getCallText().isEmpty()){
+            call.setCallTextCreatedAt(LocalDateTime.now());
+        }
+
 
         User user = null;
         List<MediCategoryDto> mediCategoryDto = null;
 
+        // patient insert
+        Patient patient = Patient.builder()
+                .callId(call.getCallId())
+                .patientBloodSugar(0)
+                .patientDiastolicBldPress(0)
+                .patientSystolicBldPress(0)
+                .patientPulseRate(0)
+                .patientTemperature(0.0f)
+                .patientSpo2(0.0f)
+                .patientMental("A")
+                .build();
+
+        // 환자가 가입자
         if (request.getUserId() != null) {
             user = userRepository.findById(request.getUserId()).orElse(null);
+
+            patient.setUserId(request.getUserId());
+            patient.setPatientIsUser(true);
+            patient.setPatientName(user.getUserName());
+            patient.setPatientGender(user.getUserGender());
+
+            int currentYear = LocalDateTime.now().getYear();
+            int birthYear = 1900 + Integer.parseInt(user.getUserBirthday().substring(0, 2));
+            int age = currentYear - birthYear;
+            patient.setPatientAge(String.valueOf(age / 10));
+
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
                     .orElse(null);
 
@@ -215,6 +241,7 @@ public class ControlServiceImpl implements ControlService {
                 mediCategoryDto = MediUtil.createMediCategoryResponse(medis);
             }
         }
+        patientRepository.save(patient);
 
         // 응답 생성
         CallUpdateResponse response = CallUpdateResponse.builder()
@@ -231,8 +258,6 @@ public class ControlServiceImpl implements ControlService {
 
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
     }
-
-
 
 
     // 상황실 직원이 '영상통화방 생성 및 url 전송' 버튼을 눌렀을 시
@@ -259,10 +284,14 @@ public class ControlServiceImpl implements ControlService {
         caller.setCallerPhone(callerPhone);
 
         // 신고자가 회원인지 조회
-        Optional<User> user = userRepository.findByUserPhone(callerPhone);
-        caller.setCallerIsUser(user.isPresent());
+        User user = userRepository.findUserByUserPhone(callerPhone);
+        if(user==null){
+            caller.setCallerIsUser(false);
+        }else{
+            caller.setCallerIsUser(true);
+            caller.setUserId(user.getUserId());
+        }
 
-        caller.setCallerIsUser(false);
         caller.setCallerIsLocationAccept(false);
         caller.setCallerAcceptedAt(LocalDateTime.now());
 
@@ -278,7 +307,7 @@ public class ControlServiceImpl implements ControlService {
         call.setFireStaff(fireStaffOpt.get());
         call.setCaller(caller);
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
-        callRepository.save(call);
+        call = callRepository.saveAndFlush(call);
 
 //        VideoCall videoCall = VideoCall.builder()
 //                .videoCallIsActivate(true)
@@ -290,18 +319,15 @@ public class ControlServiceImpl implements ControlService {
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
         videoCall.setVideoCallUrl(url);
-        videoCall.setVideoCallIsActivate(true);
-        videoCall.setVideoCallCreatedAt(LocalDateTime.now());
-        videoCallRepository.save(videoCall);
+        videoCall = videoCallRepository.saveAndFlush(videoCall);
 
 
         // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
-        videoCallUser.setVideoCallRoomId(videoCall.getVideoCallId());
+        videoCallUser.setVideoCallId(videoCall.getVideoCallId());
         videoCallUser.setVideoCallUserCategory("C");
-        videoCallUser.setVideoCallInsertAt(LocalDateTime.now());
-        videoCallUser.setVideoCallId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
+        videoCallUser.setVideoCallerId(fireStaffId); // 상황실 직원의 아이디가 들어가야 한다.
 
         videoCallUserRepository.save(videoCallUser);
 
@@ -342,7 +368,7 @@ public class ControlServiceImpl implements ControlService {
         }
 
         call.setCallFinishedAt(LocalDateTime.now());
-        System.out.println(call.toString()); // 디버그용
+        System.out.println(call); // 디버그용
         callRepository.save(call);
 
         // ---
@@ -355,7 +381,7 @@ public class ControlServiceImpl implements ControlService {
             for (VideoCallUser videoCallUser : videoCallUsers) {
                 videoCallUser.setVideoCallOutAt(LocalDateTime.now());
 
-                System.out.println(videoCallUser.toString()); // 디버그용
+                System.out.println(videoCallUser); // 디버그용
                 
                 videoCallUserRepository.save(videoCallUser);
             }
