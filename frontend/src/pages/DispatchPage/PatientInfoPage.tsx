@@ -1,13 +1,13 @@
-import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
+// src/components/pages/DispatchPage/PatientInfoPage.tsx
 import { useForm } from 'react-hook-form';
-import  Input from '@/components/atoms/Input/Input';
+import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
+import Input from '@/components/atoms/Input/Input';
 import Button from '@/components/atoms/Button/Button';
-import  TextArea from '@/components/atoms/TextArea/TextArea';
-
+import DispatchTextArea from '@/features/dispatch/components/DispatchTextArea';
 interface PatientFormData {
   name: string;
   gender: string;
-  age: number;
+  ageGroup: string;
   consciousness: string;
   preKTAS: number;
   patientContact: string;
@@ -18,11 +18,36 @@ interface PatientFormData {
   bt: number;
   spo2: number;
   bst: number;
+  symptoms: string;
+  medicalHistory: string;
+  medications: string;
+  reportSummary: string;
 }
 
 const PatientInfoPage = () => {
-  const { register, handleSubmit } = useForm<PatientFormData>();
-  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PatientFormData>({
+    defaultValues: {
+      bt: 36.5,
+    },
+  });
+
+  const ageGroups = [
+    '10대 미만',
+    '10대',
+    '20대',
+    '30대',
+    '40대',
+    '50대',
+    '60대',
+    '70대',
+    '80대',
+    '90대 이상',
+  ];
+
   const onSubmit = (data: PatientFormData) => {
     console.log(data);
   };
@@ -34,37 +59,40 @@ const PatientInfoPage = () => {
           <div>
             {/* 기본 정보 섹션 */}
             <div className="grid grid-cols-6 gap-4 items-end mb-6">
-              <Input
-                label="이름"
-                {...register('name')}
-                width="auto"
-                className="col-span-1"
-              />
+              <Input label="이름" {...register('name')} width="auto" className="col-span-1" />
               <Input
                 label="성별"
                 {...register('gender')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
-              <Input
-                label="나이"
-                type="number"
-                {...register('age')}
-                width="auto"
-                className="col-span-1"
-              />
+              <div className="col-span-1">
+                <label className="block text-gray-700 text-sm font-medium mb-1">연령대</label>
+                <select
+                  {...register('ageGroup')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">선택</option>
+                  {ageGroups.map((age) => (
+                    <option key={age} value={age}>
+                      {age}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <Input
                 label="의식상태"
                 {...register('consciousness')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="pre-KTAS"
-                type="number"
+                type="text"
+                pattern="\d*"
                 {...register('preKTAS')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="환자 연락처"
@@ -75,49 +103,54 @@ const PatientInfoPage = () => {
             </div>
 
             {/* 생체 징후 섹션 */}
-            <div className="grid grid-cols-6 gap-4 items-end mb-6">
+            <div className="grid grid-cols-7 gap-4 items-end mb-6">
               <Input
                 label="SBP"
-                type="number"
+                type="text"
+                pattern="\d*"
                 {...register('sbp')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="DBP"
-                type="number"
+                type="text"
+                pattern="\d*"
                 {...register('dbp')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="PR"
-                type="number"
+                type="text"
+                pattern="\d*"
                 {...register('pr')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="BT"
-                type="number"
-                step="0.1"
+                type="text"
+                pattern="\d*\.?\d*"
                 {...register('bt')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="SPO2"
-                type="number"
+                type="text"
+                pattern="\d*"
                 {...register('spo2')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="BST"
-                type="number"
+                type="text"
+                pattern="\d*"
                 {...register('bst')}
-                width="auto"
-                className="col-span-1"
+                width="half"
+                className="col-span-1 max-w-[140px]"
               />
               <Input
                 label="보호자 연락처"
@@ -129,45 +162,36 @@ const PatientInfoPage = () => {
 
             {/* 증상 및 진단 섹션 */}
             <div className="space-y-4">
-              <TextArea
-                value=""
-                onChange={() => {}}
-                placeholder="복통, 구토"
+              <DispatchTextArea
+                register={register('symptoms')}
+                placeholder="증상 및 특이사항"
                 className="h-20"
               />
-              <TextArea
-                value=""
-                onChange={() => {}}
-                placeholder="현재 병력을 입력하세요"
+              <DispatchTextArea
+                register={register('medicalHistory')}
+                placeholder="기저 질환"
                 className="h-20"
               />
-              <TextArea
-                value=""
-                onChange={() => {}}
-                placeholder="복용 중인 약물을 입력하세요"
+              <DispatchTextArea
+                register={register('medications')}
+                placeholder="복용 약물"
                 className="h-20"
               />
-              <TextArea
-                value=""
-                onChange={() => {}}
-                placeholder="노바스크 정 관련 정보를 입력하세요"
+              <DispatchTextArea
+                register={register('reportSummary')}
+                placeholder="신고 요약본"
                 className="h-20"
-              />
-            </div>
-
-            <div className="mt-4">
-              <Input
-                label="신고 일시"
-                value="2025-01-19 10:11"
-                readOnly  
-                width="auto"
               />
             </div>
           </div>
-          
+
           <div className="flex justify-end gap-4">
-            <Button variant="gray" type="button">삭제</Button>
-            <Button variant="blue" type="submit">저장</Button>
+            <Button variant="gray" type="button">
+              삭제
+            </Button>
+            <Button variant="blue" type="submit">
+              저장
+            </Button>
           </div>
         </form>
       </div>

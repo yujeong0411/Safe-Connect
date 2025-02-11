@@ -32,9 +32,8 @@ const DispatchTable = ({
               <th className="px-4 py-3 text-left">이송 요청</th>
               <th className="px-4 py-3 text-left">이송 선정 일시</th>
               <th className="px-4 py-3 text-left">이송 종료 일시</th>
-              <th className="px-4 py-3 text-left">구조 상세정보</th>
-              <th className="px-4 py-3 text-left">환자 정보 작성</th>
-              <th className="px-4 py-3 text-left">영상통화 연결</th>
+              <th className="px-4 py-3 text-left">이송송 상세정보</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -53,12 +52,6 @@ const DispatchTable = ({
                 <td className="px-4 py-3">{row.transferCompleteTime}</td>
                 <td className="px-4 py-3">
                   <Button variant="blue" size="sm">상세보기</Button>
-                </td>
-                <td className="px-4 py-3">
-                  <Button variant="blue" size="sm">작성하기</Button>
-                </td>
-                <td className="px-4 py-3">
-                  <Button variant="blue" size="sm">영상통화</Button>
                 </td>
               </tr>
             ))}
