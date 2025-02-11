@@ -34,7 +34,6 @@ const forceOverrideBrowserCheck = () => {
 
 export const useOpenViduStore = create<openViduStore>((set, get) => ({
   isActive: false,
-
   callId : undefined,
   OV: new OpenVidu(),
   sessionId: '',

@@ -6,9 +6,12 @@ import { usePatientStore } from '@/store/control/patientStore.tsx';
 import {FormData} from '@/types/common/Patient.types.ts'
 import React from 'react';
 import { useEffect } from 'react';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 const ControlPatientInfoForm = () => {
   const { patientInfo, formData, updateFormData, searchByPhone, savePatientInfo } = usePatientStore();
+  const {callId} = useOpenViduStore();
+
 
   // patientInfo가 변경될 때 폼 데이터 업데이트
   useEffect(() => {
@@ -77,7 +80,7 @@ updateFormData({userPhone: formattedPhone});
 
   // 저장 핸들러
   const handleSubmit = async () => {
-    await savePatientInfo();
+    await savePatientInfo(callId||0);
   };
 
   return (
