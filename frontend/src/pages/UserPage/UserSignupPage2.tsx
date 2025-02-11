@@ -3,10 +3,23 @@ import SignupTemplate from '@features/auth/components/SignupTemplate.tsx';
 import { useNavigate } from 'react-router-dom';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { validateSignupForm } from '@features/auth/servies/signupService.ts';
+import { useState } from 'react';
+import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
+import { CircleAlert } from "lucide-react";
 
 const UserSignupPage2 = () => {
   const navigate = useNavigate();
   const { formData } = useSignupStore();
+  const [showAlert, setShowAlert] = useState(false);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  const handleShowAlert = (errors: string[]) => {
+    setErrorMessages(errors);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 3000);
+  };
 
   const handleNext = () => {
     const validationResults = validateSignupForm(formData);
@@ -49,16 +62,33 @@ const UserSignupPage2 = () => {
         errors.push('주민등록번호 앞 7자리를 입력해주세요');
       }
 
-      alert(errors.join('\n'));
+      handleShowAlert(errors);
       return;
     }
 
     navigate('/user/signup/medi', { state: { formData } });
   };
   return (
+      <>
     <SignupTemplate currentStep={2} buttonText="다음" onButtonClick={handleNext}>
       <SignupInfoForm />
     </SignupTemplate>
+
+        {showAlert && (
+            <div className="fixed left-2/3 top-[300px] -translate-x-1/2 z-[9999]">
+              <Alert
+                  variant="destructive"
+                  className="w-[400px] shadow-lg bg-white [&>svg]:text-red-500 text-red-500"
+              >
+                <CircleAlert className="h-6 w-6" />
+                <AlertTitle className="text-xl ml-2 font-sans">입력 오류</AlertTitle>
+                <AlertDescription className="text-base m-2 whitespace-pre-line font-sans">
+                  {errorMessages.join('\n')}
+                </AlertDescription>
+              </Alert>
+            </div>
+        )}
+      </>
   );
 };
 

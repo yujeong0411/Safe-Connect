@@ -32,6 +32,16 @@ export const useLoadUserInfo = (type: 'user' | 'medi') => {
         const mediData: MediCategory[] = await fetchMediInfo();
         console.log('서버에서 받은 의료 데이터:', mediData);
 
+        // mediData가 null이면 빈 배열로 초기화
+        if (!mediData) {
+          setFormData({
+            ...formData,
+            diseaseId: [],
+            medicationId: [],
+          });
+          return [];
+        }
+
         // 의료 데이터 형식에 맞게 변환 (ID 추출)
         const diseaseIds =
           mediData
