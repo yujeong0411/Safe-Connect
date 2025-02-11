@@ -28,8 +28,8 @@ const UserFindTemplate = ({
 
       {/*타이틀 영역 */}
       <div className="flex flex-col items-center justify-center w-full bg-banner h-[300px] p-[50px] text-[#FFFFFF]">
-        <h1 className="font-bold text-[50px] mb-10">{title}</h1>
-        <p className="text-[20px]">{subtitle}</p>
+        <h1 className="font-sans text-[50px] mb-10">{title}</h1>
+        <p className="text-[20px] font-sans">{subtitle}</p>
       </div>
 
       {/* 메인 컨텐츠 영역 */}
@@ -37,7 +37,7 @@ const UserFindTemplate = ({
         <div className="w-full max-w-2xl">{children}</div>
       </main>
 
-      <div className="flex flex-col w-full space-y-5 mt-10 max-w-xl mx-auto mb-5">
+      <div className="flex flex-col w-full space-y-5 max-w-xl mx-auto mb-5">
         <Button onClick={primaryButton.onClick}>{primaryButton.text}</Button>
         {/* secondaryButton이 존재할 때만 렌더링 */}
         {secondaryButton && (
