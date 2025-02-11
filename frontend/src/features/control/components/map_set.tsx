@@ -18,16 +18,16 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
     });
 
     // 신고자 위치 정보 업데이트 함수
-    const updateCallerLocation = (lat: number, lng: number) => {
-        setCallerLocation({ lat, lng });
-        if (map) {
-            // 지도 중심을 신고자 위치로 이동
-            map.setCenter(new kakao.maps.LatLng(lat, lng));
-
-            // 소방서 재검색
-            searchNearbyFireStations(lat, lng);
-        }
-    };
+    // const updateCallerLocation = (lat: number, lng: number) => {
+    //     setCallerLocation({ lat, lng });
+    //     if (map) {
+    //         // 지도 중심을 신고자 위치로 이동
+    //         map.setCenter(new kakao.maps.LatLng(lat, lng));
+    //
+    //         // 소방서 재검색
+    //         searchNearbyFireStations(lat, lng);
+    //     }
+    // };
 
     // 주변 소방서 검색 함수
     const searchNearbyFireStations = (lat: number, lng: number) => {

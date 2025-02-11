@@ -1,6 +1,6 @@
 import {CallInfo} from "@/types/common/Patient.types.ts";
 import {PatientInfo} from "@/types/common/Patient.types.ts";
-import {PatientDetail} from "@types/hospital/hospitalTransfer.types.ts";
+import {PatientDetail} from "@/types/hospital/hospitalTransfer.types.ts";
 
 // 기본 응답 타입 템플릿 생성
 export interface BaseResponse<T> {

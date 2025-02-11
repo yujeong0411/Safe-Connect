@@ -8,7 +8,7 @@ import { ToastAction } from '@components/ui/toast.tsx';
 import { useSSE } from '@/hooks/useSSE.ts';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
-import { format } from 'date-fns';
+//import { format } from 'date-fns';
 
 interface HospitalMainPageProps {
   type: 'request' | 'accept'; // 리터럴 타입으로 정의
