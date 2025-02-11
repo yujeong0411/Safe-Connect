@@ -128,7 +128,11 @@ public class SecurityConfig {
     public CorsConfigurationSource apiConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://i12c207.p.ssafy.io", "https://i12c207.p.ssafy.io","http://localhost"));
+        configuration.setAllowedOrigins(List.of(
+                "http://i12c207.p.ssafy.io",
+                "https://i12c207.p.ssafy.io",
+                "http://localhost:5173",
+                "http://localhost:3000"));
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -136,7 +140,6 @@ public class SecurityConfig {
         configuration.setExposedHeaders(Arrays.asList(
                 "Authorization",
                 "access",        // access 토큰 헤더 추가
-//                "refresh",       // 필요한 경우 refresh 토큰 헤더도 추가
                 "Content-Type"
         ));
 
