@@ -20,6 +20,7 @@ public class PatientDetailResponse {
     private Character patientGender;        // 성별
     private String patientAge;           // 나이
     private String patientMental;        // 의식상태
+    private String patientPreKtas;       // preKtas
     private Integer patientSystolicBldPress;  // SBP
     private Integer patientDiastolicBldPress; // DBP
     private Integer patientPulseRate;     // PR
@@ -41,6 +42,7 @@ public class PatientDetailResponse {
         this.patientGender = patient.getPatientGender();
         this.patientAge = patient.getPatientAge();
         this.patientMental = patient.getPatientMental();
+        this.patientPreKtas = patient.getPatientPreKtas();
         this.patientSymptom = patient.getPatientSympthom();
 
         if (patient.getPatientIsUser()){
