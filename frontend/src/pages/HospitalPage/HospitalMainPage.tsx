@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast.ts';
 import { ToastAction } from '@components/ui/toast.tsx';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
-import { format } from 'date-fns';
+//import { format } from 'date-fns';
 import {useEffect} from "react";
 import {EventSourcePolyfill} from "event-source-polyfill";
 
