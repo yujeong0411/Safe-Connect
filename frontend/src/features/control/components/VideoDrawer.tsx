@@ -28,7 +28,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     }
 
     try {
-      await controlService.endCall(Number(callId))
+      await controlService.endCall(callId)
       await leaveSession()
       alert('신고가 종료되었습니다.')
       setIsOpen(false);  // Drawer 닫기
@@ -47,7 +47,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
     // 전화번호를 어떻게 가져오는지???
     try {
-      await controlService.resendUrl(Number(callId));
+      await controlService.resendUrl(callId);
       alert("URL이 재전송되었습니다.");
     } catch (error) {
       console.error("URL 재전송 실패", error);
@@ -57,7 +57,16 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   // 신고내용 요약  (calltext는 받을수있는가?)
   const handleCallSummary = async () => {
     try {
-      await fetchCallSummary(Number(callId));
+      if (!callId) {
+        console.log('Call ID:', callId);  // callId가 undefined인지 확인
+        alert('현재 진행 중인 통화가 없습니다.');
+        return;
+      }
+
+      // callId의 타입 확인을 위한 로그
+      console.log('Attempting to fetch summary for callId:', callId);
+
+      await fetchCallSummary(callId);
     } catch (error) {
       console.error("신고내용 요약 실패", error);
     }

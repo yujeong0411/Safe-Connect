@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const axiosInstance = axios.create({
-  baseURL 
+  baseURL
   // : import.meta.env.MODE === 'production'
   //   ? import.meta.env.VITE_BASE_URL
     : '/api',
@@ -68,7 +68,7 @@ axiosInstance.interceptors.response.use(
 
       try {
           console.log('토큰 갱신 요청 시작');
-          const response = await axiosInstance.post('/api/reissue', {}, {
+          const response = await axiosInstance.post('/reissue', {}, {
               withCredentials: true
           });
           console.log('토큰 갱신 응답 전체:', response);

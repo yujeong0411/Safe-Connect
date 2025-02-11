@@ -10,8 +10,17 @@ import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 const ControlPatientInfoForm = () => {
   const { patientInfo, formData, updateFormData, searchByPhone, savePatientInfo } = usePatientStore();
-  const {callId} = useOpenViduStore();
+  const {callId, callerPhone} = useOpenViduStore();
 
+
+  // 영상통화 생성 시 전화번도 자동 검색
+  useEffect(() => {
+    console.log('Caller Phone changed:', callerPhone);
+    if (callerPhone) {
+      handleSearch(callerPhone);
+    }
+  }, [callerPhone])
+   ;
 
   // patientInfo가 변경될 때 폼 데이터 업데이트
   useEffect(() => {
@@ -82,6 +91,8 @@ updateFormData({userPhone: formattedPhone});
   const handleSubmit = async () => {
     await savePatientInfo(callId||0);
   };
+
+
 
   return (
     <div className="flex w-full items-center justify-center">

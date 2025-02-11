@@ -19,6 +19,8 @@ export interface openViduStore {
   publisher: Publisher | null;
   subscribers: Subscriber[];
   localUser: LocalUser
+  callStartedAt:string
+  callerPhone:string
 
   // Actions
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => void;

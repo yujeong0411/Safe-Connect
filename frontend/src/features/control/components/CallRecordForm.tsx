@@ -41,15 +41,22 @@ const CallRecordForm = () => {
   // 24시간 이내 필터링
   // 신고는 자동으로 시간순으로 쌓인다.
   const filteredCallList = useMemo(() => {
-    if (!is24HourFilter) return callList;
+    let processedList = [...callList]; // 원본 배열을 복사
 
-    const twentyFourHoursAgo = new Date();
-    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+    if (is24HourFilter) {
+      const twentyFourHoursAgo = new Date();
+      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
-    return callList.filter(call => {
-      const callTime = new Date(call.callStartedAt)
-      return callTime >= twentyFourHoursAgo;
-    });
+      processedList = processedList.filter(call => {
+        const callTime = new Date(call.callStartedAt)
+        return callTime >= twentyFourHoursAgo;
+      });
+    }
+
+    // 가장 최근 시간이 먼저 오도록 역순 정렬
+    return processedList.sort((a, b) =>
+        new Date(b.callStartedAt).getTime() - new Date(a.callStartedAt).getTime()
+    );
   }, [callList, is24HourFilter]);
 
 

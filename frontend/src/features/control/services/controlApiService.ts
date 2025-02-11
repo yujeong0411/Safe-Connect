@@ -108,7 +108,7 @@ export const controlService = {
   // 신고내용 요약
   callSummary: async (callId:number): Promise<CallSummaryResponse> => {
     try {
-      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', {params:{callId}})
+      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', {callId})
       console.log("신고내용 요약", response.data)
       return response.data
     } catch (error: any) {
@@ -146,12 +146,12 @@ export const fetchDispatchGroups = async () => {
 }
 
 // 출동 지령
-export const orderDispatch = async (dispatchGroupId:number, callId?:number) => {
+export const orderDispatch = async (dispatchGroupId:number, callId:number) => {
     try {
       // 테스트용 임시 데이터
-      const mockCallId = 1; // 실제 callId가 없을 때 사용할 임시 ID
+      //const mockCallId = 1; // 실제 callId가 없을 때 사용할 임시 ID
 
-      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group_order', {dispatchGroupId, callId: callId || mockCallId})
+      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group_order', {dispatchGroupId, callId})
       console.log("출동 지령 성공", response.data);
       return response.data;
     } catch (error: any) {

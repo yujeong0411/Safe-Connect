@@ -5,6 +5,7 @@ import { usePatientStore } from '@/store/control/patientStore.tsx';
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { CircleCheckBig, CircleAlert } from 'lucide-react';
 import { useState } from 'react';
+import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 
 const ProtectorNotifyDialog = ({ open, onOpenChange }: DialogProps) => {
   const { sendProtectorMessage, patientInfo } = usePatientStore();
@@ -14,6 +15,8 @@ const ProtectorNotifyDialog = ({ open, onOpenChange }: DialogProps) => {
     description: '',
     type: 'default' as 'default' | 'destructive',
   });
+  const {callStartedAt} = useOpenViduStore()
+
 
   // 알림창 표시 핸들러
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -66,7 +69,16 @@ const ProtectorNotifyDialog = ({ open, onOpenChange }: DialogProps) => {
                 [Safe Connect] 응급 신고 접수 알림 <br />
                 <br />[{patientInfo?.userName || '환자'}]님의 119 신고가 접수되었습니다.
                 <br />
-                ▪️신고 시각 : 2024.01.17 14:30
+                ▪️신고 시각 : {callStartedAt
+                  ? new Date(callStartedAt).toLocaleString('ko-KR', {
+                    year: '2-digit',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                  }).replace(/\./g, '.').replace(/ /g, ' ')
+                  : '알 수 없음'}
                 <br />
                 ▪️현재 상태 : 구급대원 출동 중<br />
                 <br />
