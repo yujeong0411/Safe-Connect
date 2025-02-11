@@ -13,7 +13,6 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<kakao.maps.Marker[]>([]);
 
-  // 지도 초기화
   useEffect(() => {
     if (!currentLocation || !window.kakao) return;
 
@@ -33,7 +32,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
       position: new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng),
       map: map,
       image: new window.kakao.maps.MarkerImage(
-        '/icons/current-location.png',  // 현재 위치 아이콘
+        '/src/assets/image/ambulance.png',  // 앰뷸런스 이미지
         new window.kakao.maps.Size(35, 35),
         { offset: new window.kakao.maps.Point(17, 17) }
       )
@@ -44,18 +43,14 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
     };
   }, [currentLocation]);
 
-  // 병원 마커 업데이트
   useEffect(() => {
     if (!mapRef.current || !window.kakao) return;
 
-    // 기존 마커 제거
     markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
 
-    // 새 마커 추가
     const bounds = new window.kakao.maps.LatLngBounds();
 
-    // 현재 위치를 bounds에 추가
     if (currentLocation) {
       bounds.extend(new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng));
     }
@@ -70,9 +65,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
         position: position,
         map: mapRef.current,
         image: new window.kakao.maps.MarkerImage(
-          hospital.requested 
-            ? '/icons/hospital-requested.png'  // 요청된 병원 아이콘
-            : '/icons/hospital.png',           // 일반 병원 아이콘
+          '/src/assets/image/emergency.png',  // 응급실 이미지
           new window.kakao.maps.Size(35, 35),
           { offset: new window.kakao.maps.Point(17, 17) }
         )
@@ -104,7 +97,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
     });
 
     if (!bounds.isEmpty()) {
-      mapRef.current.setBounds(bounds, 50); // 여백 50px
+      mapRef.current.setBounds(bounds, 50);
     }
   }, [hospitals, currentLocation]);
 
