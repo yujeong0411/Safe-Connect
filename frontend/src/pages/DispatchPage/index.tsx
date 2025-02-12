@@ -80,26 +80,25 @@ const DispatchPage = () => {
 
   return (
     <DispatchMainTemplate logoutDirect={() => Promise.resolve()}>
-    {/* Alert UI */}
-    {showAlert && (
-      <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">
-        <Alert
-          variant={alertConfig.type}
-          className={`w-[400px] shadow-lg bg-white ${
-            alertConfig.type === 'default'
-              ? '[&>svg]:text-blue-600 text-blue-600'
-              : '[&>svg]:text-red-500 text-red-500'
-          }`}
-        >
-          <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-          <AlertDescription className="text-sm m-2">
-            {alertConfig.description}
-          </AlertDescription>
-        </Alert>
-      </div>
-    )}
+      {/* Alert UI */}
+      {showAlert && (
+        <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">
+          <Alert
+            variant={alertConfig.type}
+            className={`w-[400px] shadow-lg bg-white ${
+              alertConfig.type === 'default'
+                ? '[&>svg]:text-blue-600 text-blue-600'
+                : '[&>svg]:text-red-500 text-red-500'
+            }`}
+          >
+            <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+            <AlertDescription className="text-sm m-2">
+              {alertConfig.description}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
 
-    <DispatchMainTemplate>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">출동 현황</h1>
         {loading ? (
