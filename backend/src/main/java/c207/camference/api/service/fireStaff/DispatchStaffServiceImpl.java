@@ -7,9 +7,10 @@ import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
+import c207.camference.api.response.dispatchstaff.DispatchGroupPatientTransferResponse;
 import c207.camference.api.response.dispatchstaff.FinishDispatchResponse;
 import c207.camference.api.response.dispatchstaff.TransferUpdateResponse;
-import c207.camference.api.response.hospital.PatientTransferResponse;
+import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
@@ -277,6 +278,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             throw new RuntimeException("활성화된 병원이 없습니다.");
         }
 
+        List<String> reqHospitalNames = new ArrayList<>();
         for (Hospital hospital : activeHospitals) {
             // reqHospital insert
             ReqHospital reqHospital = ReqHospital.builder()
@@ -285,12 +287,14 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                     .reqHospitalCreatedAt(LocalDateTime.now())
                     .build();
             reqHospitalRepository.save(reqHospital);
+            reqHospitalNames.add(hospital.getHospitalName());
 
-            PatientTransferResponse response = new PatientTransferResponse(dispatch, patient, userMediDetailRepository);
-
-            // SSE
-            sseEmitterService.transferRequest(request, response);
         }
+        DispatchGroupPatientTransferResponse sseDispatchGroupResponse = new DispatchGroupPatientTransferResponse(dispatch, reqHospitalNames, patient);
+        HospitalPatientTransferResponse sseHospitalResponse = new HospitalPatientTransferResponse(dispatch, patient, userMediDetailRepository);
+
+        // SSE
+        sseEmitterService.transferRequest(sseDispatchGroupResponse, sseHospitalResponse);
         return ResponseEntity.ok().body(ResponseUtil.success("응급실에 환자 수용 요청 전송 성공"));
     }
 

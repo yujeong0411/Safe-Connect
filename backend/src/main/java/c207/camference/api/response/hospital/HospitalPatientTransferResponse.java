@@ -18,13 +18,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
-public class PatientTransferResponse {
+public class HospitalPatientTransferResponse {
 
     private final Integer dispatchId;
     private final Patient patient;
     private List<MediCategoryDto> mediInfo;
 
-    public PatientTransferResponse(Dispatch dispatch, Patient patient, UserMediDetailRepository userMediDetailRepository) {
+    public HospitalPatientTransferResponse(Dispatch dispatch, Patient patient, UserMediDetailRepository userMediDetailRepository) {
             this.dispatchId = dispatch.getDispatchId();
             this.patient = Patient.builder()
                     .patientId(patient.getPatientId())

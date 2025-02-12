@@ -4,8 +4,11 @@ import c207.camference.api.request.control.DispatchOrderRequest;
 import c207.camference.api.request.dispatchstaff.DispatchCurrentPositionRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
 import c207.camference.api.request.user.ShareLocationRequest;
+import c207.camference.api.response.dispatchstaff.DispatchGroupPatientTransferResponse;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
-import c207.camference.api.response.hospital.PatientTransferResponse;
+import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
+import c207.camference.db.entity.hospital.Hospital;
+import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.util.response.ResponseUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -14,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -24,6 +28,11 @@ public class SseEmitterService {
     private final Map<String, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
+    private final HospitalRepository hospitalRepository;
+
+    public SseEmitterService(HospitalRepository hospitalRepository) {
+        this.hospitalRepository = hospitalRepository;
+    }
 
 
 /*
@@ -107,12 +116,19 @@ public class SseEmitterService {
     }
 
     // 병원-구급팀 환자 이송 요청
-    public void transferRequest(PatientTransferRequest dispatchGroupData, PatientTransferResponse hospitalData) {
+    public void transferRequest(DispatchGroupPatientTransferResponse dispatchGroupData, HospitalPatientTransferResponse hospitalData) {
         // 병원에 응답 전송
         List<Integer> daedHospitalEmitters = new ArrayList<>();
         // 이송 요청 받은 병원에만
         hospitalEmitters.forEach((clientId, emitter) -> {
-            if (dispatchGroupData.getHospitalIds().contains(clientId)) {
+            List<String> hospitalNames = dispatchGroupData.getHospitalNames();
+            List<Integer> hospitalIds = new ArrayList<>();
+            for (String hospitalName : hospitalNames) {
+                Hospital hospital = hospitalRepository.findByHospitalName(hospitalName)
+                        .orElseThrow(() -> new RuntimeException("해당 병원을 찾을 수 없습니다."));
+                hospitalIds.add(hospital.getHospitalId());
+            }
+            if (hospitalIds.contains(clientId)) {
                 try {
                     emitter.send(SseEmitter.event()
                             .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
@@ -129,7 +145,7 @@ public class SseEmitterService {
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
-                        .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 접수되었습니다")));
+                        .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 접수되었습니다.")));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
             }
@@ -139,14 +155,14 @@ public class SseEmitterService {
 
     // 환자 이송요청 수락/거절 알림
     public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted) {
-        String answer = accepted ? "환자 이송 요청 승인" : "환자 이송 요청 거절";
+        String answer = accepted ? "환자 이송 요청이 승인되었습니다." : "환자 이송 요청 거절되었습니다.";
 
         // to 구급팀
 //        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
-                emitter.send(SseEmitter.event().name("transfer response")
+                emitter.send(SseEmitter.event()
                         .data(ResponseUtil.success(response, answer)));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
