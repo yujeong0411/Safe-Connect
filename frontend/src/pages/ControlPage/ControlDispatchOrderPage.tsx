@@ -170,12 +170,12 @@ const ControlDispatchOrderPage = () => {
   }
 
 
-  // 예상 시간 계산 (카카오 제공 안함.)
-  const calculatedEstimatedTime = (distanceInMeters: string) => {
-    const distance = parseInt(distanceInMeters);
-    const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
-    return Math.round(distance / speedInMetersPerMinute);
-  };
+  // 예상 시간 계산 (카카오 제공 안함.)   -> TMAP 대체함
+  // const calculatedEstimatedTime = (distanceInMeters: string) => {
+  //   const distance = parseInt(distanceInMeters);
+  //   const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
+  //   return Math.round(distance / speedInMetersPerMinute);
+  // };
 
   // 소방팀 선택 처리
   const handleSelectTeam = (dispatchGroupId: number) => {
@@ -246,12 +246,12 @@ const ControlDispatchOrderPage = () => {
                   <div className="mt-2 text-sm space-y-1">
                     <div className="flex justify-between">
                       <span>거리</span>
-                      <span className="font-medium">{station.distance}m</span>
+                      <span className="font-medium">{station.distance}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>도착 예상 시간</span>
                       <span className="font-medium">
-                        {calculatedEstimatedTime(station.distance)}분
+                        {station.eta}
                       </span>
                     </div>
                   </div>
