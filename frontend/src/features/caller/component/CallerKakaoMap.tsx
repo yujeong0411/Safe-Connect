@@ -1,17 +1,17 @@
+// CallerKakaoMap.tsx
 import { useState, useEffect } from 'react';
 import { CustomOverlayMap, Map, MapMarker, MapTypeControl, ZoomControl } from 'react-kakao-maps-sdk';
 import { callerService } from '@/features/caller/services/callerApiService.ts';
 import useKakaoLoader from '@/hooks/useKakaoLoader';
 import { Aed } from '@/types/common/aed.types.ts';
+import { useLocationStore } from '@/store/location/locationStore.tsx';
 
 const CallerKakaoMap = () => {
   useKakaoLoader();
-  const [state, setState] = useState({
-    center: { lat: 33.450701, lng: 126.570667 },
-    isLoading: true,
-  });
+  const { center, isLoading } = useLocationStore();
   const [aedList, setAedList] = useState<Aed[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
+
   const fetchAedLocations = async (lat: number, lng: number) => {
     try {
       const response = await callerService.searchAed(lat, lng);
@@ -21,36 +21,16 @@ const CallerKakaoMap = () => {
     }
   };
 
-  // 사용자 현재 위치 가져오기
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const newCenter = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setState({
-            center: newCenter,
-            isLoading: false,
-          });
-          fetchAedLocations(newCenter.lat, newCenter.lng);
-        },
-        () => {
-          setState({
-            center: { lat: 37.566826, lng: 126.9786567 }, // 서울시청 좌표 (기본값)
-            isLoading: false,
-          });
-
-        }
-      );
+    if (!isLoading) {
+      fetchAedLocations(center.lat, center.lng);
     }
-  }, []);
+  }, [center, isLoading]);
 
   return (
     <Map
       id="map"
-      center={state.center}
+      center={center}
       style={{
         width: '100%',
         height: '100%',
@@ -58,9 +38,9 @@ const CallerKakaoMap = () => {
       level={5}
     >
       {/* 현재 위치 마커 */}
-      {!state.isLoading && (
+      {!isLoading && (
         <MapMarker
-          position={state.center}
+          position={center}
           image={{
             src: 'https://cdn-icons-png.flaticon.com/512/7193/7193391.png',
             size: { width: 64, height: 69 },
@@ -90,7 +70,6 @@ const CallerKakaoMap = () => {
             </div>
           </CustomOverlayMap>
 
-          {/* 선택된 마커의 정보 창 */}
           {selectedMarker === aed.aedId && (
             <CustomOverlayMap
               position={{ lat: aed.aedLatitude, lng: aed.aedLongitude }}
