@@ -16,8 +16,6 @@ const HospitalList = ({
   searchRadius,
   onSearch,
   onBulkRequest,
-  // onIncreaseRadius, 
-  // onDecreaseRadius, 
   isSearching
 }: HospitalListProps) => {
   return (
