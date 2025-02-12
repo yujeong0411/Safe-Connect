@@ -4,5 +4,14 @@ import lombok.Getter;
 
 @Getter
 public class PreKtasRequest {
-    Integer patientId;
+    Integer patientAge; // 나이
+    Integer patientBloodSugar; // 혈당
+    Integer patientDiastolicBldPress; // 혈압최소
+    Integer patientSystolicBldPress; // 혈압최대
+    Integer patientBreatheRate; // 호흡수
+    Float patientTemperature; // 체온
+    Float patientSpo2; // 산소포화도
+    String patientMental; // 의식상태
+    String patientSympthom; // 증상
+
 }

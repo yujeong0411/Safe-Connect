@@ -144,7 +144,7 @@ public class WebRtcController {
 
         String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
         String mode = "summary";
-        String summary = webRtcService.textSummary(text, mode);
+        String summary = webRtcService.textSummary(text);
 
         webRtcService.saveSummary(Integer.parseInt(callId), text, summary);
 
