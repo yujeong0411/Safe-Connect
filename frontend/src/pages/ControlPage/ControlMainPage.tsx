@@ -23,7 +23,7 @@ const ControlMainPage = () => {
 
       // SSE 연결
       // eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${controlLoginId}`);
-      eventSource = new EventSource(`https://i12c207.p.ssafy.io/control/subscribe?clientId=${controlLoginId}`);
+      eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/subscribe?clientId=${controlLoginId}`);
 
       // 메시지 수신 처리
       eventSource.onmessage = (event) => {

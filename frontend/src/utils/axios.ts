@@ -16,7 +16,7 @@ export const axiosInstance = axios.create({
 });
 
 // 요청 인터셉터  (요청 보내기 전에 실행)
-axiosInstance.interceptors.request.use(
+axiosInstance.interceptors.request.use(   
   (config) => {
     console.log('Request Config Details:', {
       url: config.url,

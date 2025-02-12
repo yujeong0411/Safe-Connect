@@ -47,7 +47,7 @@ const DispatchPage = () => {
 
     // SSE 연결
     // const eventSource = new EventSource(`http://localhost:8080/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
-    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
 
     // 메시지 수신 처리
     eventSource.onmessage = (event) => {
