@@ -1,125 +1,114 @@
-import { useState, useEffect } from 'react';
-import { Map, MapMarker, MapTypeControl, ZoomControl } from 'react-kakao-maps-sdk';
+// src/features/dispatch/components/HospitalKakaoMap.tsx
+import { useEffect, useRef } from 'react';
 import useKakaoLoader from '@/hooks/useKakaoLoader';
-import { KakaoMapProps } from '../types/hospital.types';
+import { Hospital } from '../types/hospital.types';
 
-const HospitalKakaoMap = ({ FindHospitals }: KakaoMapProps) => {
+interface HospitalKakaoMapProps {
+  currentLocation: { lat: number; lng: number } | null;
+  hospitals: Hospital[];
+}
+
+const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps) => {
   useKakaoLoader();
-  const [map, setMap] = useState<kakao.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<any[]>([]);
-  const [info, setInfo] = useState<any | null>(null);
-  const [state, setState] = useState({
-    center: { lat: 33.450701, lng: 126.570667 },
-    isLoading: true,
-  });
+  const mapRef = useRef<kakao.maps.Map | null>(null);
+  const markersRef = useRef<kakao.maps.Marker[]>([]);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setState({
-            center: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            },
-            isLoading: false,
-          });
-        },
-        (_) => {
-          setState({
-            center: { lat: 37.566826, lng: 126.9786567 },
-            isLoading: false,
-          });
-        }
-      );
+    if (!currentLocation || !window.kakao) return;
+
+    const container = document.getElementById('map');
+    if (!container) return;
+
+    const options = {
+      center: new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng),
+      level: 3
+    };
+
+    const map = new window.kakao.maps.Map(container, options);
+    mapRef.current = map;
+
+    // 현재 위치 마커 추가
+    const currentLocationMarker = new window.kakao.maps.Marker({
+      position: new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng),
+      map: map,
+      image: new window.kakao.maps.MarkerImage(
+        '/src/assets/image/ambulance.png',  // 앰뷸런스 이미지
+        new window.kakao.maps.Size(35, 35),
+        { offset: new window.kakao.maps.Point(17, 17) }
+      )
+    });
+
+    return () => {
+      currentLocationMarker.setMap(null);
+    };
+  }, [currentLocation]);
+
+  useEffect(() => {
+    if (!mapRef.current || !window.kakao) return;
+
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    const bounds = new window.kakao.maps.LatLngBounds();
+
+    if (currentLocation) {
+      bounds.extend(new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng));
     }
-  }, []);
 
-  useEffect(() => {
-    if (!map) return;
+    hospitals.forEach(hospital => {
+      const position = new window.kakao.maps.LatLng(
+        parseFloat(hospital.y),
+        parseFloat(hospital.x)
+      );
 
-    const ps = new kakao.maps.services.Places();
-    ps.keywordSearch(
-      '응급실',
-      (data, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-          const bounds = new kakao.maps.LatLngBounds();
-          const newMarkers = data.map((place) => {
-            const marker = {
-              position: {
-                lat: parseFloat(place.y),
-                lng: parseFloat(place.x),
-              },
-              content: place.place_name,
-              distance: place.distance,
-            };
-            bounds.extend(new kakao.maps.LatLng(marker.position.lat, marker.position.lng));
-            return marker;
-          });
+      const marker = new window.kakao.maps.Marker({
+        position: position,
+        map: mapRef.current,
+        image: new window.kakao.maps.MarkerImage(
+          '/src/assets/image/emergency.png',  // 응급실 이미지
+          new window.kakao.maps.Size(35, 35),
+          { offset: new window.kakao.maps.Point(17, 17) }
+        )
+      });
 
-          setMarkers(newMarkers);
-          FindHospitals && FindHospitals(data);
-          map.setBounds(bounds);
-        }
-      },
-      {
-        location: new kakao.maps.LatLng(state.center.lat, state.center.lng),
-        radius: 10000,
-      }
-    );
-  }, [map, state.center]);
+      // 인포윈도우 생성
+      const infowindow = new window.kakao.maps.InfoWindow({
+        content: `
+          <div class="p-2">
+            <strong>${hospital.place_name}</strong>
+            <p>${hospital.distance}km</p>
+            ${hospital.requested ? '<p style="color: #666;">(요청됨)</p>' : ''}
+          </div>
+        `
+      });
+
+      // 마커 클릭 이벤트
+      window.kakao.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(mapRef.current, marker);
+      });
+
+      // 지도 클릭 시 인포윈도우 닫기
+      window.kakao.maps.event.addListener(mapRef.current, 'click', function() {
+        infowindow.close();
+      });
+
+      markersRef.current.push(marker);
+      bounds.extend(position);
+    });
+
+    if (!bounds.isEmpty()) {
+      mapRef.current.setBounds(bounds, 50);
+    }
+  }, [hospitals, currentLocation]);
 
   return (
-    <Map
-      id="map"
-      center={state.center}
-      style={{
-        width: '100%',
-        height: '100%',
-      }}
-      level={4}
-      onCreate={setMap}
-    >
-      {!state.isLoading && (
-        <MapMarker
-          position={state.center}
-          image={{
-            src: 'https://cdn-icons-png.flaticon.com/512/7193/7193391.png',
-            size: { width: 64, height: 69 },
-            options: { offset: { x: 27, y: 69 } },
-          }}
-          title="현재 위치"
-        />
+    <div id="map" style={{ width: '100%', height: '100%' }}>
+      {!currentLocation && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <p>위치 정보를 불러오는 중입니다...</p>
+        </div>
       )}
-
-      {markers.map((marker) => (
-        <MapMarker
-          key={`${marker.content}-${marker.position.lat},${marker.position.lng}`}
-          position={marker.position}
-          onClick={() => setInfo(marker)}
-          image={{
-            src: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-            size: {
-              width: 64,
-              height: 69,
-            },
-            options: {
-              offset: {
-                x: 27,
-                y: 69,
-              },
-            },
-          }}
-        >
-          {info && info.content === marker.content && (
-            <div style={{ color: '#000' }}>{marker.content}</div>
-          )}
-        </MapMarker>
-      ))}
-
-      <MapTypeControl position={'TOPLEFT'} />
-      <ZoomControl position={'LEFT'} />
-    </Map>
+    </div>
   );
 };
 
