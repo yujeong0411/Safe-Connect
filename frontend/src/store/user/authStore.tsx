@@ -4,6 +4,7 @@ import { axiosInstance } from '@utils/axios.ts';
 import { findEmail } from '@features/auth/servies/apiService.ts';
 import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
 import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
+import {AxiosError} from "axios";
 
 export const useAuthStore = create<AuthStore>((set) => ({
   // 초기상태
@@ -76,6 +77,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
       console.log(response.data);
       return response.data.data;
     } catch (error) {
+      // 500에러면서 의료정보가 없는 경우
+      if (error instanceof AxiosError &&
+          error.response?.status === 500 &&
+          error.response?.data?.message === "User medi detail not found") {
+        // 의료정보가 없는 경우 null이나 빈 객체 반환
+        return null; // 또는 return {};
+      }
+
+      //  기타 에러
       console.error('의료 정보 조회 실패', error);
       throw error;
     }

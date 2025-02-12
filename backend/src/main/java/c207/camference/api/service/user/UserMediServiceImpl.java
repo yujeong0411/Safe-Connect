@@ -14,6 +14,7 @@ import c207.camference.db.repository.users.UserRepository;
 import c207.camference.util.medi.MediUtil;
 import c207.camference.util.response.ResponseUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -41,9 +42,11 @@ public class UserMediServiceImpl implements UserMediService {
         String userEmail = userDetails.getUserEmail();
         User user = userRepository.findUserByUserEmail(userEmail);
 
-        UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("User medi detail not found"));
+        UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
 
+        if (userMediDetail == null){
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
         List<Medi> medis = getUserActiveMedis(userMediDetail);
         List<MediCategoryDto> response = MediUtil.createMediCategoryResponse(medis);
         return ResponseEntity.ok().body(ResponseUtil.success(response, "회원의 복용약물, 기저질환 조회 성공"));
@@ -57,9 +60,10 @@ public class UserMediServiceImpl implements UserMediService {
         User user = userRepository.findUserByUserEmail(userEmail);
 
         // userMediDetail 조회 | 생성
-        UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
-                .orElseGet(() -> createUserMediDetail(user));
-
+        UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
+        if (userMediDetail==null){
+            createUserMediDetail(user);
+        }
         List<Medi> medis = mediRepository.findAllById(mediIds);
         userMediDetail.createMediMappings(medis);
         userMediDetailRepository.save(userMediDetail);
@@ -77,8 +81,10 @@ public class UserMediServiceImpl implements UserMediService {
 
 
         // userMediDetail 조회 | 생성
-        UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
-                .orElseGet(() -> createUserMediDetail(user));
+        UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
+        if (userMediDetail==null){
+            createUserMediDetail(user);
+        }
 
         List<Medi> medis = mediRepository.findAllById(mediIds);
         userMediDetail.updateMediMappings(medis); // 매핑 정보 업데이트

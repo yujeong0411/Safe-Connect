@@ -67,11 +67,13 @@ axiosInstance.interceptors.response.use(
       }
 
       try {
-        console.log('토큰 갱신 요청 시작');
-        console.log('Before request, cookies: ', document.cookie); // 쿠키 확인
-        // 리프레시 토큰은 쿠키에 있으므로 별도의 토큰을 보낼 필요 없음 (url, body data, axios 객체)
-        const response = await axiosInstance.post('/reissue', {}, { withCredentials: true });
-        console.log('토큰 갱신 응답:', response);
+          console.log('토큰 갱신 요청 시작');
+          const response = await axiosInstance.post('/api/reissue', {}, {
+              withCredentials: true
+          });
+          console.log('토큰 갱신 응답 전체:', response);
+          console.log('응답 데이터:', response.data);
+          console.log('응답 헤더:', response.headers);
 
         // 새 토큰 가져오기 (서버는 access로 내려줌)
         const newAccessToken = response.headers['access'];
