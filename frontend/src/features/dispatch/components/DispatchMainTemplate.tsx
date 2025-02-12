@@ -1,24 +1,27 @@
 // src/features/dispatch/components/DispatchMainTemplate.tsx
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PublicHeader from '@/components/organisms/PublicHeader/PublicHeader';
 import DispatchNavBar from './DispatchNavBar/DispatchNavBar';
 import GuardianNotificationDialog from './GuardianNotificationDialog';
 import VideoCallDrawer from './VideoCall/VideoCallDrawer';
+import { useDispatchAuthStore } from '@/store/dispatch/dispatchAuthStore.tsx';
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
-  logoutDirect: () => void | Promise<void>;
 }
 
-const DispatchMainTemplate = ({ children, logoutDirect }: DispatchMainTemplateProps) => {
+const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   const location = useLocation();
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showVideoCall, setShowVideoCall] = useState(false);
+  const {logout} = useDispatchAuthStore();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await logoutDirect();
+      await logout();
+      navigate('/dispatch');
     } catch (error) {
       console.error('로그아웃 실패', error);
     }
