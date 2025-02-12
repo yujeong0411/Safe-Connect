@@ -3,6 +3,7 @@ package c207.camference.api.service.sse;
 import c207.camference.api.request.control.DispatchOrderRequest;
 import c207.camference.api.request.dispatchstaff.DispatchCurrentPositionRequest;
 import c207.camference.api.request.dispatchstaff.PatientTransferRequest;
+import c207.camference.api.request.user.ShareLocationRequest;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.PatientTransferResponse;
 import c207.camference.util.response.ResponseUtil;
@@ -169,6 +170,21 @@ public class SseEmitterService {
                 System.out.println("Error sending update: " + e.getMessage());
             }
         }
+    }
+
+    // 상황실에 신고자 위치 공유
+    public void shareCallerLocation(ShareLocationRequest request) {
+        // 상황실에 응답 전송
+        List<String> daedControlEmitters = new ArrayList<>();
+        controlEmitters.forEach((clientId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .data(ResponseUtil.success(request, "신고자 위치 수신 성공")));
+            } catch (IOException e) {
+                daedControlEmitters.add(clientId);
+            }
+        });
+        daedControlEmitters.forEach(controlEmitters::remove);
     }
 
 
