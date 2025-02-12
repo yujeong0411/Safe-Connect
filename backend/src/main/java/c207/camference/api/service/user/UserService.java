@@ -1,6 +1,7 @@
 package c207.camference.api.service.user;
 
 
+import c207.camference.api.request.user.ShareLocationRequest;
 import c207.camference.api.request.user.UserCreateRequest;
 import c207.camference.api.request.user.UserPasswordChangeRequest;
 import c207.camference.api.request.user.UserUpdateRequest;
@@ -17,6 +18,6 @@ public interface UserService {
     ResponseEntity<?> findEmail(String userName,String userPhone);
     ResponseEntity<?> findPassword(String userEmail);
     ResponseEntity<?> changePassword(UserPasswordChangeRequest request);
-
     ResponseEntity<?> getAedsNearBy(double lat, double lon);
+    ResponseEntity<?> shareLocation(ShareLocationRequest request);
 }

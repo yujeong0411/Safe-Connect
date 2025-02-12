@@ -29,13 +29,14 @@ const DispatchPage = () => {
     type: "default" as "default" | "destructive",
   });
 
+  
   // 알림 처리 함수
   const handleAlertClose = (config: typeof alertConfig) => {
     setAlertConfig(config);
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 1000);
+    }, 10000);
   }
 
   useEffect(() => {
@@ -46,7 +47,8 @@ const DispatchPage = () => {
     }
 
     // SSE 연결
-    const eventSource = new EventSource(`http://localhost:8080/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+    // const eventSource = new EventSource(`http://localhost:8080/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
 
     // 메시지 수신 처리
     eventSource.onmessage = (event) => {
