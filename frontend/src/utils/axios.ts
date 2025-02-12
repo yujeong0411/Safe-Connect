@@ -5,7 +5,7 @@ export const axiosInstance = axios.create({
   // : import.meta.env.MODE === 'production'
   //   ? import.meta.env.VITE_BASE_URL
     : '/api',
-  timeout: 5000, // 요청 제한 시간 5초
+  timeout: 20000, // 요청 제한 시간 20초
   // headers 초기화 시 토큰이 없을 때 문제 발생
   headers: {
     Authorization: localStorage.getItem('token')

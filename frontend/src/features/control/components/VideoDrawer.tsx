@@ -7,6 +7,8 @@ import {controlService} from "@features/control/services/controlApiService.ts";
 import {usePatientStore} from "@/store/control/patientStore.tsx";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
+import useRecorderStore from '@/store/openvidu/MediaRecorderStore.tsx';
+
 interface VideoProps {
   children: React.ReactNode;
 }
@@ -16,8 +18,10 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   const {formData, updateFormData, fetchCallSummary} = usePatientStore()
 
   const { callId,leaveSession } = useOpenViduStore();
+  const { stopRecording } = useRecorderStore();
 
-  const handleEndCall = async () => {
+
+  const handleEndCall = async () => { 
     if (!callId) {
       console.log("callId가 없습니다.")
       return
@@ -56,8 +60,20 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
   // 신고내용 요약  (calltext는 받을수있는가?)
   const handleCallSummary = async () => {
+  
     try {
-      await fetchCallSummary(Number(callId));
+      const audioBlob:Blob = await stopRecording();
+    
+    if (!audioBlob) {
+      throw new Error('녹음된 오디오가 없습니다.');
+    }
+
+    if (!callId) {
+      throw new Error('callId가 없습니다.');
+    }
+
+    await fetchCallSummary(Number(callId), audioBlob);
+    
     } catch (error) {
       console.error("신고내용 요약 실패", error);
     }
