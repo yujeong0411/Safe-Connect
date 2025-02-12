@@ -47,7 +47,7 @@ const PatientInfoPage = () => {
   ];
   */
 
-  const ktasOptions = ['1', '2', '3', '4', '5', '6'];
+  const ktasOptions = ['1', '2', '3', '4', '5'];
 
   const onSubmit = (data: PatientFormData) => {
     console.log(data);

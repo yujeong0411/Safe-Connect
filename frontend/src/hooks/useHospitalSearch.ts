@@ -8,6 +8,7 @@ export const useHospitalSearch = () => {
   const [requestedHospitals, setRequestedHospitals] = useState<Set<string>>(new Set());
   const [isKakaoLoaded, setIsKakaoLoaded] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+
   // Kakao Maps API 로드 체크
   useEffect(() => {
     const checkKakaoMap = () => {
@@ -55,7 +56,7 @@ export const useHospitalSearch = () => {
     return new Promise<Hospital[]>((resolve) => {
       try {
         const places = new kakao.maps.services.Places();
-        
+
         const searchCallback = (data: any[], status: any) => {
           console.log(`📍 ${radius}m 반경 검색 결과:`, {
             status,
@@ -98,6 +99,7 @@ export const useHospitalSearch = () => {
     });
   }, [currentLocation, isKakaoLoaded, requestedHospitals]);
 
+  // 검색 실행
   const handleSearch = useCallback(async () => {
     if (!isKakaoLoaded || !currentLocation) return;
 
@@ -106,11 +108,11 @@ export const useHospitalSearch = () => {
 
     try {
       const currentResults = await searchHospitals(searchRadius);
-      
+
       setHospitals(prev => {
         const existingIds = new Set(prev.map(h => h.id));
         const uniqueNewHospitals = currentResults.filter(h => !existingIds.has(h.id));
-        
+
         console.log('📊 검색 결과 통계:', {
           기존병원: prev.length,
           새로검색: currentResults.length,
@@ -119,32 +121,48 @@ export const useHospitalSearch = () => {
           현재반경: searchRadius
         });
 
-        if (searchRadius < 5000) {
-          const nextRadius = searchRadius + 500;
-          console.log(`⏰ 30초 후 ${nextRadius}m 반경으로 재검색 예정`);
-          
-          setTimeout(() => {
-            setSearchRadius(nextRadius);
-            handleSearch();
-          }, 30000);
-        } else {
-          console.log('🏁 최대 검색 반경(5km) 도달. 검색 종료');
-          setIsSearching(false);
-        }
-
         return [...prev, ...uniqueNewHospitals];
       });
+
+      if (searchRadius < 5000) {
+        const nextRadius = searchRadius + 500;
+        console.log(`⏰ 30초 후 ${nextRadius}m 반경으로 재검색 예정`);
+
+        setTimeout(() => {
+          setSearchRadius(nextRadius); // 반경 증가
+        }, 30000);
+      } else {
+        console.log('🏁 최대 검색 반경(5km) 도달. 검색 종료');
+        setIsSearching(false);
+      }
     } catch (error) {
       console.error('🚨 검색 처리 중 오류:', error);
       setIsSearching(false);
     }
   }, [searchHospitals, isKakaoLoaded, currentLocation, searchRadius]);
 
+  // 반경이 변경될 때마다 자동으로 검색 실행
+  useEffect(() => {
+    if (searchRadius > 500) {
+      handleSearch();
+    }
+  }, [searchRadius]); // searchRadius 변경 감지
+
+  const markHospitalsAsRequested = useCallback((hospitalIds: string[]) => {
+    setRequestedHospitals(prev => new Set([...prev, ...hospitalIds]));
+    setHospitals(prev =>
+      prev.map(hospital => ({
+        ...hospital,
+        requested: requestedHospitals.has(hospital.id) || hospitalIds.includes(hospital.id)
+      }))
+    );
+  }, [requestedHospitals]);
+
   return {
     hospitals,
     searchRadius,
     handleSearch,
-    // markHospitalsAsRequested,
+    markHospitalsAsRequested,
     currentLocation,
     isReady: isKakaoLoaded && currentLocation !== null,
     isSearching
