@@ -8,6 +8,8 @@ import {usePatientStore} from "@/store/control/patientStore.tsx";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import {useLocationStore} from "@/store/location/locationStore.tsx";
 
+import useRecorderStore from '@/store/openvidu/MediaRecorderStore.tsx';
+
 interface VideoProps {
   children: React.ReactNode;
 }
@@ -88,8 +90,11 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     };
   }, [session, setIsLoading, setLocation]);
 
+  const { callId,leaveSession } = useOpenViduStore();
+  const { stopRecording } = useRecorderStore();
 
-  const handleEndCall = async () => {
+
+  const handleEndCall = async () => { 
     if (!callId) {
       console.log("callId가 없습니다.")
       return
@@ -131,19 +136,20 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
   // 신고내용 요약  (calltext는 받을수있는가?)
   const handleCallSummary = async () => {
+  
     try {
-      if (!callId) {
-        console.log('Call ID:', callId);  // callId가
+      const audioBlob:Blob = await stopRecording();
+    
+    if (!audioBlob) {
+      throw new Error('녹음된 오디오가 없습니다.');
+    }
 
-        // undefined인지 확인
-        alert('현재 진행 중인 통화가 없습니다.');
-        return;
-      }
+    if (!callId) {
+      throw new Error('callId가 없습니다.');
+    }
 
-      // callId의 타입 확인을 위한 로그
-      console.log('Attempting to fetch summary for callId:', callId);
-
-      await fetchCallSummary(callId);
+    await fetchCallSummary(Number(callId), audioBlob);
+    
     } catch (error) {
       console.error("신고내용 요약 실패", error);
     }

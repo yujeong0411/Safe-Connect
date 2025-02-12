@@ -30,8 +30,7 @@ const ControlDispatchOrderPage = () => {
     setSelectedStation(selectedStation === station.place_name ? null : station.place_name);
   }
 
-
-  // // SSE 훅 추가
+  // SSE 훅 추가
   // useSSE<DispatchOrderData>({
   //   subscribeUrl: "http://localhost:8080/control/subscribe",
   //   clientId: 1, // 실제 로그인 한 사용자의 pk
@@ -77,14 +76,52 @@ const ControlDispatchOrderPage = () => {
       return;
     }
 
-    // callId 검사
-    if (!callId) {
-      handleAlertClose({
-        title: "신고 정보 없음",
-        description: "현재 처리 중인 신고가 없습니다.",
-        type: 'destructive',
-      })
-      return
+    // 테스트 동안 제거
+    // if (!callId) {
+    //   handleAlertClose({
+    //     title:"신고 정보 없음",
+    //     description: "현재 처리 중인 신고가 없습니다.",
+    //     type: 'destructive',
+    //   })
+    //   return
+    // }
+    
+
+  // SSE 구독
+  const startSSESubscription = (userName: string) => {
+    // const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
+    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/subscribe?clientId=${userName}`);
+
+      eventSource.onmessage = (event) => {
+        const response = JSON.parse(event.data);
+        if (response.isSuccess) {
+          handleAlertClose({
+            title: "출동 지령 전송 성공",
+            description: `소방팀 ${response.data.dispatchGroupId}팀에게 출동 지령을 보냈습니다.`,
+            type: "default"
+          });
+        } else {
+          handleAlertClose({
+            title: "출동 지령 전송 실패",
+            description: response.message || "출동 지령 전송에 실패했습니다.",
+            type: "destructive"
+          });
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("SSE 연결 에러: ", error);
+        eventSource.close();
+      };
+
+      return eventSource;
+   };
+
+
+   try {
+    const controlLoginId = localStorage.getItem("userName");
+    if (!controlLoginId) {
+      throw new Error("사용자 정보가 없습니다.")
     }
     // try {
     //   // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용

@@ -70,7 +70,7 @@ export interface PatientStore {
   savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
   sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
-  fetchCallSummary : (callId:number) => Promise<void>
+  fetchCallSummary : (callId:number, audioBlob: Blob) => Promise<void>
 }
 
 export interface ProtectorMessageResponse {

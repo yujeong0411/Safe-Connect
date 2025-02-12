@@ -139,7 +139,8 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
 
     // SSE연결
     const eventSource = new EventSourcePolyfill(
-        'http://localhost:8080/hospital/subscribe',
+        // 'http://localhost:8080/hospital/subscribe',
+        'https://i12c207.p.ssafy.io/hospital/subscribe',
         {
           headers: {
             'Authorization': `Bearer ${token}`,

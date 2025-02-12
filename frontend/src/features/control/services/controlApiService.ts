@@ -106,9 +106,19 @@ export const controlService = {
   },
 
   // 신고내용 요약
-  callSummary: async (callId:number): Promise<CallSummaryResponse> => {
+  callSummary: async (callId:number, audioBlob: Blob): Promise<CallSummaryResponse> => {
     try {
-      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', {callId})
+      // formData 생성
+      const formData = new FormData();
+      formData.append('audioFile', audioBlob);
+      formData.append('callId', callId.toString());
+      
+      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data' 
+        }
+      });
+
       console.log("신고내용 요약", response.data)
       return response.data
     } catch (error: any) {

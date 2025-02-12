@@ -1,5 +1,6 @@
 package c207.camference.api.service.webrtc;
 
+import c207.camference.api.request.dispatchstaff.PreKtasRequest;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.db.entity.report.Call;
 import c207.camference.db.repository.report.CallRepository;
@@ -67,7 +68,6 @@ public class WebRtcServiceImpl implements WebRtcService {
             .build();
 
 
-
     @Override
     public ResponseEntity<?> saveSummary(Integer callId, String text, String summary) {
         Call call = callRepository.findCallByCallId(callId);
@@ -80,7 +80,8 @@ public class WebRtcServiceImpl implements WebRtcService {
         return null;
     }
 
-    /** 상황실 직원이 영상통화방 생성
+    /**
+     * 상황실 직원이 영상통화방 생성
      *
      * @param customSessionId
      * @return sessionId
@@ -97,12 +98,13 @@ public class WebRtcServiceImpl implements WebRtcService {
         return sessionId;
     }
 
-    /** 상황실 직원이 영상통화방 session을 만들었으면 이를 바탕으로 접속가능한 URL만든다.
+    /**
+     * 상황실 직원이 영상통화방 session을 만들었으면 이를 바탕으로 접속가능한 URL만든다.
      *
      * @param sessionId
      * @return url
      */
-    public String makeUrl(String sessionId){
+    public String makeUrl(String sessionId) {
         String baseUrl = activeProfile.equals("prod")
                 ? "https://i12c207.p.ssafy.io"
                 : "http://localhost:5173";
@@ -110,11 +112,14 @@ public class WebRtcServiceImpl implements WebRtcService {
         return baseUrl + "/caller/join/" + sessionId + "?direct=true";
     }
 
-    /** 토큰 생성 (상황실, 신고자, 구급대원)
-     * @params sessionId
+
+    /**
+     * 토큰 생성 (상황실, 신고자, 구급대원)
+     *
      * @return token
+     * @params sessionId
      */
-    public String getToken(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException{
+    public String getToken(String sessionId) throws OpenViduJavaClientException, OpenViduHttpException {
         Session session = openvidu.getActiveSession(sessionId);
         if (session == null) {
             session = openvidu.createSession(
@@ -130,13 +135,15 @@ public class WebRtcServiceImpl implements WebRtcService {
                 .build();
 
         Connection connection = session.createConnection(properties);
-        
+
         return connection.getToken();
     }
 
     // todo : 구급대원 영상통화 참여 (출동시간 수정)
+
     /**
      * params: sessionId
+     *
      * @return URL
      */
 //    @Override
@@ -157,66 +164,94 @@ public class WebRtcServiceImpl implements WebRtcService {
         byte[] audioBytes = audioFile.getBytes();
 
 
-            // 오디오 객체 생성
-            ByteString audioData = ByteString.copyFrom(audioBytes);
-            RecognitionAudio recognitionAudio = RecognitionAudio.newBuilder()
-                    .setContent(audioData)
-                    .build();
+        // 오디오 객체 생성
+        ByteString audioData = ByteString.copyFrom(audioBytes);
+        RecognitionAudio recognitionAudio = RecognitionAudio.newBuilder()
+                .setContent(audioData)
+                .build();
 
-            // 설정 객체 생성
-            RecognitionConfig recognitionConfig =
-                    RecognitionConfig.newBuilder()
-                            .setEncoding(RecognitionConfig.AudioEncoding.FLAC)
-                            .setSampleRateHertz(44100)
-                            .setLanguageCode("ko-KR")
-                            .build();
+        // 설정 객체 생성
+        RecognitionConfig recognitionConfig =
+                RecognitionConfig.newBuilder()
+                        .setEncoding(RecognitionConfig.AudioEncoding.WEBM_OPUS)
+                        .setSampleRateHertz(48000)
+                        .setLanguageCode("ko-KR")
+                        .build();
 
-            // 오디오-텍스트 변환 수행
-            RecognizeResponse response = speechClient.recognize(recognitionConfig, recognitionAudio);
-            List<SpeechRecognitionResult> results = response.getResultsList();
+        // 오디오-텍스트 변환 수행
+        RecognizeResponse response = speechClient.recognize(recognitionConfig, recognitionAudio);
+        List<SpeechRecognitionResult> results = response.getResultsList();
 
-            if (!results.isEmpty()) {
-                // 주어진 말 뭉치에 대해 여러 가능한 스크립트를 제공. 0번(가장 가능성 있는)을 사용한다.
-                SpeechRecognitionResult result = results.get(0);
-                return result.getAlternatives(0).getTranscript();
-            } else {
-                System.out.println("No transcription result found");
-                return "";
-            }
+        if (!results.isEmpty()) {
+            // 주어진 말 뭉치에 대해 여러 가능한 스크립트를 제공. 0번(가장 가능성 있는)을 사용한다.
+            SpeechRecognitionResult result = results.get(0);
+            return result.getAlternatives(0).getTranscript();
+        } else {
+            System.out.println("No transcription result found");
+            return "";
         }
+    }
 
     // 텍스트로 변환한 음성을 요약해주는 기능
 
     @Override
     @Transactional
-    public String textSummary(String speechToText, String mode) {
-// 요약을 요청하는 프롬프트 생성
-        String prompt = "";
-        if(mode.equals("summary")){
-            prompt = String.format(
-                    "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
-                            "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘.",
-                    "\n\n%s\n\n요약:",
-                    speechToText
-            );
-        } else if(mode.equals("preKTAS")){
-            prompt = String.format(
-                    "너는 응급환자의 119구급대와 의료기관 간의 원활한 의사소통을 촉진하고, 환자에게 적절한 치료를 신속히 제공하는 것을 목표" +
-                            "로 하는 분류체계인 pre-KTAS를 진단하는 구급대원이야. " +
-                            "이를 바탕으로, 1단계부터 5단계까지 단계중에서 해당 환자가 몇단계에 해당하는지는 정해줘. 아래는 분류 기준이야." +
-                            "Level 1 (소생): 심정지, 중증외상 등 즉각적인 처치가 필요한 매우 중증 상태\n" +
-                            "Level 2 (긴급): 호흡곤란, 토혈 등 생명이나 신체기능에 잠재적 위협이 있는 상태\n" +
-                            "Level 3 (응급): 경한 호흡부전 등 치료가 필요한 상태로 진행할 수 있는 잠재적 가능성이 있는 경우\n" +
-                            "Level 4 (준응급): 착란, 요로감염 등 1-2시간 내에 처치나 재평가가 필요한 상태\n" +
-                            "Level 5 (비응급): 상처소독, 약처방 등 긴급하지 않은 상태" +
-                            "다음 텍스트는 응급실 전화상담사와 환자의 대화내용이야. " +
-                            "위를 바탕으로, 해당 환자가 몇단계에 해당하는지, 답변으로 오직 숫자 하나만 대답해줘. " +
-                            "사족을 붙이지 말고, 오로지 정수 하나만 대답해야 해",
-                    "\n\n%s\n\n:",
-                    speechToText
-            );
-        }
+    public String textSummary(String speechToText) {
+    // 요약을 요청하는 프롬프트 생성
 
+        String prompt = String.format(
+                "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
+                        "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘.",
+                "\n\n%s\n\n요약:",
+                speechToText
+        );
+
+        return makeRequest(prompt);
+    }
+
+    @Override
+    public Integer getPreKtas(PreKtasRequest request) {
+        Integer patientAge = request.getPatientAge(); // 나이
+        Integer patientBloodSugar = request.getPatientBloodSugar(); // 혈당
+        Integer patientDiastolicBldPress = request.getPatientDiastolicBldPress(); // 혈압최소
+        Integer patientSystolicBldPress = request.getPatientSystolicBldPress(); // 혈압최대
+        Integer patientBreatheRate = request.getPatientBreatheRate(); // 호흡수
+        Float patientTemperature = request.getPatientTemperature(); // 체온
+        Float patientSpo2 = request.getPatientSpo2(); // 산소포화도
+        String patientMental = request.getPatientMental(); // 의식상태
+        String patientSympthom = request.getPatientSympthom(); // 증상
+
+        String prompt = String.format(
+                "너는 응급환자의 119구급대와 의료기관 간의 원활한 의사소통을 촉진하고, 환자에게 적절한 치료를 신속히 제공하는 것을 목표" +
+                        "로 하는 분류체계인 pre-KTAS를 진단하는 구급대원이야. " +
+                        "이를 바탕으로, 1단계부터 5단계까지 단계중에서 해당 환자가 몇단계에 해당하는지는 정해줘. 아래는 분류 기준이야." +
+                        "Level 1 (소생): 심정지, 중증외상 등 즉각적인 처치가 필요한 매우 중증 상태\n" +
+                        "Level 2 (긴급): 호흡곤란, 토혈 등 생명이나 신체기능에 잠재적 위협이 있는 상태\n" +
+                        "Level 3 (응급): 경한 호흡부전 등 치료가 필요한 상태로 진행할 수 있는 잠재적 가능성이 있는 경우\n" +
+                        "Level 4 (준응급): 착란, 요로감염 등 1-2시간 내에 처치나 재평가가 필요한 상태\n" +
+                        "Level 5 (비응급): 상처소독, 약처방 등 긴급하지 않은 상태" +
+                        "다음은 응급 환자의 건강상태야. " +
+                        "나이 : %s" +
+                        "혈당 : %s" +
+                        "혈압최소 : %s" +
+                        "혈압최대 : %s" +
+                        "호흡수 : %s" +
+                        "체온 : %s" +
+                        "산소포화도 : %s" +
+                        "의식상태 : %s" +
+                        "증상 : %s" +
+                        "위를 바탕으로, 해당 환자가 몇단계에 해당하는지, 답변으로 오직 숫자 하나만 대답해줘. " +
+                        "사족을 붙이지 말고, 오로지 정수 하나만 대답해야 해",
+                patientAge, patientBloodSugar, patientDiastolicBldPress, patientSystolicBldPress, patientBreatheRate,
+                patientTemperature, patientSpo2, patientMental, patientSympthom
+        );
+
+        return Integer.parseInt(makeRequest(prompt));
+    }
+
+
+
+    private String makeRequest(String prompt) {
         try {
             // 요청 바디 생성
             ObjectNode requestBody = objectMapper.createObjectNode();
@@ -295,6 +330,7 @@ public class WebRtcServiceImpl implements WebRtcService {
         }
         return content; // 코드 블록이 없을 경우 원본 반환
     }
+
 
 
 }
