@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import ControlMainTemplate from '@features/control/components/ControlMainTemplate.tsx';
 import CallRecordForm from '@features/control/components/CallRecordForm.tsx';
-import { error } from 'console';
 
 const ControlMainPage = () => {
 
   useEffect(() => {
     let eventSource: EventSource | null = null;
-    let reconnectTimeout: NodeJs.setTimeout | null = null;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const connectSSE = () => {
       const controlLoginId = localStorage.getItem("userName");
