@@ -122,7 +122,8 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
               <Textarea
                 value={formData.callSummary}
                 onChange={(e) => updateFormData({ callSummary: e.target.value})}
-                placeholder="신고 내용이 자동으로 입렵됩니다."
+                placeholder="AI요약을 누르면 자동으로 요약됩니다."
+                readOnly  // 읽기 전용
                 className="p-4 min-h-[120px] bg-white"
               />
             </div>

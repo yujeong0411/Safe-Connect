@@ -200,8 +200,16 @@ updateFormData({userPhone: formattedPhone});
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
                   className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  value={formData.callSummary}
-                  onChange={handleInputChange('callSummary')}
+                  // value={`${formData.callSummary}\n\n${formData.addSummary}`}
+                  value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n\n' : ''}${formData.addSummary}`}
+                  onChange={(e) => {
+                    const totalValue = e.target.value;
+                    // ai 요약본과 추가 텍스트 입력 가능
+                    const callSummaryNewLine = formData.callSummary? formData.addSummary + '\n\n' : '';
+                    const newAddSummary = totalValue.replace(callSummaryNewLine, '');
+                    updateFormData({addSummary: newAddSummary})
+                  }}
+                  placeholder="추가 내용을 입력하세요."
               />
             </div>
           </div>

@@ -11,8 +11,8 @@ const initialFormData: FormData = {
   userProtectorPhone: '',
   diseases: '',
   medications: '',
-  callText:'',
   callSummary: '',
+  addSummary:'',
   symptom: '',
   userId: 0
 }
@@ -93,12 +93,16 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
         return;
       }
 
+      // callSummary와 addSummary 합치기
+      const combinedSummary = formData.addSummary
+          ? `${formData.callSummary}\n\n${formData.addSummary}`
+          : formData.callSummary;
+
       // 현재 선택된 회원 ID와 신고 ID 추가
       const callInfo = {
         userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
         symptom: formData.symptom,
-        callSummary: formData.callSummary,
-        callText:formData.callText,
+        callSummary: combinedSummary,   // 합쳐진 summary 저장
       };
 
       // api 호출 시 callId 필요
@@ -146,7 +150,8 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
           ...state,
           formData: {
             ...state.formData,
-            callSummary: response.data.callSummary
+            callSummary: response.data.callSummary,
+            addSummary: '', // 새로운 AI요약본 받아올때 최소화
           }
         }))
       }
