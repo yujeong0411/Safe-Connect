@@ -33,6 +33,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        if (request.getRequestURI().equals("/reissue")) {
+            System.out.println("Reissue request detected, skipping JWT validation");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         //request에서 Authorization 헤더를 찾음
         String authHeader = request.getHeader("Authorization");
 
