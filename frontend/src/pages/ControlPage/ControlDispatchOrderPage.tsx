@@ -85,8 +85,8 @@ const ControlDispatchOrderPage = () => {
 
   // SSE 구독
   const startSSESubscription = (userName: string) => {
-    // const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
-    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/subscribe?clientId=${userName}`);
+    // const eventSource = new EventSource(`http://localhost:8080/control/order/subscribe?clientId=${userName}`);
+    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/order/subscribe?clientId=${userName}`);
 
       eventSource.onmessage = (event) => {
         const response = JSON.parse(event.data);

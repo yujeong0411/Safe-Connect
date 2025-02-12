@@ -29,6 +29,11 @@ public class SseController {
         return sseEmitterService.createControlEmitter(clientId);
     }
 
+    @GetMapping(value = "/control/order/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeControlOrder(@RequestParam String clientId) {  // Integer -> String
+        return sseEmitterService.createControlEmitter(clientId);
+    }
+
 /*
     @GetMapping(value = "/dispatchGroup/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeDispatchGroup(@RequestParam Integer clientId) {
@@ -40,6 +45,13 @@ public class SseController {
     public SseEmitter subscribeDispatchGroup(@RequestParam String clientId) {  // Integer -> String
         return sseEmitterService.createDispatchGroupEmitter(clientId);
     }
+
+    @GetMapping(value = "/dispatchGroup/transfer/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeDispatchGroupTransfer(@RequestParam String clientId) {  // Integer -> String
+        return sseEmitterService.createDispatchGroupEmitter(clientId);
+    }
+
+
 
     @GetMapping(value = "/hospital/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeHospital() {
