@@ -12,12 +12,14 @@ import CallDetailDialog from '@features/control/components/CallDetailDialog.tsx'
 import {useCallListStore} from '@/store/control/callListStore.tsx';
 import {CallRecord} from '@/types/control/ControlRecord.types.ts';
 import {format} from 'date-fns';
+import { useVideoCallStore } from '@/store/control/videoCallStore';
 
 const CallRecordForm = () => {
   const [isCallDetailOpen, setIsCallDetailOpen] = React.useState(false);
   const {callList, callDetail, fetchCallList, fetchCallDetail} = useCallListStore();
   const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
   const [is24HourFilter, setIs24HourFilter] = useState(false);
+  const {isOpen} = useVideoCallStore();
 
   useEffect(() => {
     fetchCallList();
@@ -35,7 +37,12 @@ const CallRecordForm = () => {
           ? format(new Date(data.callFinishedAt), 'yyyy-MM-dd HH:mm:ss')
           : '-'},
     {key: 'callIsDispatched', header: '출동 여부'},
-    {key: 'callSummary', header: '신고 요약'},
+    {key: 'callSummary', header: '신고 요약', render:(data: CallRecord) => {
+      if (!data.callSummary) return '-';
+      // 첫번째 줄만 추출 및 길이제한
+        const firstLine = data.callSummary.split('.')[0];
+        return firstLine.length > 6 ? `${firstLine.slice(0, 6)}...` : firstLine;
+      }},
   ];
 
   // 24시간 이내 필터링
@@ -89,8 +96,8 @@ const CallRecordForm = () => {
   };
 
   return (
-      <div className="w-full p-10">
-        <div className="space-y-6">
+      <div className={`w-full ${isOpen ? 'p-4' : 'p-10'}`}>
+        <div className={`space-y-${isOpen ? '4' : '6'}`}>
           <div className="rounded-lg min-h-[42rem]">
             <div className="flex justify-end items-center mb-4">
               <div className="flex items-center">
@@ -111,7 +118,11 @@ const CallRecordForm = () => {
                     {columns.map((column) => (
                         <TableHead
                             key={column.key}
-                            className="text-gray-700 font-semibold text-center px-6 py-3 uppercase tracking-wider text-base"
+                            className={`
+                      text-gray-700 font-semibold text-center 
+                      ${isOpen ? 'px-2 py-2 text-sm' : 'px-6 py-3 text-base'}
+                      uppercase tracking-wider
+                    `}
                         >
                           {column.header}
                         </TableHead>
@@ -129,7 +140,11 @@ const CallRecordForm = () => {
                             {columns.map((column) => (
                                 <TableCell
                                     key={column.key}
-                                    className="px-6 py-3 text-gray-700 text-center text-base"
+                                    className={`
+                      text-gray-700 text-center 
+                      ${isOpen ? 'px-3 py-3 text-sm' : 'px-6 py-3 text-base'}
+                      uppercase tracking-wider
+                    `}
                                 >
                                   {column.render
                                       ? column.render(data)

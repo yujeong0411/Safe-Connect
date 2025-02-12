@@ -20,9 +20,7 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
 
   const navigate = useNavigate();
   const { setIsOpen } = useVideoCallStore();
-
   const {userName} = useControlAuthStore();
-
 
   useEffect(() => {
     // 세션 ID 자동 생성 (타임스탬프 + UUID)

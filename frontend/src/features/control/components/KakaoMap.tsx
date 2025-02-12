@@ -54,7 +54,14 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
       (data, status) => {
         if (status === kakao.maps.services.Status.OK) {
           const bounds = new kakao.maps.LatLngBounds();
-          const newMarkers: Marker[] = data.map((place) => {
+
+          // 안전센터를 제외한 소방서만 필터링
+          const filteredData = data.filter(place =>
+              !place.place_name.includes('안전센터') &&
+              !place.place_name.includes('구조대')
+          );
+
+          const newMarkers: Marker[] = filteredData.map((place) => {
             const marker = {
               position: {
                 lat: parseFloat(place.y),
@@ -71,7 +78,7 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
 
           // 소방서가 없을 수도 있다.
           if (FindFireStations) {
-            FindFireStations(data); // 검색된 소방서 정보 전달
+            FindFireStations(filteredData); // 검색된 소방서 정보 전달
           }
           map.setBounds(bounds);
         }

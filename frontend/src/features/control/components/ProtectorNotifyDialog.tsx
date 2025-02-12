@@ -96,7 +96,6 @@ const ProtectorNotifyDialog = ({ open, onOpenChange }: DialogProps) => {
           </div>
         </DialogContent>
       </Dialog>
-      // alert
       {showAlert && (
         <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
           <Alert

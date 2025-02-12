@@ -133,7 +133,9 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   const handleCallSummary = async () => {
     try {
       if (!callId) {
-        console.log('Call ID:', callId);  // callId가 undefined인지 확인
+        console.log('Call ID:', callId);  // callId가
+
+        // undefined인지 확인
         alert('현재 진행 중인 통화가 없습니다.');
         return;
       }

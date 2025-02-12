@@ -93,7 +93,7 @@ const ControlPatientInfoForm = () => {
     <div className="flex w-full items-center justify-center">
       <div className="flex-1 p-4 max-w-4xl">
         <div className="bg-white rounded-lg p-6">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-4">
             <div className="flex-1 mr-2">
               <SearchBar_ver2
                 placeholder="환자 전화번호"
@@ -105,7 +105,7 @@ const ControlPatientInfoForm = () => {
             <Button
               type="button"
               variant="gray"
-              className="w-[5rem]"
+              className="w-20"
               onClick={() => {
                 if (window.confirm('입력된 모든 정보가 초기화됩니다. 계속하시겠습니까?')) {
                   usePatientStore.getState().resetPatientInfo();
@@ -120,7 +120,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
               <Input
-                className="w-full"
+                className="w-full border-gray-400"
                 value={formData.userName}
                 onChange={handleInputChange('userName')}
               />
@@ -128,7 +128,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">성별</label>
               <Input
-                className="w-full"
+                className="w-full border-gray-400"
                 value={formData.userGender}
                 onChange={handleInputChange('userGender')}
               />
@@ -136,7 +136,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">나이</label>
               <Input
-                className="w-full"
+                className="w-full border-gray-400"
                 value={formData.userAge}
                 onChange={handleInputChange('userAge')}
               />
@@ -147,7 +147,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
               <Input
-                className="w-full"
+                className="w-full border-gray-400"
                 value={formData.userPhone ? formatPhoneNumber(formData.userPhone) : ''}
                 onChange={handleInputChange('userPhone')}
               />
@@ -155,7 +155,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">보호자 연락처</label>
               <Input
-                className="w-full"
+                className="w-full border-gray-400"
                 value={
                   formData.userProtectorPhone ? formatPhoneNumber(formData.userProtectorPhone) : ''
                 }
@@ -167,7 +167,7 @@ const ControlPatientInfoForm = () => {
           <div className="col-span-1 mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-1">증상</label>
             <Input
-              className="w-full"
+              className="w-full border-gray-400"
               value={formData.symptom}
               onChange={handleInputChange('symptom')}
             />
@@ -177,7 +177,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">현재 병력</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full h-32 p-3 border border-gray-400 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
                 value={
                   patientInfo?.mediInfo
                     ? patientInfo.mediInfo
@@ -192,7 +192,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">복용 약물</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none
+                className="w-full h-32 p-3 border border-gray-400 rounded-md resize-none focus:outline-none
                 focus:ring-2 focus:ring-blue-200"
                 value={
                   patientInfo?.mediInfo
@@ -211,7 +211,7 @@ const ControlPatientInfoForm = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full h-32 p-3 border border-gray-400 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
                 // value={`${formData.callSummary}\n\n${formData.addSummary}`}
                 value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n\n' : ''}${formData.addSummary}`}
                 onChange={(e) => {
