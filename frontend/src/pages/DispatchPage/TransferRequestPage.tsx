@@ -18,11 +18,10 @@ const TransferRequestPage = () => {
   const {
     hospitals,
     searchRadius,
-    increaseRadius,
-    decreaseRadius,
     handleSearch,
     markHospitalsAsRequested,
     currentLocation,
+    isSearching
   } = useHospitalSearch();
 
   const [showBulkRequestDialog, setShowBulkRequestDialog] = useState(false);
@@ -98,7 +97,7 @@ const TransferRequestPage = () => {
           </div>
         )}
 
-        <div className="absolute inset-0">
+<div className="absolute inset-0">
           <HospitalKakaoMap currentLocation={currentLocation} hospitals={hospitals} />
         </div>
 
@@ -106,16 +105,15 @@ const TransferRequestPage = () => {
           hospitals={hospitals}
           searchRadius={searchRadius}
           onSearch={handleSearch}
-          onIncreaseRadius={increaseRadius}
-          onDecreaseRadius={decreaseRadius}
           onBulkRequest={handleBulkRequest}
+          isSearching={isSearching}
         />
 
         <BulkTransferRequestDialog
           open={showBulkRequestDialog}
           onClose={() => setShowBulkRequestDialog(false)}
           onConfirm={handleTransferRequest}
-          hospitalNames={hospitals.filter((h) => !h.requested).map((h) => h.place_name)} // hospitals 대신 hospitalNames 전달
+          hospitalNames={hospitals.filter((h) => !h.requested).map((h) => h.place_name)}
         />
       </div>
     </DispatchMainTemplate>

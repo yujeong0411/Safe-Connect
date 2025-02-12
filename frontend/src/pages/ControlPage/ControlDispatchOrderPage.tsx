@@ -7,7 +7,7 @@ import {CircleAlert, CircleCheckBig} from 'lucide-react';
 import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 import { useSSE } from '@/hooks/useSEE';
-import { BaseResponseGeneric, DispatchOrderData } from "@/types/sse/sse.types";
+import { DispatchOrderData } from "@/types/sse/sse.types";
 
 const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);

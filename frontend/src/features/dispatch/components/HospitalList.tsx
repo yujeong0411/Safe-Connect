@@ -7,10 +7,9 @@ interface HospitalListProps {
   searchRadius: number;
   onSearch: () => void;
   onBulkRequest: () => void;
-  // onIncreaseRadius: () => void; 
-  // onDecreaseRadius: () => void; 
-  isSearching: boolean;
+  isSearching?: boolean;
 }
+
 
 const HospitalList = ({
   hospitals,

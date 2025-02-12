@@ -1,4 +1,3 @@
-// src/features/dispatch/hooks/useHospitalSearch.ts
 import { useState, useEffect, useCallback } from 'react';
 import { Hospital } from '@/features/dispatch/types/hospital.types';
 
@@ -9,7 +8,6 @@ export const useHospitalSearch = () => {
   const [requestedHospitals, setRequestedHospitals] = useState<Set<string>>(new Set());
   const [isKakaoLoaded, setIsKakaoLoaded] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [lastSearchTime, setLastSearchTime] = useState<number | null>(null);
 
   // Kakao Maps API 로드 체크
   useEffect(() => {
@@ -40,7 +38,6 @@ export const useHospitalSearch = () => {
         },
         (error) => {
           console.error('위치 정보를 가져올 수 없습니다:', error);
-          // 기본 위치 설정 (예: 서울시청)
           setCurrentLocation({
             lat: 37.5665,
             lng: 126.9780,
@@ -51,12 +48,9 @@ export const useHospitalSearch = () => {
   }, []);
 
   const searchHospitals = useCallback(async () => {
-    if (!currentLocation || !isKakaoLoaded) {
-      console.log('필요한 서비스가 준비되지 않음:', { currentLocation, isKakaoLoaded });
-      return [];
-    }
+    if (!currentLocation || !isKakaoLoaded) return [];
 
-    return new Promise<Hospital[]>((resolve, reject) => {
+    return new Promise<Hospital[]>((resolve) => {  // reject 제거
       try {
         const places = new kakao.maps.services.Places();
         
@@ -72,10 +66,8 @@ export const useHospitalSearch = () => {
                 y: place.y,
                 requested: requestedHospitals.has(place.id)
               }));
-            console.log(`${searchRadius}m 반경 검색 결과:`, newHospitals);
             resolve(newHospitals);
           } else {
-            console.log(`${searchRadius}m 반경 검색 결과 없음`);
             resolve([]);
           }
         };
@@ -94,30 +86,25 @@ export const useHospitalSearch = () => {
 
   const handleSearch = useCallback(async () => {
     if (!isKakaoLoaded || !currentLocation) return;
-  
-    setIsSearching(true);
-    setLastSearchTime(Date.now());
-  
+
     try {
+      setIsSearching(true);
       const newHospitals = await searchHospitals();
       
       setHospitals(prev => {
         const existingIds = new Set(prev.map(h => h.id));
         const uniqueNewHospitals = newHospitals.filter(h => !existingIds.has(h.id));
-        const result = [...prev, ...uniqueNewHospitals];
-        
-        // 30초 후 다음 반경 검색 시작 (결과 유무와 관계없이)
-        if (searchRadius < 5000) {  // 최대 5km까지
-          setTimeout(() => {
-            setSearchRadius(prev => prev + 500);
-            handleSearch();  // 재귀적으로 다음 반경 검색
-          }, 30000);  // 30초 후 다음 검색 시작
-        } else {
-          setIsSearching(false);
-        }
-        
-        return result;
+        return [...prev, ...uniqueNewHospitals];
       });
+
+      if (searchRadius < 5000) {
+        setTimeout(() => {
+          setSearchRadius(prev => prev + 500);
+          handleSearch();
+        }, 30000);
+      } else {
+        setIsSearching(false);
+      }
     } catch (error) {
       console.error('검색 처리 중 오류:', error);
       setIsSearching(false);
