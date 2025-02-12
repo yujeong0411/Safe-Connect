@@ -26,6 +26,32 @@ const ControlDispatchOrderPage = () => {
   const {callId} = useOpenViduStore()
 
 
+  // SSE 훅 추가
+  useSSE<DispatchOrderData>({
+    subscribeUrl: "http://localhost:8080/control/subscribe",
+    clientId: 1, // 실제 로그인 한 사용자의 pk
+    onMessage: (response) => {
+      console.log("SSE 메시지 수신:", response);
+      if (response.isSuccess) {
+        handleDispatchResponse(response); // store에 응답 저장
+        handleAlertClose({
+          title: "출동 지령 응답",
+          description: response.message,
+          type: "default",
+        });
+      }
+    },
+    onError: (error) => {
+      console.error("SSE 연결 오류: ", error);
+      handleAlertClose({
+        title:" 연결 오류",
+        description: "서버와의 연결이 끊어졌습니다. 재연결을 시도합니다.",
+        type: "destructive",
+      });
+    }
+  });
+
+
   // 3초 후 사라지는 로직
   const handleAlertClose = (config: typeof alertConfig) => {
     setAlertConfig(config);
