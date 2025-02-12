@@ -1,4 +1,4 @@
-import { BaseResponseGeneric, DispatchOrderData } from "@/types/sse/sse.types";
+import { BaseResponse, DispatchOrderData } from "@/types/sse/sse.types";
 
 // 구급대 그룹 정보를 나타내는 인터페이스
 export interface DispatchGroup {
@@ -11,7 +11,7 @@ export interface DispatchGroup {
 export interface DispatchGroupStore {
   dispatchGroups: DispatchGroup[];
   selectedStation: string | null;
-  lastDispatchResponse: BaseResponseGeneric<DispatchOrderData> | null;
+  lastDispatchResponse: BaseResponse<DispatchOrderData> | null;
   fetchDispatchGroups: () => Promise<void>;
   setSelectedStation: (station: string | null) => void;
 }

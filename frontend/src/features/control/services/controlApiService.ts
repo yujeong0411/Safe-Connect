@@ -6,7 +6,6 @@ import {
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
 import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
-import { BaseResponseGeneric, DispatchOrderData } from '@/types/sse/sse.types';
 
 export const patientService = {
   // 신고자 전화번호 검색

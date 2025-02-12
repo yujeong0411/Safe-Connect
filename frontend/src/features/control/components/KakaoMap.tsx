@@ -4,16 +4,23 @@ import useKakaoLoader from '@/hooks/useKakaoLoader.ts';
 import { Marker, KakaoMapProps } from '@features/control/types/kakaoMap.types.ts';
 import userMaker from '@assets/image/marker2.png'
 import dispatchMarker from '@assets/image/119maker.png'
+import {useLocationStore} from "@/store/location/locationStore.tsx";
 
 const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
   useKakaoLoader();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [info, setInfo] = useState<Marker | null>(null);
-  const [state, setState] = useState({
-    center: { lat: 33.450701, lng: 126.570667 },
-    isLoading: true,
-  });
+
+  const {center, isLoading} = useLocationStore();
+
+  // 위치 변경 감지를 위한 useEffect 추가
+  useEffect(() => {
+    console.log("==== 지도 위치 업데이트 ====");
+    console.log("현재 중심 좌표:", center);
+    console.log("로딩 상태:", isLoading);
+    console.log("========================");
+  }, [center, isLoading]);
 
 
   useEffect(() => {
@@ -24,21 +31,20 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-          setState({
-            center: newCenter,
-            isLoading: false,
-          });
+          useLocationStore.getState().setLocation(newCenter.lat, newCenter.lng);
+          useLocationStore.getState().setIsLoading(false);
         },
         () => {
-          setState({
-            center: { lat: 37.566826, lng: 126.9786567 }, // 기본 서울 중심
-            isLoading: false,
-          });
+          // 위치 기반 거부 시 서울 시청 설정
+          useLocationStore.getState().setLocation(37.566826, 126.9786567)
+          useLocationStore.getState().setIsLoading(false);
         }
       );
     }
   }, []);
 
+
+  // 소방서 검색 로직
   useEffect(() => {
     if (!map) return;
 
@@ -71,18 +77,27 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
         }
       },
       {
-        location: new kakao.maps.LatLng(state.center.lat, state.center.lng),
+        location: new kakao.maps.LatLng(center.lat, center.lng),
         radius: 10000, // 10km 반경
       }
     );
-  }, [map, state.center]);
+  }, [map, center]);
+
+
+  // center가 변경될때마다 중심 이동
+  useEffect(() => {
+    if (map) {
+      map.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+    }
+  }, [map, center])
+
 
   return (
     <Map
       id="map"
       center={
         // 지도의 중심좌표, 사용자 위치로 변경하기
-        state.center
+        center
       }
       style={{
         width: '100%',
@@ -91,16 +106,16 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
       level={4}
       onCreate={setMap}
     >
-      {/*현재 내위치*/}
-      {!state.isLoading && (
+      {/*현재 신고자 위치*/}
+      {!isLoading && (
         <MapMarker
-          position={state.center}
+          position={center}
           image={{
             src: userMaker,
             size: { width: 64, height: 69 },
             options: { offset: { x: 27, y: 69 } },
           }}
-          title="현재 위치"
+          title="신고자 위치"
         />
       )}
 

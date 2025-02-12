@@ -50,6 +50,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   },
   callStartedAt: '',   // 신고시각
   callerPhone:'',
+  fireStaffId:undefined,
 
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ sessionId: e.target.value });
@@ -211,6 +212,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       callId : undefined,
       callStartedAt: '',
       callerPhone:'',
+      fireStaffId:undefined,
     });
   },
 
@@ -233,6 +235,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         callId : response.data.data.call.callId,
         callStartedAt: response.data.data.call.callStartedAt,
         callerPhone:response.data.data.call.caller.callerPhone,
+        fireStaffId: response.data.data.call.fireStaff.fireStaffId,
       })
       return response.data;
     } catch (error) {

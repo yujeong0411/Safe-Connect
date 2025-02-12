@@ -21,6 +21,7 @@ export interface openViduStore {
   localUser: LocalUser
   callStartedAt:string
   callerPhone:string
+  fireStaffId:number | undefined;
 
   // Actions
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => void;
