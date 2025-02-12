@@ -99,6 +99,7 @@ const DispatchPage = () => {
       </div>
     )}
 
+    <DispatchMainTemplate>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">출동 현황</h1>
         {loading ? (

@@ -7,7 +7,7 @@ const UserFindEmailForm = () => {
   const { formData, setFormData } = useSignupStore();
   // 컴포넌트가 마운트 될때 초기화
     useEffect(() => {
-        setFormData({userEmail:'', userPhone:''});
+        setFormData({userName:'', userPhone:''});
     }, [])
 
 // 공백 제거 및 하이픈 포맷팅 핸들러 함수

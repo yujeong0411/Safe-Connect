@@ -13,7 +13,7 @@ const Carousel = () => {
     speed: 4000,
     slidesToShow: 1,
     slidesToScroll: 1,
-    arrows: true,
+    arrows: false,
     // 올바른 responsive 설정
     responsive: [
       {
@@ -40,12 +40,11 @@ const Carousel = () => {
     ],
     // 접근성 개선을 위한 설정 추가
     accessibility: true, // 키보드 탐색 활성화
-    focusOnSelect: true, // 선택 시 포커스
     swipeToSlide: true, // 스와이프로 슬라이드 이동 가능
   };
 
   return (
-    <div className="w-full max-w-[1500px] h-full flex justify-center items-center">
+    <div className="w-full max-w-[1500px] h-full flex justify-center items-center ml-40">
       <Slider {...settings} className="w-full">
         <div className="relative w-full">
           <img
@@ -85,7 +84,7 @@ const Carousel = () => {
           <img
             src={carousel3}
             alt="carousel3"
-            className="w-full h-full object-cover object-center scale-90 ml-10"
+            className="w-full h-full object-cover object-center scale-90 ml-20"
           />
           <div className="absolute w-1/2 top-1 left-1/2 transform translate-x-[10%] translate-y-[0%] text-[#08455A] text-center">
             <h2 className="text-2xl md:text-4xl font-bold font-sans mb-2 md:mb-5 text-orange-400">

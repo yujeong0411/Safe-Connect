@@ -1,4 +1,4 @@
-package c207.camference.api.contoller;
+package c207.camference.api.contoller.reissue;
 
 import c207.camference.db.entity.etc.Refresh;
 import c207.camference.db.repository.etc.RefreshRepository;

@@ -4,14 +4,31 @@ import mediImg from '@assets/image/mediImg.png';
 import SignupMediForm from '@features/auth/components/SignupMediForm.tsx';
 import { useAuthStore } from '@/store/user/authStore.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
+import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
+import { CircleCheckBig, CircleAlert } from "lucide-react";
 // import { signOut } from '@features/auth/servies/apiService.ts';
 
 const UserMediPage = () => {
   const { updateMediInfo, logout } = useAuthStore();
   const { formData, setFormData } = useSignupStore();
   const { loadUserInfo } = useLoadUserInfo('medi'); // 사용자 정보 가져오기
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    description: '',
+    type: 'default' as 'default' | 'destructive',
+  });
+
+  // Alert 표시 핸들러
+  const handleShowAlert = (config: typeof alertConfig) => {
+    setAlertConfig(config);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 3000); // 3초 후 알림 닫기
+  };
 
   useEffect(() => {
     (async () => {
@@ -53,6 +70,7 @@ const UserMediPage = () => {
     }
   };
 
+  // 저장 핸들
   const handleSave = async () => {
     try {
       const mediIds = [...(formData.diseaseId || []), ...(formData.medicationId || [])];
@@ -60,10 +78,18 @@ const UserMediPage = () => {
       // PUT만 사용
       await updateMediInfo({ mediIds });
       await loadUserInfo(); // 갱신된 데이터 다시 로드
-      alert('저장하였습니다.');
+      handleShowAlert({
+        title: '저장 완료',
+        description: '의료 정보가 저장되었습니다.',
+        type: 'default',
+      });
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('저장에 실패하였습니다.');
+      handleShowAlert({
+        title: '저장 실패',
+        description: '의료 정보 저장에 실패했습니다.',
+        type: 'destructive',
+      });
     }
   };
 
@@ -71,6 +97,7 @@ const UserMediPage = () => {
   const handleSignout = async () => {};
 
   return (
+      <>
     <MainTemplate
       navItems={[
         { label: '개인 정보 수정', path: '/user/info' },
@@ -90,6 +117,30 @@ const UserMediPage = () => {
         <SignupMediForm />
       </UserInfoTemplate>
     </MainTemplate>
+
+  {showAlert && (
+      <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[9999]">
+        <Alert
+            variant={alertConfig.type}
+            className={`w-[400px] shadow-lg bg-white ${
+                alertConfig.type === 'default'
+                    ? '[&>svg]:text-blue-600 text-blue-600'
+                    : '[&>svg]:text-red-500 text-red-500'
+            }`}
+        >
+          {alertConfig.type === 'default' ? (
+              <CircleCheckBig className="h-6 w-6" />
+          ) : (
+              <CircleAlert className="h-6 w-6" />
+          )}
+          <AlertTitle className="text-xl ml-4 font-sans">{alertConfig.title}</AlertTitle>
+          <AlertDescription className="text-base m-2 font-sans">
+            {alertConfig.description}
+          </AlertDescription>
+        </Alert>
+      </div>
+  )}
+</>
   );
 };
 

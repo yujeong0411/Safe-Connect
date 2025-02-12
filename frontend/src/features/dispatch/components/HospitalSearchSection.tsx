@@ -7,7 +7,7 @@ interface HospitalSearchSectionProps {
 const HospitalSearchSection = ({ onSearch }: HospitalSearchSectionProps) => {
   return (
     <div className="bg-white p-4 rounded-lg shadow">
-      <h2 className="text-lg font-semibold mb-4">인근 응급실 목록</h2>
+      <h2 className="text-lg font-semibold mb-4">인근 응급실</h2>
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <span>하남 응급 병원</span>
