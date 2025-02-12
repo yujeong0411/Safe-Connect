@@ -72,16 +72,16 @@ export const authCode = async (phoneNumber: string, verificationCode: string) =>
 // 회원가입 로직
 export const handleSignUp = async (
   formData: FormData,
-  navigate: (path: string) => void,
-  resetFormData: () => void
+  resetFormData: () => void,
+  // navigate?: (path: string) => void  // 네비게이션 함수 옵셔널
 ): Promise<void> => {
   try {
     const response = await axiosInstance.post('/user/signup', formData);
     console.log('Signup response:', response.data); // 응답 데이터 확인
     if (response.data.isSuccess === true) {
       resetFormData(); // store 초기화 (안하면 입력창에 자동입력됨.)
-      // 성공 시 메인페이지 이동
-      navigate('/user/login'); // 회원가입 후 바로 로그인이 안되는 건가??
+      // 성공 시 메인페이지 이동 -> 의료정보 입력 선택사항 추가로 리다이렉트 삭제
+      // navigate('/user/login');
     } else {
       console.error('Signup failed:', response.data.message); // 실패 메시지 기록
       alert(response.data.message);

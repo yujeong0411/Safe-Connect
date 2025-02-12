@@ -13,4 +13,5 @@ export interface SearchBarProps {
   onButtonClick?: () => void;
   className?: string;
   formatValue?:(value: string) => string;
+  isDisabled?: boolean;
 }
