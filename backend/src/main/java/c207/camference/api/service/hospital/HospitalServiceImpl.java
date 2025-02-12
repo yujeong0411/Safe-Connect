@@ -8,7 +8,7 @@ import c207.camference.api.response.hospital.TransferRequestResponse;
 import c207.camference.api.response.patient.PatientDetailResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
-import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.patient.Patient;
 import c207.camference.db.entity.report.Transfer;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HospitalServiceImpl implements HospitalService {
 
-    private final SseEmitterService sseEmitterService;
+    private final SseEmitterServiceImpl sseEmitterService;
     private final ReqHospitalRepository reqHospitalRepository;
     private final TransferRepository transferRepository;
     private final HospitalRepository hospitalRepository;
