@@ -8,7 +8,6 @@ export const useHospitalSearch = () => {
   const [requestedHospitals, setRequestedHospitals] = useState<Set<string>>(new Set());
   const [isKakaoLoaded, setIsKakaoLoaded] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-
   // Kakao Maps API 로드 체크
   useEffect(() => {
     const checkKakaoMap = () => {
@@ -47,14 +46,7 @@ export const useHospitalSearch = () => {
     }
   }, []);
 
-  // src/hooks/useHospitalSearch.ts
-  const searchHospitals = useCallback(async () => {
-    console.log('🔍 searchHospitals 호출됨', {
-      currentLocation,
-      searchRadius,
-      isKakaoLoaded,
-    });
-
+  const searchHospitals = useCallback(async (radius: number) => {
     if (!currentLocation || !isKakaoLoaded) {
       console.log('❌ 검색 불가:', { currentLocation, isKakaoLoaded });
       return [];
@@ -63,29 +55,31 @@ export const useHospitalSearch = () => {
     return new Promise<Hospital[]>((resolve) => {
       try {
         const places = new kakao.maps.services.Places();
-
+        
         const searchCallback = (data: any[], status: any) => {
-          console.log(`📍 ${searchRadius}m 반경 검색 결과:`, {
+          console.log(`📍 ${radius}m 반경 검색 결과:`, {
             status,
-            totalResults: data?.length || 0,
+            totalResults: data?.length || 0
           });
 
           if (status === kakao.maps.services.Status.OK) {
-            const filteredHospitals = data.filter((place) => place.category_group_code === 'HP8');
+            const filteredHospitals = data
+              .filter(place => place.category_group_code === 'HP8')
+              .map(place => ({
+                id: place.id,
+                place_name: place.place_name,
+                distance: (parseInt(place.distance) / 1000).toFixed(1),
+                x: place.x,
+                y: place.y,
+                requested: requestedHospitals.has(place.id)
+              }));
+
             console.log('🏥 필터링된 병원:', {
               전체: data.length,
-              병원수: filteredHospitals.length,
+              병원수: filteredHospitals.length
             });
 
-            const newHospitals = filteredHospitals.map((place) => ({
-              id: place.id,
-              place_name: place.place_name,
-              distance: (parseInt(place.distance) / 1000).toFixed(1),
-              x: place.x,
-              y: place.y,
-              requested: requestedHospitals.has(place.id),
-            }));
-            resolve(newHospitals);
+            resolve(filteredHospitals);
           } else {
             console.log('⚠️ 검색 결과 없음:', status);
             resolve([]);
@@ -94,68 +88,51 @@ export const useHospitalSearch = () => {
 
         places.keywordSearch('병원', searchCallback, {
           location: new kakao.maps.LatLng(currentLocation.lat, currentLocation.lng),
-          radius: searchRadius,
-          sort: kakao.maps.services.SortBy.DISTANCE,
+          radius,
+          sort: kakao.maps.services.SortBy.DISTANCE
         });
       } catch (error) {
-        console.error('🚨 검색 중 오류 발생:', error);
+        console.error('🚨 검색 중 오류:', error);
         resolve([]);
       }
     });
-  }, [currentLocation, searchRadius, requestedHospitals, isKakaoLoaded]);
+  }, [currentLocation, isKakaoLoaded, requestedHospitals]);
 
   const handleSearch = useCallback(async () => {
-    if (!isKakaoLoaded || !currentLocation) {
-      console.log('❌ 검색 시작 불가:', { isKakaoLoaded, currentLocation });
-      return;
-    }
+    if (!isKakaoLoaded || !currentLocation) return;
 
+    setIsSearching(true);
     console.log('🔄 검색 시작:', { searchRadius });
+
     try {
-      setIsSearching(true);
-      const newHospitals = await searchHospitals();
-
-      setHospitals((prev) => {
-        const existingIds = new Set(prev.map((h) => h.id));
-        const uniqueNewHospitals = newHospitals.filter((h) => !existingIds.has(h.id));
-
+      const currentResults = await searchHospitals(searchRadius);
+      
+      setHospitals(prev => {
+        const existingIds = new Set(prev.map(h => h.id));
+        const uniqueNewHospitals = currentResults.filter(h => !existingIds.has(h.id));
+        
         console.log('📊 검색 결과 통계:', {
           기존병원: prev.length,
-          새로검색: newHospitals.length,
+          새로검색: currentResults.length,
           중복제외: uniqueNewHospitals.length,
           최종병원수: prev.length + uniqueNewHospitals.length,
+          현재반경: searchRadius
         });
 
-        const result = [...prev, ...uniqueNewHospitals];
-
         if (searchRadius < 5000) {
-          console.log(`⏰ 30초 후 ${searchRadius + 500}m 반경으로 재검색 예정`);
-          setTimeout(async () => {
-            const nextRadius = searchRadius + 500;
-            console.log(`🔄 ${nextRadius}m 반경 검색 시작`);
+          const nextRadius = searchRadius + 500;
+          console.log(`⏰ 30초 후 ${nextRadius}m 반경으로 재검색 예정`);
+          
+          setTimeout(() => {
             setSearchRadius(nextRadius);
-            // 새로운 반경으로 직접 검색 실행
-            const nextHospitals = await searchHospitals();
-            setHospitals((prevHospitals) => {
-              const existingIds = new Set(prevHospitals.map((h) => h.id));
-              const uniqueNextHospitals = nextHospitals.filter((h) => !existingIds.has(h.id));
-              return [...prevHospitals, ...uniqueNextHospitals];
-            });
-
-            // 다음 검색 예약
-            if (nextRadius < 5000) {
-              handleSearch();
-            } else {
-              console.log('🏁 최대 검색 반경(5km) 도달. 검색 종료');
-              setIsSearching(false);
-            }
+            handleSearch();
           }, 30000);
         } else {
           console.log('🏁 최대 검색 반경(5km) 도달. 검색 종료');
           setIsSearching(false);
         }
 
-        return result;
+        return [...prev, ...uniqueNewHospitals];
       });
     } catch (error) {
       console.error('🚨 검색 처리 중 오류:', error);
@@ -163,26 +140,13 @@ export const useHospitalSearch = () => {
     }
   }, [searchHospitals, isKakaoLoaded, currentLocation, searchRadius]);
 
-  const markHospitalsAsRequested = useCallback(
-    (hospitalIds: string[]) => {
-      setRequestedHospitals((prev) => new Set([...prev, ...hospitalIds]));
-      setHospitals((prev) =>
-        prev.map((hospital) => ({
-          ...hospital,
-          requested: requestedHospitals.has(hospital.id) || hospitalIds.includes(hospital.id),
-        }))
-      );
-    },
-    [requestedHospitals]
-  );
-
   return {
     hospitals,
     searchRadius,
     handleSearch,
-    markHospitalsAsRequested,
+    // markHospitalsAsRequested,
     currentLocation,
     isReady: isKakaoLoaded && currentLocation !== null,
-    isSearching,
+    isSearching
   };
 };
