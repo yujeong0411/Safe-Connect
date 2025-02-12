@@ -14,8 +14,6 @@ export interface DispatchGroupStore {
   lastDispatchResponse: BaseResponseGeneric<DispatchOrderData> | null;
   fetchDispatchGroups: () => Promise<void>;
   setSelectedStation: (station: string | null) => void;
-  sendDispatchOrder: (dispatchGroupId:number, callId:number) => Promise<BaseResponseGeneric<DispatchOrderData>>;
-  handleDispatchResponse: (response: BaseResponseGeneric<DispatchOrderData>) => void;
 }
 
 export interface DispatchGroupResponse {

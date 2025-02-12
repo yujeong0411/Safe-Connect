@@ -11,7 +11,6 @@ export interface FormData {
   callText: string;
   callSummary: string;
   symptom: string;
-  callId: number;
   userId: number;
 }
 
@@ -27,7 +26,6 @@ export interface CurrentCall {
   medications?: string;
   callSummary: string;
   symptom?: string;
-  callId: number;
   userId: number | null;
 }
 
@@ -69,7 +67,7 @@ export interface PatientStore {
   updateFormData: (data:Partial<FormData>) => void;
   setCurrentCall: (callInfo: CallInfo) => void;
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
-  savePatientInfo: () => Promise<void>;
+  savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
   sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
   fetchCallSummary : (callId:number) => Promise<void>

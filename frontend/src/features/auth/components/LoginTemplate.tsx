@@ -11,7 +11,7 @@ const LoginTemplate = ({ children }: { children: React.ReactNode }) => {
       <WaveBackground />
       <PublicHeader />
       {/* 로그인 폼 */}
-      <div className="absolute left-[100px] top-[235px] z-20">{children}</div>
+      <div className="absolute left-[100px] top-[200px] z-20">{children}</div>
 
       {/* 2xl 이상에서만 표시 */}
       <img

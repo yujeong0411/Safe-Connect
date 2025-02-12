@@ -147,15 +147,16 @@ export const fetchDispatchGroups = async () => {
 }
 
 // 출동 지령
-export const dispatchOrder = {
-  // 출동 지령 내리기
-  orderDispatch: async (dispatchGroupId:number, callId: number): Promise<BaseResponseGeneric<DispatchOrderData>> => {
+export const orderDispatch = async (dispatchGroupId:number, callId?:number) => {
     try {
-      const response = await axiosInstance.post<BaseResponseGeneric<DispatchOrderData>>('/control/dispatch_group_order', {dispatchGroupId, callId})
+      // 테스트용 임시 데이터
+      const mockCallId = 1; // 실제 callId가 없을 때 사용할 임시 ID
+
+      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group_order', {dispatchGroupId, callId: callId || mockCallId})
+      console.log("출동 지령 성공", response.data);
       return response.data;
     } catch (error: any) {
       console.error('출동 지령 실패', error)
       throw error;
     }
-  },
-}
+  }

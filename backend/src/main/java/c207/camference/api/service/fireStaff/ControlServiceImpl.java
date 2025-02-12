@@ -27,6 +27,7 @@ import c207.camference.db.repository.call.VideoCallUserRepository;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
 import c207.camference.db.repository.firestaff.FireDeptRepository;
 import c207.camference.db.repository.firestaff.FireStaffRepository;
+import c207.camference.db.repository.patient.PatientRepository;
 import c207.camference.db.repository.report.CallRepository;
 import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
@@ -69,6 +70,7 @@ public class ControlServiceImpl implements ControlService {
     private final SseEmitterService sseEmitterService;
     private final DispatchRepository dispatchRepository;
     private final SmsService smsService;
+    private final PatientRepository patientRepository;
 
 
     @Override
@@ -197,7 +199,10 @@ public class ControlServiceImpl implements ControlService {
         Call call = callRepository.findCallByCallId(request.getCallId());
         call.setCallSummary(request.getCallSummary());
         call.setCallText(request.getCallText());
-        call.setCallTextCreatedAt(LocalDateTime.now());
+        if(!request.getCallSummary().isEmpty() || !request.getCallText().isEmpty()){
+            call.setCallTextCreatedAt(LocalDateTime.now());
+        }
+
 
         User user = null;
         List<MediCategoryDto> mediCategoryDto = null;
@@ -205,7 +210,13 @@ public class ControlServiceImpl implements ControlService {
         // patient insert
         Patient patient = Patient.builder()
                 .callId(call.getCallId())
-                .patientCreatedAt(LocalDateTime.now())
+                .patientBloodSugar(0)
+                .patientDiastolicBldPress(0)
+                .patientSystolicBldPress(0)
+                .patientPulseRate(0)
+                .patientTemperature(0.0f)
+                .patientSpo2(0.0f)
+                .patientMental("A")
                 .build();
 
         // 환자가 가입자
@@ -216,7 +227,11 @@ public class ControlServiceImpl implements ControlService {
             patient.setPatientIsUser(true);
             patient.setPatientName(user.getUserName());
             patient.setPatientGender(user.getUserGender());
-            patient.setPatientAge(user.getUserBirthday());
+
+            int currentYear = LocalDateTime.now().getYear();
+            int birthYear = 1900 + Integer.parseInt(user.getUserBirthday().substring(0, 2));
+            int age = currentYear - birthYear;
+            patient.setPatientAge(String.valueOf(age / 10));
 
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
                     .orElse(null);
@@ -226,6 +241,7 @@ public class ControlServiceImpl implements ControlService {
                 mediCategoryDto = MediUtil.createMediCategoryResponse(medis);
             }
         }
+        patientRepository.save(patient);
 
         // 응답 생성
         CallUpdateResponse response = CallUpdateResponse.builder()

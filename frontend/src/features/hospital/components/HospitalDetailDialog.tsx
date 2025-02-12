@@ -7,7 +7,13 @@ import {useHospitalTransferStore} from "@/store/hospital/hospitalTransferStore.t
 const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) => {
   // 이송 신청 답변
   const handleTransferStatus = async (status:'ACCEPTED' | 'REJECTED') => {
-      if (!data?.patientId) {
+    console.log('handleTransferStatus 호출됨', {
+      patientId: data.patientId,
+      status,
+      fullData: data
+    });
+
+    if (!data?.patientId) {
         console.error('환자 ID가 없습니다');
         return
       }
@@ -26,14 +32,14 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1000px] min-w-[1000px] w-[80%] max-h-[90vh] min-h-[600px] overflow-y-auto p-8 bg-dialog_color">
+      <DialogContent className="max-w-[1000px] min-w-[800px] w-[80%] max-h-[90vh] min-h-[500px] overflow-y-auto p-8 bg-dialog_color">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">이송 상세정보</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 md:space-y-6">
           {/* 첫 번째 줄 */}
-          <div className="grid grid-cols-6 gap-4">
+          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_2fr] gap-4">
             <div>
               <Label className="text-sm mb-1">이름</Label>
               <div
@@ -67,7 +73,7 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
           </div>
 
           {/* 두 번째 줄 */}
-          <div className="grid grid-cols-7 gap-4">
+          <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_2fr] gap-4">
             <div>
               <Label className="text-sm mb-1">SBP</Label>
               <div

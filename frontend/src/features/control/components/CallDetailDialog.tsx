@@ -54,7 +54,7 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
 
         {/* 닫기 버튼 */}
         <div className="flex justify-end">
-          <Button onClick={() => onOpenChange(false)} className="bg-banner" size="lg">
+          <Button onClick={() => onOpenChange(false)} className="bg-banner" size="default">
             닫기
           </Button>
         </div>

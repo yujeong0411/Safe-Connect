@@ -42,7 +42,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
                 return new Date(b.transferAcceptAt!).getTime() - new Date(a.transferArriveAt!).getTime();
               })
       : combinedTransfers
-              .filter((item) => !item.transferAcceptAt) // 수락되지 않은 이송
+              .filter((item) => !item.transferAcceptAt && !item.dispatchTransferAccepted) // 수락되지 않은 이송 및 다른 병원이 수락하지 않은 이송
               .sort((a, b) =>   // 요청시간으로 정렬
               new Date(b.reqHospitalCreatedAt).getTime() - new Date(a.reqHospitalCreatedAt).getTime())
       : [];
@@ -101,18 +101,25 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
   // 테이블 행 클릭 시
   const handleRowClick = async (data: CombinedTransfer) => {
     try {
+      
+      // 이미 다른 병원에서 수락한 경우
+      if (data.dispatchTransferAccepted) {
+        alert('이미 다른 병원에서 수락한 이송 요청입니다.')
+        await  fetchCombinedTransfers();  // 목록 새로고침
+        return
+      }
 
       const detailData = await useHospitalTransferStore
         .getState()
         .fetchTransferDetail(data.dispatchId, type);
       console.log("상세 데이터:", detailData);
       setSelectedPatient({
-        patientId: 4,     // 벡엔드 추가 시 다시 변경  data.patients[0].patientId,
+        patientId:detailData.patientId,    // 현재 null로 들어옴.?? 해결??
         name: detailData.patientName ?? null,
         gender: detailData.patientGender ?? null,
         age: detailData.patientAge ?? null,
         mental: detailData.patientMental,
-        preKTAS: data.patients[0].patientPreKtas,
+        preKTAS: data.patients[0].patientPreKtas,  // 벡엔드 추가 안됨.
         sbp: detailData.patientSystolicBldPress,
         dbp: detailData.patientDiastolicBldPress,
         pr: detailData.patientPulseRate,

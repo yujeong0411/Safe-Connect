@@ -65,9 +65,9 @@ const UserLoginForm = () => {
     <div
       className="
       w-full
-      sm:w-[450px]
+      sm:w-[430px]
       md:w-[626px]
-      min-h-[500px]
+      min-h-[400px]
       relative
       overflow-hidden
       rounded-[20px]
