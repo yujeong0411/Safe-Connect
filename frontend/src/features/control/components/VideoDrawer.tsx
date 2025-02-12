@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
@@ -6,6 +6,7 @@ import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
 import {controlService} from "@features/control/services/controlApiService.ts";
 import {usePatientStore} from "@/store/control/patientStore.tsx";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import {useLocationStore} from "@/store/location/locationStore.tsx";
 
 import useRecorderStore from '@/store/openvidu/MediaRecorderStore.tsx';
 
@@ -16,6 +17,78 @@ interface VideoProps {
 const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {formData, updateFormData, fetchCallSummary} = usePatientStore()
+  const { callId,leaveSession, session } = useOpenViduStore();
+  const setIsLoading = useLocationStore((state) => state.setIsLoading);
+  const setLocation = useLocationStore((state) => state.setLocation);
+
+  // SSE 연결 설정
+  useEffect(() => {
+  // 세션 없으면 연결안함.
+    if (!session) return;
+
+    let eventSource: EventSource | null = null;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const connectSSE = () => {
+      const controlLoginId = localStorage.getItem("userName");
+      if (!controlLoginId) {
+        console.error("사용자 정보가 없습니다.");
+        return;
+      }
+
+      // 이전 연결이 있다면 정리
+      if (eventSource) {
+        eventSource.close();
+      }
+
+      // SSE 연결
+      eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${controlLoginId}`);
+
+      // 메시지 수신 처리
+      eventSource.onmessage = (event) => {
+        const response = JSON.parse(event.data);
+        if (response.isSuccess) {
+          console.log("==== SSE 신고자 위치 데이터 ====");
+          console.log("전체 응답:", response);
+          console.log("위도:", response.data.latitude);
+          console.log("경도:", response.data.longitude);
+          console.log("========================");
+          const { latitude, longitude } = response.data;
+
+          // 위치 정보를 스토어에 저장
+          setLocation(latitude, longitude);
+          setIsLoading(false);
+        }
+      };
+
+      // 에러 처리
+      eventSource.onerror = (error) => {
+        console.error("SSE 연결 에러: ", error);
+        eventSource?.close();
+
+        // 재연결 시도
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+        }
+        reconnectTimeout = setTimeout(connectSSE, 3000);
+      };
+    };
+
+    setIsLoading(true);  // sse 연결 시작 시 로딩 상태로 설정
+
+    // 초기 연결
+    connectSSE();
+
+    // cleanup -  통화가 종료될때만 실행.
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+    };
+  }, [session, setIsLoading, setLocation]);
 
   const { callId,leaveSession } = useOpenViduStore();
   const { stopRecording } = useRecorderStore();
@@ -32,8 +105,13 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     }
 
     try {
-      await controlService.endCall(Number(callId))
+      await controlService.endCall(callId)
       await leaveSession()
+
+      // 위치정보 초기화 및 로딩 상태 변경
+      setLocation(37.566826, 126.9786567)  // 서울시청 좌표로 초기화
+      setIsLoading(true)
+
       alert('신고가 종료되었습니다.')
       setIsOpen(false);  // Drawer 닫기
     } catch (error) {
@@ -48,10 +126,8 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       console.log("callId가 없습니다.")
       return
     }
-
-    // 전화번호를 어떻게 가져오는지???
     try {
-      await controlService.resendUrl(Number(callId));
+      await controlService.resendUrl(callId);
       alert("URL이 재전송되었습니다.");
     } catch (error) {
       console.error("URL 재전송 실패", error);
@@ -80,7 +156,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   }
 
   return (
-    <div className={`flex w-full min-h-screen`}>
+    <div className="flex w-full h-full">
       {/* 왼쪽 패널 - top 위치를 헤더 높이만큼 내림 */}
       <div
         className={`
@@ -129,7 +205,8 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
               <Textarea
                 value={formData.callSummary}
                 onChange={(e) => updateFormData({ callSummary: e.target.value})}
-                placeholder="신고 내용이 자동으로 입렵됩니다."
+                placeholder="AI요약을 누르면 자동으로 요약됩니다."
+                readOnly  // 읽기 전용
                 className="p-4 min-h-[120px] bg-white"
               />
             </div>

@@ -25,11 +25,11 @@ const SearchBar_ver2 = ({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="flex-1 h-10 px-4 bg-white border border-black  focus:border-focus focus:ring-1 text-base focus:outline-none rounded max-w-full w-full" // h-10은 40px
+        className="flex-1 h-10 px-4 bg-white border border-gray-400  focus:ring-blue-200 focus:ring-2 text-base focus:outline-none rounded max-w-full w-full" // h-10은 40px
       />
       <button
         type="submit"
-        className="h-10 px-4 min-w-[90px] whitespace-nowrap bg-banner text-white text-md rounded"
+        className="h-10 px-4 min-w-[5rem] whitespace-nowrap bg-banner text-white text-md rounded-md"
       >
         {buttonText}
       </button>

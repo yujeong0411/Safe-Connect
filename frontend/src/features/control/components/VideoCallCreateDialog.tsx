@@ -22,7 +22,6 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
 
   const navigate = useNavigate();
   const { setIsOpen } = useVideoCallStore();
-
   const {userName} = useControlAuthStore();
 
   const { startRecording, initializeRecorder } = useRecorderStore();

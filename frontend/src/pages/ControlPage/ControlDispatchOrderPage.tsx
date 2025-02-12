@@ -8,7 +8,7 @@ import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 //import {usePatientStore} from "@/store/control/patientStore.tsx";
 import {orderDispatch} from "@features/control/services/controlApiService.ts";
-import { error } from 'console';
+
 import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 
 const ControlDispatchOrderPage = () => {
@@ -25,6 +25,10 @@ const ControlDispatchOrderPage = () => {
   });
   const {callId} = useOpenViduStore()
 
+  // 마커 클릭 시
+  const handleMarkerClick = (station: FireStation) => {
+    setSelectedStation(selectedStation === station.place_name ? null : station.place_name);
+  }
 
   // SSE 훅 추가
   // useSSE<DispatchOrderData>({
@@ -119,36 +123,10 @@ const ControlDispatchOrderPage = () => {
     if (!controlLoginId) {
       throw new Error("사용자 정보가 없습니다.")
     }
-
-    // SSE 구독
-    const eventSource = startSSESubscription(controlLoginId);
-
-    // 출동 지령 HTTP 요청 전송
-    await orderDispatch(selectedTeam, callId); // dispatchGroupId, callId
-
-    handleAlertClose({
-      title: "출동 지령 전송",
-      description: "출동 지령이 전송되었습니다.",
-      type: "default",
-    });
-
-    // 컴포넌트 unmount 시 SSE 연결 종료
-    return () => {
-      eventSource.close();
-    }
-   } catch (error) {
-    handleAlertClose({
-      title: "출동 지령 전송 실패",
-      description: "출동 지령 전송에 실패했습니다.",
-      type: "default",
-    });
-   }
-
-
     // try {
     //   // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
     //   // await orderDispatch(selectedTeam);
-    //   await orderDispatch(selectedTeam, callId);
+    //    await orderDispatch(selectedTeam, callId);
     //   handleAlertClose({
     //     title: '출동 지령 전송',
     //     description: '출동 지령이 전송되었습니다.',
@@ -162,16 +140,79 @@ const ControlDispatchOrderPage = () => {
     //     description: '출동 지령 전송에 실패했습니다.',
     //     type: 'destructive',
     //   });
-    // }
-  };
 
 
-  // 예상 시간 계산 (카카오 제공 안함.)
-  const calculatedEstimatedTime = (distanceInMeters: string) => {
-    const distance = parseInt(distanceInMeters);
-    const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
-    return Math.round(distance / speedInMetersPerMinute);
-  };
+    try {
+      const controlLoginId = localStorage.getItem("userName");
+      if (!controlLoginId) {
+        throw new Error("사용자 정보가 없습니다.")
+      }
+
+      // SSE 구독
+      const startSSESubscription = (userName: string) => {
+        const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
+
+        eventSource.onmessage = (event) => {
+          const response = JSON.parse(event.data);
+          if (response.isSuccess) {
+            handleAlertClose({
+              title: "출동 지령 전송 성공",
+              description: `소방팀 ${response.data.dispatchGroupId}팀에게 출동 지령을 보냈습니다.`,
+              type: "default"
+            });
+          } else {
+            handleAlertClose({
+              title: "출동 지령 전송 실패",
+              description: response.message || "출동 지령 전송에 실패했습니다.",
+              type: "destructive"
+            });
+          }
+        };
+
+        eventSource.onerror = (error) => {
+          console.error("SSE 연결 에러: ", error);
+          eventSource.close();
+        };
+
+        return eventSource;
+      };
+
+      // SSE 구독
+      const eventSource = startSSESubscription(controlLoginId);
+
+      // 출동 지령 HTTP 요청 전송
+      await orderDispatch(selectedTeam, callId); // dispatchGroupId, callId
+
+      handleAlertClose({
+        title: "출동 지령 전송",
+        description: "출동 지령이 전송되었습니다.",
+        type: "default",
+      });
+
+      // 상태 초기화
+      setSelectedTeam(null);
+      setSelectedStation(null);
+
+      // 컴포넌트 unmount 시 SSE 연결 종료
+      return () => {
+        eventSource.close();
+      }
+    } catch (error) {
+      handleAlertClose({
+        title: "출동 지령 전송 실패",
+        description: "출동 지령 전송에 실패했습니다.",
+        type: "default",
+      });
+    }
+  }
+
+
+  // 예상 시간 계산 (카카오 제공 안함.)   -> TMAP 대체함
+  // const calculatedEstimatedTime = (distanceInMeters: string) => {
+  //   const distance = parseInt(distanceInMeters);
+  //   const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
+  //   return Math.round(distance / speedInMetersPerMinute);
+  // };
 
   // 소방팀 선택 처리
   const handleSelectTeam = (dispatchGroupId: number) => {
@@ -205,12 +246,7 @@ const ControlDispatchOrderPage = () => {
         )}
 
         <div className="absolute inset-0">
-          <KakaoMap FindFireStations={setFireStations} />
-        </div>
-
-        {/* Map Section - Full Width */}
-        <div className="absolute inset-0">
-          <KakaoMap FindFireStations={setFireStations} />
+          <KakaoMap FindFireStations={setFireStations} onMarkerClick={handleMarkerClick} selectedStation={selectedStation} />
         </div>
 
         {/* 소방서 목록 패널 */}
@@ -239,9 +275,7 @@ const ControlDispatchOrderPage = () => {
                 <div
                   key={station.place_name}
                   onClick={() =>
-                    setSelectedStation(
-                      selectedStation === station.place_name ? null : station.place_name
-                    )
+                    handleMarkerClick(station)
                   }
                   className="p-4 mb-4 bg-rose-30 rounded-lg border border-rose-200 cursor-pointer"
                 >
@@ -249,12 +283,12 @@ const ControlDispatchOrderPage = () => {
                   <div className="mt-2 text-sm space-y-1">
                     <div className="flex justify-between">
                       <span>거리</span>
-                      <span className="font-medium">{station.distance}m</span>
+                      <span className="font-medium">{station.distance}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>도착 예상 시간</span>
                       <span className="font-medium">
-                        {calculatedEstimatedTime(station.distance)}분
+                        {station.eta}
                       </span>
                     </div>
                   </div>
@@ -289,7 +323,7 @@ const ControlDispatchOrderPage = () => {
           </div>
         </div>
       </div>
-      {/*selectedTeam={selectedTeam} 추가하기 */}
+      {/*삭제 */}
       {/*<DispatchOrderDialog open={isDispatchDialogOpen} onOpenChange={setIsDispatchDialogOpen} />*/}
     </ControlMainTemplate>
   );

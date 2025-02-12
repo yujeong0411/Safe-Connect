@@ -19,9 +19,10 @@ const UserRoutes = () => {
       {/* 인증된 사용자만 접근가능 */}
       <Route element={<PrivateRoute />}>
         <Route path="main" element={<UserMainPage />} />
-        <Route path="info" element={<UserInfoPage />} /> // 로그인 연결될때까지만 public!!
-        <Route path="medi" element={<UserMediPage />} /> // 로그인 연결될때까지만 public!!
+        <Route path="info" element={<UserInfoPage />} />
+        <Route path="medi" element={<UserMediPage />} />
         <Route path="updatepassword" element={<UserUpdatePwPage />} /> // 로그인
+        <Route path="signup/medi" element={<UserSignupPage3 />} />
       </Route>
 
       {/* 모든 사용자 접근 가능 */}
@@ -30,7 +31,6 @@ const UserRoutes = () => {
         <Route path="login" element={<UserLoginPage />} />
         <Route path="signup" element={<UserSignupPage1 />} />
         <Route path="signup/info" element={<UserSignupPage2 />} />
-        <Route path="signup/medi" element={<UserSignupPage3 />} />
         <Route path="findemail" element={<UserFindEmailPage />} />
         <Route path="findpassword" element={<UserFindPwPage />} />
       </Route>

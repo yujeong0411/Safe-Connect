@@ -8,8 +8,8 @@ export interface FormData {
   userProtectorPhone: string;
   diseases: string;
   medications: string;
-  callText: string;
   callSummary: string;
+  addSummary:string;
   symptom: string;
   userId: number;
 }

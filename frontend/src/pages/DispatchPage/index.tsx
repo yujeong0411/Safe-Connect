@@ -4,8 +4,8 @@ import DispatchTable from '@/components/molecules/DispatchTable/DispatchTable';
 import TransferDetailDialog from '@/features/dispatch/components/TransferDetailDialog';
 import { useDispatchData } from '@/features/dispatch/hooks/useDispatchData';
 import { DispatchData } from '@/features/dispatch/types/types';
-import { Description } from '@radix-ui/react-dialog';
-import { error } from 'console';
+// import { Description } from '@radix-ui/react-dialog';
+// import { error } from 'console';
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 
 interface DispatchOrderResponse {
