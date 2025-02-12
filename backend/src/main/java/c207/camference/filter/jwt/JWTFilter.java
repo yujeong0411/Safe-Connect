@@ -33,7 +33,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals("/reissue")) {
+        System.out.println("Filter executing for URI: " + request.getRequestURI());
+
+        if (request.getRequestURI().endsWith("/reissue")) {
             System.out.println("Reissue request detected, skipping JWT validation");
             filterChain.doFilter(request, response);
             return;
