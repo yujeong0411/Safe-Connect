@@ -53,7 +53,7 @@ public class ControlLoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access",controlDetails.getUsername(), "ROLE_CONTROL",30*1000L);
+        String access = jwtUtil.createJwt("access",controlDetails.getUsername(), "ROLE_CONTROL",24*60*60*1000L);
         String refresh = jwtUtil.createJwt("refresh",controlDetails.getUsername(), "ROLE_CONTROL",24 * 60 * 60*1000L);
 
         //Refresh 토큰 저장
