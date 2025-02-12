@@ -166,8 +166,8 @@ public class WebRtcServiceImpl implements WebRtcService {
             // 설정 객체 생성
             RecognitionConfig recognitionConfig =
                     RecognitionConfig.newBuilder()
-                            .setEncoding(RecognitionConfig.AudioEncoding.FLAC)
-                            .setSampleRateHertz(44100)
+                            .setEncoding(RecognitionConfig.AudioEncoding.WEBM_OPUS)
+                            .setSampleRateHertz(48000)
                             .setLanguageCode("ko-KR")
                             .build();
 
