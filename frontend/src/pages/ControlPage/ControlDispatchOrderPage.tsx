@@ -25,6 +25,11 @@ const ControlDispatchOrderPage = () => {
   });
   const {callId} = useOpenViduStore()
 
+  // 마커 클릭 시
+  const handleMarkerClick = (station: FireStation) => {
+    setSelectedStation(selectedStation === station.place_name ? null : station.place_name);
+  }
+
 
   // // SSE 훅 추가
   // useSSE<DispatchOrderData>({
@@ -204,12 +209,7 @@ const ControlDispatchOrderPage = () => {
         )}
 
         <div className="absolute inset-0">
-          <KakaoMap FindFireStations={setFireStations} />
-        </div>
-
-        {/* Map Section - Full Width */}
-        <div className="absolute inset-0">
-          <KakaoMap FindFireStations={setFireStations} />
+          <KakaoMap FindFireStations={setFireStations} onMarkerClick={handleMarkerClick} selectedStation={selectedStation} />
         </div>
 
         {/* 소방서 목록 패널 */}
@@ -238,9 +238,7 @@ const ControlDispatchOrderPage = () => {
                 <div
                   key={station.place_name}
                   onClick={() =>
-                    setSelectedStation(
-                      selectedStation === station.place_name ? null : station.place_name
-                    )
+                    handleMarkerClick(station)
                   }
                   className="p-4 mb-4 bg-rose-30 rounded-lg border border-rose-200 cursor-pointer"
                 >

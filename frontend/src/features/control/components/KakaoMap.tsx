@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Map, MapMarker, MapTypeControl, ZoomControl } from 'react-kakao-maps-sdk';
 import useKakaoLoader from '@/hooks/useKakaoLoader.ts';
-import { Marker, KakaoMapProps } from '@features/control/types/kakaoMap.types.ts';
+import { Marker, ExtendedKakaoMapProps, FireStation } from '@features/control/types/kakaoMap.types.ts';
 import userMaker from '@assets/image/marker2.png'
 import dispatchMarker from '@assets/image/119maker.png'
 import {useLocationStore} from "@/store/location/locationStore.tsx";
 
-const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
+
+const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: ExtendedKakaoMapProps) => {
   useKakaoLoader();
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [info, setInfo] = useState<Marker | null>(null);
-
   const {center, isLoading} = useLocationStore();
 
   // 위치 변경 감지를 위한 useEffect 추가
@@ -69,6 +69,7 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
               },
               content: place.place_name,
               distance: place.distance, // 거리 정보
+              placeData: place  // 원본 장소 데이터 저장
             };
             bounds.extend(new kakao.maps.LatLng(marker.position.lat, marker.position.lng));
             return marker;
@@ -88,7 +89,7 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
         radius: 10000, // 10km 반경
       }
     );
-  }, [map, center]);
+  }, [map, center, FindFireStations]);
 
 
   // center가 변경될때마다 중심 이동
@@ -98,7 +99,13 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
     }
   }, [map, center])
 
-
+// 마커 클릭 시
+  const handleMarkerClick = (marker: Marker) => {
+    setInfo(marker)
+    if (onMarkerClick && marker.placeData) {
+      onMarkerClick(marker.placeData as FireStation);
+    }
+  }
   return (
     <Map
       id="map"
@@ -131,29 +138,44 @@ const KakaoMaps = ({ FindFireStations }: KakaoMapProps) => {
         <MapMarker // 마커를 생성
           key={`${marker.content}-${marker.position.lat},${marker.position.lng}`}
           position={marker.position}
-          onClick={() => setInfo(marker)}
+          onClick={() => handleMarkerClick(marker)}
           image={{
-            src: dispatchMarker, // 마커이미지의 주소입니다
+            src: dispatchMarker,
             size: {
-              width: 64,
-              height: 69,
+              width: 100,
+              height: 100,
             }, // 마커이미지의 크기
             options: {
               offset: {
                 x: 27,
                 y: 69,
-              }, // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+              }, // 마커이미지의 옵션
             },
           }}
         >
-          {info && info.content === marker.content && (
-            <div style={{ color: '#000' }}>{marker.content}</div>
+          {(info?.content === marker.content || selectedStation === marker.content) && (
+              <div
+                  style={{
+                    position: 'relative', // 기본 인포윈도우 스타일 방지
+                    color: '#333',
+                    padding: '5px 12px',
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap',
+                    transition: 'opacity 0.3s ease-in-out'
+                  }}
+              >
+                🚑 {marker.content}
+              </div>
           )}
         </MapMarker>
       ))}
 
-      <MapTypeControl position={'TOPLEFT'} />
-      <ZoomControl position={'LEFT'} />
+      <MapTypeControl position={'TOPLEFT'}/>
+      <ZoomControl position={'LEFT'}/>
     </Map>
   );
 };

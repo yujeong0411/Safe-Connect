@@ -5,6 +5,7 @@ export interface Marker {
     };
     content: string;
     distance?:string;
+    placeData?:any
 }
 
 export interface KakaoMapProps {
@@ -19,4 +20,9 @@ export interface FireStation {
     id: string;
     x: string;
     y: string;
+}
+
+export interface ExtendedKakaoMapProps extends KakaoMapProps {
+    onMarkerClick?: (station:FireStation) => void;
+    selectedStation?: string | null;
 }
