@@ -137,8 +137,7 @@ public class ControlServiceImpl implements ControlService {
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
 
             List<MediCategoryDto> mediCategoryDto = null;
-            UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
-                    .orElse(null);
+            UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
 
             if (userMediDetail != null) {
                 List<Medi> medis = getUserActiveMedis(userMediDetail);
@@ -233,8 +232,7 @@ public class ControlServiceImpl implements ControlService {
             int age = currentYear - birthYear;
             patient.setPatientAge(String.valueOf(age / 10));
 
-            UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user)
-                    .orElse(null);
+            UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
 
             if (userMediDetail != null) {
                 List<Medi> medis = getUserActiveMedis(userMediDetail);

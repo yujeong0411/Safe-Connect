@@ -11,14 +11,17 @@ import c207.camference.db.entity.users.UserMediMapping;
 import c207.camference.db.repository.users.UserMediDetailRepository;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
 public class PatientTransferResponse {
 
-    private Integer dispatchId;
-    private Patient patient;
+    private final Integer dispatchId;
+    private final Patient patient;
     private List<MediCategoryDto> mediInfo;
 
     public PatientTransferResponse(Dispatch dispatch, Patient patient, UserMediDetailRepository userMediDetailRepository) {
@@ -43,10 +46,8 @@ public class PatientTransferResponse {
         // user면 medi 넣어주기
         if (patient.getPatientIsUser()) {
             User user = patient.getUser();
-            Optional<UserMediDetail> userMediDetailOpt = userMediDetailRepository.findByUser(user);
-            if (userMediDetailOpt.isPresent()) {
-                UserMediDetail userMediDetail = userMediDetailOpt.get();
-
+            UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
+            if (userMediDetail!=null) {
                 // 활성화된 medi만
                 List<Medi> activeMedis = new ArrayList<>();
                 for (UserMediMapping mapping : userMediDetail.getUserMediMappings()) {

@@ -5,6 +5,7 @@ import { fetchDispatchGroups } from '@features/control/services/controlApiServic
 export const useDispatchGroupStore = create<DispatchGroupStore>((set, get) => ({
   dispatchGroups: [],
   selectedStation: null,
+  lastDispatchResponse: null,
 
   // 출동 그룹 불러오기
   fetchDispatchGroups: async () => {
