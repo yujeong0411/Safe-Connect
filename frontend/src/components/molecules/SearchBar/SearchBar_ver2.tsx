@@ -29,7 +29,7 @@ const SearchBar_ver2 = ({
       />
       <button
         type="submit"
-        className="h-10 px-4 min-w-[90px] whitespace-nowrap bg-banner text-white text-md rounded"
+        className="h-10 px-4 min-w-[5rem] whitespace-nowrap bg-banner text-white text-md rounded-md"
       >
         {buttonText}
       </button>
