@@ -17,7 +17,7 @@ import c207.camference.api.response.report.DispatchResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
 import c207.camference.api.service.webrtc.WebRtcService;
-import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
@@ -74,7 +74,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final PatientRepository patientRepository;
     private final UserMediDetailRepository userMediDetailRepository;
     private final ObjectMapper objectMapper;
-    private final SseEmitterService sseEmitterService;
+    private final SseEmitterServiceImpl sseEmitterService;
     private final CallRepository callRepository;
     private final WebRtcService webRtcService;
 
