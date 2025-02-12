@@ -29,13 +29,14 @@ const DispatchPage = () => {
     type: "default" as "default" | "destructive",
   });
 
+  
   // 알림 처리 함수
   const handleAlertClose = (config: typeof alertConfig) => {
     setAlertConfig(config);
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 1000);
+    }, 10000);
   }
 
   useEffect(() => {
