@@ -130,10 +130,25 @@ export const useHospitalSearch = () => {
 
         if (searchRadius < 5000) {
           console.log(`⏰ 30초 후 ${searchRadius + 500}m 반경으로 재검색 예정`);
-          setTimeout(() => {
-            console.log(`🔄 ${searchRadius + 500}m 반경 검색 시작`);
-            setSearchRadius((prev) => prev + 500);
-            handleSearch();
+          setTimeout(async () => {
+            const nextRadius = searchRadius + 500;
+            console.log(`🔄 ${nextRadius}m 반경 검색 시작`);
+            setSearchRadius(nextRadius);
+            // 새로운 반경으로 직접 검색 실행
+            const nextHospitals = await searchHospitals();
+            setHospitals((prevHospitals) => {
+              const existingIds = new Set(prevHospitals.map((h) => h.id));
+              const uniqueNextHospitals = nextHospitals.filter((h) => !existingIds.has(h.id));
+              return [...prevHospitals, ...uniqueNextHospitals];
+            });
+
+            // 다음 검색 예약
+            if (nextRadius < 5000) {
+              handleSearch();
+            } else {
+              console.log('🏁 최대 검색 반경(5km) 도달. 검색 종료');
+              setIsSearching(false);
+            }
           }, 30000);
         } else {
           console.log('🏁 최대 검색 반경(5km) 도달. 검색 종료');
