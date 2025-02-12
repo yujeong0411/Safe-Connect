@@ -138,9 +138,9 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   },
 
   // 신고내용 요약
-  fetchCallSummary: async (callId:number) => {
+  fetchCallSummary: async (callId:number, audioBlob: Blob) => {
     try {
-      const response= await controlService.callSummary(callId)
+      const response= await controlService.callSummary(Number(callId), audioBlob);
       if (response) {
         set(state => ({
           ...state,
