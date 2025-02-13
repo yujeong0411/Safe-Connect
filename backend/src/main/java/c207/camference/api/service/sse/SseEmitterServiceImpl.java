@@ -89,14 +89,14 @@ public class SseEmitterServiceImpl implements SseEmitterService {
 
     @Override
     // 상황실-구급팀 출동 지령
-    public void sendDispatchOrder(DispatchOrderRequest data) {
+    public void sendDispatchOrder(DispatchOrderRequest controlData) {
         // 상황실에 응답 전송
 //        List<Integer> deadControlEmitters = new ArrayList<>();
         List<String> deadControlEmitters = new ArrayList<>();
         controlEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
-                        .data(ResponseUtil.success(data, "출동 지령 전송 성공")));
+                        .data(ResponseUtil.success(controlData, "출동 지령 전송 성공")));
             } catch (IOException e) {
                 deadControlEmitters.add(clientId);
             }
@@ -110,7 +110,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
-                        .data(ResponseUtil.success(data, "출동 지령 수신")));
+                        .data(ResponseUtil.success(controlData, "출동 지령 수신")));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
             }

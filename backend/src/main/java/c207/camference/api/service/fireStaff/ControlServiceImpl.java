@@ -230,7 +230,8 @@ public class ControlServiceImpl implements ControlService {
             int currentYear = LocalDateTime.now().getYear();
             int birthYear = 1900 + Integer.parseInt(user.getUserBirthday().substring(0, 2));
             int age = currentYear - birthYear;
-            patient.setPatientAge(String.valueOf(age / 10));
+            String ageString = String.valueOf(age / 10);
+            patient.setPatientAge(ageString.substring(0, 1));
 
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
 

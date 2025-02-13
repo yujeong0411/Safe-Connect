@@ -8,6 +8,20 @@ import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 import {orderDispatch} from "@features/control/services/controlApiService.ts";
 import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
+import { usePatientStore } from '@/store/control/patientStore';
+
+
+interface DispatchOrderResponse {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+  data: {
+    dispatchGroupId: number;
+    callId: number;
+    patientId: number;
+  }
+}
+
 
 const ControlDispatchOrderPage = () => {
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
@@ -20,6 +34,12 @@ const ControlDispatchOrderPage = () => {
     type: 'default' as 'default' |'destructive',
   });
   const {callId} = useOpenViduStore()
+  const { currentCall } = usePatientStore.getState();
+  if (!currentCall) {
+    console.error("현재 처리 중인 신고가 없습니다.");
+    return;
+  }
+  const patientId = currentCall.patientId;
 
   // 마커 클릭 시
   const handleMarkerClick = (station: FireStation) => {
@@ -36,6 +56,32 @@ const ControlDispatchOrderPage = () => {
         type: "destructive",
       });
     }
+
+    let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    if (subscribeUrl !== "http://localhost:8080") {
+      subscribeUrl += "/api"
+    }
+
+    // SSE 연결
+    const eventSource = new EventSource(`${subscribeUrl}/control/subscribe?clientId=${controlLoginId}`);
+
+    eventSource.onopen = () => {
+      console.log("SSE connection opened")
+    }
+
+    eventSource.onmessage = (event) => {
+      const response: DispatchOrderResponse = JSON.parse(event.data);
+      console.log("SSE data: ", response)
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE Connection error: ", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
 
@@ -61,8 +107,8 @@ const ControlDispatchOrderPage = () => {
 
     try {
       // 출동 지령 HTTP 요청 전송
-      if (callId) {
-        await orderDispatch(selectedTeam, callId); // dispatchGroupId, callId
+      if (callId && patientId) {
+        await orderDispatch(selectedTeam, callId, patientId); // dispatchGroupId, callId, patientId
       }
 
       handleAlertClose({
