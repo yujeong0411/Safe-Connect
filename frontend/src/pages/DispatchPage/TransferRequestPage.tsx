@@ -78,7 +78,7 @@ const TransferRequestPage = () => {
   };
 
   return (
-    <DispatchMainTemplate logoutDirect={() => Promise.resolve()}>
+    <DispatchMainTemplate>
       <div className="relative h-screen">
         {showAlert && (
           <div className="fixed left-1/2 top-20 -translate-x-1/2 z-50">

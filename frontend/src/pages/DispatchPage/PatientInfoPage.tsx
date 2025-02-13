@@ -54,7 +54,7 @@ const PatientInfoPage = () => {
   };
 
   return (
-    <DispatchMainTemplate logoutDirect={() => Promise.resolve()}>
+    <DispatchMainTemplate >
       <div className="p-8 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-6">환자 정보 작성</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 rounded-lg shadow-sm">

@@ -81,7 +81,7 @@ const DispatchPage = () => {
   }, []); // 컴포넌트 마운트 시 한 번만 실행
 
   return (
-    <DispatchMainTemplate logoutDirect={() => Promise.resolve()}>
+    <DispatchMainTemplate>
       {/* Alert UI */}
       {showAlert && (
         <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">

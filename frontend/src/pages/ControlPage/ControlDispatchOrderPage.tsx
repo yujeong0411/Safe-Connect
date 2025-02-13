@@ -30,31 +30,6 @@ const ControlDispatchOrderPage = () => {
     setSelectedStation(selectedStation === station.place_name ? null : station.place_name);
   }
 
-  // SSE 훅 추가
-  // useSSE<DispatchOrderData>({
-  //   subscribeUrl: "http://localhost:8080/control/subscribe",
-  //   clientId: 1, // 실제 로그인 한 사용자의 pk
-  //   onMessage: (response) => {
-  //     console.log("SSE 메시지 수신:", response);
-  //     if (response.isSuccess) {
-  //       handleDispatchResponse(response); // store에 응답 저장
-  //       handleAlertClose({
-  //         title: "출동 지령 응답",
-  //         description: response.message,
-  //         type: "default",
-  //       });
-  //     }
-  //   },
-  //   onError: (error) => {
-  //     console.error("SSE 연결 오류: ", error);
-  //     handleAlertClose({
-  //       title:" 연결 오류",
-  //       description: "서버와의 연결이 끊어졌습니다. 재연결을 시도합니다.",
-  //       type: "destructive",
-  //     });
-  //   }
-  // });
-
 
   // 3초 후 사라지는 로직
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -76,61 +51,46 @@ const ControlDispatchOrderPage = () => {
       return;
     }
 
-    // 테스트 동안 제거
-    // if (!callId) {
-    //   handleAlertClose({
-    //     title:"신고 정보 없음",
-    //     description: "현재 처리 중인 신고가 없습니다.",
-    //     type: 'destructive',
-    //   })
-    //   return
-    // }
+    // // SSE 구독
+    // const startSSESubscription = (userName: string) => {
+    //   // const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
+    //   const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/subscribe?clientId=${userName}`);
+    //
+    //   eventSource.onmessage = (event) => {
+    //     const response = JSON.parse(event.data);
+    //     if (response.isSuccess) {
+    //       handleAlertClose({
+    //         title: "출동 지령 전송 성공",
+    //         description: `소방팀 ${response.data.dispatchGroupId}팀에게 출동 지령을 보냈습니다.`,
+    //         type: "default"
+    //       });
+    //     } else {
+    //       handleAlertClose({
+    //         title: "출동 지령 전송 실패",
+    //         description: response.message || "출동 지령 전송에 실패했습니다.",
+    //         type: "destructive"
+    //       });
+    //     }
+    //   };
+    //
+    //   eventSource.onerror = (error) => {
+    //     console.error("SSE 연결 에러: ", error);
+    //     eventSource.close();
+    //   };
+    //
+    //   return eventSource;
+    // };
 
 
-    // SSE 구독
-    const startSSESubscription = (userName: string) => {
-      // const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
-      const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/subscribe?clientId=${userName}`);
-
-      eventSource.onmessage = (event) => {
-        const response = JSON.parse(event.data);
-        if (response.isSuccess) {
-          handleAlertClose({
-            title: "출동 지령 전송 성공",
-            description: `소방팀 ${response.data.dispatchGroupId}팀에게 출동 지령을 보냈습니다.`,
-            type: "default"
-          });
-        } else {
-          handleAlertClose({
-            title: "출동 지령 전송 실패",
-            description: response.message || "출동 지령 전송에 실패했습니다.",
-            type: "destructive"
-          });
-        }
-      };
-
-      eventSource.onerror = (error) => {
-        console.error("SSE 연결 에러: ", error);
-        eventSource.close();
-      };
-
-      return eventSource;
-    };
-
+    try {
+      const controlLoginId = localStorage.getItem("userName");
+      if (!controlLoginId) {
+        throw new Error("사용자 정보가 없습니다.");
+      }
 
       // SSE 구독
       const startSSESubscription = (userName: string) => {
         const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
-
-      try {
-        const controlLoginId = localStorage.getItem("userName");
-        if (!controlLoginId) {
-          throw new Error("사용자 정보가 없습니다.")
-        }
-
-        // SSE 구독
-        const startSSESubscription = (userName: string) => {
-          const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
 
           eventSource.onmessage = (event) => {
             const response = JSON.parse(event.data);
@@ -185,14 +145,6 @@ const ControlDispatchOrderPage = () => {
         });
       }
     }
-
-
-    // 예상 시간 계산 (카카오 제공 안함.)   -> TMAP 대체함
-    // const calculatedEstimatedTime = (distanceInMeters: string) => {
-    //   const distance = parseInt(distanceInMeters);
-    //   const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
-    //   return Math.round(distance / speedInMetersPerMinute);
-    // };
 
     // 소방팀 선택 처리
     const handleSelectTeam = (dispatchGroupId: number) => {
@@ -310,5 +262,5 @@ const ControlDispatchOrderPage = () => {
         </ControlMainTemplate>
     );
   }
-}
+
 export default ControlDispatchOrderPage;
