@@ -4,6 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class ShareLocationRequest {
-    private double latitude;
-    private double longitude;
+    private double lat;
+    private double lng;
+    private String sessionId;
+
 }
