@@ -122,7 +122,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     // 병원-구급팀 환자 이송 요청
     public void transferRequest(DispatchGroupPatientTransferResponse dispatchGroupData, HospitalPatientTransferResponse hospitalData) {
         // 병원에 응답 전송
-        List<Integer> daedHospitalEmitters = new ArrayList<>();
+        List<Integer> deadHospitalEmitters = new ArrayList<>();
         // 이송 요청 받은 병원에만
         hospitalEmitters.forEach((clientId, emitter) -> {
             List<String> hospitalNames = dispatchGroupData.getHospitalNames();
@@ -137,11 +137,11 @@ public class SseEmitterServiceImpl implements SseEmitterService {
                     emitter.send(SseEmitter.event()
                             .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
                 } catch (IOException e) {
-                    daedHospitalEmitters.add(clientId);
+                    deadHospitalEmitters.add(clientId);
                 }
             }
         });
-        daedHospitalEmitters.forEach(hospitalEmitters::remove);
+        deadHospitalEmitters.forEach(hospitalEmitters::remove);
 
         // 구급팀에 응답 전송
 //        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
@@ -198,16 +198,21 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     // 상황실에 신고자 위치 공유
     public void shareCallerLocation(ShareLocationRequest request) {
         // 상황실에 응답 전송
-        List<String> daedControlEmitters = new ArrayList<>();
-        controlEmitters.forEach((clientId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event()
-                        .data(ResponseUtil.success(request, "신고자 위치 수신 성공")));
-            } catch (IOException e) {
-                daedControlEmitters.add(clientId);
+        // 아이디 분리
+        String clientId = request.getSessionId().split("-")[1];
+
+        List<String> deadControlEmitters = new ArrayList<>();
+        controlEmitters.forEach((emitterId, emitter) -> {
+            if (emitterId.equals(clientId)) {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .data(ResponseUtil.success(request, "신고자 위치 수신 성공")));
+                } catch (IOException e) {
+                    deadControlEmitters.add(emitterId);
+                }
             }
         });
-        daedControlEmitters.forEach(controlEmitters::remove);
+        deadControlEmitters.forEach(controlEmitters::remove);
     }
 
 
