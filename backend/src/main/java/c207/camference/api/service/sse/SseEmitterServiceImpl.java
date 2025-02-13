@@ -12,37 +12,124 @@ import c207.camference.util.response.ResponseUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class SseEmitterServiceImpl implements SseEmitterService {
-//    private final Map<Integer, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
+
+
+    private static final long TIMEOUT = 30 * 60 * 1000L; // 30분
+    private static final long HEARTBEAT_DELAY = 25000L;  // 25초
+
+
     private final Map<String, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
-//    private final Map<Integer, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
     private final HospitalRepository hospitalRepository;
+    private final ScheduledExecutorService heartbeatExecutor;
 
     public SseEmitterServiceImpl(HospitalRepository hospitalRepository) {
         this.hospitalRepository = hospitalRepository;
+        this.heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
     }
 
 
-/*
-    public SseEmitter createControlEmitter(Integer clientId) {
-        return createEmitter(clientId, controlEmitters);
+    @PostConstruct
+    private void startHeartbeat() {
+        heartbeatExecutor.scheduleAtFixedRate(
+                this::sendHeartbeat,
+                HEARTBEAT_DELAY,
+                HEARTBEAT_DELAY,
+                TimeUnit.MILLISECONDS
+        );
     }
-*/
+
+    @PreDestroy
+    private void stopHeartbeat() {
+        heartbeatExecutor.shutdown();
+    }
+
+    private void sendHeartbeat() {
+        // Control emitters heartbeat
+        List<String> deadControlEmitters = new ArrayList<>();
+        controlEmitters.forEach((clientId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("heartbeat")
+                        .data("ping")
+                        .id(String.valueOf(System.currentTimeMillis())));
+            } catch (IOException e) {
+                deadControlEmitters.add(clientId);
+            }
+        });
+        deadControlEmitters.forEach(controlEmitters::remove);
+
+        // Dispatch group emitters heartbeat
+        List<String> deadDispatchEmitters = new ArrayList<>();
+        dispatchGroupEmitters.forEach((clientId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("heartbeat")
+                        .data("ping")
+                        .id(String.valueOf(System.currentTimeMillis())));
+            } catch (IOException e) {
+                deadDispatchEmitters.add(clientId);
+            }
+        });
+        deadDispatchEmitters.forEach(dispatchGroupEmitters::remove);
+
+        // Hospital emitters heartbeat
+        List<Integer> deadHospitalEmitters = new ArrayList<>();
+        hospitalEmitters.forEach((clientId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("heartbeat")
+                        .data("ping")
+                        .id(String.valueOf(System.currentTimeMillis())));
+            } catch (IOException e) {
+                deadHospitalEmitters.add(clientId);
+            }
+        });
+        deadHospitalEmitters.forEach(hospitalEmitters::remove);
+
+        // Caller emitters heartbeat
+        List<Integer> deadCallerEmitters = new ArrayList<>();
+        callerEmitters.forEach((clientId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("heartbeat")
+                        .data("ping")
+                        .id(String.valueOf(System.currentTimeMillis())));
+            } catch (IOException e) {
+                deadCallerEmitters.add(clientId);
+            }
+        });
+        deadCallerEmitters.forEach(callerEmitters::remove);
+    }
 
     @Override
     public SseEmitter createControlEmitter(String clientId) {
-        SseEmitter emitter = new SseEmitter(60000L);
+        SseEmitter emitter = new SseEmitter(TIMEOUT);
         controlEmitters.put(clientId, emitter);
+
+        // 초기 연결 메시지 전송
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("Connected!")
+                    .id(String.valueOf(System.currentTimeMillis())));
+        } catch (IOException e) {
+        }
 
         emitter.onCompletion(() -> controlEmitters.remove(clientId));
         emitter.onTimeout(() -> controlEmitters.remove(clientId));
@@ -50,16 +137,19 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         return emitter;
     }
 
-/*
-    public SseEmitter createDispatchGroupEmitter(Integer clientId) {
-        return createEmitter(clientId, dispatchGroupEmitters);
-    }
-*/
-
     @Override
     public SseEmitter createDispatchGroupEmitter(String clientId) {
-        SseEmitter emitter = new SseEmitter(60000L);
+        SseEmitter emitter = new SseEmitter(TIMEOUT);
         dispatchGroupEmitters.put(clientId, emitter);
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("Connected!")
+                    .id(String.valueOf(System.currentTimeMillis())));
+        } catch (IOException e) {
+            dispatchGroupEmitters.remove(clientId);
+        }
 
         emitter.onCompletion(() -> dispatchGroupEmitters.remove(clientId));
         emitter.onTimeout(() -> dispatchGroupEmitters.remove(clientId));
@@ -69,21 +159,42 @@ public class SseEmitterServiceImpl implements SseEmitterService {
 
     @Override
     public SseEmitter createHospitalEmitter(Integer clientId) {
-        return createEmitter(clientId, hospitalEmitters);
+        SseEmitter emitter = new SseEmitter(TIMEOUT);
+        hospitalEmitters.put(clientId, emitter);
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("Connected!")
+                    .id(String.valueOf(System.currentTimeMillis())));
+        } catch (IOException e) {
+            hospitalEmitters.remove(clientId);
+        }
+
+        emitter.onCompletion(() -> hospitalEmitters.remove(clientId));
+        emitter.onTimeout(() -> hospitalEmitters.remove(clientId));
+
+        return emitter;
     }
 
     @Override
     public SseEmitter createCallerEmitter(Integer clientId) {
-        SseEmitter emitter = createEmitter(clientId, callerEmitters);
+        SseEmitter emitter = new SseEmitter(TIMEOUT);
+        callerEmitters.put(clientId, emitter);
+
         try {
             emitter.send(SseEmitter.event()
                     .name("connect")
-                    .data("Connected!"));
+                    .data("Connected!")
+                    .id(String.valueOf(System.currentTimeMillis())));
         } catch (IOException e) {
             callerEmitters.remove(clientId);
         }
+
+        emitter.onCompletion(() -> callerEmitters.remove(clientId));
+        emitter.onTimeout(() -> callerEmitters.remove(clientId));
+
         return emitter;
-//        return createEmitter(clientId, callerEmitters);
     }
 
 
