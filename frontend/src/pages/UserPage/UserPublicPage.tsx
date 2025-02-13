@@ -4,12 +4,13 @@ import UserPublicTemplate from '@components/templates/UserPublicTemplate.tsx';
 const UserPublicPage = () => {
   return (
 
-    <UserPublicTemplate>
-      {/* 캐러셀을 가운데 정렬하고 크기 유지 */}
-      <div className="w-full max-w-[1100px] max-h-[800px] flex justify-center items-center mt-10">
-        <Carousel />
-      </div>
-    </UserPublicTemplate>
+      <UserPublicTemplate>
+          <div className="w-full h-full flex justify-center items-center">
+              <div className="max-w-[1100px] h-[70vh] flex items-center justify-center mt-10 transform -translate-x-40">
+                  <Carousel/>
+              </div>
+          </div>
+      </UserPublicTemplate>
   );
 };
 
