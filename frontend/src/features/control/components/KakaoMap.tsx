@@ -26,23 +26,20 @@ useEffect(() => {
 
 
 useEffect(() => {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const newCenter = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                };
-                useLocationStore.getState().setLocation(newCenter.lat, newCenter.lng);
-                useLocationStore.getState().setIsLoading(false);
-            },
-            () => {
-                // 위치 기반 거부 시 서울 시청 설정
-                useLocationStore.getState().setLocation(37.566826, 126.9786567)
-                useLocationStore.getState().setIsLoading(false);
-            }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        useLocationStore.getState().setLocation(
+          position.coords.latitude,
+          position.coords.longitude
         );
-    }
+      },
+      () => {
+        // 위치 거부시 현재 저장된 위치 유지 (초기값이나 마지막으로 받은 신고자 위치)
+        useLocationStore.getState().setIsLoading(false);
+      }
+    );
+  }
 }, []);
 
 
