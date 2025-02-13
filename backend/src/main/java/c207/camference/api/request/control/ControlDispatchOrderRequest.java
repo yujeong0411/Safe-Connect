@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DispatchOrderRequest {
+public class ControlDispatchOrderRequest {
     private Integer dispatchGroupId;
     private Integer callId;
+    private Integer patientId;
 }
