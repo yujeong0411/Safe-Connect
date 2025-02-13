@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import HospitalKakaoMap from '@/features/dispatch/components/Hospitalkakaomap';
 import HospitalList from '@/features/dispatch/components/HospitalList';
@@ -12,6 +12,27 @@ interface AlertConfig {
   title: string;
   description: string;
   type: 'default' | 'destructive' | 'success' | 'error';
+}
+
+interface BaseResponse {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+}
+
+interface TransferRequestResponse extends BaseResponse {
+  data: {
+    dispatchId: number;
+    hospitalNames: string[];
+    patientId: number;
+  }
+}
+
+interface TransferAcceptedResponse extends BaseResponse {
+  data: {
+    hospitalId: number;
+    hospitalName: string;
+  }
 }
 
 const TransferRequestPage = () => {
@@ -37,8 +58,62 @@ const TransferRequestPage = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 3000);
+    }, 10000);
   };
+
+  useEffect(() => {
+    const dispatchLoginId = localStorage.getItem("userName");
+    if (!dispatchLoginId) {
+      console.log("구급팀 정보가 없습니다.");
+      return;
+    }
+
+    // SSE 연결
+    // const eventSource = new EventSource(`http://localhost:8080/dispatchGroup/transfer/subscribe?clientId=${dispatchLoginId}`);
+    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+
+    // 메시지 수신 처리
+    type SSEResponse = TransferRequestResponse | TransferAcceptedResponse;
+
+    eventSource.onmessage = (event) => {
+      const response = JSON.parse(event.data) as SSEResponse;
+      // 구급팀 -> 병원 이송 요청 전송
+      if (response.message === "환자 이송 요청이 접수되었습니다.") {
+        handleAlertClose({
+          title: "환자 이송 요청 전송",
+          description: `환자 이송을 요청했습니다.\n요청 병원: ${(response as TransferRequestResponse).data.hospitalNames}`,
+          type: "default"
+        });
+      } 
+      // 병원 -> 이송 요청 수락
+      else if (response.message === "환자 이송 요청이 승인되었습니다.") {
+        handleAlertClose({
+          title: "환자 이송 수락",
+          description: `환자 이송이 수락되었습니다.\n이송 병원: ${(response as TransferAcceptedResponse).data.hospitalName}`,
+          type: "default"
+        });
+      }
+      // 그 외 모든 경우 (에러)
+      else {
+        handleAlertClose({
+          title: "요청 처리 실패",
+          description: "처리 중 오류가 발생했습니다.",
+          type: "destructive"
+        });
+      }
+    };
+
+    // 에러 처리
+    eventSource.onerror = (error) => {
+      console.error("SSE 연결 에러: ", error);
+      eventSource.close();
+    };
+
+    // 컴포넌트 언마운트 시 연결 종료
+    return () => {
+      eventSource.close();
+    };
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
 
   const handleBulkRequest = () => {
     const availableHospitals = hospitals.filter((h) => !h.requested);

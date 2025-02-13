@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ControlMainTemplate from '@features/control/components/ControlMainTemplate.tsx';
 import Button from '@/components/atoms/Button/Button';
 import KakaoMap from '@features/control/components/KakaoMap.tsx';
@@ -15,13 +15,13 @@ const ControlDispatchOrderPage = () => {
   // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
   //const {currentCall} = usePatientStore();
-  const {selectedStation, setSelectedStation, dispatchGroups} = useDispatchGroupStore();
+  const { selectedStation, setSelectedStation, dispatchGroups } = useDispatchGroupStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
-    type: 'default' as 'default' | 'destructive',
+    type: 'default' as 'default' |'destructive',
   });
   const {callId} = useOpenViduStore()
 
@@ -31,14 +31,50 @@ const ControlDispatchOrderPage = () => {
   }
 
 
+  useEffect(() => {
+    const controlLoginId = localStorage.getItem("userName");
+    if (!controlLoginId) {
+      handleAlertClose({
+        title: "사용자 정보 없음",
+        description: "사용자 정보가 없습니다.",
+        type: "destructive",
+      });
+      return;
+    }
+
+    let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    if (subscribeUrl !== "http://localhost:8080") {
+      subscribeUrl += "/api"
+    }
+
+    // SSE 연결
+    const eventSource = new EventSource(`${subscribeUrl}/control/subscribe?clientId=${controlLoginId}`);
+
+    eventSource.onmessage = (event) => {
+      const response = JSON.parse(event.data);
+      console.log("SSE data: ", response)
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE Connection error: ", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
+
   // 3초 후 사라지는 로직
   const handleAlertClose = (config: typeof alertConfig) => {
     setAlertConfig(config);
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 1000);
+    }, 10000);
   };
+
 
   // 출동지령 알림창
   const handleDispatchAlert = async () => {
@@ -51,100 +87,48 @@ const ControlDispatchOrderPage = () => {
       return;
     }
 
-    // // SSE 구독
-    // const startSSESubscription = (userName: string) => {
-    //   // const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
-    //   const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/subscribe?clientId=${userName}`);
-    //
-    //   eventSource.onmessage = (event) => {
-    //     const response = JSON.parse(event.data);
-    //     if (response.isSuccess) {
-    //       handleAlertClose({
-    //         title: "출동 지령 전송 성공",
-    //         description: `소방팀 ${response.data.dispatchGroupId}팀에게 출동 지령을 보냈습니다.`,
-    //         type: "default"
-    //       });
-    //     } else {
-    //       handleAlertClose({
-    //         title: "출동 지령 전송 실패",
-    //         description: response.message || "출동 지령 전송에 실패했습니다.",
-    //         type: "destructive"
-    //       });
-    //     }
-    //   };
-    //
-    //   eventSource.onerror = (error) => {
-    //     console.error("SSE 연결 에러: ", error);
-    //     eventSource.close();
-    //   };
-    //
-    //   return eventSource;
-    // };
-
+    // 테스트 동안 제거
+    // if (!callId) {
+    //   handleAlertClose({
+    //     title:"신고 정보 없음",
+    //     description: "현재 처리 중인 신고가 없습니다.",
+    //     type: 'destructive',
+    //   })
+    //   return
+    // }
 
     try {
-      const controlLoginId = localStorage.getItem("userName");
-      if (!controlLoginId) {
-        throw new Error("사용자 정보가 없습니다.");
-      }
-
-      // SSE 구독
-      const startSSESubscription = (userName: string) => {
-        const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
-
-          eventSource.onmessage = (event) => {
-            const response = JSON.parse(event.data);
-            if (response.isSuccess) {
-              handleAlertClose({
-                title: "출동 지령 전송 성공",
-                description: `소방팀 ${response.data.dispatchGroupId}팀에게 출동 지령을 보냈습니다.`,
-                type: "default"
-              });
-            } else {
-              handleAlertClose({
-                title: "출동 지령 전송 실패",
-                description: response.message || "출동 지령 전송에 실패했습니다.",
-                type: "destructive"
-              });
-            }
-          };
-
-          eventSource.onerror = (error) => {
-            console.error("SSE 연결 에러: ", error);
-            eventSource.close();
-          };
-
-          return eventSource;
-        };
-
-        // SSE 구독
-        const eventSource = startSSESubscription(controlLoginId);
-
-        // 출동 지령 HTTP 요청 전송
+      // 출동 지령 HTTP 요청 전송
+      if (callId) {
         await orderDispatch(selectedTeam, callId); // dispatchGroupId, callId
-
-        handleAlertClose({
-          title: "출동 지령 전송",
-          description: "출동 지령이 전송되었습니다.",
-          type: "default",
-        });
-
-        // 상태 초기화
-        setSelectedTeam(null);
-        setSelectedStation(null);
-
-        // 컴포넌트 unmount 시 SSE 연결 종료
-        return () => {
-          eventSource.close();
-        }
-      } catch (error) {
-        handleAlertClose({
-          title: "출동 지령 전송 실패",
-          description: "출동 지령 전송에 실패했습니다.",
-          type: "default",
-        });
       }
+
+      handleAlertClose({
+        title: "출동 지령 전송",
+        description: "출동 지령이 전송되었습니다.",
+        type: "default",
+      });
+
+      // 성공 후 상태 초기화
+      setSelectedTeam(null);
+      setSelectedStation(null);
+
+    } catch (error) {
+      handleAlertClose({
+        title: "출동 지령 전송 실패",
+        description: "출동 지령 전송에 실패했습니다.",
+        type: "destructive",
+      });
     }
+  };
+
+
+    // 예상 시간 계산 (카카오 제공 안함.)   -> TMAP 대체함
+    // const calculatedEstimatedTime = (distanceInMeters: string) => {
+    //   const distance = parseInt(distanceInMeters);
+    //   const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
+    //   return Math.round(distance / speedInMetersPerMinute);
+    // };
 
     // 소방팀 선택 처리
     const handleSelectTeam = (dispatchGroupId: number) => {

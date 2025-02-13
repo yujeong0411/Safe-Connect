@@ -8,7 +8,7 @@ import c207.camference.api.response.common.ResponseData;
 import c207.camference.api.response.openapi.AedResponse;
 import c207.camference.api.response.user.UserEmailResponse;
 import c207.camference.api.response.user.UserResponse;
-import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.db.entity.etc.Aed;
 import c207.camference.db.entity.users.User;
 import c207.camference.db.repository.openapi.AedRepository;
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final JavaMailSender javaMailSender;
     private final AedRepository aedRepository;
-    private final SseEmitterService sseEmitterService;
+    private final SseEmitterServiceImpl sseEmitterService;
 
 
     @Override
