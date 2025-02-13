@@ -331,7 +331,7 @@ public class ControlServiceImpl implements ControlService {
 
         // ---
         // URL을 신고자에게 전송
-        smsService.sendMessage(callerPhone, url);
+//        smsService.sendMessage(callerPhone, url);
 
         // customSessionId를
 
