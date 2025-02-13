@@ -29,7 +29,7 @@ const SignupTemplate = ({
       </div>
 
       {/* 메인 콘텐츠 및 버튼 */}
-      <div className="flex-1 bg-[#f3f5f9] px-20 py-16 flex flex-col justify-between">
+      <div className="flex-1 bg-bg px-20 py-10 flex flex-col justify-between">
         <div>
           <div className="flex justify-end mb-5">
             <span className="text-[#b5b5c3]">이미 가입되어 있나요?</span>
@@ -42,12 +42,12 @@ const SignupTemplate = ({
         </div>
 
         {/* 버튼 */}
-        <div className="mt-auto mb-10 flex justify-center">
+        <div className="mt-auto pb-10 flex justify-center">
           <Button
             variant="blue"
             size="lg"
             width="full"
-            className="min-w-[200px] max-w-[400px] w-full"
+            className="min-w-[200px] max-w-[300px] w-full"
             onClick={onButtonClick}
           >
             {buttonText}

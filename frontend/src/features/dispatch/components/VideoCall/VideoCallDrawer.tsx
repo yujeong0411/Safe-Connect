@@ -102,8 +102,8 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
   return (
     <div
       className={`
-      fixed top-[50px] left-0 w-1/2 h-[calc(100vh-50px)] 
-      bg-white shadow-lg z-40 transition-transform duration-300
+      fixed top-[150px] left-0 w-1/2 h-[calc(100vh-100px)] 
+      bg-bg z-40 transition-transform duration-300
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
     `}
     >
