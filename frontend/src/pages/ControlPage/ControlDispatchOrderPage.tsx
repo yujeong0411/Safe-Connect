@@ -142,12 +142,6 @@ const ControlDispatchOrderPage = () => {
     //   });
 
 
-    try {
-      const controlLoginId = localStorage.getItem("userName");
-      if (!controlLoginId) {
-        throw new Error("사용자 정보가 없습니다.")
-      }
-
       // SSE 구독
       const startSSESubscription = (userName: string) => {
         const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);

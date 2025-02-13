@@ -17,7 +17,7 @@ interface VideoProps {
 const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {formData, updateFormData, fetchCallSummary} = usePatientStore()
-  const { callId,leaveSession, session } = useOpenViduStore();
+  const { session } = useOpenViduStore();
   const setIsLoading = useLocationStore((state) => state.setIsLoading);
   const setLocation = useLocationStore((state) => state.setLocation);
 
