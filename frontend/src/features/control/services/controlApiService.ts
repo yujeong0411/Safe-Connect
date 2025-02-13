@@ -1,11 +1,12 @@
 import { axiosInstance } from '@utils/axios.ts';
 import {
   PatientResponse,
-  CallInfo,
+  CallInfoRequset,
   ProtectorMessageResponse, CallSummaryResponse,
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
 import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
+import {SavePatientResponse} from "@/types/common/Patient.types.ts";
 
 export const patientService = {
   // 신고자 전화번호 검색
@@ -29,10 +30,10 @@ export const patientService = {
   },
 
   // 환자 정보 저장
-  savePatientInfo: async (info: CallInfo): Promise<PatientResponse> => {
+  savePatientInfo: async (info: CallInfoRequset): Promise<SavePatientResponse> => {
     try {
       console.log('저장할 정보:', info);
-      const response = await axiosInstance.put<PatientResponse>('/control/call', info);
+      const response = await axiosInstance.put<SavePatientResponse>('/control/call', info);
       console.log('저장 응답:', response);
       return response.data;
     } catch (error: any) {
