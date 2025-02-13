@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { axiosInstance } from '@utils/axios.ts';
 
 interface LocationState {
   center: {
@@ -9,6 +10,7 @@ interface LocationState {
   setLocation: (lat: number, lng: number) => void;
   setIsLoading: (loading: boolean) => void;
   fetchUserLocation: (lat: number, lng: number) => void;  // 위치 가져오는 함수
+  sendUserLocation: (lat: number, lng: number, sessionId: string) => void;
 }
 
 export const useLocationStore = create<LocationState>((set) => ({
@@ -36,4 +38,28 @@ export const useLocationStore = create<LocationState>((set) => ({
       );
     }
   },
+  sendUserLocation : async (lat: number, lng: number, sessionId: string)=>{
+    try {
+      console.log("보내기 시작")
+      const response = await axiosInstance.post(
+        '/user/location'
+        ,
+        {
+          lat,
+          lng,
+          sessionId
+        },
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      console.log("보내기 끝")
+
+
+      return response.data;
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }));
