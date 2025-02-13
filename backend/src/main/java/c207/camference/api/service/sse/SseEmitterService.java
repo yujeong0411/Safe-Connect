@@ -1,8 +1,9 @@
 package c207.camference.api.service.sse;
 
-import c207.camference.api.request.control.DispatchOrderRequest;
+import c207.camference.api.request.control.ControlDispatchOrderRequest;
 import c207.camference.api.request.dispatchstaff.DispatchCurrentPositionRequest;
 import c207.camference.api.request.user.ShareLocationRequest;
+import c207.camference.api.response.dispatchstaff.ControlDispatchOrderResponse;
 import c207.camference.api.response.dispatchstaff.DispatchGroupPatientTransferResponse;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
@@ -15,7 +16,7 @@ public interface SseEmitterService {
     SseEmitter createHospitalEmitter(Integer clientId);
     SseEmitter createCallerEmitter(Integer clientId);
 
-    void sendDispatchOrder(DispatchOrderRequest data);
+    void sendDispatchOrder(ControlDispatchOrderRequest controlData, ControlDispatchOrderResponse dispatchGroupData);
     void transferRequest(DispatchGroupPatientTransferResponse dispatchGroupData, HospitalPatientTransferResponse hospitalData);
     void hospitalResponse(AcceptedHospitalResponse response, boolean accepted);
     void sendDispatchGroupPosition(DispatchCurrentPositionRequest request);
