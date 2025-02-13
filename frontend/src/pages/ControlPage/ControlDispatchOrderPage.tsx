@@ -33,7 +33,7 @@ const ControlDispatchOrderPage = () => {
     description: '',
     type: 'default' as 'default' |'destructive',
   });
-  const {callId} = useOpenViduStore()
+  const { callId } = useOpenViduStore();
   const { currentCall } = usePatientStore.getState();
   if (!currentCall) {
     console.error("현재 처리 중인 신고가 없습니다.");

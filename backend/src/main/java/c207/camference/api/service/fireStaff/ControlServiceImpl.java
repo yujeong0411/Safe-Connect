@@ -3,6 +3,7 @@ package c207.camference.api.service.fireStaff;
 import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.request.control.*;
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.dispatchstaff.ControlDispatchOrderResponse;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
@@ -169,8 +170,8 @@ public class ControlServiceImpl implements ControlService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> dispatchOrder(DispatchOrderRequest request) {
-        DispatchGroup dispatchGroup = dispatchGroupRepository.findById(request.getDispatchGroupId())
+    public ResponseEntity<?> dispatchOrder(ControlDispatchOrderRequest controlRequest) {
+        DispatchGroup dispatchGroup = dispatchGroupRepository.findById(controlRequest.getDispatchGroupId())
                 .orElseThrow(() -> new RuntimeException("일치하는 구급팀이 존재하지 않습니다."));
         if (!dispatchGroup.getDispatchGroupIsReady()) {
             throw new RuntimeException("현재 출동 불가능한 구급팀입니다.");
@@ -178,14 +179,20 @@ public class ControlServiceImpl implements ControlService {
 
         // dispatch insert
         Dispatch dispatch = Dispatch.builder()
-                .callId(request.getCallId())
-                .dispatchGroupId(request.getDispatchGroupId())
+                .callId(controlRequest.getCallId())
+                .dispatchGroupId(controlRequest.getDispatchGroupId())
                 .dispatchCreateAt(LocalDateTime.now())
                 .build();
         dispatchRepository.save(dispatch);
 
+        Patient patient = patientRepository.findById(controlRequest.getPatientId())
+                .orElse(null);
+
         // SSE
-        sseEmitterService.sendDispatchOrder(request);
+        // 구급팀 응답 생성
+        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch, patient, userMediDetailRepository);
+
+        sseEmitterService.sendDispatchOrder(controlRequest, dispatchGroupOrderResponse);
 
         return ResponseEntity.ok().body(ResponseUtil.success("출동 지령 전송 성공"));
     }

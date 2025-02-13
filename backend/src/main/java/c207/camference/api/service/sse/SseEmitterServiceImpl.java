@@ -1,8 +1,9 @@
 package c207.camference.api.service.sse;
 
-import c207.camference.api.request.control.DispatchOrderRequest;
+import c207.camference.api.request.control.ControlDispatchOrderRequest;
 import c207.camference.api.request.dispatchstaff.DispatchCurrentPositionRequest;
 import c207.camference.api.request.user.ShareLocationRequest;
+import c207.camference.api.response.dispatchstaff.ControlDispatchOrderResponse;
 import c207.camference.api.response.dispatchstaff.DispatchGroupPatientTransferResponse;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
@@ -89,7 +90,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
 
     @Override
     // 상황실-구급팀 출동 지령
-    public void sendDispatchOrder(DispatchOrderRequest controlData) {
+    public void sendDispatchOrder(ControlDispatchOrderRequest controlData, ControlDispatchOrderResponse dispatchGroupData) {
         // 상황실에 응답 전송
 //        List<Integer> deadControlEmitters = new ArrayList<>();
         List<String> deadControlEmitters = new ArrayList<>();
@@ -110,7 +111,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
-                        .data(ResponseUtil.success(controlData, "출동 지령 수신")));
+                        .data(ResponseUtil.success(dispatchGroupData, "출동 지령 수신")));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
             }
