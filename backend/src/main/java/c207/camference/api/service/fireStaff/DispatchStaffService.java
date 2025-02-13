@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface DispatchStaffService {
     ResponseEntity<?> getReports();
-    ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu);
+    ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu, Double longitude, Double latitude, Double range);
     ResponseEntity<?> dispatchDetail(int DispatchId);
     ResponseEntity<?> transferDetail(int transferId);
     ResponseEntity<?> getReqHospital(int dispatchId);

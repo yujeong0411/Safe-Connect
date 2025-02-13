@@ -45,6 +45,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.json.XML;
+import org.locationtech.jts.geom.Point;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -216,7 +217,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu) {
+    public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu, Double longitude, Double latitude, Double range) {
         List<AvailableHospitalResponse> responses = new ArrayList<>();
         HttpURLConnection urlConnection = null;
 
@@ -248,8 +249,17 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                         .hospitalLocation(hospital.getHospitalLocation())
                         .build();
 
-                responses.add(availableHospitalResponse);
+                Point latLong = availableHospitalResponse.getHospitalLocation();
+                double lng = latLong.getX();
+                double lat = latLong.getY();
+                double distance = hospitalRepository.calculateDistance(lng, lat, longitude, latitude);
+                // 신고자와 병원사이의 거리가 입력받은 범위 안에 있는지 계산
+                if(range >= distance && distance >= range - 1.0){
+                    availableHospitalResponse.setDistance(distance);
+                    responses.add(availableHospitalResponse);
+                }
             }
+
             return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
 
 
