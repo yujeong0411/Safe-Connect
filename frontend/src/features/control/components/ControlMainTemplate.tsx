@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PublicHeader from '@components/organisms/PublicHeader/PublicHeader';
 import NavBar from '@components/organisms/NavBar/NavBar';
 import VideoCallDrawer from './VideoDrawer';
@@ -7,6 +7,7 @@ import VideoCallCreateDialog from '@features/control/components/VideoCallCreateD
 import ProtectorNotifyDialog from '@features/control/components/ProtectorNotifyDialog';
 import { useControlAuthStore } from '@/store/control/controlAuthStore.tsx';
 import { useNavigate } from 'react-router-dom';
+import { useControlsseStore } from '@/store/control/controlsseStore.ts';
 
 interface ControlTemplateProps {
   children?: React.ReactNode;
@@ -27,6 +28,37 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       console.error('로그아웃 실패', error);
     }
   };
+  const { connect } = useControlsseStore();
+  const { isAuthenticated } = useControlAuthStore(); // 인증 상태 확인
+
+  useEffect(() => {
+    const connectSSE = () => {
+      const userName = localStorage.getItem("userName");
+      if (userName && isAuthenticated) {
+        connect(userName);
+      }
+    };
+
+    connectSSE(); // 초기 연결
+
+    // 주기적으로 연결 상태 확인 및 재연결
+    const intervalId = setInterval(() => {
+      connectSSE();
+    }, 30000); // 30초마다 연결 상태 확인
+
+    const handleOnline = () => {
+      console.log("Browser is online, reconnecting SSE...");
+      connectSSE();
+    };
+
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, [connect, isAuthenticated]);
+
 
   const navItems = [
     {

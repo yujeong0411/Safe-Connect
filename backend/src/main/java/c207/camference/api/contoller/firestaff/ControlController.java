@@ -3,7 +3,7 @@ package c207.camference.api.contoller.firestaff;
 import c207.camference.api.request.control.CallEndRequest;
 import c207.camference.api.request.control.CallRoomRequest;
 import c207.camference.api.request.control.CallUpdateRequest;
-import c207.camference.api.request.control.DispatchOrderRequest;
+import c207.camference.api.request.control.ControlDispatchOrderRequest;
 import c207.camference.api.request.control.ResendRequest;
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.sms.SmsService;
@@ -90,7 +90,7 @@ public class ControlController {
     }
 
     @PostMapping("/dispatch_group_order")
-    public ResponseEntity<?> dispatchOrder(@RequestBody DispatchOrderRequest request) {
+    public ResponseEntity<?> dispatchOrder(@RequestBody ControlDispatchOrderRequest request) {
         return controlService.dispatchOrder(request);
     }
 }

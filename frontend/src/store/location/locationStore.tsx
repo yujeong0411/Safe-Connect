@@ -18,7 +18,9 @@ export const useLocationStore = create<LocationState>((set) => ({
   isLoading: true,
   setLocation: (lat: number, lng: number) =>
     set({ center: { lat, lng }, isLoading: false }),
+
   setIsLoading: (loading: boolean) => set({ isLoading: loading }),
+
   fetchUserLocation: () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

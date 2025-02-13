@@ -8,6 +8,20 @@ import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 import {orderDispatch} from "@features/control/services/controlApiService.ts";
 import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
+import { usePatientStore } from '@/store/control/patientStore';
+
+
+interface DispatchOrderResponse {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+  data: {
+    dispatchGroupId: number;
+    callId: number;
+    patientId: number;
+  }
+}
+
 
 const ControlDispatchOrderPage = () => {
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
@@ -19,7 +33,13 @@ const ControlDispatchOrderPage = () => {
     description: '',
     type: 'default' as 'default' |'destructive',
   });
-  const {callId} = useOpenViduStore()
+  const { callId } = useOpenViduStore();
+  const { currentCall } = usePatientStore.getState();
+  if (!currentCall) {
+    console.error("현재 처리 중인 신고가 없습니다.");
+    return;
+  }
+  const patientId = currentCall.patientId;
 
   // 마커 클릭 시
   const handleMarkerClick = (station: FireStation) => {
@@ -35,7 +55,6 @@ const ControlDispatchOrderPage = () => {
         description: "사용자 정보가 없습니다.",
         type: "destructive",
       });
-      return;
     }
 
     let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
@@ -46,8 +65,12 @@ const ControlDispatchOrderPage = () => {
     // SSE 연결
     const eventSource = new EventSource(`${subscribeUrl}/control/subscribe?clientId=${controlLoginId}`);
 
+    eventSource.onopen = () => {
+      console.log("SSE connection opened")
+    }
+
     eventSource.onmessage = (event) => {
-      const response = JSON.parse(event.data);
+      const response: DispatchOrderResponse = JSON.parse(event.data);
       console.log("SSE data: ", response)
     };
 
@@ -71,7 +94,6 @@ const ControlDispatchOrderPage = () => {
     }, 10000);
   };
 
-
   // 출동지령 알림창
   const handleDispatchAlert = async () => {
     if (!selectedTeam) {
@@ -83,20 +105,10 @@ const ControlDispatchOrderPage = () => {
       return;
     }
 
-    // 테스트 동안 제거
-    // if (!callId) {
-    //   handleAlertClose({
-    //     title:"신고 정보 없음",
-    //     description: "현재 처리 중인 신고가 없습니다.",
-    //     type: 'destructive',
-    //   })
-    //   return
-    // }
-
     try {
       // 출동 지령 HTTP 요청 전송
-      if (callId) {
-        await orderDispatch(selectedTeam, callId); // dispatchGroupId, callId
+      if (callId && patientId) {
+        await orderDispatch(selectedTeam, callId, patientId); // dispatchGroupId, callId, patientId
       }
 
       handleAlertClose({
@@ -118,13 +130,6 @@ const ControlDispatchOrderPage = () => {
     }
   };
 
-
-    // 예상 시간 계산 (카카오 제공 안함.)   -> TMAP 대체함
-    // const calculatedEstimatedTime = (distanceInMeters: string) => {
-    //   const distance = parseInt(distanceInMeters);
-    //   const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
-    //   return Math.round(distance / speedInMetersPerMinute);
-    // };
 
     // 소방팀 선택 처리
     const handleSelectTeam = (dispatchGroupId: number) => {
