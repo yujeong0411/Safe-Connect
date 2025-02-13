@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import ControlMainTemplate from '@features/control/components/ControlMainTemplate.tsx';
 import CallRecordForm from '@features/control/components/CallRecordForm.tsx';
+// import { error } from 'console';
 
 const ControlMainPage = () => {
 
   useEffect(() => {
     let eventSource: EventSource | null = null;
-    let reconnectTimeout: NodeJs.setTimeout | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
 
     const connectSSE = () => {
       const controlLoginId = localStorage.getItem("userName");
@@ -20,9 +21,14 @@ const ControlMainPage = () => {
         eventSource.close();
       }
 
+
+      let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+      if (subscribeUrl !== "http://localhost:8080") {
+        subscribeUrl += "/api"
+      }
+
       // SSE 연결
-      // eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${controlLoginId}`);
-      eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/control/subscribe?clientId=${controlLoginId}`);
+      eventSource = new EventSource(`${subscribeUrl}/control/subscribe?clientId=${controlLoginId}`);
 
       // 메시지 수신 처리
       eventSource.onmessage = (event) => {

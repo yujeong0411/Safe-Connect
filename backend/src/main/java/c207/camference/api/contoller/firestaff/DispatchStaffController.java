@@ -9,24 +9,21 @@ import c207.camference.api.request.patient.PatientCallRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.service.fireStaff.DispatchStaffService;
 import c207.camference.api.service.sms.SmsService;
-import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.util.response.ResponseUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/dispatch_staff")
 public class DispatchStaffController {
     private final SmsService smsService;
-    private final SseEmitterService sseEmitterService;
+    private final SseEmitterServiceImpl sseEmitterService;
     DispatchStaffService dispatchStaffService;
 
-    public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService, SseEmitterService sseEmitterService) {
+    public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService, SseEmitterServiceImpl sseEmitterService) {
         this.dispatchStaffService = dispatchStaffService;
         this.smsService = smsService;
         this.sseEmitterService = sseEmitterService;

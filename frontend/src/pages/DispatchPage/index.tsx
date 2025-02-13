@@ -46,9 +46,14 @@ const DispatchPage = () => {
       return;
     }
 
+    let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    if (subscribeUrl !== "http://localhost:8080") {
+      subscribeUrl += "/api"
+    }
+
     // SSE 연결
-    // const eventSource = new EventSource(`http://localhost:8080/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
-    const eventSource = new EventSource(`https://i12c207.p.ssafy.io/api/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+    const eventSource = new EventSource(`${subscribeUrl}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+
 
     // 메시지 수신 처리
     eventSource.onmessage = (event) => {
@@ -81,7 +86,7 @@ const DispatchPage = () => {
   }, []); // 컴포넌트 마운트 시 한 번만 실행
 
   return (
-    <DispatchMainTemplate logoutDirect={() => Promise.resolve()}>
+    <DispatchMainTemplate>
       {/* Alert UI */}
       {showAlert && (
         <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">
