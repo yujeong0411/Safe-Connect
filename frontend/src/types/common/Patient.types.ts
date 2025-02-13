@@ -27,6 +27,7 @@ export interface CurrentCall {
   callSummary: string;
   symptom?: string;
   userId: number | null;
+  patientId: number | null;
 }
 
 // 전화번호 조회시 얻는 정보(현재 신고 중인 환자)
@@ -41,13 +42,12 @@ export interface PatientInfo {
   mediInfo: MedicalCategory[];
 }
 
-// 전화 시 받는 응답
-export interface CallInfo {
+// 신고 수정시 request
+export interface CallInfoRequset {
   callId: number;
   userId: number | null;
   symptom?: string;
   callSummary: string;
-  callText?: string;
 }
 
 // 응답
@@ -55,7 +55,18 @@ export interface PatientResponse {
   isSuccess: string;
   code: number;
   message: string;
-  data: PatientInfo | CallInfo;
+  data: PatientInfo | CallInfoRequset;
+}
+
+export interface SavePatientResponse {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+  data: PatientInfo & {
+    symptom: string;
+    callSummary: string;
+    patientId: number;
+  }
 }
 
 export interface PatientStore {
@@ -65,7 +76,7 @@ export interface PatientStore {
   reportContent:string;
   updateReportContent:(content: string) => void;
   updateFormData: (data:Partial<FormData>) => void;
-  setCurrentCall: (callInfo: CallInfo) => void;
+  setCurrentCall: (info: CurrentCall) => void;
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
@@ -89,3 +100,19 @@ export interface CallSummaryResponse {
     callSummary: string;
   }
 }
+
+export interface VitalSigns {
+  patientBloodSugar: number;
+  patientDiastolicBldPress: number;
+  patientSystolicBldPress: number;
+  patientBreatheRate: number;
+  patientTemperature: number;
+  patientSpo2: number;
+  patientMental: string;
+  patientPreKtas: number;
+}
+
+export interface DispatchPatientInfo extends PatientInfo {
+  vistalSign : VitalSigns
+}
+

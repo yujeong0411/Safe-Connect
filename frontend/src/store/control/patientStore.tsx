@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { PatientInfo, PatientStore, FormData, CurrentCall } from '@/types/common/Patient.types.ts';
 import {controlService, patientService, protectorService} from '@features/control/services/controlApiService.ts';
 import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
-// callId 삭제 : openvidu에서만 관리 -> 영상통화 종료 시 자동으로 초기화됨.
+
 const initialFormData: FormData = {
   userName: '',
   userGender: '',
@@ -14,7 +14,7 @@ const initialFormData: FormData = {
   callSummary: '',
   addSummary:'',
   symptom: '',
-  userId: 0
+  userId: 0,
 }
 
 export const usePatientStore = create<PatientStore>((set, get) => ({
@@ -103,6 +103,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
         userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
         symptom: formData.symptom,
         callSummary: combinedSummary,   // 합쳐진 summary 저장
+        // patientId: formData.patientId,
       };
 
       // api 호출 시 callId 필요
@@ -112,9 +113,16 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
       });
 
       if (response.isSuccess) {
+        const updatedCallInfo = {
+          userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
+          symptom: formData.symptom,
+          callSummary: combinedSummary,
+          patientId: response.data.patientId
+        }
+
         set({
           patientInfo: response.data as PatientInfo,
-          currentCall:callInfo,  // 저장 성공 시 현재 신고 정보 업데이트
+          currentCall:updatedCallInfo,  // 저장 성공 시 현재 신고 정보 업데이트
         });
       }
     } catch (error) {
