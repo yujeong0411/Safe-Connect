@@ -16,7 +16,7 @@ interface HospitalMainPageProps {
 }
 
 const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
-  const { logout, hospitalId } = useHospitalAuthStore();
+  const { logout } = useHospitalAuthStore();
   const { combinedTransfers, fetchCombinedTransfers } = useHospitalTransferStore();
   const { toast } = useToast();
   const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>({
@@ -132,14 +132,15 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
       Notification.requestPermission();
     }
 
-    if (!hospitalId) return;  // 병원 ID가 없으면 연결하지 않음
-    console.log(`SSE 연결 시도: /hospital/subscribe`);
+    // if (!hospitalId) return;  // 병원 ID가 없으면 연결하지 않음
+    // console.log(`SSE 연결 시도: /hospital/subscribe`);
 
     const token = localStorage.getItem('token');
 
     // SSE연결
     const eventSource = new EventSourcePolyfill(
-        'http://localhost:8080/hospital/subscribe',
+        // 'http://localhost:8080/hospital/subscribe',
+        'https://i12c207.p.ssafy.io/hospital/subscribe',
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -205,7 +206,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
                         gender: detailData.patientGender ?? null,
                         age: detailData.patientAge ?? null,
                         mental: detailData.patientMental,
-                        preKTAS: patientData.patients?.[0]?.patientPreKtas ?? '',
+                        preKTAS: detailData.patientPreKtas,
                         sbp: detailData.patientSystolicBldPress,
                         dbp: detailData.patientDiastolicBldPress,
                         pr: detailData.patientPulseRate,
@@ -249,7 +250,8 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
     return () => {
       eventSource.close();
     };
-  }, [hospitalId]);   // hospitalId가 변경될 때마다 재연결
+  }, []);   // hospitalId가 변경될 때마다 재연결  -> 삭제함. 토큰 이용
+
 
   // 이송 신청 온 목록(즉, 해당 페이지에 있는 리스트 수)
   const unacceptedTransfers = combinedTransfers

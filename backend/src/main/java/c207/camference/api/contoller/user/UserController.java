@@ -95,5 +95,9 @@ public class UserController {
         return userService.getAedsNearBy(lat, lon);
     }
 
+    @PostMapping("/location")
+    public ResponseEntity<?> shareLocation(@RequestBody ShareLocationRequest request) {
+        return userService.shareLocation(request);
+    }
 }
 

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import Input from '@components/atoms/Input/Input';
 import SearchBar from '@components/molecules/SearchBar/SearchBar.tsx';
@@ -17,6 +17,10 @@ import { validateResidentNumber } from '@utils/validation.ts';
 const SignupInfoForm = () => {
   const { formData, setFormData, validateFields } = useSignupStore();
   const [showAlert, setShowAlert] = useState(false);
+  const [isPhoneSent, setIsPhoneSent] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [authInitiated, setAuthInitiated] = useState<boolean>(false);  // 인증 시작 여부를 추적하는 상태 추가
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
@@ -28,7 +32,7 @@ const SignupInfoForm = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 3000);
+    }, 1000);
   };
 
 
@@ -64,10 +68,47 @@ const SignupInfoForm = () => {
     }
   };
 
+
+  // 인증번호 타이머
+  const startTimer = () => {
+    if (timer) clearInterval(timer)  // 이전 타이머가 있다면 제거
+    setTimeLeft(179)  // 3분
+    const newTimer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === null || prev  <= 0) {
+          clearInterval(newTimer);
+          return null
+        }
+        return prev - 1;
+      })
+    }, 1000)
+    setTimer(newTimer)
+  }
+
+  // 컴파운드 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearInterval(timer)
+      }
+    }
+  }, [timer])
+
+  // 타이머 시간 포맷팅
+  const formatTime = (seconds:number | null) => {
+    if (seconds === null) return '';
+    const minutes = Math.floor(seconds/60);
+    const remainingSeconds = seconds % 60
+    return  `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
   const handlePhoneSendVerification = async () => {
     try {
       const isSuccess = await sendPhoneVerification(formData.userPhone);
       if (isSuccess) {
+        setIsPhoneSent(true);  // 전송 성공 시 상태 변경
+        setAuthInitiated(true);  // 인증번호 발송 중
+        startTimer()  // 타이머 시작
         handleShowAlert({
           title: '인증번호 발송',
           description: '인증번호가 발송되었습니다.',
@@ -154,17 +195,24 @@ const SignupInfoForm = () => {
               onChange={handleChange('userPhone')}
               onButtonClick={handlePhoneSendVerification}
               placeholder="전화번호를 입력하세요."
-              buttonText="전송"
+              buttonText={isPhoneSent ? "인증번호 재전송" : "인증번호 전송"}
               error={validateFields('userPhone', formData.userPhone)}
               isRequired
             />
             <SearchBar
-              label="전화번호 확인"
+              label="인증번호 확인"
               value={formData.authCode}
               onChange={handleChange('authCode')}
               onButtonClick={handlePhoneVerify}
-              placeholder="문자로 받은 인증번호를 입력하세요."
-              buttonText="인증"
+              placeholder={
+                !authInitiated
+                    ? "인증번호를 입력해주세요."
+                    : timeLeft
+                        ? `남은 시간 ${formatTime(timeLeft)}`
+                        : "인증 시간이 만료되었습니다. 재전송해주세요."
+              }
+              buttonText="인증하기"
+              isDisabled={timeLeft === null}
               isRequired
             />
             <ResidentNumberInput

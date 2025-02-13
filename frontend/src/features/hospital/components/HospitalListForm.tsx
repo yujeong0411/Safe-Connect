@@ -119,7 +119,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         gender: detailData.patientGender ?? null,
         age: detailData.patientAge ?? null,
         mental: detailData.patientMental,
-        preKTAS: data.patients[0].patientPreKtas,  // 벡엔드 추가 안됨.
+        preKTAS: detailData.patientPreKtas,  // 벡엔드 추가 완료
         sbp: detailData.patientSystolicBldPress,
         dbp: detailData.patientDiastolicBldPress,
         pr: detailData.patientPulseRate,

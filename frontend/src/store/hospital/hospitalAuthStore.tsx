@@ -6,7 +6,6 @@ import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
-  hospitalId: 1,   // 벡엔드 추가 후 수정하기
 
   // 타입 변환 함수 추가
   login: async (data: HospitalLoginRequest) => {

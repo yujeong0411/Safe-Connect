@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
 import { OpenVidu } from 'openvidu-browser';
 import React from 'react';
+import {usePatientStore} from "@/store/control/patientStore.tsx";
 
 // 더 강력한 브라우저 체크 우회
 const forceOverrideBrowserCheck = () => {
@@ -47,6 +48,9 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     streamManager: undefined,
     userName: undefined,
   },
+  callStartedAt: '',   // 신고시각
+  callerPhone:'',
+  fireStaffId:undefined,
 
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ sessionId: e.target.value });
@@ -187,6 +191,9 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         console.error('Error leaving session:', err);
       }
     }
+    
+    // patientStore에서 데이터 초기화 메서드 호출 : 통화 종료 시 환자 데이터 초기화
+    usePatientStore.getState().resetPatientInfo()
 
     set({
       OV: undefined,
@@ -202,7 +209,10 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         userName: undefined,
       },
       isActive: false,
-      callId : undefined
+      callId : undefined,
+      callStartedAt: '',
+      callerPhone:'',
+      fireStaffId:undefined,
     });
   },
 
@@ -218,9 +228,14 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           headers: { 'Content-Type': 'application/json' },
         }
       );
-      console.log(response.data);
+
+      console.log('Create Session Response:', response.data);
+
       set({
-        callId : response.data.data.call.callId
+        callId : response.data.data.call.callId,
+        callStartedAt: response.data.data.call.callStartedAt,
+        callerPhone:response.data.data.call.caller.callerPhone,
+        fireStaffId: response.data.data.call.fireStaff.fireStaffId,
       })
       return response.data;
     } catch (error) {

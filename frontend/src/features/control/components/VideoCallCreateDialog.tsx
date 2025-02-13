@@ -9,6 +9,8 @@ import { useVideoCallStore } from '@/store/control/videoCallStore.ts';
 import { useNavigate } from 'react-router-dom';
 import {formatPhoneNumber} from "@features/auth/servies/signupService.ts";
 
+import useRecorderStore from '@/store/openvidu/MediaRecorderStore.tsx';
+
 const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const {
@@ -20,8 +22,9 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
 
   const navigate = useNavigate();
   const { setIsOpen } = useVideoCallStore();
-
   const {userName} = useControlAuthStore();
+
+  const { startRecording, initializeRecorder } = useRecorderStore();
 
 
   useEffect(() => {
@@ -40,15 +43,27 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
     } as React.ChangeEvent<HTMLInputElement>);
   }, [handleChangeSessionId, handleChangeUserName]);
 
+  // 컴포넌트가 마운트될 때 레코더 초기화
+  useEffect(() => {
+    initializeRecorder();
+  }, [initializeRecorder]);
+
   const handleCreateSession = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createAndJoinSession(e,phoneNumber);
+      await createAndJoinSession(e,phoneNumber); //반드시 커밋전, 주석 풀것
+      console.log("세션 생성 성공");
+       // 녹화 시작
+      startRecording(); 
+      console.log("녹화 시작 호출 끝");
       // const inviteUrl = `/caller/join/${sessionId}?direct=true`;
       // await navigator.clipboard.writeText(window.location.origin + inviteUrl);
       onOpenChange(false)
       setIsOpen(true);
+
       navigate('/Control/patient-info')
+
+    
 
     } catch (error) {
       console.error('세션 생성 실패:', error);

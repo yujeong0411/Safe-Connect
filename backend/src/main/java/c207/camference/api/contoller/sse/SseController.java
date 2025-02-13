@@ -11,24 +11,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.Optional;
-
 @RestController
 @RequiredArgsConstructor
 public class SseController {
     private final SseEmitterService sseEmitterService;
     private final HospitalRepository hospitalRepository;
 
+/*
     @GetMapping(value = "/control/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeControl(@RequestParam Integer clientId) {
         return sseEmitterService.createControlEmitter(clientId);
     }
+*/
 
+    @GetMapping(value = "/control/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeControl(@RequestParam String clientId) {  // Integer -> String
+        return sseEmitterService.createControlEmitter(clientId);
+    }
+
+/*
     @GetMapping(value = "/dispatchGroup/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeDispatchGroup(@RequestParam Integer clientId) {
         return sseEmitterService.createDispatchGroupEmitter(clientId);
     }
+*/
 
+    @GetMapping(value = "/dispatchGroup/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeDispatchGroup(@RequestParam String clientId) {  // Integer -> String
+        return sseEmitterService.createDispatchGroupEmitter(clientId);
+    }
 
     @GetMapping(value = "/hospital/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeHospital() {

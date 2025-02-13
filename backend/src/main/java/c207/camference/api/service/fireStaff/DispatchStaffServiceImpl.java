@@ -408,30 +408,26 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     /**
      * Google STT를 통해서 텍스트로 변환한 신고 내역을 바탕으로 preKTAS를 대략적으로 진단해주는 메서드
      * @param request
-     * @return ResponseEntity(patient객체, preKTAS추측값, 메시지)
+     * @return ResponseEntity(preKTAS추측값, 메시지)
      */
     @Override
     public ResponseEntity<?> getPreKtas(PreKtasRequest request) {
-        Integer patientId = request.getPatientId();
-        // 입력받은 환자의 id를 바탕으로 연결되어있는 신고 테이블의 신고 내용 텍스트를 가져고오고,
-        // 해당 내용을 바탕으로 preKTAS 추측값 진단
-        Optional<Patient> patientOpt = patientRepository.findById(patientId);
-        Patient patient = patientOpt.get();
-        Integer callId = patient.getCallId();
 
-        Optional<Call> callOpt = callRepository.findById(callId);
-        Call call = callOpt.get();
-        String callText = call.getCallText();
+        int preKTAS = webRtcService.getPreKtas(request);
 
-        int preKTAS = Integer.parseInt(webRtcService.textSummary(callText, "preKTAS"));
-
-        System.out.println(callText);
         System.out.println(preKTAS);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("patient", patient);
-        response.put("patientPreKtas", preKTAS);
-        response.put("message", "preKTAS 환자 중증도 분류 성공");
-        return null;
+        if(preKTAS >= 1 && preKTAS <= 5){
+            response.put("patientPreKtas", preKTAS);
+            response.put("message", "preKTAS 환자 중증도 분류 성공");
+        }
+        else{
+            response.put("patientPreKtas", "");
+            response.put("message", "서버 오류");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        return ResponseEntity.ok().body(response);
     }
 }

@@ -6,6 +6,9 @@ import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
 import {controlService} from "@features/control/services/controlApiService.ts";
 import {usePatientStore} from "@/store/control/patientStore.tsx";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import {useLocationStore} from "@/store/location/locationStore.tsx";
+
+import useRecorderStore from '@/store/openvidu/MediaRecorderStore.tsx';
 
 interface VideoProps {
   children: React.ReactNode;
@@ -14,10 +17,13 @@ interface VideoProps {
 const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {formData, updateFormData, fetchCallSummary} = usePatientStore()
-
   const { callId,leaveSession } = useOpenViduStore();
+  const setIsLoading = useLocationStore((state) => state.setIsLoading);
+  const setLocation = useLocationStore((state) => state.setLocation);
+  const { stopRecording } = useRecorderStore();
 
-  const handleEndCall = async () => {
+
+  const handleEndCall = async () => { 
     if (!callId) {
       console.log("callId가 없습니다.")
       return
@@ -28,8 +34,13 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     }
 
     try {
-      await controlService.endCall(Number(callId))
+      await controlService.endCall(callId)
       await leaveSession()
+
+      // 위치정보 초기화 및 로딩 상태 변경
+      setLocation(37.566826, 126.9786567)  // 서울시청 좌표로 초기화
+      setIsLoading(true)
+
       alert('신고가 종료되었습니다.')
       setIsOpen(false);  // Drawer 닫기
     } catch (error) {
@@ -44,10 +55,8 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       console.log("callId가 없습니다.")
       return
     }
-
-    // 전화번호를 어떻게 가져오는지???
     try {
-      await controlService.resendUrl(Number(callId));
+      await controlService.resendUrl(callId);
       alert("URL이 재전송되었습니다.");
     } catch (error) {
       console.error("URL 재전송 실패", error);
@@ -56,15 +65,27 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
   // 신고내용 요약  (calltext는 받을수있는가?)
   const handleCallSummary = async () => {
+  
     try {
-      await fetchCallSummary(Number(callId));
+      const audioBlob:Blob = await stopRecording();
+    
+    if (!audioBlob) {
+      throw new Error('녹음된 오디오가 없습니다.');
+    }
+
+    if (!callId) {
+      throw new Error('callId가 없습니다.');
+    }
+
+    await fetchCallSummary(Number(callId), audioBlob);
+    
     } catch (error) {
       console.error("신고내용 요약 실패", error);
     }
   }
 
   return (
-    <div className={`flex w-full min-h-screen`}>
+    <div className="flex w-full h-full">
       {/* 왼쪽 패널 - top 위치를 헤더 높이만큼 내림 */}
       <div
         className={`
@@ -113,7 +134,8 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
               <Textarea
                 value={formData.callSummary}
                 onChange={(e) => updateFormData({ callSummary: e.target.value})}
-                placeholder="신고 내용이 자동으로 입렵됩니다."
+                placeholder="AI요약을 누르면 자동으로 요약됩니다."
+                readOnly  // 읽기 전용
                 className="p-4 min-h-[120px] bg-white"
               />
             </div>

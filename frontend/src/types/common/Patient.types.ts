@@ -8,8 +8,8 @@ export interface FormData {
   userProtectorPhone: string;
   diseases: string;
   medications: string;
-  callText: string;
   callSummary: string;
+  addSummary:string;
   symptom: string;
   userId: number;
 }
@@ -70,7 +70,7 @@ export interface PatientStore {
   savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
   sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
-  fetchCallSummary : (callId:number) => Promise<void>
+  fetchCallSummary : (callId:number, audioBlob: Blob) => Promise<void>
 }
 
 export interface ProtectorMessageResponse {

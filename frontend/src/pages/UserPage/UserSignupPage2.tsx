@@ -6,12 +6,16 @@ import { validateSignupForm } from '@features/auth/servies/signupService.ts';
 import { useState } from 'react';
 import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
 import { CircleAlert } from "lucide-react";
+import SignupMediDialog from "@features/auth/components/SignupMediDialog.tsx";
+import { handleSignUp } from '@features/auth/servies/apiService.ts';
+import {useAuthStore} from "@/store/user/authStore.tsx";
 
 const UserSignupPage2 = () => {
   const navigate = useNavigate();
-  const { formData } = useSignupStore();
+  const { formData, resetFormData } = useSignupStore();
   const [showAlert, setShowAlert] = useState(false);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [showMedicalDialog, setShowMedicalDialog] = useState(false);
 
   const handleShowAlert = (errors: string[]) => {
     setErrorMessages(errors);
@@ -65,9 +69,61 @@ const UserSignupPage2 = () => {
       handleShowAlert(errors);
       return;
     }
+    // 유효성 검사 통과 시 의료정보 입력 다이얼로그 표시
+    setShowMedicalDialog(true);
 
-    navigate('/user/signup/medi', { state: { formData } });
   };
+
+  const handleMediConfirm = async () => {
+    setShowMedicalDialog(false);
+    await handleSignupProcess(true)  // await 추가 -> 상태 업데이트를 기다려야함.
+  }
+
+  const handleMediCancel = async () => {
+    setShowMedicalDialog(false);
+    await handleSignupProcess(false)
+  }
+
+  const handleSignupProcess = async (wantMediInfo:boolean) => {
+    try {
+      console.log('Signup process started');
+      console.log('Want Medi Info:', wantMediInfo);
+
+      // 회원가입 처리 후 토큰 받기
+      await handleSignUp(formData, resetFormData)
+      console.log('Signup completed');
+
+      // 로그인 시도
+      await useAuthStore.getState().login({
+        userEmail: formData.userEmail,
+        userPassword: formData.userPassword
+      });
+
+      // 의료정보 입력을 원한다면 다음 페이지 이동
+      if (wantMediInfo) {
+        navigate('/user/signup/medi', {
+          state: {
+            fromSignup: true,
+            wantMediInfo: true,
+            skipRedirect: true  // 리다이렉트 방지 플래그 추가
+          }
+        });
+      } else {
+        console.log('Navigating to login page');
+      // 의료정보 입력을 원하지 않는다면 회원가입 완료
+      // navigate('/user/login')
+      // 자동 로그인 시도
+      await useAuthStore.getState().login({
+        userEmail: formData.userEmail,
+        userPassword: formData.userPassword
+      });
+      }
+    } catch (error) {
+      console.error('회원가입 실패', error);
+      handleShowAlert(['회원가입 처리 중 오류가 발생했습니다.'])
+    }
+  }
+
   return (
       <>
     <SignupTemplate currentStep={2} buttonText="다음" onButtonClick={handleNext}>
@@ -88,6 +144,13 @@ const UserSignupPage2 = () => {
               </Alert>
             </div>
         )}
+
+        <SignupMediDialog
+            open={showMedicalDialog}
+            onOpenChange={setShowMedicalDialog}
+            onConfirm={handleMediConfirm}
+            onCancel={handleMediCancel}
+        />
       </>
   );
 };
