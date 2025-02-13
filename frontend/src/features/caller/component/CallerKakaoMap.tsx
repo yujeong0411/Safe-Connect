@@ -12,6 +12,8 @@ const CallerKakaoMap = () => {
   const [aedList, setAedList] = useState<Aed[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
 
+
+
   const fetchAedLocations = async (lat: number, lng: number) => {
     try {
       const response = await callerService.searchAed(lat, lng);
@@ -28,7 +30,7 @@ const CallerKakaoMap = () => {
   }, [center, isLoading]);
 
   return (
-    <div className="w-full h-screen">
+    <div className="w-full h-full">
       <Map
         id="map"
         center={center}

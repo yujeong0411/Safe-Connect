@@ -12,7 +12,7 @@ const CallerTemplate = () => {
   const [isMapModalOpen, setIsMapModalOpen] = React.useState(false);
   const navigate = useNavigate();
   const { session, sessionId, joinSession, leaveSession } = useOpenViduStore();
-  const { setLocation } = useLocationStore();
+  const { setLocation,sendUserLocation } = useLocationStore();
 
   // 위치 정보 가져오기
   const getLocationPermission = async () => {
@@ -23,6 +23,8 @@ const CallerTemplate = () => {
         });
 
         setLocation(position.coords.latitude, position.coords.longitude);
+        await sendUserLocation(position.coords.latitude, position.coords.longitude,sessionId);
+
         return true;
       } catch (error) {
         console.error('위치 정보 획득 실패:', error);
