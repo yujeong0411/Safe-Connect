@@ -53,7 +53,6 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
     window.addEventListener('online', handleOnline);
 
-
     return () => {
       clearInterval(intervalId);
       window.removeEventListener('online', handleOnline);
