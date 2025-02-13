@@ -146,16 +146,16 @@ public class WebRtcController {
         String mode = "summary";
         String summary = webRtcService.textSummary(text);
 
-        webRtcService.saveSummary(Integer.parseInt(callId), text, summary);
+        ResponseEntity<?> response = webRtcService.saveSummary(Integer.parseInt(callId), text, summary);
 
 //        System.out.println("요약전 : " + text); // 테스트용.
 //        System.out.println("요약 후 : " + summary);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("callSummary", summary);
-        response.put("message", "신고내역요약 조회 성공");
+//        Map<String, String> response = new HashMap<>();
+//        response.put("callSummary", summary);
+//        response.put("message", "신고내역요약 조회 성공");
 
-        return ResponseEntity.ok(response);
+        return response;
     }
 
 
