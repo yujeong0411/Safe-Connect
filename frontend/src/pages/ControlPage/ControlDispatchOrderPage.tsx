@@ -118,29 +118,9 @@ const ControlDispatchOrderPage = () => {
     };
 
 
-    try {
-      const controlLoginId = localStorage.getItem("userName");
-      if (!controlLoginId) {
-        throw new Error("사용자 정보가 없습니다.")
-      }
-      // try {
-      //   // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
-      //   // await orderDispatch(selectedTeam);
-      //    await orderDispatch(selectedTeam, callId);
-      //   handleAlertClose({
-      //     title: '출동 지령 전송',
-      //     description: '출동 지령이 전송되었습니다.',
-      //     type: 'default',
-      //   });
-      //   setSelectedTeam(null);
-      //   setSelectedStation(null);
-      // } catch (error) {
-      //   handleAlertClose({
-      //     title: '출동 지령 실패',
-      //     description: '출동 지령 전송에 실패했습니다.',
-      //     type: 'destructive',
-      //   });
-
+      // SSE 구독
+      const startSSESubscription = (userName: string) => {
+        const eventSource = new EventSource(`http://localhost:8080/control/subscribe?clientId=${userName}`);
 
       try {
         const controlLoginId = localStorage.getItem("userName");
