@@ -41,7 +41,7 @@ public class ControlDispatchOrderResponse {
                 .patientSpo2(patient.getPatientSpo2())
                 .patientMental(patient.getPatientMental())
                 .patientPreKtas(patient.getPatientPreKtas())
-                .patientSympthom(patient.getPatientSympthom())
+                .patientSymptom(patient.getPatientSymptom())
                 .build();
 
         // user면 medi 넣어주기

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 import io.openvidu.java.client.Connection;
@@ -29,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -226,11 +224,11 @@ public class WebRtcServiceImpl implements WebRtcService {
             Integer patientBloodSugar = request.getPatientBloodSugar(); // 혈당
             Integer patientDiastolicBldPress = request.getPatientDiastolicBldPress(); // 혈압최소
             Integer patientSystolicBldPress = request.getPatientSystolicBldPress(); // 혈압최대
-            Integer patientBreatheRate = request.getPatientBreatheRate(); // 호흡수
+            Integer patientPulseRate = request.getPatientPulseRate(); // 호흡수
             Float patientTemperature = request.getPatientTemperature(); // 체온
             Float patientSpo2 = request.getPatientSpo2(); // 산소포화도
             String patientMental = request.getPatientMental(); // 의식상태
-            String patientSympthom = request.getPatientSympthom(); // 증상
+            String patientSymptom = request.getPatientSymptom(); // 증상
 
             String prompt = String.format(
                     "너는 응급환자의 119구급대와 의료기관 간의 원활한 의사소통을 촉진하고, 환자에게 적절한 치료를 신속히 제공하는 것을 목표" +
@@ -253,8 +251,8 @@ public class WebRtcServiceImpl implements WebRtcService {
                             "증상 : %s" +
                             "위를 바탕으로, 해당 환자가 몇단계에 해당하는지, 답변으로 오직 숫자 하나만 대답해줘. " +
                             "사족을 붙이지 말고, 오로지 정수 하나만 대답해야 해",
-                    patientAge, patientBloodSugar, patientDiastolicBldPress, patientSystolicBldPress, patientBreatheRate,
-                    patientTemperature, patientSpo2, patientMental, patientSympthom
+                    patientAge, patientBloodSugar, patientDiastolicBldPress, patientSystolicBldPress, patientPulseRate,
+                    patientTemperature, patientSpo2, patientMental, patientSymptom
             );
 
             return Integer.parseInt(makeRequest(prompt));

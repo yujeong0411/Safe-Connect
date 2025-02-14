@@ -43,7 +43,7 @@ public class PatientDetailResponse {
         this.patientAge = patient.getPatientAge();
         this.patientMental = patient.getPatientMental();
         this.patientPreKtas = patient.getPatientPreKtas();
-        this.patientSymptom = patient.getPatientSympthom();
+        this.patientSymptom = patient.getPatientSymptom();
 
         if (patient.getPatientIsUser()){
             User user = patient.getUser();
