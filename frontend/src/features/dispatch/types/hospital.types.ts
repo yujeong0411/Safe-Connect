@@ -1,8 +1,24 @@
+// src/features/dispatch/types/hospital.types.ts
+
 export interface Hospital {
-  id: string;
-  place_name: string;
-  distance: string;
-  x: string;
-  y: string;
-  requested: boolean;  // 추가
+  hospitalId: number;
+  hospitalName: string;
+  hospitalPhone: string;
+  hospitalCapacity: number;
+  hospitalAddress: string;
+  hospitalLocation: {
+    x: number; // longitude
+    y: number; // latitude
+  };
+  distance: number;
+  requested?: boolean;
 }
+
+export interface APIResponse<T> {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+  data: T;
+}
+
+export type HospitalResponse = APIResponse<Hospital[]>;
