@@ -87,7 +87,7 @@ const useRecorderStore = create<RecorderState>((set, get) => ({
   },
 
   startRecording: () => {
-    console.log('녹음 시작'); // 테스트용. 제거 필요
+    // 테스트용. 제거 필요
     const { mediaRecorder } = get();
     if (mediaRecorder && mediaRecorder.state === 'inactive') {
       mediaRecorder.start();

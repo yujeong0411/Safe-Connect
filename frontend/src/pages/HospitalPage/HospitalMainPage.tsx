@@ -43,8 +43,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   //   subscribeUrl: '/api/hospital/subscribe',
   //   clientId: hospitalId!,
   //   onMessage: (response) => {
-  //     console.log('response.data:', response.data);
-  //     const patientData = response.data.patient;
+  //     //     const patientData = response.data.patient;
   //
   //     if (response.message === '환자 이송 요청이 접수되었습니다.') {
   //       toast({
@@ -133,9 +132,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
     }
 
     // if (!hospitalId) return;  // 병원 ID가 없으면 연결하지 않음
-    // console.log(`SSE 연결 시도: /hospital/subscribe`);
-
-    const token = localStorage.getItem('token');
+    // const token = localStorage.getItem('token');
 
     // SSE연결
     const eventSource = new EventSourcePolyfill(

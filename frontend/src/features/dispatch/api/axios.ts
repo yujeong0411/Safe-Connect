@@ -17,12 +17,6 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // 요청 로깅
-    console.log('API 요청:', {
-      url: config.url,
-      method: config.method,
-      params: config.params,
-      data: config.data
-    });
     return config;
   },
   (error) => {
@@ -35,11 +29,6 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     // 성공 응답 로깅
-    console.log('API 응답 성공:', {
-      url: response.config.url,
-      status: response.status,
-      data: response.data
-    });
     return response;
   },
   (error) => {
