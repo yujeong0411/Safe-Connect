@@ -18,19 +18,6 @@ export interface UseSSEProps<T> {
 }
 
 
-// 상황실-구급팀
-export interface DispatchOrderData {
-    dispatchGroupId: number;
-    callId: number;
-}
-
-// // 구급팀-병원 (구급팀)
-// interface DispatchToHospitalData {
-//     dispatchId: number;
-//     hospitalIds: number[];
-//     patientId: number;
-// }
-
 export interface Patient extends PatientInfo, PatientDetail {
     patientId: number;
     callId: number | null;

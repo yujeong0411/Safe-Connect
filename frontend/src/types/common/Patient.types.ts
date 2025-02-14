@@ -38,7 +38,7 @@ export interface PatientInfo {
   userBirthday: string;
   userAge: number;
   userPhone: string;
-  userProtectorPhone: string;
+  userProtectorPhone?: string;
   mediInfo: MedicalCategory[];
 }
 
@@ -103,12 +103,12 @@ export interface CallSummaryResponse {
 
 
 export interface VitalSigns {
-  patientBloodSugar: number;
-  patientDiastolicBldPress: number;
-  patientSystolicBldPress: number;
-  patientPulseRate: number;
-  patientTemperature: number;
-  patientSpo2: number;
+  patientBloodSugar: number | null;
+  patientDiastolicBldPress: number | null;
+  patientSystolicBldPress: number | null;
+  patientPulseRate: number | null;
+  patientTemperature: number | null;
+  patientSpo2: number | null;
   patientMental: string;
   patientPreKtas: string;
 }
@@ -117,13 +117,13 @@ export interface VitalSigns {
 // 구급대원의 환자 정보 저장 요청 타입
 export interface DispatchSavePatientRequest {
   patientId: number;
-  patientName: string;
+  patientName?: string;
   patientGender: string;
-  patientAge: string;
+  patientAge?: string;
   patientSymptom: string;
   vitalSigns: VitalSigns;
-  patientPhone: string;
-  patientProtectorPhone: string;
+  patientPhone?: string;
+  patientProtectorPhone?: string;
   callSummary: string;
 }
 
@@ -161,18 +161,18 @@ export interface DispatchFormData {
   patientName: string;
   patientGender: string;
   patientAge: string;
-  patientBloodSugar: number;
-  patientDiastolicBldPress: number;
-  patientSystolicBldPress: number;
-  patientPulseRate: number;
-  patientTemperature: number;
-  patientSpo2: number;
+  patientBloodSugar: number | null;
+  patientDiastolicBldPress: number | null;
+  patientSystolicBldPress: number | null;
+  patientPulseRate: number | null;
+  patientTemperature: number | null;
+  patientSpo2: number | null;
   patientMental: string;
   patientPreKtas: string;
   patientSymptom: string;
-  diseases: string;
-  medications: string;
-  patientPhone: string;
-  patientProtectorPhone: string;
+  diseases?: string;
+  medications?: string;
+  patientPhone?: string;
+  patientProtectorPhone?: string;
   callSummary: string;
 }

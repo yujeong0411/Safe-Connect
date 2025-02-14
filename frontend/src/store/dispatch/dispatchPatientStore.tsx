@@ -11,12 +11,12 @@ const initialFormData: DispatchFormData = {
   patientName: '',
   patientGender: '',
   patientAge: '',
-  patientBloodSugar: 0,
-  patientDiastolicBldPress: 0,
-  patientSystolicBldPress: 0,
-  patientPulseRate: 0,
-  patientTemperature: 0,
-  patientSpo2: 0,
+  patientBloodSugar: null,
+  patientDiastolicBldPress: null,
+  patientSystolicBldPress: null,
+  patientPulseRate: null,
+  patientTemperature: null,
+  patientSpo2: null,
   patientMental: '',
   patientPreKtas: '',
   patientSymptom: '',
@@ -26,7 +26,6 @@ const initialFormData: DispatchFormData = {
   patientProtectorPhone:'',
   callSummary: ''
 };
-
 
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({
   baseInfo: null,
@@ -67,7 +66,6 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
     const {formData, baseInfo} = get()
     if (!baseInfo?.patientId) {
       throw new Error('환자 ID가 없습니다.');
-      return;
     }
 
     try {
@@ -100,6 +98,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
       }
     } catch (error) {
       console.error('저장 중 오류 발생', error);
+      throw error;
     }
   },
 

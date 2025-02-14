@@ -1,4 +1,3 @@
-// src/features/dispatch/components/DispatchMainTemplate.tsx
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PublicHeader from '@/components/organisms/PublicHeader/PublicHeader';
