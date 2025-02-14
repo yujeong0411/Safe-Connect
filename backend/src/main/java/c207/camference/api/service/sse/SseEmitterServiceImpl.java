@@ -10,6 +10,7 @@ import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.util.response.ResponseUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -24,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class SseEmitterServiceImpl implements SseEmitterService {
 
@@ -65,12 +67,16 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         List<String> deadControlEmitters = new ArrayList<>();
         controlEmitters.forEach((clientId, emitter) -> {
             try {
+                log.info("Attempting to send heartbeat to client: {}", clientId);
                 emitter.send(SseEmitter.event()
                         .name("heartbeat")
                         .data("ping")
                         .id(String.valueOf(System.currentTimeMillis())));
+                log.info("Successfully sent heartbeat to client: {}", clientId);
             } catch (IOException e) {
                 deadControlEmitters.add(clientId);
+                log.error("Failed to send heartbeat to client: {} - Error: {}",
+                        clientId, e.getMessage());
             }
         });
         deadControlEmitters.forEach(controlEmitters::remove);
@@ -313,12 +319,14 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         // 아이디 분리
         String clientId = request.getSessionId().split("-")[1];
 
+        System.out.println(clientId);
         List<String> deadControlEmitters = new ArrayList<>();
         controlEmitters.forEach((emitterId, emitter) -> {
             if (emitterId.equals(clientId)) {
                 try {
                     emitter.send(SseEmitter.event()
                             .data(ResponseUtil.success(request, "신고자 위치 수신 성공")));
+                    System.out.println("송신 성공");
                 } catch (IOException e) {
                     deadControlEmitters.add(emitterId);
                 }
@@ -327,15 +335,4 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         deadControlEmitters.forEach(controlEmitters::remove);
     }
 
-
-
-    private SseEmitter createEmitter(Integer clientId, Map<Integer, SseEmitter> emitters) {
-        SseEmitter emitter = new SseEmitter(60000L);
-        emitters.put(clientId, emitter);
-
-        emitter.onCompletion(() -> emitters.remove(clientId));
-        emitter.onTimeout(() -> emitters.remove(clientId));
-
-        return emitter;
-    }
 }

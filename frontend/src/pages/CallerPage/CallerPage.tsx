@@ -11,14 +11,8 @@ const CallerPage = () => {
       subscribeUrl += "/api"
     }
 
-    // SSE 연결결
-    // const eventSource = new EventSource(`${subscribeUrl}/caller/subscribe/${callId}`); 
-
 
   })
-
-
-
 
 
   return (
