@@ -1,4 +1,3 @@
-// src/features/dispatch/components/DispatchTextArea/DispatchTextArea.tsx
 import { UseFormRegisterReturn } from 'react-hook-form';
 import TextArea from '@/components/atoms/TextArea/TextArea';
 import { useState } from 'react';
