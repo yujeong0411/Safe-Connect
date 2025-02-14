@@ -30,8 +30,6 @@ export const useLoadUserInfo = (type: 'user' | 'medi') => {
       } else {
         // 의료정보 가져오기
         const mediData: MediCategory[] = await fetchMediInfo();
-        console.log('서버에서 받은 의료 데이터:', mediData);
-
         // mediData가 null이면 빈 배열로 초기화
         if (!mediData) {
           setFormData({
@@ -47,7 +45,7 @@ export const useLoadUserInfo = (type: 'user' | 'medi') => {
           mediData
             .find((category) => category.categoryName === '기저질환')
             ?.mediList.map((item) => {
-              console.log('기저질환 항목:', item); // 각 항목의 상세 정보 확인
+              // 각 항목의 상세 정보 확인
               return item.mediId;
             }) || [];
 
@@ -55,11 +53,9 @@ export const useLoadUserInfo = (type: 'user' | 'medi') => {
           mediData
             .find((category) => category.categoryName === '복용약물')
             ?.mediList.map((item) => {
-              console.log('복용약물 항목:', item); // 각 항목의 상세 정보 확인
+              // 각 항목의 상세 정보 확인
               return item.mediId;
             }) || [];
-
-        console.log('변환된 ID들:', { diseaseIds, medicationIds });
 
         // form 업데이트
         setFormData({
