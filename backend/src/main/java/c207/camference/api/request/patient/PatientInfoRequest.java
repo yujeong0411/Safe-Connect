@@ -12,11 +12,11 @@ public class PatientInfoRequest {
     private Integer patientBloodSugar;
     private Integer patientDiastolicBldPress;
     private Integer patientSystolicBldPress;
-    private Integer patientBreatheRate;
+    private Integer patientPulseRate;
     private Float patientTemperature;
     private Float patientSpo2;
     private String patientMental;
     private String patientPreKtas;
-    private String patientSympthom;
+    private String patientSymptom;
 
 }
