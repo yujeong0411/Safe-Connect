@@ -1,4 +1,3 @@
-// src/hooks/useHospitalSearch.ts
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import axiosInstance from '@/features/dispatch/api/axios';

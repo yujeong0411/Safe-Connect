@@ -1,5 +1,3 @@
-// src/features/dispatch/types/hospital.types.ts
-
 export interface Hospital {
   hospitalId: number;
   hospitalName: string;
