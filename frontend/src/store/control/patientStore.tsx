@@ -114,6 +114,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
 
       if (response.isSuccess) {
         const updatedCallInfo = {
+          callId,
           userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
           symptom: formData.symptom,
           callSummary: combinedSummary,

@@ -3,6 +3,8 @@ import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTem
 import Input from '@/components/atoms/Input/Input';
 import Button from '@/components/atoms/Button/Button';
 import DispatchTextArea from '@/features/dispatch/components/DispatchTextArea';
+import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
+import {useEffect} from "react";
 
 interface PatientFormData {
   name: string;
@@ -31,27 +33,46 @@ const PatientInfoPage = () => {
   const {
     register,
     handleSubmit,
+      setValue,
   } = useForm<PatientFormData>();
 
-  // 상황실에서 전송받은 읽기 전용 데이터 (실제로는 props나 API로 받아올 것)
-  const readOnlyInfo: ReadOnlyPatientInfo = {
-    medicalHistory: "고혈압,",
-    medications: "혈압약, 인슐린",
-    reportSummary: "갑자기 가슴 통증을 호소하며 쓰러짐"
-  };
+  const {baseInfo, vitalSigns, initialBaseInfo, updateVitalSigns, savePatientInfo } =useDispatchPatientStore();
 
-  /* 나이 선택바 옵션 (필요시 사용)
-  const ageGroups = [
-    '10대 미만', '10대', '20대', '30대', '40대',
-    '50대', '60대', '70대', '80대', '90대 이상',
-  ];
-  */
+  // 상황실에서 받은 정보
+  useEffect(() => {
+    if (baseInfo) {
+      setValue('name', baseInfo.patientName);
+      setValue('gender', baseInfo.patientGender);
+      setValue('age', baseInfo.patientAge);
+      // readOnlyInfo는 baseInfo에서 가져오도록 수정
+      const readOnlyInfo = {
+        medicalHistory: baseInfo.diseases,
+        medications: baseInfo.medications,
+        reportSummary: baseInfo.callSummary
+      };
+    }
+  }, [baseInfo, setValue]);
 
-  const ktasOptions = ['1', '2', '3', '4', '5'];
-
-  const onSubmit = (data: PatientFormData) => {
-    console.log(data);
-  };
+  const onSubmit = async (data:PatientFormData) => {
+    // 생체정보 업데이트
+    // 생체정보 업데이트
+    updateVitalSigns({
+      patientBloodSugar: Number(data.bst),
+      patientDiastolicBldPress: Number(data.dbp),
+      patientSystolicBldPress: Number(data.sbp),
+      patientPulseRate: Number(data.pr),
+      patientTemperature: Number(data.bt),
+      patientSpo2: Number(data.spo2),
+      patientMental: data.consciousness,
+      patientPreKtas: data.preKTAS
+    });
+    try {
+      await savePatientInfo()
+      console.log('페이지에서 저장 성공');
+    } catch (error) {
+      console.error("페이지에서 저장 실패", error);
+    }
+  }
 
   return (
     <DispatchMainTemplate>

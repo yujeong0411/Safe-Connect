@@ -1,4 +1,4 @@
-import {CallInfoRequset} from "@/types/common/Patient.types.ts";
+import {CallInfoRequest} from "@/types/common/Patient.types.ts";
 import {PatientInfo} from "@/types/common/Patient.types.ts";
 import {PatientDetail} from "@/types/hospital/hospitalTransfer.types.ts";
 
@@ -39,7 +39,7 @@ export interface Patient extends PatientInfo, PatientDetail {
     patientIsUser: boolean;
     patientCreatedAt: string;
     patientInfoCreatedAt: string | null;
-    call: CallInfoRequset | null;   // 필요시
+    call: CallInfoRequest | null;   // 필요시
     dispatch: unknown | null;   // 필요시
     transfer: unknown | null;  // 필요시
     user: unknown | null;    // 필요시

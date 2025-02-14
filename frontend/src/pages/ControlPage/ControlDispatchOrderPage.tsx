@@ -35,11 +35,12 @@ const ControlDispatchOrderPage = () => {
   });
   const { callId } = useOpenViduStore();
   const { currentCall } = usePatientStore.getState();
-  if (!currentCall) {
-    console.error("현재 처리 중인 신고가 없습니다.");
-    return;
-  }
-  const patientId = currentCall.patientId;
+
+  // if (!currentCall) {
+  //   console.error("현재 처리 중인 신고가 없습니다.");
+  //  return
+  // }
+  const patientId = currentCall?.patientId;
 
   // 마커 클릭 시
   const handleMarkerClick = (station: FireStation) => {
