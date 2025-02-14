@@ -1,5 +1,3 @@
-// src/features/dispatch/components/DispatchRecordRow/DispatchRecordRow.tsx
-
 import { useState } from 'react';
 import Button from '@/components/atoms/Button/Button';
 import { DispatchRecord } from '../../types/dispatchRecord.types';

@@ -1,5 +1,3 @@
-// src/features/dispatch/types/dispatchRecord.types.ts
-
 export interface DispatchRecord {
   id: string;
   dispatchResponsible: string;   // 출동 담당자

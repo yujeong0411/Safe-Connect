@@ -1,4 +1,3 @@
-// src/features/dispatch/components/HospitalList.tsx
 import { Hospital } from '../types/hospital.types';
 import DispatchButton from './DispatchButton/DispatchButton';
 
@@ -8,15 +7,19 @@ interface HospitalListProps {
   onSearch: () => void;
   onBulkRequest: () => void;
   isSearching?: boolean;
+  selectedHospitalId?: number;
+  onHospitalSelect?: (hospitalId: number) => void;
 }
 
 const HospitalList = ({
-                        hospitals,
-                        searchRadius,
-                        onSearch,
-                        onBulkRequest,
-                        isSearching
-                      }: HospitalListProps) => {
+  hospitals,
+  searchRadius,
+  onSearch,
+  onBulkRequest,
+  isSearching,
+  selectedHospitalId,
+  onHospitalSelect
+}: HospitalListProps) => {
   return (
     <div className="absolute right-4 top-4 bottom-4 w-96 bg-white/95 rounded-lg overflow-hidden shadow-xl z-10">
       {/* 헤더 섹션 */}
@@ -38,7 +41,7 @@ const HospitalList = ({
             disabled={isSearching}
             className="flex-1 shadow-sm hover:shadow-md transition-shadow"
           >
-            {isSearching ? '검색 중...' : '검색 시작'}
+            {isSearching ? '검색 중지' : '검색 시작'}
           </DispatchButton>
           <DispatchButton
             variant="blue"
@@ -73,11 +76,14 @@ const HospitalList = ({
             {hospitals.map((hospital) => (
               <div
                 key={hospital.hospitalId}
-                className={`p-4 rounded-lg border transition-all ${
-                  hospital.requested
-                    ? 'bg-gray-100 border-gray-200'
-                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md cursor-pointer'
+                className={`p-4 rounded-lg border transition-all cursor-pointer ${
+                  hospital.requested 
+                    ? 'bg-gray-100 border-gray-200' 
+                    : selectedHospitalId === hospital.hospitalId
+                    ? 'bg-blue-50 border-blue-300 shadow-md'
+                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
                 }`}
+                onClick={() => onHospitalSelect?.(hospital.hospitalId)}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">

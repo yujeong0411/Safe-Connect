@@ -5,7 +5,7 @@ interface BulkTransferRequestDialogProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  hospitalNames: string[];  // hospitals: Hospital[] 대신 hospitalNames 사용
+  hospitalNames: string[]; 
 }
 
 const BulkTransferRequestDialog = ({
