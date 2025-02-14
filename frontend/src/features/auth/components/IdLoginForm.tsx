@@ -34,10 +34,8 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
   const setAuthenticated = useAuthStore(state => state.setAuthenticated);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    console.log('1. handleSubmit 시작'); // 디버깅 로그
+    // 디버깅 로그
     event.preventDefault();
-    console.log('2. preventDefault 실행 후');
-
     setIsLoading(true);
     setError(null);
 
