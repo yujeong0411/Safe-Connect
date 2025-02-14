@@ -32,7 +32,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
       position: new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng),
       map: map,
       image: new window.kakao.maps.MarkerImage(
-        '/src/assets/image/ambulance.png',  // 앰뷸런스 이미지
+        '/src/assets/image/ambulance.png',
         new window.kakao.maps.Size(35, 35),
         { offset: new window.kakao.maps.Point(17, 17) }
       )
@@ -46,6 +46,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
   useEffect(() => {
     if (!mapRef.current || !window.kakao) return;
 
+    // 기존 마커 제거
     markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
 
@@ -57,15 +58,15 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
 
     hospitals.forEach(hospital => {
       const position = new window.kakao.maps.LatLng(
-        parseFloat(hospital.y),
-        parseFloat(hospital.x)
+        hospital.hospitalLocation.y,
+        hospital.hospitalLocation.x
       );
 
       const marker = new window.kakao.maps.Marker({
         position: position,
         map: mapRef.current,
         image: new window.kakao.maps.MarkerImage(
-          '/src/assets/image/emergency.png',  // 응급실 이미지
+          '/src/assets/image/emergency.png',
           new window.kakao.maps.Size(35, 35),
           { offset: new window.kakao.maps.Point(17, 17) }
         )
@@ -75,8 +76,8 @@ const HospitalKakaoMap = ({ currentLocation, hospitals }: HospitalKakaoMapProps)
       const infowindow = new window.kakao.maps.InfoWindow({
         content: `
           <div class="p-2">
-            <strong>${hospital.place_name}</strong>
-            <p>${hospital.distance}km</p>
+            <strong>${hospital.hospitalName}</strong>
+            <p>${hospital.distance.toFixed(1)}km</p>
             ${hospital.requested ? '<p style="color: #666;">(요청됨)</p>' : ''}
           </div>
         `

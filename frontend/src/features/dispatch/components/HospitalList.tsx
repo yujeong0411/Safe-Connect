@@ -10,7 +10,6 @@ interface HospitalListProps {
   isSearching?: boolean;
 }
 
-
 const HospitalList = ({
   hospitals,
   searchRadius,
@@ -26,7 +25,7 @@ const HospitalList = ({
           <h2 className="text-xl font-bold text-gray-800">인근 응급실 목록</h2>
           {isSearching && (
             <span className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full animate-pulse">
-              {(searchRadius / 1000).toFixed(1)}km 탐색중
+              {searchRadius}km 탐색중
             </span>
           )}
         </div>
@@ -61,7 +60,7 @@ const HospitalList = ({
             <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600 mb-3"></div>
             <p className="font-medium mb-1">주변 병원을 검색하고 있습니다</p>
             <p className="text-sm text-gray-500">
-              {(searchRadius / 1000).toFixed(1)}km 반경 검색 중
+              {searchRadius}km 반경 검색 중
             </p>
           </div>
         ) : hospitals.length === 0 ? (
@@ -73,7 +72,7 @@ const HospitalList = ({
           <div className="space-y-3">
             {hospitals.map((hospital) => (
               <div
-                key={hospital.id}
+                key={hospital.hospitalId}
                 className={`p-4 rounded-lg border transition-all ${
                   hospital.requested 
                     ? 'bg-gray-100 border-gray-200' 
@@ -81,27 +80,49 @@ const HospitalList = ({
                 }`}
               >
                 <div className="flex justify-between items-start">
-                  <h3 className="font-semibold text-gray-800">
-                    {hospital.place_name}
-                    {hospital.requested && (
-                      <span className="text-gray-500 text-sm ml-2 bg-gray-100 px-2 py-0.5 rounded-full">
-                        요청됨
-                      </span>
-                    )}
-                  </h3>
-                  <span className={`text-sm px-3 py-1 rounded-full ${
-                    parseFloat(hospital.distance) <= 1
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                      {hospital.hospitalName}
+                      {hospital.requested && (
+                        <span className="text-gray-500 text-sm bg-gray-100 px-2 py-0.5 rounded-full">
+                          요청됨
+                        </span>
+                      )}
+                    </h3>
+                  </div>
+                  <span className={`text-sm px-3 py-1 rounded-full flex-shrink-0 ${
+                    hospital.distance <= 1
                       ? 'bg-green-100 text-green-800'
-                      : parseFloat(hospital.distance) <= 2
+                      : hospital.distance <= 2
                       ? 'bg-blue-100 text-blue-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {hospital.distance}km
+                    {hospital.distance.toFixed(1)}km
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  예상 도착 시간: {Math.round(parseFloat(hospital.distance) * 2)}분
-                </p>
+
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">수용가능 인원</span>
+                    <span className={`text-sm font-medium ${
+                      hospital.hospitalCapacity > 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {hospital.hospitalCapacity}명
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">예상 도착 시간</span>
+                    <span className="text-sm font-medium text-gray-800">
+                      약 {Math.round(hospital.distance * 2)}분
+                    </span>
+                  </div>
+
+                  <div className="text-sm text-gray-600 pt-1">
+                    <p className="truncate">{hospital.hospitalAddress}</p>
+                    <p className="mt-1">{hospital.hospitalPhone}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

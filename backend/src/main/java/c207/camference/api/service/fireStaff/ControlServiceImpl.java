@@ -205,7 +205,7 @@ public class ControlServiceImpl implements ControlService {
         Call call = callRepository.findCallByCallId(request.getCallId());
         call.setCallSummary(request.getCallSummary());
         call.setCallText(request.getCallText());
-        if(!request.getCallSummary().isEmpty() || !request.getCallText().isEmpty()){
+        if(request.getCallSummary()!=null || request.getCallText()!=null){
             call.setCallTextCreatedAt(LocalDateTime.now());
         }
 
