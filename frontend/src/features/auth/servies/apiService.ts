@@ -6,11 +6,9 @@ import { MedicalCategory, MedicalItem } from '@/types/common/medical.types.ts';
 // 이메일 중복 확인 API 호출
 export const checkEmailDuplication = async (email: string) => {
   try {
-    console.log('Sending email verification request:', email);
     const response = await axiosInstance.get(`/user/valid/email`, {
       params: { userEmail: email }, // URL 쿼리 파라미터로 전송
     });
-    console.log('Email verification response:', response.data);
     if (response.data.isSuccess) {
       return {
         isSuccess: true,

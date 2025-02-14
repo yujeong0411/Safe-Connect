@@ -48,8 +48,7 @@ const CallerPage = () => {
     })
 
     // eventSource.onmessage = (event) => {
-    //   console.log(event)
-    //   const response: shareLocationResponse = JSON.parse(event.data);
+    //   //   const response: shareLocationResponse = JSON.parse(event.data);
     //   console.log("SSE data: ", response);
     // };
   

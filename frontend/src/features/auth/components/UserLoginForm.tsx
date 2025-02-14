@@ -17,18 +17,15 @@ const UserLoginForm = () => {
   });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    console.log('1. handleSubmit 시작'); // 디버깅 로그
+    // 디버깅 로그
     event.preventDefault();
-    console.log('2. preventDefault 실행 후');
     setIsLoading(true);
     setError(null);
     try {
-      console.log('3. login 호출 전');
       await login({
         userEmail: formData.userEmail,
         userPassword: formData.userPassword,
       });
-      console.log('4. login 완료');
       // 로그인 성공 시 폼 초기화
       setFormData({
         userEmail: '',
@@ -37,10 +34,8 @@ const UserLoginForm = () => {
       // 로그인 성공 시 메인페이지 이동
       navigate('/user/main');
     } catch (error) {
-      console.log('5. 에러 발생:', error);
       setError(error instanceof Error ? error.message : String(error));
     } finally {
-      console.log('6. finally 블록');
       setIsLoading(false);
     }
   };

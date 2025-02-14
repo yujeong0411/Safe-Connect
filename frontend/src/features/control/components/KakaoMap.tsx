@@ -16,15 +16,6 @@ const KakaoMaps = ({FindFireStations, onMarkerClick, selectedStation}: ExtendedK
     const TMAP_API_KEY = import.meta.env.VITE_TMAP_API_KEY;
 
 
-// 위치 변경 감지를 위한 useEffect 추가
-useEffect(() => {
-    console.log("==== 지도 위치 업데이트 ====");
-    console.log("현재 중심 좌표:", center);
-    console.log("로딩 상태:", isLoading);
-    console.log("========================");
-}, [center, isLoading]);
-
-
 useEffect(() => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(

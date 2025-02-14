@@ -86,13 +86,8 @@ const UserSignupPage2 = () => {
 
   const handleSignupProcess = async (wantMediInfo:boolean) => {
     try {
-      console.log('Signup process started');
-      console.log('Want Medi Info:', wantMediInfo);
-
       // 회원가입 처리 후 토큰 받기
       await handleSignUp(formData, resetFormData)
-      console.log('Signup completed');
-
       // 로그인 시도
       await useAuthStore.getState().login({
         userEmail: formData.userEmail,
@@ -109,8 +104,7 @@ const UserSignupPage2 = () => {
           }
         });
       } else {
-        console.log('Navigating to login page');
-      // 의료정보 입력을 원하지 않는다면 회원가입 완료
+        // 의료정보 입력을 원하지 않는다면 회원가입 완료
       // navigate('/user/login')
       // 자동 로그인 시도
       await useAuthStore.getState().login({
