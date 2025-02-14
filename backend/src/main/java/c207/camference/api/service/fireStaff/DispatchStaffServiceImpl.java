@@ -280,7 +280,9 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException("일치하는 환자 정보가 없습니다."));
 
+        System.out.println("요청된 병원 IDs: " + request.getHospitalIds());
         List<Hospital> hospitals = hospitalRepository.findAllByHospitalIdIn(request.getHospitalIds());
+        System.out.println("찾은 병원 목록: " + hospitals);
         List<Hospital> activeHospitals = hospitals.stream()
                 .filter(Hospital::getHospitalIsActive)
                 .collect(Collectors.toList());
