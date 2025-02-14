@@ -10,6 +10,7 @@ import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.util.response.ResponseUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -24,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class SseEmitterServiceImpl implements SseEmitterService {
 
@@ -65,12 +67,16 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         List<String> deadControlEmitters = new ArrayList<>();
         controlEmitters.forEach((clientId, emitter) -> {
             try {
+                log.info("Attempting to send heartbeat to client: {}", clientId);
                 emitter.send(SseEmitter.event()
                         .name("heartbeat")
                         .data("ping")
                         .id(String.valueOf(System.currentTimeMillis())));
+                log.info("Successfully sent heartbeat to client: {}", clientId);
             } catch (IOException e) {
                 deadControlEmitters.add(clientId);
+                log.error("Failed to send heartbeat to client: {} - Error: {}",
+                        clientId, e.getMessage());
             }
         });
         deadControlEmitters.forEach(controlEmitters::remove);
