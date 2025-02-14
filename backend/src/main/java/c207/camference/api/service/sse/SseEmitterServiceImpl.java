@@ -35,7 +35,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     private final Map<String, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
     private final Map<Integer, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
-    private final Map<Integer, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
     private final HospitalRepository hospitalRepository;
     private final ScheduledExecutorService heartbeatExecutor;
 
@@ -104,7 +104,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         deadHospitalEmitters.forEach(hospitalEmitters::remove);
 
         // Caller emitters heartbeat
-        List<Integer> deadCallerEmitters = new ArrayList<>();
+        List<String> deadCallerEmitters = new ArrayList<>();
         callerEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
@@ -179,7 +179,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     }
 
     @Override
-    public SseEmitter createCallerEmitter(Integer clientId) {
+    public SseEmitter createCallerEmitter(String clientId) {
         SseEmitter emitter = new SseEmitter(TIMEOUT);
         callerEmitters.put(clientId, emitter);
 
@@ -291,19 +291,34 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     @Override
     // 구급차 현재 위치 전송
     public void sendDispatchGroupPosition(DispatchCurrentPositionRequest request) {
-        Integer callId = request.getCallId();
-        // 신고자는 해당 신고 id를 구독
-        SseEmitter emitter = callerEmitters.get(callId);
-        if (emitter != null) {
+        List<String> deadCallerEmitters = new ArrayList<>();
+        callerEmitters.forEach((clientId, emitter) -> {
             try {
-                emitter.send(SseEmitter.event()
-                        .name("location update")
+                emitter.send(SseEmitter.event().name("ambulance location shared!")
                         .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
             } catch (IOException e) {
-                callerEmitters.remove(callId);
-                System.out.println("Error sending update: " + e.getMessage());
+                deadCallerEmitters.add(clientId);
             }
-        }
+//            try {
+//                emitter.send(SseEmitter.event()
+//                        .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
+//            } catch (IOException e) {
+//                deadCallerEmitters.add(clientId);
+//            }
+        });
+        deadCallerEmitters.forEach(callerEmitters::remove);
+//        Integer callId = request.getCallId();
+//        // 신고자는 해당 신고 id를 구독
+//        SseEmitter emitter = callerEmitters.get(callId);
+//        if (emitter != null) {
+//            try {
+//                emitter.send(SseEmitter.event().name("ambulance location shared!")
+//                        .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
+//            } catch (IOException e) {
+//                callerEmitters.remove(callId);
+//                System.out.println("Error sending update: " + e.getMessage());
+//            }
+//        }
     }
 
     @Override
