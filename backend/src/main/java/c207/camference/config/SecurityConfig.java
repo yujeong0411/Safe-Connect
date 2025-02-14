@@ -140,7 +140,10 @@ public class SecurityConfig {
         configuration.setExposedHeaders(Arrays.asList(
                 "Authorization",
                 "access",        // access 토큰 헤더 추가
-                "Content-Type"
+                "Content-Type",
+                "Sec-WebSocket-Protocol",    // WebSocket 헤더 추가
+                "Sec-WebSocket-Version",
+                "Sec-WebSocket-Accept"
         ));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

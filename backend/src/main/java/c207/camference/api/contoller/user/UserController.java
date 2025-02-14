@@ -97,7 +97,6 @@ public class UserController {
 
     @PostMapping("/location")
     public ResponseEntity<?> shareLocation(@RequestBody ShareLocationRequest request) {
-        System.out.println("11111111111111111");
         return userService.shareLocation(request);
     }
 }

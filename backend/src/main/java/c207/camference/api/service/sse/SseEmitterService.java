@@ -14,7 +14,7 @@ public interface SseEmitterService {
     SseEmitter createControlEmitter(String clientId);
     SseEmitter createDispatchGroupEmitter(String clientId);
     SseEmitter createHospitalEmitter(Integer clientId);
-    SseEmitter createCallerEmitter(Integer clientId);
+    SseEmitter createCallerEmitter(String clientId);
 
     void sendDispatchOrder(ControlDispatchOrderRequest controlData, ControlDispatchOrderResponse dispatchGroupData);
     void transferRequest(DispatchGroupPatientTransferResponse dispatchGroupData, HospitalPatientTransferResponse hospitalData);

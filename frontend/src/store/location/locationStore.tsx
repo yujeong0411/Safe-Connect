@@ -57,7 +57,6 @@ export const useLocationStore = create<LocationState>((set) => ({
       );
       console.log("보내기 끝")
 
-
       return response.data;
 
     } catch (error) {
