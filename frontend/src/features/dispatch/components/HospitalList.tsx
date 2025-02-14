@@ -11,12 +11,12 @@ interface HospitalListProps {
 }
 
 const HospitalList = ({
-  hospitals,
-  searchRadius,
-  onSearch,
-  onBulkRequest,
-  isSearching
-}: HospitalListProps) => {
+                        hospitals,
+                        searchRadius,
+                        onSearch,
+                        onBulkRequest,
+                        isSearching
+                      }: HospitalListProps) => {
   return (
     <div className="absolute right-4 top-4 bottom-4 w-96 bg-white/95 rounded-lg overflow-hidden shadow-xl z-10">
       {/* 헤더 섹션 */}
@@ -74,8 +74,8 @@ const HospitalList = ({
               <div
                 key={hospital.hospitalId}
                 className={`p-4 rounded-lg border transition-all ${
-                  hospital.requested 
-                    ? 'bg-gray-100 border-gray-200' 
+                  hospital.requested
+                    ? 'bg-gray-100 border-gray-200'
                     : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md cursor-pointer'
                 }`}
               >
@@ -94,8 +94,8 @@ const HospitalList = ({
                     hospital.distance <= 1
                       ? 'bg-green-100 text-green-800'
                       : hospital.distance <= 2
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
                   }`}>
                     {hospital.distance.toFixed(1)}km
                   </span>
@@ -110,7 +110,7 @@ const HospitalList = ({
                       {hospital.hospitalCapacity}명
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">예상 도착 시간</span>
                     <span className="text-sm font-medium text-gray-800">
