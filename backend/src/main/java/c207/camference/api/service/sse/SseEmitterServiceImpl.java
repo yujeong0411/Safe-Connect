@@ -313,12 +313,14 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         // 아이디 분리
         String clientId = request.getSessionId().split("-")[1];
 
+        System.out.println(clientId);
         List<String> deadControlEmitters = new ArrayList<>();
         controlEmitters.forEach((emitterId, emitter) -> {
             if (emitterId.equals(clientId)) {
                 try {
                     emitter.send(SseEmitter.event()
                             .data(ResponseUtil.success(request, "신고자 위치 수신 성공")));
+                    System.out.println("송신 성공");
                 } catch (IOException e) {
                     deadControlEmitters.add(emitterId);
                 }
@@ -327,15 +329,4 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         deadControlEmitters.forEach(controlEmitters::remove);
     }
 
-
-
-    private SseEmitter createEmitter(Integer clientId, Map<Integer, SseEmitter> emitters) {
-        SseEmitter emitter = new SseEmitter(60000L);
-        emitters.put(clientId, emitter);
-
-        emitter.onCompletion(() -> emitters.remove(clientId));
-        emitter.onTimeout(() -> emitters.remove(clientId));
-
-        return emitter;
-    }
 }
