@@ -100,8 +100,8 @@ const HospitalList = ({
                     hospital.distance <= 1
                       ? 'bg-green-100 text-green-800'
                       : hospital.distance <= 2
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
                   }`}>
                     {hospital.distance.toFixed(1)}km
                   </span>
@@ -116,7 +116,7 @@ const HospitalList = ({
                       {hospital.hospitalCapacity}명
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">예상 도착 시간</span>
                     <span className="text-sm font-medium text-gray-800">
