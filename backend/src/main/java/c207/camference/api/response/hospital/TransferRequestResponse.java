@@ -34,7 +34,7 @@ public class TransferRequestResponse {
                         .patientPreKtas(patient.getPatientPreKtas())
                         .patientGender(patient.getPatientGender())
                         .patientAge(patient.getPatientAge())
-                        .patientSymptom(patient.getPatientSympthom())
+                        .patientSymptom(patient.getPatientSymptom())
                         .patientId(patient.getPatientId())
                         .build())
                 .collect(Collectors.toList());

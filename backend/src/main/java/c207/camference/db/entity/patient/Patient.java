@@ -93,9 +93,9 @@ public class Patient {
     @Comment(value = "preKTAS")
     private String patientPreKtas;
 
-    @Column(name = "patient_sympthom", columnDefinition = "TEXT")
+    @Column(name = "patient_symptom", columnDefinition = "TEXT")
     @Comment(value = "증상")
-    private String patientSympthom;
+    private String patientSymptom;
 
     @CreationTimestamp
     @Column(name = "patient_created_at", nullable = false)
