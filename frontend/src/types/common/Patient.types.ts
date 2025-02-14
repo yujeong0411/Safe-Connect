@@ -113,19 +113,18 @@ export interface VitalSigns {
   patientPreKtas: string;
 }
 
-export interface DispatchPatientInfo extends PatientInfo {
-  vistalSign : VitalSigns
-}
 
 // 구급대원의 환자 정보 저장 요청 타입
 export interface DispatchSavePatientRequest {
   patientId: number;
-  patientIsUser: boolean;
   patientName: string;
-  patientGender: 'M' | 'F';
+  patientGender: string;
   patientAge: string;
   patientSymptom: string;
   vitalSigns: VitalSigns;
+  patientPhone: string;
+  patientProtectorPhone: string;
+  callSummary: string;
 }
 
 // 구급대원 환자 정보 저장 응답 타입
@@ -142,36 +141,38 @@ export interface DispatchSavePatientResponse {
 export interface DispatchPatientStore{
   // 기본 정보 (상황실에서 받은 정보)  -> 상황에 따라 좀 더 유연하게 설정
   baseInfo: Partial<CurrentCall> | null;
-  // baseInfo: {
-  //   patientId: number | null;
-  //   patientName: string;
-  //   patientGender: string;
-  //   patientAge: string;
-  //   diseases: string;
-  //   medications: string;
-  //   symptom: string;
-  //   callSummary: string;
-  // } | null;
 
-  addInfo: {
-    patientName: string;
-    patientGender: string;
-    patientAge: string;
-    symptom: string;
-  }
-  // 생체 징후
-  vitalSigns: VitalSigns;
+  // 구급대원이 입력하는 모든 정보(기본정보 + 생체정보)
+  formData: DispatchFormData;
 
   // 액션
   // 상황실에서 받은 정보로 초기화
   initialBaseInfo: (info: CurrentCall) => void;
-  // 생체정보 업데이트
-  updateVitalSigns: (signs: Partial<VitalSigns>) => void;
+  // 폼데이터 업데이트
+  updateFormData: (data: Partial<DispatchFormData>) => void;
   // 전체 정보 저장 (API 호출)
-  savePatientInfo: () => Promise<void>;
+  savePatientInfo: () => Promise<{ patientId: number } | undefined>;
   // 초기화
   resetPatientInfo: () => void;
 }
 
 // 구급대원 환자정보 폼데이터
-
+export interface DispatchFormData {
+  patientName: string;
+  patientGender: string;
+  patientAge: string;
+  patientBloodSugar: number;
+  patientDiastolicBldPress: number;
+  patientSystolicBldPress: number;
+  patientPulseRate: number;
+  patientTemperature: number;
+  patientSpo2: number;
+  patientMental: string;
+  patientPreKtas: string;
+  patientSymptom: string;
+  diseases: string;
+  medications: string;
+  patientPhone: string;
+  patientProtectorPhone: string;
+  callSummary: string;
+}
