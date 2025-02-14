@@ -64,7 +64,8 @@ public class SseController {
 
 
     @GetMapping(value = "/caller/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribeCaller(@RequestParam Integer clientId) {
+    // clientId는 세션아이디
+    public SseEmitter subscribeCaller(@RequestParam String clientId) {
         return sseEmitterService.createCallerEmitter(clientId);
     }
 }
