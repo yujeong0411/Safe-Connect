@@ -88,7 +88,7 @@ export interface PatientStore {
   fetchCallSummary: (callId: number, audioBlob: Blob) => Promise<void>;
 }
 
-// 상황실 보호자 알림
+// 상황실 및 구급대원 보호자 알림
 export interface ProtectorMessageResponse {
   isSuccess: boolean;
   code: number;
@@ -160,11 +160,14 @@ export interface DispatchPatientStore {
   savePatientInfo: () => Promise<{ patientId: number } | undefined>;
   // 초기화
   resetPatientInfo: () => void;
+  preKtasAI: () => Promise<{patientPreKtas: string}>;
+  sendProtectorMessage: (transferId:number) => Promise<ProtectorMessageResponse>;
 }
+
 
 // 구급대원 환자정보 폼데이터
 export interface DispatchFormData {
-  patientId: number | null;
+  patientId?: number;
   patientName: string;
   patientGender: string;
   patientAge: string;
@@ -182,4 +185,24 @@ export interface DispatchFormData {
   patientPhone?: string;
   patientProtectorPhone?: string;
   callSummary: string;
+}
+
+
+export interface PreKtasAIRequest {
+  patientAge: string;
+  patientBloodSugar: number | null;
+  patientDiastolicBldPress: number | null;
+  patientSystolicBldPress: number | null;
+  patientPulseRate: number | null;
+  patientTemperature: number | null;
+  patientSpo2: number | null;
+  patientMental: string;
+  patientSymptom: string;
+}
+
+export interface PreKtasAIResponse {
+  isSuccess: boolean;
+  code: number;
+  message: string;
+  patientPreKtas: string;
 }

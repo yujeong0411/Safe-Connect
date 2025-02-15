@@ -10,5 +10,7 @@ import java.time.LocalDateTime;
 public class AcceptTransferResponse {
 
     private Integer patientid;
+    private Integer hospitalid;
+    private Integer transferid;
     private LocalDateTime transferAcceptAt;
 }
