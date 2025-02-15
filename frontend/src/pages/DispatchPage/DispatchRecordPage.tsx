@@ -3,9 +3,9 @@ import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTem
 import DispatchRecordRow from '@/features/dispatch/components/DispatchRecordRow/DispatchRecordRow';
 import Pagination from '@/components/atoms/Pagination/Pagination';
 import { DispatchRecord } from '@/features/dispatch/types/dispatchRecord.types';
-import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
-import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.types';
-import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
+// import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
+// import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.types';
+// import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -15,77 +15,77 @@ const DispatchRecordPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [alertConfig, setAlertConfig] = useState({
-    title: "",
-    description: "",
-    type: "default" as "default" | "destructive",
-  });
-
-  // 알림 처리 함수
-  const handleAlertClose = (config: typeof alertConfig) => {
-    setAlertConfig(config);
-    setShowAlert(true);
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 10000);
-  }
-
-  // SSE
-  useEffect(() => {
-    const dispatchLoginId = sessionStorage.getItem("userName");
-    if (!dispatchLoginId) {
-      console.log("구급팀 정보가 없습니다.");
-      return;
-    }
-
-    let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-    if (subscribeUrl !== "http://localhost:8080") {
-      subscribeUrl += "/api"
-    }
-
-    // SSE 연결
-    const eventSource = new EventSource(`${subscribeUrl}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
-    console.log("SSE 연결 시도");
-
-    eventSource.onopen = () => {
-      console.log("SSE 연결 성공");
-    };
-
-    // 메시지 수신 처리
-    eventSource.onmessage = (event) => {
-      const response: DispatchOrderResponse = JSON.parse(event.data);
-      if (response.isSuccess) {
-        handleAlertClose({
-          title: "출동 지령 도착",
-          description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
-          type: "default"
-        });
-        console.log("SSE response = ", response)
-
-        // 상황실에서 받은 정보 저장
-        useDispatchPatientStore.getState().setPatientFromSSE(response.data);
-      } else {
-        handleAlertClose({
-          title: "출동 지령 수신 실패",
-          description: response.message || "출동 지령 수신에 실패했습니다",
-          type: "destructive"
-        });
-      }
-    };
-
-    // 에러 처리
-    eventSource.onerror = (error) => {
-      console.error("SSE 연결 에러: ", error);
-      eventSource.close();
-    };
-
-    // 컴포넌트 언마운트 시 연결 종료
-    return () => {
-      eventSource.close();
-    };
-  }, []); // 컴포넌트 마운트 시 한 번만 실행
-
+  // const [showAlert, setShowAlert] = useState<boolean>(false);
+  // const [alertConfig, setAlertConfig] = useState({
+  //   title: "",
+  //   description: "",
+  //   type: "default" as "default" | "destructive",
+  // });
+  //
+  // // 알림 처리 함수
+  // const handleAlertClose = (config: typeof alertConfig) => {
+  //   setAlertConfig(config);
+  //   setShowAlert(true);
+  //   setTimeout(() => {
+  //     setShowAlert(false);
+  //   }, 10000);
+  // }
+  //
+  // // SSE
+  // useEffect(() => {
+  //   const dispatchLoginId = sessionStorage.getItem("userName");
+  //   if (!dispatchLoginId) {
+  //     console.log("구급팀 정보가 없습니다.");
+  //     return;
+  //   }
+  //
+  //   let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+  //   if (subscribeUrl !== "http://localhost:8080") {
+  //     subscribeUrl += "/api"
+  //   }
+  //
+  //   // SSE 연결
+  //   const eventSource = new EventSource(`${subscribeUrl}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+  //   console.log("SSE 연결 시도");
+  //
+  //   eventSource.onopen = () => {
+  //     console.log("SSE 연결 성공");
+  //   };
+  //
+  //   // 메시지 수신 처리
+  //   eventSource.onmessage = (event) => {
+  //     const response: DispatchOrderResponse = JSON.parse(event.data);
+  //     if (response.isSuccess) {
+  //       handleAlertClose({
+  //         title: "출동 지령 도착",
+  //         description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
+  //         type: "default"
+  //       });
+  //       console.log("SSE response = ", response)
+  //
+  //       // 상황실에서 받은 정보 저장
+  //       useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+  //     } else {
+  //       handleAlertClose({
+  //         title: "출동 지령 수신 실패",
+  //         description: response.message || "출동 지령 수신에 실패했습니다",
+  //         type: "destructive"
+  //       });
+  //     }
+  //   };
+  //
+  //   // 에러 처리
+  //   eventSource.onerror = (error) => {
+  //     console.error("SSE 연결 에러: ", error);
+  //     eventSource.close();
+  //   };
+  //
+  //   // 컴포넌트 언마운트 시 연결 종료
+  //   return () => {
+  //     eventSource.close();
+  //   };
+  // }, []); // 컴포넌트 마운트 시 한 번만 실행
+  //
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -151,24 +151,24 @@ const DispatchRecordPage = () => {
 
   return (
     <DispatchMainTemplate>
-      {/* Alert UI */}
-      {showAlert && (
-        <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">
-          <Alert
-            variant={alertConfig.type}
-            className={`w-[400px] shadow-lg bg-white ${
-              alertConfig.type === 'default'
-                ? '[&>svg]:text-blue-600 text-blue-600'
-                : '[&>svg]:text-red-500 text-red-500'
-            }`}
-          >
-            <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-            <AlertDescription className="text-sm m-2">
-              {alertConfig.description}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+      {/*/!* Alert UI *!/*/}
+      {/*{showAlert && (*/}
+      {/*  <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">*/}
+      {/*    <Alert*/}
+      {/*      variant={alertConfig.type}*/}
+      {/*      className={`w-[400px] shadow-lg bg-white ${*/}
+      {/*        alertConfig.type === 'default'*/}
+      {/*          ? '[&>svg]:text-blue-600 text-blue-600'*/}
+      {/*          : '[&>svg]:text-red-500 text-red-500'*/}
+      {/*      }`}*/}
+      {/*    >*/}
+      {/*      <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>*/}
+      {/*      <AlertDescription className="text-sm m-2">*/}
+      {/*        {alertConfig.description}*/}
+      {/*      </AlertDescription>*/}
+      {/*    </Alert>*/}
+      {/*  </div>*/}
+      {/*)}*/}
 
       <div className="p-8 max-w-[90rem] mx-auto">
         <div className="mb-8">
