@@ -177,6 +177,9 @@ public class ControlServiceImpl implements ControlService {
         if (!dispatchGroup.getDispatchGroupIsReady()) {
             throw new RuntimeException("현재 출동 불가능한 구급팀입니다.");
         }
+        // Call 엔티티를 먼저 조회
+        Call call = callRepository.findById(controlRequest.getCallId())
+                .orElseThrow(() -> new RuntimeException("일치하는 신고가 존재하지 않습니다."));
 
         // dispatch insert
         Dispatch dispatch = Dispatch.builder()
@@ -185,6 +188,10 @@ public class ControlServiceImpl implements ControlService {
                 .dispatchCreateAt(LocalDateTime.now())
                 .build();
         dispatch = dispatchRepository.saveAndFlush(dispatch);
+
+        // 영속성 컨텍스트에서 리프레시하여 관계를 로드
+        dispatch = dispatchRepository.findById(dispatch.getDispatchId())
+                .orElseThrow(() -> new RuntimeException("dispatch 저장 실패"));
 
         Patient patient = patientRepository.findById(controlRequest.getPatientId())
                 .orElse(null);
