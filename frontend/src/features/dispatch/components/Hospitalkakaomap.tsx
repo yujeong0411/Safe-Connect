@@ -71,13 +71,13 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
       // 위도/경도 로깅
       console.log('Hospital position:', {
         name: hospital.hospitalName,
-        lat: hospital.hospitalLocation.y,
-        lng: hospital.hospitalLocation.x
+        lat: hospital.hospitalLat,
+        lng: hospital.hospitalLng
       });
   
       const position = new window.kakao.maps.LatLng(
-        Number(hospital.hospitalLocation.y), // 위도
-        Number(hospital.hospitalLocation.x)  // 경도
+        Number(hospital.hospitalLat), // 위도
+        Number(hospital.hospitalLng)  // 경도
       );
   
       const marker = new window.kakao.maps.Marker({
