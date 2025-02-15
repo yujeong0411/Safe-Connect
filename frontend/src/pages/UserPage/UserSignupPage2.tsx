@@ -8,7 +8,7 @@ import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
 import { CircleAlert } from "lucide-react";
 import SignupMediDialog from "@features/auth/components/SignupMediDialog.tsx";
 import { handleSignUp } from '@features/auth/servies/apiService.ts';
-import {useAuthStore} from "@/store/user/authStore.tsx";
+import { useAuthStore } from '@/store/user/authStore.tsx';
 
 const UserSignupPage2 = () => {
   const navigate = useNavigate();
@@ -87,13 +87,16 @@ const UserSignupPage2 = () => {
   const handleSignupProcess = async (wantMediInfo:boolean) => {
     try {
       // 회원가입 처리 후 토큰 받기
-      await handleSignUp(formData, resetFormData)
-      // 로그인 시도
+      await handleSignUp(
+        formData
+        , resetFormData
+      )
+
+
       await useAuthStore.getState().login({
         userEmail: formData.userEmail,
         userPassword: formData.userPassword
       });
-
       // 의료정보 입력을 원한다면 다음 페이지 이동
       if (wantMediInfo) {
         navigate('/user/signup/medi', {
@@ -103,15 +106,8 @@ const UserSignupPage2 = () => {
             skipRedirect: true  // 리다이렉트 방지 플래그 추가
           }
         });
-      } else {
-        // 의료정보 입력을 원하지 않는다면 회원가입 완료
-      // navigate('/user/login')
-      // 자동 로그인 시도
-      await useAuthStore.getState().login({
-        userEmail: formData.userEmail,
-        userPassword: formData.userPassword
-      });
       }
+
     } catch (error) {
       console.error('회원가입 실패', error);
       handleShowAlert(['회원가입 처리 중 오류가 발생했습니다.'])

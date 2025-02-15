@@ -47,15 +47,26 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public ResponseEntity<?> createUser(UserCreateRequest request){
         try{
-            User user = modelMapper.map(request, User.class);
-            userRepository.save(user);
-            //비밀번호 암호화
+
+            // 전화번호 중복 처리를 먼저 수행
             if(userRepository.existsUserByUserPhone(request.getUserPhone())) {
+                System.out.println("Duplicate phone number found: "+ request.getUserPhone());
                 User oldUser = userRepository.findUserByUserPhone(request.getUserPhone());
                 oldUser.setUserPhone("010-0000-0000");
-                //기존 유저 중 같은 핸드폰을 사용하는 사람이 있으면 전 사람은 010-0000-0000으로 바꾼다.
+                userRepository.save(oldUser); // 변경된 기존 사용자 정보 저장
+                System.out.println("Updated old user's phone number successfully");
             }
+
+
+            User user = modelMapper.map(request, User.class);
+            //비밀번호 암호화
             user.setUserPassword(bCryptPasswordEncoder.encode(user.getUserPassword()));
+            userRepository.save(user);
+
+            // 새 사용자 저장
+            User savedUser = userRepository.save(user);
+            System.out.println("New user saved successfully with ID: "+ savedUser.getUserId());
+
             UserResponse userResponse = modelMapper.map(user, UserResponse.class);
             ResponseData<UserResponse> response = ResponseUtil.success(userResponse, "회원 가입이 완료");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
