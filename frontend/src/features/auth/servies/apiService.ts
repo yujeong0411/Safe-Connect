@@ -75,11 +75,9 @@ export const handleSignUp = async (
 ): Promise<void> => {
   try {
     const response = await axiosInstance.post('/user/signup', formData);
-    console.log('Signup response:', response.data); // 응답 데이터 확인
+
     if (response.data.isSuccess === true) {
       resetFormData(); // store 초기화 (안하면 입력창에 자동입력됨.)
-      // 성공 시 메인페이지 이동 -> 의료정보 입력 선택사항 추가로 리다이렉트 삭제
-      // navigate('/user/login');
     } else {
       console.error('Signup failed:', response.data.message); // 실패 메시지 기록
       alert(response.data.message);
