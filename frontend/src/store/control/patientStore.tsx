@@ -125,6 +125,9 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
           patientInfo: response.data as PatientInfo,
           currentCall:updatedCallInfo,  // 저장 성공 시 현재 신고 정보 업데이트
         });
+
+        // 상태 업데이트 확인
+        console.log('상태 업데이트 후:', get().currentCall);
       }
     } catch (error) {
       console.error('정보 저장 실패', error);

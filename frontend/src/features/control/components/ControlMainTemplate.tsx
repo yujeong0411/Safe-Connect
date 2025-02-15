@@ -33,7 +33,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
   useEffect(() => {
     const connectSSE = () => {
-      const userName = localStorage.getItem("userName");
+      const userName = sessionStorage.getItem("userName");
       if (userName && isAuthenticated) {
         connect(userName);
       }

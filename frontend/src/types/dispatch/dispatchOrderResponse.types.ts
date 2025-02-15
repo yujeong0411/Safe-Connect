@@ -1,30 +1,23 @@
-// types/dispatch.types.ts
-export interface MediDto {
-  mediId: number;
-  mediName: string;
-}
+import {CallInfoRequest} from "@/types/common/Patient.types.ts";
+import {PatientInfo} from "@/types/common/Patient.types.ts";
+import {PatientDetail} from "@/types/hospital/hospitalTransfer.types.ts";
+import {MedicalCategory} from "@/types/common/medical.types.ts";
 
-export interface MediCategoryDto {
-  categoryId: number;
-  categoryName: string;
-  mediList: MediDto[];
-}
-
-export interface Patient {
+// patient 타입 정리 (sse.types에 있던 것 삭제)
+export interface Patient extends PatientInfo, PatientDetail {
   patientId: number;
+  callId: number | null;
+  dispatchId: number | null;
+  transferId: number | null;
   patientIsUser: boolean;
-  patientName: string;
-  patientGender: string;
-  patientAge: number;
-  patientBloodSugar: number | null;
-  patientDiastolicBldPress: number | null;
-  patientSystolicBldPress: number | null;
-  patientPulseRate: number | null;
-  patientTemperature: number | null;
-  patientSpo2: number | null;
-  patientMental: string | null;
-  patientPreKtas: number | null;
-  patientSympthom: string | null;
+  patientCreatedAt: string;
+  patientInfoCreatedAt: string | null;
+  call: CallInfoRequest | null;
+  dispatch: unknown | null;
+  transfer: unknown | null;
+  user: unknown | null;
+  dispatchGroup: unknown | null;
+  mediInfo: MedicalCategory[];
 }
 
 export interface DispatchOrderResponse {
@@ -35,6 +28,7 @@ export interface DispatchOrderResponse {
     dispatchId: number;
     callId: number;
     patient: Patient;
-    mediInfo?: MediCategoryDto[];
+    mediInfo?: MedicalCategory[];
+    callSummary: string;
   }
 }

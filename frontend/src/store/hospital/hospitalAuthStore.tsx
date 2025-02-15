@@ -4,8 +4,8 @@ import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
 import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 
 export const useHospitalAuthStore = create<HospitalAuthStore>((set) => ({
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: sessionStorage.getItem('token'),
+  isAuthenticated: !!sessionStorage.getItem('token'),
 
   // 타입 변환 함수 추가
   login: async (data: HospitalLoginRequest) => {

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import {
-  CurrentCall,
   DispatchPatientStore,
     DispatchFormData,
     DispatchSavePatientRequest
@@ -8,6 +7,7 @@ import {
 import { updateDispatchPatientInfo } from '@features/dispatch/sevices/dispatchServiece.ts';
 
 const initialFormData: DispatchFormData = {
+  patientId: null,
   patientName: '',
   patientGender: '',
   patientAge: '',
@@ -28,27 +28,38 @@ const initialFormData: DispatchFormData = {
 };
 
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({
-  baseInfo: null,
   formData: initialFormData,
 
-  initialBaseInfo: (info: CurrentCall) => {
-    set({
-      baseInfo: info,
+  // SSE로 받은 환자 정보 formData에 설정
+  setPatientFromSSE: (data) => {
+    set(() => ({
       formData: {
-        ...initialFormData,
-        // 상황실에서 온 정보가 있다면 해당 정보로 초기화
-        patientName: info.userName ?? '',
-        patientGender: info.userGender ?? '',
-        patientAge: info.userAge ?? '',
-        patientPhone: info.userPhone ?? '',
-        patientProtectorPhone: info.userProtectorPhone ?? '',
-        callSummary: info.callSummary ?? '',
-        diseases: info.diseases ?? '',
-        medications: info.medications ?? '',
-        patientSymptom: info.symptom ?? ''
+        patientId: data.patient.patientId || null,
+        patientName: data.patient.patientName || '',
+        patientGender: data.patient.patientGender || '',
+        patientAge: data.patient.patientAge || '',
+        patientBloodSugar: data.patient.patientBloodSugar || null,
+        patientDiastolicBldPress: data.patient.patientDiastolicBldPress || null,
+        patientSystolicBldPress: data.patient.patientSystolicBldPress || null,
+        patientPulseRate: data.patient.patientPulseRate || null,
+        patientTemperature: data.patient.patientTemperature || null,
+        patientSpo2: data.patient.patientSpo2 || null,
+        patientMental: data.patient.patientMental || '',
+        patientPreKtas: data.patient.patientPreKtas || '',
+        patientSymptom: data.patient.patientSymptom || '',
+        patientPhone: data.patient.userPhone || '',
+        patientProtectorPhone: data.patient.userProtectorPhone || '',
+        diseases: data.mediInfo?.find(m => m.categoryName === '기저질환')
+            ?.mediList.map(m => m.mediName)
+            .join(',') || '',
+        medications: data.mediInfo?.find(m => m.categoryName === '복용약물')
+            ?.mediList.map(m => m.mediName)
+            .join(',') || '',
+        callSummary:data.callSummary,
       }
-    });
+    }))
   },
+
 
   // 정보가 없을 경우 구급대원이 자유롭게 입력 가능
   updateFormData: (data) => {
@@ -63,15 +74,15 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
 
   // 환자 정보 저장
   savePatientInfo: async () => {
-    const {formData, baseInfo} = get()
-    if (!baseInfo?.patientId) {
+    const {formData} = get()
+    if (!formData.patientId) {
       throw new Error('환자 ID가 없습니다.');
     }
 
     try {
       // 정보가 없으면 구급대원이 입력한 정보로 저장
       const requestData: DispatchSavePatientRequest = {
-        patientId: baseInfo.patientId,
+        patientId: formData.patientId,
         patientName: formData.patientName,
         patientGender: formData.patientGender,
         patientAge: formData.patientAge,
@@ -105,7 +116,6 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
 
   resetPatientInfo: () => {
     set({
-      baseInfo: null,
      formData: initialFormData,
     });
   },

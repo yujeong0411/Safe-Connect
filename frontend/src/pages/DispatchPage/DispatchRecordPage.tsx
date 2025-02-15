@@ -1,24 +1,11 @@
-// src/features/dispatch/pages/DispatchRecordPage.tsx
-
 import { useState, useEffect } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import DispatchRecordRow from '@/features/dispatch/components/DispatchRecordRow/DispatchRecordRow';
 import Pagination from '@/components/atoms/Pagination/Pagination';
 import { DispatchRecord } from '@/features/dispatch/types/dispatchRecord.types';
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
-import { Patient, MediCategoryDto } from '@/types/dispatch/dispatchOrderResponse.types';
-
-interface DispatchOrderResponse {
-  isSuccess: boolean;
-  code: number;
-  message: string;
-  data: {
-    dispatchGroupId: number;
-    callId: number;
-    patient:Patient;
-    mediInfo: MediCategoryDto[];
-  }
-}
+import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.types';
+import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -46,7 +33,7 @@ const DispatchRecordPage = () => {
 
   // SSE
   useEffect(() => {
-    const dispatchLoginId = localStorage.getItem("userName");
+    const dispatchLoginId = sessionStorage.getItem("userName");
     if (!dispatchLoginId) {
       console.log("구급팀 정보가 없습니다.");
       return;
@@ -75,6 +62,13 @@ const DispatchRecordPage = () => {
           type: "default"
         });
         console.log("SSE response = ", response)
+
+        // 상황실에서 받은 정보 저장
+        useDispatchPatientStore.getState().setPatientFromSSE({
+            patient: response.data.patient,
+            callSummary: response.data.callSummary,
+            mediInfo: response.data.mediInfo || []
+        });
       } else {
         handleAlertClose({
           title: "출동 지령 수신 실패",

@@ -8,8 +8,8 @@ import {AxiosError} from "axios";
 
 export const useAuthStore = create<AuthStore>((set) => ({
   // 초기상태
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'), // 토큰 존재 여부로 인증 상태 초기화
+  token: sessionStorage.getItem('token'),
+  isAuthenticated: !!sessionStorage.getItem('token'), // 토큰 존재 여부로 인증 상태 초기화
   userEmail: '',
 
   setAuthenticated: (value: boolean) => set({ isAuthenticated: value }),

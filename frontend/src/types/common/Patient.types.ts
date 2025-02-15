@@ -1,4 +1,6 @@
 import { MedicalCategory } from '@/types/common/medical.types.ts';
+import {Patient} from "@/types/dispatch/dispatchOrderResponse.types.ts";
+
 // 폼 데이터
 export interface FormData {
   userName: string;
@@ -9,7 +11,7 @@ export interface FormData {
   diseases: string;
   medications: string;
   callSummary: string;
-  addSummary:string;
+  addSummary: string;
   symptom: string;
   userId: number;
 }
@@ -58,6 +60,7 @@ export interface PatientResponse {
   data: PatientInfo | CallInfoRequest;
 }
 
+// 상황실 환자 저장 시 응답
 export interface SavePatientResponse {
   isSuccess: boolean;
   code: number;
@@ -66,30 +69,31 @@ export interface SavePatientResponse {
     symptom: string;
     callSummary: string;
     patientId: number;
-  }
+  };
 }
 
+// 상황실 환자 스토어
 export interface PatientStore {
   patientInfo: PatientInfo | null;
   currentCall: CurrentCall | null;
   formData: FormData;
-  reportContent:string;
-  updateReportContent:(content: string) => void;
-  updateFormData: (data:Partial<FormData>) => void;
+  reportContent: string;
+  updateReportContent: (content: string) => void;
+  updateFormData: (data: Partial<FormData>) => void;
   setCurrentCall: (info: CurrentCall) => void;
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
   sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
-  fetchCallSummary : (callId:number, audioBlob: Blob) => Promise<void>
+  fetchCallSummary: (callId: number, audioBlob: Blob) => Promise<void>;
 }
 
+// 상황실 보호자 알림
 export interface ProtectorMessageResponse {
   isSuccess: boolean;
   code: number;
   message: string;
 }
-
 
 // 신고 요약 응답
 export interface CallSummaryResponse {
@@ -98,9 +102,8 @@ export interface CallSummaryResponse {
   message: string;
   data: {
     callSummary: string;
-  }
+  };
 }
-
 
 export interface VitalSigns {
   patientBloodSugar: number | null;
@@ -112,7 +115,6 @@ export interface VitalSigns {
   patientMental: string;
   patientPreKtas: string;
 }
-
 
 // 구급대원의 환자 정보 저장 요청 타입
 export interface DispatchSavePatientRequest {
@@ -134,20 +136,27 @@ export interface DispatchSavePatientResponse {
   message: string;
   data: {
     patientId: number;
-  }
+  };
 }
 
 // 구급대원 환자 스토어
-export interface DispatchPatientStore{
+export interface DispatchPatientStore {
   // 기본 정보 (상황실에서 받은 정보)  -> 상황에 따라 좀 더 유연하게 설정
-  baseInfo: Partial<CurrentCall> | null;
+  // baseInfo: Partial<CurrentCall> | null;
 
   // 구급대원이 입력하는 모든 정보(기본정보 + 생체정보)
   formData: DispatchFormData;
 
   // 액션
+  // 상황실에서 받은 정보로 세팅
+  setPatientFromSSE: (data: {
+    patient: Patient;
+    callSummary: string;
+    mediInfo: MedicalCategory[];
+  }) => void;
+
   // 상황실에서 받은 정보로 초기화
-  initialBaseInfo: (info: CurrentCall) => void;
+  // initialBaseInfo: (info: CurrentCall) => void;
   // 폼데이터 업데이트
   updateFormData: (data: Partial<DispatchFormData>) => void;
   // 전체 정보 저장 (API 호출)
@@ -158,6 +167,7 @@ export interface DispatchPatientStore{
 
 // 구급대원 환자정보 폼데이터
 export interface DispatchFormData {
+  patientId: number | null;
   patientName: string;
   patientGender: string;
   patientAge: string;

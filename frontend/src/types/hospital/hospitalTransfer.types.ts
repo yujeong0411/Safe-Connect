@@ -56,7 +56,7 @@ export interface PatientDetail {
     patientBloodSugar: number;
     patientPreKtas: string;
     userPhone: string;
-    userProtectorPhone: string;
+    userProtectorPhone?: string;
     patientSymptom: string;
     patientMedications: string[];
     patientDiseases: string[];

@@ -5,7 +5,7 @@ import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx
 import React from 'react';
 
 const PatientInfoPage = () => {
-  const {baseInfo, formData, updateFormData, savePatientInfo } =useDispatchPatientStore();
+  const {formData, updateFormData, savePatientInfo, } =useDispatchPatientStore();
 const ktasOptions = ['1', '2', '3', '4', '5']
   const mentalOptions = ['A', 'V', 'P', 'U'];
 const genderOptions = ['M', 'F'];
@@ -217,18 +217,18 @@ const genderOptions = ['M', 'F'];
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-dialog_content p-4 rounded-md">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">기저 질환</h4>
-                <p className="text-gray-900">{baseInfo?.diseases || '없음'}</p>
+                <p className="text-gray-900">{formData?.diseases || '없음'}</p>
               </div>
               <div className="bg-dialog_content p-4 rounded-md">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">복용 약물</h4>
-                <p className="text-gray-900">{baseInfo?.medications || '없음'}</p>
+                <p className="text-gray-900">{formData?.medications || '없음'}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-dialog_content p-4 rounded-md">
             <h4 className="text-sm font-medium text-gray-700 mb-2">신고 요약본</h4>
-            <p className="text-gray-900">{baseInfo?.callSummary || '없음'}</p>
+            <p className="text-gray-900">{formData?.callSummary || '없음'}</p>
           </div>
 
           <div>

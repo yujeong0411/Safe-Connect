@@ -251,6 +251,7 @@ public class ControlServiceImpl implements ControlService {
 
         // 응답 생성
         CallUpdateResponse response = CallUpdateResponse.builder()
+                .patientId(patient.getPatientId())  // 저장된 환자 ID 추가
                 .userName(user != null ? user.getUserName() : null)
                 .userGender(user != null ? user.getUserGender() : null)
                 .userAge(user != null ? ControlUserResponse.calculateAge(user.getUserBirthday()) : null)

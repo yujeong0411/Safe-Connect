@@ -3,8 +3,8 @@ import { AdminAuthStore, AdminLoginRequest } from '@/types/admin/adminAuth.types
 import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
 
 export const useAdminAuthStore = create<AdminAuthStore>((set) => ({
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: sessionStorage.getItem('token'),
+  isAuthenticated: !!sessionStorage.getItem('token'),
 
   // 타입 변환 함수 추가
   login: async (data: AdminLoginRequest) => {

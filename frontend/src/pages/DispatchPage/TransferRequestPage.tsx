@@ -93,7 +93,7 @@ const TransferRequestPage = () => {
   // SSE 연결 설정
 // TransferRequestPage.tsx에서 SSE 연결 부분 수정
 useEffect(() => {
-  const dispatchLoginId = localStorage.getItem("userName");
+  const dispatchLoginId = sessionStorage.getItem("userName");
   if (!dispatchLoginId) {
     console.log("구급팀 정보가 없습니다.");
     return;
