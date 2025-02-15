@@ -31,7 +31,7 @@ export const commonLogin = async function (params: CommonLoginParams) {
     }
 
     // 토큰 설정 로직
-    localStorage.setItem('token', accessToken); // 응답받은 토큰 저장, 상태 업데이트는 각 스토어에서
+    sessionStorage.setItem('token', accessToken); // 응답받은 토큰 저장, 상태 업데이트는 각 스토어에서
 
     // 요청할 때는 Authorization으로 요청해야함.
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`; // 이후 요청 헤더 설정
@@ -63,7 +63,7 @@ export const commonLogout = async (logoutPath: string) => {
 
     await axiosInstance.post(logoutPath);
     // 토큰 제거  , 상태 업데이트는 스토어에서
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
 
     // axios 헤더에서 토큰 제거
     delete axiosInstance.defaults.headers.common['Authorization'];

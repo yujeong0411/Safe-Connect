@@ -1,15 +1,22 @@
-// types/dispatch.types.ts
-export interface MediDto {
-  mediId: number;
-  mediName: string;
+// import {CallInfoRequest} from "@/types/common/Patient.types.ts";
+// import {PatientInfo} from "@/types/common/Patient.types.ts";
+// import {PatientDetail} from "@/types/hospital/hospitalTransfer.types.ts";
+import {MedicalCategory} from "@/types/common/medical.types.ts";
+
+// 회원인 경우 필요
+export interface User {
+  userPhone: string;
+  protectorPhone: string;
 }
 
-export interface MediCategoryDto {
-  categoryId: number;
-  categoryName: string;
-  mediList: MediDto[];
+// 신고 정보
+export interface Call {
+  callId: number;
+  callSummary: string;
+  callerPhone: string;
 }
 
+// patient 타입 정리 (sse.types에 있던 것 삭제)
 export interface Patient {
   patientId: number;
   patientIsUser: boolean;
@@ -22,19 +29,21 @@ export interface Patient {
   patientPulseRate: number | null;
   patientTemperature: number | null;
   patientSpo2: number | null;
-  patientMental: string | null;
-  patientPreKtas: number | null;
-  patientSympthom: string | null;
+  patientMental: string;
+  patientPreKtas: number;
+  patientSymptom: string;
 }
+
 
 export interface DispatchOrderResponse {
   isSuccess: boolean;
   code: number;
   message: string;
   data: {
-    dispatchId: number;
-    callId: number;
+    dispatchGroupId: number;
+    call: Call;
     patient: Patient;
-    mediInfo?: MediCategoryDto[];
+    user: User | null;
+    mediInfo: MedicalCategory[] | null;
   }
 }
