@@ -184,7 +184,7 @@ public class ControlServiceImpl implements ControlService {
                 .dispatchGroupId(controlRequest.getDispatchGroupId())
                 .dispatchCreateAt(LocalDateTime.now())
                 .build();
-        dispatchRepository.save(dispatch);
+        dispatch = dispatchRepository.saveAndFlush(dispatch);
 
         Patient patient = patientRepository.findById(controlRequest.getPatientId())
                 .orElse(null);
