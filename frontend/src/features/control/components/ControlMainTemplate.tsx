@@ -6,7 +6,7 @@ import { useVideoCallStore } from '@/store/control/videoCallStore';
 import VideoCallCreateDialog from '@features/control/components/VideoCallCreateDialog';
 import ProtectorNotifyDialog from '@features/control/components/ProtectorNotifyDialog';
 import { useControlAuthStore } from '@/store/control/controlAuthStore.tsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useControlsseStore } from '@/store/control/controlsseStore.ts';
 
 interface ControlTemplateProps {
@@ -16,49 +16,75 @@ interface ControlTemplateProps {
 const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { setIsOpen, isOpen: isDrawerOpen } = useVideoCallStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isVideoModalOpen, setIsVideoModalOpen] = React.useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = React.useState(false);
   const { logout } = useControlAuthStore();
+  const { connect, disconnect } = useControlsseStore();
+  const { isAuthenticated } = useControlAuthStore();
 
   const handleLogout = async () => {
     try {
       await logout();
+      disconnect();
       navigate('/control');
     } catch (error) {
       console.error('로그아웃 실패', error);
     }
   };
-  const { connect } = useControlsseStore();
-  const { isAuthenticated } = useControlAuthStore(); // 인증 상태 확인
 
   useEffect(() => {
+    let reconnectTimer: NodeJS.Timeout | null = null;
+
     const connectSSE = () => {
       const userName = localStorage.getItem("userName");
-      if (userName && isAuthenticated) {
+      if (userName && isAuthenticated && location.pathname.startsWith('/control')) {
         connect(userName);
+
+        // 25분 후 자동 재연결 설정
+        reconnectTimer = setTimeout(() => {
+          disconnect();
+          connect(userName);
+        }, 25 * 60 * 1000); // 25분
       }
     };
 
-    connectSSE(); // 초기 연결
-
-    // 주기적으로 연결 상태 확인 및 재연결
-    const intervalId = setInterval(() => {
-      connectSSE();
-    }, 30000); // 30초마다 연결 상태 확인
+    // 초기 연결
+    connectSSE();
 
     const handleOnline = () => {
-      console.log("Browser is online, reconnecting SSE...");
-      connectSSE();
+      if (location.pathname.startsWith('/control')) {
+        console.log("Browser is online, reconnecting SSE...");
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+        }
+        disconnect();
+        connectSSE();
+      }
+    };
+
+    // 브라우저 종료 시 처리 추가
+    const handleBeforeUnload = () => {
+      disconnect();
     };
 
     window.addEventListener('online', handleOnline);
 
+    // Cleanup function
     return () => {
-      clearInterval(intervalId);
-      window.removeEventListener('online', handleOnline);
-    };
-  }, [connect, isAuthenticated]);
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+      }
 
+      // /control 경로를 벗어날 때만 연결 해제
+      if (!location.pathname.startsWith('/control')) {
+        disconnect();
+      }
+
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [connect, disconnect, isAuthenticated, location.pathname]);
 
   const navItems = [
     {

@@ -7,6 +7,7 @@ import BulkTransferRequestDialog from '@/features/dispatch/components/BulkTransf
 import { useHospitalSearch } from '@/hooks/useHospitalSearch';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
+import axiosInstance from '@/features/dispatch/api/axios';
 
 interface AlertConfig {
   title: string;
@@ -20,21 +21,21 @@ const TransferRequestPage = () => {
     searchRadius,
     handleSearch,
     stopSearch,
-    requestTransfer,
     markHospitalsAsRequested,
     currentLocation,
     isSearching,
-    error
+    error: searchError
   } = useHospitalSearch();
 
   const [showBulkRequestDialog, setShowBulkRequestDialog] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [selectedHospitalId, setSelectedHospitalId] = useState<number | undefined>();
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
     title: '',
     description: '',
     type: 'default',
   });
-  
+
   const [ acceptedHospital, setAcceptedHospital ] = useState<{
     hospitalId: number;
     hospitalName: string;
@@ -68,6 +69,10 @@ const TransferRequestPage = () => {
     }
   };
 
+  const handleHospitalSelect = (hospitalId: number) => {
+    setSelectedHospitalId(hospitalId);
+  };
+
   const handleBulkRequest = () => {
     const availableHospitals = hospitals.filter((h) => !h.requested);
     if (availableHospitals.length === 0) {
@@ -82,18 +87,29 @@ const TransferRequestPage = () => {
   };
 
   const handleTransferRequest = async () => {
-    const availableHospitals = hospitals.filter((h) => !h.requested);
-    const hospitalIds = availableHospitals.map((h) => h.hospitalId);
+    try {
+      const availableHospitals = hospitals.filter((h) => !h.requested);
+      const hospitalIds = availableHospitals.map((h) => h.hospitalId);
 
-    const success = await requestTransfer(hospitalIds);
-
-    if (success) {
-      handleAlertClose({
-        title: '이송 요청 전송',
-        description: `${availableHospitals.length}개 병원에 이송 요청이 전송되었습니다.`,
-        type: 'success',
+      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
+        hospitalIds
       });
-      setShowBulkRequestDialog(false);
+
+      if (response.data.isSuccess) {
+        markHospitalsAsRequested(hospitalIds);
+        handleAlertClose({
+          title: '이송 요청 전송',
+          description: `${availableHospitals.length}개 병원에 이송 요청이 전송되었습니다.`,
+          type: 'success',
+        });
+        setShowBulkRequestDialog(false);
+      }
+    } catch (error) {
+      handleAlertClose({
+        title: '이송 요청 실패',
+        description: '이송 요청 전송에 실패했습니다.',
+        type: 'error',
+      });
     }
   };
 
@@ -106,9 +122,8 @@ useEffect(() => {
     return;
   }
 
-  // baseURL을 axiosInstance와 동일하게 사용
-  const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-  const eventSource = new EventSource(`${baseURL}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+    const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    const eventSource = new EventSource(`${baseURL}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
 
   type SSEResponse = {
     isSuccess: boolean;
@@ -139,7 +154,7 @@ useEffect(() => {
     }
   });
 
-  
+
   // const [ acceptedHospital, setAcceptedHospital ] = useState<{
   //   hospitalId: number;
   //   hospitalName: string;
@@ -157,10 +172,10 @@ useEffect(() => {
           description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
           type: "success"
         });
-        
-        if (response.data.hospitalId && 
-          response.data.hospitalName && 
-          response.data.latitude != null && 
+
+        if (response.data.hospitalId &&
+          response.data.hospitalName &&
+          response.data.latitude != null &&
           response.data.longitude != null) {
             const hospitalData = {
               hospitalId: response.data.hospitalId,
@@ -172,21 +187,21 @@ useEffect(() => {
           setAcceptedHospital(hospitalData);
         };
       }
-        
+
     } catch (error) {
       console.error("병원 응답 메시지 처리 중 오류 발생: ", error)
     }
   });
 
-  eventSource.onerror = (error) => {
-    console.error("SSE 연결 에러: ", error);
-    handleAlertClose({
-      title: "연결 오류",
-      description: "실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.",
-      type: "error"
-    });
-    eventSource.close();
-  };
+    eventSource.onerror = (error) => {
+      console.error("SSE 연결 에러: ", error);
+      handleAlertClose({
+        title: "연결 오류",
+        description: "실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.",
+        type: "error"
+      });
+      eventSource.close();
+    };
 
   // 요청 수락 병원 데이터 비우기
   setAcceptedHospital(null);
@@ -217,20 +232,25 @@ useEffect(() => {
           </div>
         )}
 
-        {/* 에러 메시지 */}
-        {error && (
+        {/* 검색 에러 알림 */}
+        {searchError && (
           <div className="fixed right-4 top-20 z-50">
             <Alert variant="destructive" className="w-[400px] shadow-lg">
               <CircleAlert className="h-6 w-6" />
-              <AlertTitle>오류 발생</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertTitle>검색 오류</AlertTitle>
+              <AlertDescription>{searchError}</AlertDescription>
             </Alert>
           </div>
         )}
 
         {/* 지도 */}
         <div className="absolute inset-0">
-          <HospitalKakaoMap currentLocation={currentLocation} hospitals={hospitals} />
+          <HospitalKakaoMap
+            currentLocation={currentLocation}
+            hospitals={hospitals}
+            onHospitalSelect={handleHospitalSelect}
+            selectedHospitalId={selectedHospitalId}
+          />
         </div>
 
         {/* 병원 목록 */}
@@ -240,6 +260,8 @@ useEffect(() => {
           onSearch={handleSearchStart}
           onBulkRequest={handleBulkRequest}
           isSearching={isSearching}
+          selectedHospitalId={selectedHospitalId}
+          onHospitalSelect={handleHospitalSelect}
         />
 
         {/* 이송 요청 다이얼로그 */}

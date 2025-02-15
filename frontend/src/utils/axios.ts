@@ -71,16 +71,11 @@ axiosInstance.interceptors.response.use(
           const response = await axiosInstance.post('/reissue', {}, {
               withCredentials: true
           });
-          console.log('토큰 갱신 응답 전체:', response);
-          console.log('응답 데이터:', response.data);
-          console.log('응답 헤더:', response.headers);
-
-        // 새 토큰 가져오기 (서버는 access로 내려줌)
+          // 새 토큰 가져오기 (서버는 access로 내려줌)
         const newAccessToken = response.headers['access'];
         console.log('새로운 액세스 토큰:', newAccessToken);
 
         if (newAccessToken) {
-          console.log('새 토큰 저장 및 헤더 설정');
           // 새토큰 저장
           localStorage.setItem('token', newAccessToken);
 
@@ -90,7 +85,6 @@ axiosInstance.interceptors.response.use(
           axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
 
           // 원본 요청 재시도
-          console.log('원래 요청 재시도');
           return axiosInstance(originalRequest);
         }
       } catch (refreshError) {

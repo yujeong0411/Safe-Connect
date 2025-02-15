@@ -1,4 +1,3 @@
-// src/features/dispatch/components/HospitalList.tsx
 import { Hospital } from '../types/hospital.types';
 import DispatchButton from './DispatchButton/DispatchButton';
 
@@ -8,6 +7,8 @@ interface HospitalListProps {
   onSearch: () => void;
   onBulkRequest: () => void;
   isSearching?: boolean;
+  selectedHospitalId?: number;
+  onHospitalSelect?: (hospitalId: number) => void;
 }
 
 const HospitalList = ({
@@ -15,7 +16,9 @@ const HospitalList = ({
   searchRadius,
   onSearch,
   onBulkRequest,
-  isSearching
+  isSearching,
+  selectedHospitalId,
+  onHospitalSelect
 }: HospitalListProps) => {
   return (
     <div className="absolute right-4 top-4 bottom-4 w-96 bg-white/95 rounded-lg overflow-hidden shadow-xl z-10">
@@ -38,7 +41,7 @@ const HospitalList = ({
             disabled={isSearching}
             className="flex-1 shadow-sm hover:shadow-md transition-shadow"
           >
-            {isSearching ? '검색 중...' : '검색 시작'}
+            {isSearching ? '검색 중지' : '검색 시작'}
           </DispatchButton>
           <DispatchButton
             variant="blue"
@@ -73,11 +76,14 @@ const HospitalList = ({
             {hospitals.map((hospital) => (
               <div
                 key={hospital.hospitalId}
-                className={`p-4 rounded-lg border transition-all ${
+                className={`p-4 rounded-lg border transition-all cursor-pointer ${
                   hospital.requested 
                     ? 'bg-gray-100 border-gray-200' 
-                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md cursor-pointer'
+                    : selectedHospitalId === hospital.hospitalId
+                    ? 'bg-blue-50 border-blue-300 shadow-md'
+                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
                 }`}
+                onClick={() => onHospitalSelect?.(hospital.hospitalId)}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -94,8 +100,8 @@ const HospitalList = ({
                     hospital.distance <= 1
                       ? 'bg-green-100 text-green-800'
                       : hospital.distance <= 2
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
                   }`}>
                     {hospital.distance.toFixed(1)}km
                   </span>
@@ -110,7 +116,7 @@ const HospitalList = ({
                       {hospital.hospitalCapacity}명
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">예상 도착 시간</span>
                     <span className="text-sm font-medium text-gray-800">
