@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import {
   DispatchPatientStore,
-    DispatchFormData,
-    DispatchSavePatientRequest
+  DispatchFormData,
+  DispatchSavePatientRequest,
 } from '@/types/common/Patient.types.ts';
 import { updateDispatchPatientInfo } from '@features/dispatch/sevices/dispatchServiece.ts';
 
@@ -23,8 +23,8 @@ const initialFormData: DispatchFormData = {
   diseases: '',
   medications: '',
   patientPhone: '',
-  patientProtectorPhone:'',
-  callSummary: ''
+  patientProtectorPhone: '',
+  callSummary: '',
 };
 
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({
@@ -49,32 +49,34 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientSymptom: data.patient.patientSymptom || '',
         patientPhone: data.patient.userPhone || '',
         patientProtectorPhone: data.patient.userProtectorPhone || '',
-        diseases: data.mediInfo?.find(m => m.categoryName === '기저질환')
-            ?.mediList.map(m => m.mediName)
+        diseases:
+          data.mediInfo
+            ?.find((m) => m.categoryName === '기저질환')
+            ?.mediList.map((m) => m.mediName)
             .join(',') || '',
-        medications: data.mediInfo?.find(m => m.categoryName === '복용약물')
-            ?.mediList.map(m => m.mediName)
+        medications:
+          data.mediInfo
+            ?.find((m) => m.categoryName === '복용약물')
+            ?.mediList.map((m) => m.mediName)
             .join(',') || '',
-        callSummary:data.callSummary,
-      }
-    }))
+        callSummary: data.callSummary,
+      },
+    }));
   },
-
 
   // 정보가 없을 경우 구급대원이 자유롭게 입력 가능
   updateFormData: (data) => {
     set((state) => ({
       formData: {
         ...state.formData,
-        ...data
-      }
+        ...data,
+      },
     }));
   },
 
-
   // 환자 정보 저장
   savePatientInfo: async () => {
-    const {formData} = get()
+    const { formData } = get();
     if (!formData.patientId) {
       throw new Error('환자 ID가 없습니다.');
     }
@@ -88,24 +90,22 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientAge: formData.patientAge,
         patientSymptom: formData.patientSymptom,
         patientPhone: formData.patientPhone,
-        patientProtectorPhone:formData.patientProtectorPhone,
-        callSummary:formData.callSummary,
-        vitalSigns: {
-          patientBloodSugar: formData.patientBloodSugar,
-          patientDiastolicBldPress: formData.patientDiastolicBldPress,
-          patientSystolicBldPress: formData.patientSystolicBldPress,
-          patientPulseRate: formData.patientPulseRate,
-          patientTemperature: formData.patientTemperature,
-          patientSpo2: formData.patientSpo2,
-          patientMental: formData.patientMental,
-          patientPreKtas: formData.patientPreKtas
-        }
+        patientProtectorPhone: formData.patientProtectorPhone,
+        callSummary: formData.callSummary,
+        patientBloodSugar: formData.patientBloodSugar,
+        patientDiastolicBldPress: formData.patientDiastolicBldPress,
+        patientSystolicBldPress: formData.patientSystolicBldPress,
+        patientPulseRate: formData.patientPulseRate,
+        patientTemperature: formData.patientTemperature,
+        patientSpo2: formData.patientSpo2,
+        patientMental: formData.patientMental,
+        patientPreKtas: formData.patientPreKtas,
       };
 
       const response = await updateDispatchPatientInfo(requestData);
 
       if (response.isSuccess) {
-        return response.data
+        return response.data;
       }
     } catch (error) {
       console.error('저장 중 오류 발생', error);
@@ -113,10 +113,9 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
     }
   },
 
-
   resetPatientInfo: () => {
     set({
-     formData: initialFormData,
+      formData: initialFormData,
     });
   },
 }));

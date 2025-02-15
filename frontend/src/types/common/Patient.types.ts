@@ -105,16 +105,16 @@ export interface CallSummaryResponse {
   };
 }
 
-export interface VitalSigns {
-  patientBloodSugar: number | null;
-  patientDiastolicBldPress: number | null;
-  patientSystolicBldPress: number | null;
-  patientPulseRate: number | null;
-  patientTemperature: number | null;
-  patientSpo2: number | null;
-  patientMental: string;
-  patientPreKtas: string;
-}
+// export interface VitalSigns {
+//   patientBloodSugar: number | null;
+//   patientDiastolicBldPress: number | null;
+//   patientSystolicBldPress: number | null;
+//   patientPulseRate: number | null;
+//   patientTemperature: number | null;
+//   patientSpo2: number | null;
+//   patientMental: string;
+//   patientPreKtas: string;
+// }
 
 // 구급대원의 환자 정보 저장 요청 타입
 export interface DispatchSavePatientRequest {
@@ -123,10 +123,18 @@ export interface DispatchSavePatientRequest {
   patientGender: string;
   patientAge?: string;
   patientSymptom: string;
-  vitalSigns: VitalSigns;
   patientPhone?: string;
   patientProtectorPhone?: string;
   callSummary: string;
+  // 생체정보 개별 필드로 변경
+  patientBloodSugar: number | null;
+  patientDiastolicBldPress: number | null;
+  patientSystolicBldPress: number | null;
+  patientPulseRate: number | null;
+  patientTemperature: number | null;
+  patientSpo2: number | null;
+  patientMental: string;
+  patientPreKtas: string;
 }
 
 // 구급대원 환자 정보 저장 응답 타입
