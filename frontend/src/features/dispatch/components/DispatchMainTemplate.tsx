@@ -57,8 +57,8 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       console.log("SSE 연결 성공");
     };
 
-    // 메시지 수신 처리
-    eventSource.onmessage = (event) => {
+    // 출동 지령 수신
+    eventSource.addEventListener("dispatch-order", (event) => {
       const response: DispatchOrderResponse = JSON.parse(event.data);
       if (response.isSuccess) {
         handleAlertClose({
@@ -67,6 +67,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
           type: "default"
         });
         console.log("SSE response = ", response)
+
 
         // 상황실에서 받은 정보 저장
         useDispatchPatientStore.getState().setPatientFromSSE(response.data);
@@ -84,7 +85,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
           type: "destructive"
         });
       }
-    };
+    });
 
     // 에러 처리
     eventSource.onerror = (error) => {
@@ -97,11 +98,6 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       eventSource.close();
     };
   }, [navigate, setVideoDrawerOpen]); // 컴포넌트 마운트 시 한 번만 실행
-
-
-
-
-
 
 
 
