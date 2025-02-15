@@ -37,7 +37,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
     let reconnectTimer: NodeJS.Timeout | null = null;
 
     const connectSSE = () => {
-      const userName = localStorage.getItem("userName");
+      const userName = sessionStorage.getItem("userName");
       if (userName && isAuthenticated && location.pathname.startsWith('/control')) {
         connect(userName);
 

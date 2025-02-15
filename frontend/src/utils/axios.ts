@@ -8,8 +8,8 @@ export const axiosInstance = axios.create({
   timeout: 20000, // 요청 제한 시간 20초
   // headers 초기화 시 토큰이 없을 때 문제 발생
   headers: {
-    Authorization: localStorage.getItem('token')
-      ? `Bearer ${localStorage.getItem('token')}`
+    Authorization: sessionStorage.getItem('token')
+      ? `Bearer ${sessionStorage.getItem('token')}`
       : undefined,
   },
   withCredentials: true, // 쿠키를 포함시키기 위해 설정한다
@@ -27,7 +27,7 @@ axiosInstance.interceptors.request.use(
     });
 
     // 토큰이 있다면 헤더에 추가
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // JWT 토큰 헤더에 추가
     }
@@ -77,7 +77,7 @@ axiosInstance.interceptors.response.use(
 
         if (newAccessToken) {
           // 새토큰 저장
-          localStorage.setItem('token', newAccessToken);
+          sessionStorage.setItem('token', newAccessToken);
 
           // 원본 요청의 헤더 업데이트
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
@@ -92,8 +92,8 @@ axiosInstance.interceptors.response.use(
         console.error('Token refresh failed:', refreshError);
 
         // 갱신 실패 시 로그인 페이지로 리다이렉트
-        localStorage.removeItem('token');
-        localStorage.removeItem('userName');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('userName');
 
         return Promise.reject(refreshError);
       }

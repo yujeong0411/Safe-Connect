@@ -1,7 +1,7 @@
 import { axiosInstance } from '@utils/axios.ts';
 import {
   PatientResponse,
-  CallInfoRequset,
+  CallInfoRequest,
   ProtectorMessageResponse, CallSummaryResponse,
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
@@ -30,7 +30,7 @@ export const patientService = {
   },
 
   // 환자 정보 저장
-  savePatientInfo: async (info: CallInfoRequset): Promise<SavePatientResponse> => {
+  savePatientInfo: async (info: CallInfoRequest): Promise<SavePatientResponse> => {
     try {
       console.log('저장할 정보:', info);
       const response = await axiosInstance.put<SavePatientResponse>('/control/call', info);

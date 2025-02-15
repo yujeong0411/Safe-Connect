@@ -1,4 +1,3 @@
-// src/pages/TransferRequestPage.tsx
 import { useEffect, useState } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import HospitalKakaoMap from '@/features/dispatch/components/Hospitalkakaomap';
