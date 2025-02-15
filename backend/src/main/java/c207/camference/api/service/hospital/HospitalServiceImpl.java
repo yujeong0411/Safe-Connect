@@ -116,6 +116,8 @@ public class HospitalServiceImpl implements HospitalService {
             AcceptedHospitalResponse data = AcceptedHospitalResponse.builder()
                     .hospitalId(hospital.getHospitalId())
                     .hospitalName(hospital.getHospitalName())
+                    .latitude(hospital.getHospitalLocation().getY())
+                    .longitude(hospital.getHospitalLocation().getX())
                     .build();
             sseEmitterService.hospitalResponse(data, true);
 
