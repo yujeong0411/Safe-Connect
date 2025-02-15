@@ -132,7 +132,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
     }
 
     // if (!hospitalId) return;  // 병원 ID가 없으면 연결하지 않음
-    // const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
 
     // SSE연결
     const eventSource = new EventSourcePolyfill(
