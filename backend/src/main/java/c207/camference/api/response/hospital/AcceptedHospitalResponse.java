@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AcceptedHospitalResponse {
+    private Integer transferId;
     private Integer hospitalId;
     private String hospitalName;
     private Double latitude;
