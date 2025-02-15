@@ -65,8 +65,8 @@ const DispatchRecordPage = () => {
       console.log("SSE 연결 성공");
     };
 
-    // 메시지 수신 처리
-    eventSource.onmessage = (event) => {
+    // 출동 지령 수신
+    eventSource.addEventListener("dispatch-order", (event) => {
       const response: DispatchOrderResponse = JSON.parse(event.data);
       if (response.isSuccess) {
         handleAlertClose({
@@ -82,7 +82,25 @@ const DispatchRecordPage = () => {
           type: "destructive"
         });
       }
-    };
+    });
+
+    // eventSource.onmessage = (event) => {
+    //   const response: DispatchOrderResponse = JSON.parse(event.data);
+    //   if (response.isSuccess) {
+    //     handleAlertClose({
+    //       title: "출동 지령 도착",
+    //       description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.callId})`,
+    //       type: "default"
+    //     });
+    //     console.log("SSE response = ", response)
+    //   } else {
+    //     handleAlertClose({
+    //       title: "출동 지령 수신 실패",
+    //       description: response.message || "출동 지령 수신에 실패했습니다",
+    //       type: "destructive"
+    //     });
+    //   }
+    // };
 
     // 에러 처리
     eventSource.onerror = (error) => {

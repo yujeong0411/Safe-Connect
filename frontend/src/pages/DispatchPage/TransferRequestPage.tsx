@@ -1,3 +1,4 @@
+// src/pages/TransferRequestPage.tsx
 import { useEffect, useState } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import HospitalKakaoMap from '@/features/dispatch/components/Hospitalkakaomap';
@@ -34,6 +35,13 @@ const TransferRequestPage = () => {
     description: '',
     type: 'default',
   });
+
+  const [ acceptedHospital, setAcceptedHospital ] = useState<{
+    hospitalId: number;
+    hospitalName: string;
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   const handleAlertClose = (config: AlertConfig) => {
     setAlertConfig(config);
@@ -105,56 +113,85 @@ const TransferRequestPage = () => {
     }
   };
 
-  useEffect(() => {
-    const dispatchLoginId = localStorage.getItem("userName");
-    if (!dispatchLoginId) {
-      console.log("구급팀 정보가 없습니다.");
-      return;
-    }
+// SSE 연결 설정
+// TransferRequestPage.tsx에서 SSE 연결 부분 수정
+useEffect(() => {
+  const dispatchLoginId = localStorage.getItem("userName");
+  if (!dispatchLoginId) {
+    console.log("구급팀 정보가 없습니다.");
+    return;
+  }
 
     const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
     const eventSource = new EventSource(`${baseURL}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
 
-    type SSEResponse = {
-      isSuccess: boolean;
-      code: number;
-      message: string;
-      data: {
-        dispatchId?: number;
-        hospitalNames?: string[];
-        patientId?: number;
-        hospitalId?: number;
-        hospitalName?: string;
-      };
+  type SSEResponse = {
+    isSuccess: boolean;
+    code: number;
+    message: string;
+    data: {
+      dispatchId?: number;
+      hospitalNames?: string[];
+      patientId?: number;
+      hospitalId?: number;
+      hospitalName?: string;
+      latitude?: number;
+      longitude?: number;
     };
+  };
 
-    eventSource.onmessage = (event) => {
-      try {
-        const response = JSON.parse(event.data) as SSEResponse;
-        
-        if (response.message === "환자 이송 요청이 접수되었습니다.") {
-          handleAlertClose({
-            title: "환자 이송 요청 전송",
-            description: `환자 이송을 요청했습니다.\n요청 병원: ${response.data.hospitalNames?.join(', ')}`,
-            type: "default"
-          });
-        } else if (response.message === "환자 이송 요청이 승인되었습니다.") {
-          handleAlertClose({
-            title: "환자 이송 수락",
-            description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
-            type: "success"
-          });
-        } else {
-          handleAlertClose({
-            title: "요청 처리 실패",
-            description: "처리 중 오류가 발생했습니다.",
-            type: "error"
-          });
-        }
-      } catch (error) {
-        console.error("SSE 메시지 처리 중 오류:", error);
+  // 이송 요청
+  eventSource.addEventListener("transfer-request", (event) => {
+    try {
+      const response = JSON.parse(event.data) as SSEResponse;
+      handleAlertClose({
+        title: "환자 이송 요청 전송",
+        description: `환자 이송 요청을 전송했습니다.\n\n요청 병원 목록:\n${response.data.hospitalNames?.map(hospital => `- ${hospital}`).join('\n')}`,
+        type: "default"
+      });
+    } catch (error) {
+      console.error("이송 요청 메시지 처리 중 오류 발생: ", error)
+    }
+  });
+
+
+  // const [ acceptedHospital, setAcceptedHospital ] = useState<{
+  //   hospitalId: number;
+  //   hospitalName: string;
+  //   latitude: number;
+  //   longitude: number;
+  // } | null>(null);
+
+  // 병원 응답
+  eventSource.addEventListener("hospital-response", (event) => {
+    try {
+      const response = JSON.parse(event.data) as SSEResponse;
+      if (response.isSuccess) {
+        handleAlertClose({
+          title: "환자 이송 수락",
+          description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
+          type: "success"
+        });
+
+        if (response.data.hospitalId &&
+          response.data.hospitalName &&
+          response.data.latitude != null &&
+          response.data.longitude != null) {
+            const hospitalData = {
+              hospitalId: response.data.hospitalId,
+              hospitalName: response.data.hospitalName,
+              latitude: response.data.latitude,
+              longitude: response.data.longitude
+            }
+          console.log("수락 병원 data = ", hospitalData);
+          setAcceptedHospital(hospitalData);
+        };
       }
-    };
+
+    } catch (error) {
+      console.error("병원 응답 메시지 처리 중 오류 발생: ", error)
+    }
+  });
 
     eventSource.onerror = (error) => {
       console.error("SSE 연결 에러: ", error);
@@ -166,10 +203,13 @@ const TransferRequestPage = () => {
       eventSource.close();
     };
 
-    return () => {
-      eventSource.close();
-    };
-  }, []);
+  // 요청 수락 병원 데이터 비우기
+  setAcceptedHospital(null);
+
+  return () => {
+    eventSource.close();
+  };
+}, []);
 
   return (
     <DispatchMainTemplate>
@@ -187,7 +227,7 @@ const TransferRequestPage = () => {
                 <CircleAlert className="h-6 w-6" />
               )}
               <AlertTitle>{alertConfig.title}</AlertTitle>
-              <AlertDescription>{alertConfig.description}</AlertDescription>
+              <AlertDescription className="whitespace-pre-line">{alertConfig.description}</AlertDescription>
             </Alert>
           </div>
         )}
@@ -205,8 +245,8 @@ const TransferRequestPage = () => {
 
         {/* 지도 */}
         <div className="absolute inset-0">
-          <HospitalKakaoMap 
-            currentLocation={currentLocation} 
+          <HospitalKakaoMap
+            currentLocation={currentLocation}
             hospitals={hospitals}
             onHospitalSelect={handleHospitalSelect}
             selectedHospitalId={selectedHospitalId}
