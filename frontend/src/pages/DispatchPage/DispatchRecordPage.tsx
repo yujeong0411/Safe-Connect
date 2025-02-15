@@ -58,17 +58,13 @@ const DispatchRecordPage = () => {
       if (response.isSuccess) {
         handleAlertClose({
           title: "출동 지령 도착",
-          description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.callId})`,
+          description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
           type: "default"
         });
         console.log("SSE response = ", response)
 
         // 상황실에서 받은 정보 저장
-        useDispatchPatientStore.getState().setPatientFromSSE({
-            patient: response.data.patient,
-            callSummary: response.data.callSummary,
-            mediInfo: response.data.mediInfo || []
-        });
+        useDispatchPatientStore.getState().setPatientFromSSE(response.data);
       } else {
         handleAlertClose({
           title: "출동 지령 수신 실패",

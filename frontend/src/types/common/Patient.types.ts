@@ -1,5 +1,5 @@
 import { MedicalCategory } from '@/types/common/medical.types.ts';
-import {Patient} from "@/types/dispatch/dispatchOrderResponse.types.ts";
+import {Patient, User, Call} from "@/types/dispatch/dispatchOrderResponse.types.ts";
 
 // 폼 데이터
 export interface FormData {
@@ -105,17 +105,6 @@ export interface CallSummaryResponse {
   };
 }
 
-// export interface VitalSigns {
-//   patientBloodSugar: number | null;
-//   patientDiastolicBldPress: number | null;
-//   patientSystolicBldPress: number | null;
-//   patientPulseRate: number | null;
-//   patientTemperature: number | null;
-//   patientSpo2: number | null;
-//   patientMental: string;
-//   patientPreKtas: string;
-// }
-
 // 구급대원의 환자 정보 저장 요청 타입
 export interface DispatchSavePatientRequest {
   patientId: number;
@@ -158,13 +147,13 @@ export interface DispatchPatientStore {
   // 액션
   // 상황실에서 받은 정보로 세팅
   setPatientFromSSE: (data: {
+    dispatchGroupId: number;
+    call: Call;
     patient: Patient;
-    callSummary: string;
-    mediInfo: MedicalCategory[];
+    user: User | null;
+    mediInfo: MedicalCategory[] | null;
   }) => void;
 
-  // 상황실에서 받은 정보로 초기화
-  // initialBaseInfo: (info: CurrentCall) => void;
   // 폼데이터 업데이트
   updateFormData: (data: Partial<DispatchFormData>) => void;
   // 전체 정보 저장 (API 호출)

@@ -37,29 +37,27 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientId: data.patient.patientId || null,
         patientName: data.patient.patientName || '',
         patientGender: data.patient.patientGender || '',
-        patientAge: data.patient.patientAge || '',
-        patientBloodSugar: data.patient.patientBloodSugar || null,
-        patientDiastolicBldPress: data.patient.patientDiastolicBldPress || null,
-        patientSystolicBldPress: data.patient.patientSystolicBldPress || null,
-        patientPulseRate: data.patient.patientPulseRate || null,
-        patientTemperature: data.patient.patientTemperature || null,
-        patientSpo2: data.patient.patientSpo2 || null,
+        patientAge: String(data.patient.patientAge) || '',
+        patientBloodSugar: data.patient.patientBloodSugar,
+        patientDiastolicBldPress: data.patient.patientDiastolicBldPress,
+        patientSystolicBldPress: data.patient.patientSystolicBldPress,
+        patientPulseRate: data.patient.patientPulseRate,
+        patientTemperature: data.patient.patientTemperature,
+        patientSpo2: data.patient.patientSpo2,
         patientMental: data.patient.patientMental || '',
-        patientPreKtas: data.patient.patientPreKtas || '',
+        patientPreKtas: String(data.patient.patientPreKtas) || '',
         patientSymptom: data.patient.patientSymptom || '',
-        patientPhone: data.patient.userPhone || '',
-        patientProtectorPhone: data.patient.userProtectorPhone || '',
-        diseases:
-          data.mediInfo
+        patientPhone: data.patient.patientIsUser ? (data.user?.userPhone || '') : (data.call.callerPhone || ''),
+        patientProtectorPhone: data.user?.protectorPhone || '',
+        diseases: data.mediInfo
             ?.find((m) => m.categoryName === '기저질환')
             ?.mediList.map((m) => m.mediName)
             .join(',') || '',
-        medications:
-          data.mediInfo
+        medications: data.mediInfo
             ?.find((m) => m.categoryName === '복용약물')
             ?.mediList.map((m) => m.mediName)
             .join(',') || '',
-        callSummary: data.callSummary,
+        callSummary: data.call.callSummary,
       },
     }));
   },
