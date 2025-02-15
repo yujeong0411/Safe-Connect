@@ -32,6 +32,7 @@ export interface Patient {
   patientMental: string;
   patientPreKtas: number;
   patientSymptom: string;
+  dispatchId: number;
 }
 
 

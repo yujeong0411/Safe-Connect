@@ -8,19 +8,13 @@ import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx
 interface GuardianNotificationDialogProps {
   open: boolean;
   onClose: () => void;
-  patientInfo: {
-    name: string;
-    hospitalName: string;
-  };
-  guardianContact: string;
 }
 
 const GuardianNotificationDialog = ({
   open,
   onClose,
-  patientInfo,
 }: GuardianNotificationDialogProps) => {
-  const { sendProtectorMessage} = useDispatchPatientStore()
+  const { formData, currentTransfer, dispatchStatus, sendProtectorMessage} = useDispatchPatientStore()
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -37,6 +31,36 @@ const GuardianNotificationDialog = ({
     }, 1000);
   };
 
+  // 사전 검증
+  if (!formData.patientIsUser || !currentTransfer || dispatchStatus !== 'transferred') {
+    return (
+        <Dialog open={open} onOpenChange={onClose}>
+          <DialogContent className="max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">메세지 전송 불가</DialogTitle>
+            </DialogHeader>
+            <div className="p-3 ">
+              <div className="bg-dialog_content p-5 rounded-lg text-red-600">
+                {!formData.patientIsUser && (
+                    <p>비회원 환자의 경우 보호자 알림 전송이 불가능합니다.</p>
+                )}
+                {!currentTransfer && (
+                    <p>이송 정보가 없어 알림을 전송할 수 없습니다.</p>
+                )}
+                {dispatchStatus !== 'transferred' && (
+                    <p>이송이 완료되지 않아 알림을 전송할 수 없습니다.</p>
+                )}
+              </div>
+              <div className="flex justify-end mt-4">
+                <Button variant="gray" onClick={onClose}>
+                  닫기
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+    );
+  }
 
   const handleSendProtectorMessage = async () => {
     try {
@@ -76,10 +100,11 @@ const GuardianNotificationDialog = ({
           <div className="space-y-4">
             <div className="bg-dialog_content p-4 rounded-lg">
               <p className="text-lg font-medium mb-4">
-                [Safe Connect] {patientInfo.name} 님의 이송 안내 드립니다.
+                [Safe Connect] {formData.patientName} 님의 이송 안내 드립니다.
               </p>
               <div className="space-y-2 text-lg text-black">
-                <p>▪️ 이송 병원: {patientInfo.hospitalName}</p>
+                {/*추후 수정!!*/}
+                <p>▪️ 이송 병원: {formData.patientName}</p>
                 <p>▪️ 이송 상태: 이송 완료</p>
               </div>
               <div className="mt-4 space-y-2 text-gray-600">

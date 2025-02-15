@@ -41,3 +41,37 @@ export const sendProtectorMessage = async (patientId: number, transferId:number)
         throw error;
     }
 }
+
+// 이송 종료(병원 인계 여부 수정 -> 병원 도착시간 기입)
+export const completeTransfer = async (transferId: number): Promise<{ isSuccess: boolean; message: string }> => {
+    try {
+        const response = await axiosInstance.post<{ isSuccess: boolean; message: string }>(
+            '/dispatch_staff/transfer/update',
+            { transferId }
+        );
+        console.log("이송 종료 성공", response.data);
+        return response.data;
+    } catch (error) {
+        console.log("이송 종료 실패", error);
+        throw error;
+    }
+};
+
+// 현장 도착시간 (영상통화 종료)
+
+
+// 출동 종료(현장에서 상황종료)
+export const completeDispatch = async (dispatchId: number): Promise<{ isSuccess: boolean; message: string }> => {
+    try {
+        const response = await axiosInstance.post<{ isSuccess: boolean; message: string }>(
+            '/dispatch_staff/finish',
+            { dispatchId }
+        );
+        console.log("출동 종료 성공", response.data);
+        return response.data;
+    } catch (error) {
+        console.log("출동 종료 실패", error);
+        throw error;
+    }
+};
+

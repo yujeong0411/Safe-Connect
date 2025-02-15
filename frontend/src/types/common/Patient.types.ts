@@ -136,10 +136,20 @@ export interface DispatchSavePatientResponse {
   };
 }
 
+// 추후 수정
+export interface TransferInfo {
+  transferId: number;
+  hospitalName: string;
+  hospitalId: number;
+  acceptedAt?: string;
+  completedAt?: string;
+}
+
 // 구급대원 환자 스토어
 export interface DispatchPatientStore {
-  // 기본 정보 (상황실에서 받은 정보)  -> 상황에 따라 좀 더 유연하게 설정
-  // baseInfo: Partial<CurrentCall> | null;
+  // 현재 출동 내용
+  currentTransfer: TransferInfo | null;
+  dispatchStatus:'ongoing' | 'completed' | 'transferred';
 
   // 구급대원이 입력하는 모든 정보(기본정보 + 생체정보)
   formData: DispatchFormData;
@@ -162,6 +172,14 @@ export interface DispatchPatientStore {
   resetPatientInfo: () => void;
   preKtasAI: () => Promise<{patientPreKtas: string}>;
   sendProtectorMessage: (transferId:number) => Promise<ProtectorMessageResponse>;
+
+  // 출동 관련
+  completeDispatch: () => Promise<void>;  // 출동 종료
+
+  // 이송 관련
+  setTransferInfo: (info: TransferInfo) => void;
+  updateTransferInfo: (info: Partial<TransferInfo>) => void;
+  completeTransfer: (transferId: number) => Promise<void>;  // 이송 종료
 }
 
 
@@ -185,6 +203,8 @@ export interface DispatchFormData {
   patientPhone?: string;
   patientProtectorPhone?: string;
   callSummary: string;
+  patientIsUser: boolean;
+  dispatchId: number;
 }
 
 

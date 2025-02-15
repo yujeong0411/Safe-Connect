@@ -187,11 +187,6 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         <GuardianNotificationDialog
           open={showNotificationModal}
           onClose={() => setShowNotificationModal(false)}
-          patientInfo={{
-            name: "김환자",
-            hospitalName: "서울대병원"
-          }}
-          guardianContact="010-1234-5678"
         />
       </div>
     </div>
