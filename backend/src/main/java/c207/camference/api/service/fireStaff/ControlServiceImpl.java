@@ -190,15 +190,13 @@ public class ControlServiceImpl implements ControlService {
         dispatch = dispatchRepository.saveAndFlush(dispatch);
 
         // 영속성 컨텍스트에서 리프레시하여 관계를 로드
-        dispatch = dispatchRepository.findById(dispatch.getDispatchId())
-                .orElseThrow(() -> new RuntimeException("dispatch 저장 실패"));
 
         Patient patient = patientRepository.findById(controlRequest.getPatientId())
                 .orElse(null);
 
         // SSE
         // 구급팀 응답 생성
-        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch, patient, userMediDetailRepository);
+        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository);
 
         sseEmitterService.sendDispatchOrder(controlRequest, dispatchGroupOrderResponse);
 

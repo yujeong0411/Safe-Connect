@@ -4,6 +4,7 @@ import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.dto.medi.MediDto;
 import c207.camference.db.entity.etc.Medi;
 import c207.camference.db.entity.patient.Patient;
+import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.users.User;
 import c207.camference.db.entity.users.UserMediDetail;
@@ -25,9 +26,9 @@ public class ControlDispatchOrderResponse {
     private ControlDispatchOrderUserResponse user;
     private List<MediCategoryDto> mediInfo;
 
-    public ControlDispatchOrderResponse(Dispatch dispatch, Patient patient, UserMediDetailRepository userMediDetailRepository) {
+    public ControlDispatchOrderResponse(Dispatch dispatch, Call call, Patient patient, UserMediDetailRepository userMediDetailRepository) {
         this.dispatchGroupId = dispatch.getDispatchGroupId();
-        this.call = new ControlDispatchOrderCallResponse(dispatch.getCall());
+        this.call = new ControlDispatchOrderCallResponse(call);
         this.patient = Patient.builder()
                 .patientId(patient.getPatientId())
                 .patientIsUser(patient.getPatientIsUser())
