@@ -20,13 +20,14 @@ import java.util.stream.Collectors;
 @Getter
 public class ControlDispatchOrderResponse {
     private Integer dispatchGroupId;
-    private Integer callId;
+    private ControlDispatchOrderCallResponse call;
     private Patient patient;
+    private ControlDispatchOrderUserResponse user;
     private List<MediCategoryDto> mediInfo;
 
     public ControlDispatchOrderResponse(Dispatch dispatch, Patient patient, UserMediDetailRepository userMediDetailRepository) {
         this.dispatchGroupId = dispatch.getDispatchGroupId();
-        this.callId = dispatch.getCallId();
+        this.call = new ControlDispatchOrderCallResponse(dispatch.getCall());
         this.patient = Patient.builder()
                 .patientId(patient.getPatientId())
                 .patientIsUser(patient.getPatientIsUser())
@@ -47,6 +48,7 @@ public class ControlDispatchOrderResponse {
         // user면 medi 넣어주기
         if (patient.getPatientIsUser()) {
             User user = patient.getUser();
+            this.user = new ControlDispatchOrderUserResponse(user);
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
             if (userMediDetail != null) {
                 // 활성화된 medi만

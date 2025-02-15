@@ -108,6 +108,7 @@ public class ControlServiceImpl implements ControlService {
             int fireStaffId = fireStaff.getFireStaffId();
             List<Call> calls = callRepository.findCallsByFireStaff_FireStaffId(fireStaffId);
 
+
             //비밀번호 암호화
             ResponseData<List> response = ResponseUtil.success(calls, "전체 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -194,6 +195,8 @@ public class ControlServiceImpl implements ControlService {
 
         sseEmitterService.sendDispatchOrder(controlRequest, dispatchGroupOrderResponse);
 
+
+
         return ResponseEntity.ok().body(ResponseUtil.success("출동 지령 전송 성공"));
     }
 
@@ -208,8 +211,6 @@ public class ControlServiceImpl implements ControlService {
         if(request.getCallSummary()!=null || request.getCallText()!=null){
             call.setCallTextCreatedAt(LocalDateTime.now());
         }
-
-
         User user = null;
         List<MediCategoryDto> mediCategoryDto = null;
 
@@ -228,20 +229,16 @@ public class ControlServiceImpl implements ControlService {
         // 환자가 가입자
         if (request.getUserId() != null) {
             user = userRepository.findById(request.getUserId()).orElse(null);
-
             patient.setUserId(request.getUserId());
             patient.setPatientIsUser(true);
             patient.setPatientName(user.getUserName());
             patient.setPatientGender(user.getUserGender());
-
             int currentYear = LocalDateTime.now().getYear();
             int birthYear = 1900 + Integer.parseInt(user.getUserBirthday().substring(0, 2));
             int age = currentYear - birthYear;
             String ageString = String.valueOf(age / 10);
             patient.setPatientAge(ageString.substring(0, 1));
-
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
-
             if (userMediDetail != null) {
                 List<Medi> medis = getUserActiveMedis(userMediDetail);
                 mediCategoryDto = MediUtil.createMediCategoryResponse(medis);
@@ -260,6 +257,7 @@ public class ControlServiceImpl implements ControlService {
                 .symptom(request.getSymptom())
                 .callSummary(request.getCallSummary())
                 .callText(request.getCallText())
+                .patientId(patient.getPatientId()!=null?patient.getPatientId():null)
                 .build();
 
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
