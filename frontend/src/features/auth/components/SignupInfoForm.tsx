@@ -21,6 +21,8 @@ const SignupInfoForm = () => {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [authInitiated, setAuthInitiated] = useState<boolean>(false);  // 인증 시작 여부를 추적하는 상태 추가
+  const [verifiedEmail, setVerifiedEmail] = useState<string | "">("");
+  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string | "">("");
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
@@ -47,14 +49,46 @@ const SignupInfoForm = () => {
     const processedValue =
       name === 'userPhone' || name === 'userProtectorPhone' ? formatPhoneNumber(value) : value;
 
-    setFormData({ [name]: processedValue });
+    if (name === 'userEmail' && verifiedEmail && value !== verifiedEmail) {
+      setFormData({
+        [name]: processedValue,
+        isEmailVerified: false // 이메일 인증 상태 초기화
+      });
+      handleShowAlert({
+        title: '이메일 변경',
+        description: '이메일이 변경되었습니다. 다시 중복확인을 해주세요.',
+        type: 'destructive'
+      });
+    }
+    // 전화번호 변경 검사
+    else if (name === 'userPhone' && formData.isPhoneVerified && value !== verifiedPhoneNumber) {
+      setFormData({
+        [name]: processedValue,
+        isPhoneVerified: false,
+        authCode: ''  // 인증번호 초기화
+      });
+      setIsPhoneSent(false);  // 인증번호 전송 상태 초기화
+      setAuthInitiated(false);  // 인증 시작 상태 초기화
+      if (timer) {
+        clearInterval(timer);  // 타이머 정지
+        setTimeLeft(null);
+      }
+      handleShowAlert({
+        title: '전화번호 변경',
+        description: '전화번호가 변경되었습니다. 다시 인증을 받아주세요.',
+        type: 'destructive'
+      });
+    } else {
+      setFormData({ [name]: processedValue });
+    }
   };
 
   const handleEmailVerify = async () => {
     const result = await checkEmailDuplication(formData.userEmail);
     if (result.isSuccess) {
       setFormData({ isEmailVerified: true });
-    handleShowAlert({
+      setVerifiedEmail(formData.userEmail);
+      handleShowAlert({
       title: '이메일 확인',
       description: result.message,
       type: 'default'
@@ -129,6 +163,7 @@ const SignupInfoForm = () => {
       const isSuccess = await authCode(formData.userPhone, formData.authCode);
       if (isSuccess) {
         setFormData({ isPhoneVerified: true });
+        setVerifiedPhoneNumber(formData.userPhone);
         handleShowAlert({
           title: '인증 완료',
           description: '인증이 완료되었습니다.',
