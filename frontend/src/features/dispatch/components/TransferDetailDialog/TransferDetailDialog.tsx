@@ -1,5 +1,3 @@
-// src/features/dispatch/components/transferDetailDialog/transferDetailDialog.tsx
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Button from '@/components/atoms/Button/Button';
 import { TransferDetailDialogProps } from './TrnsferDetailDialog.types';

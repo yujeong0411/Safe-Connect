@@ -1,4 +1,3 @@
-// hooks/useHospitalSSE.ts
 import { useState, useEffect } from 'react';
 import { NotificationMessage } from '@/features/dispatch/types/notification.types';
 

@@ -43,8 +43,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   //   subscribeUrl: '/api/hospital/subscribe',
   //   clientId: hospitalId!,
   //   onMessage: (response) => {
-  //     console.log('response.data:', response.data);
-  //     const patientData = response.data.patient;
+  //     //     const patientData = response.data.patient;
   //
   //     if (response.message === '환자 이송 요청이 접수되었습니다.') {
   //       toast({

@@ -17,12 +17,8 @@ export const commonLogin = async function (params: CommonLoginParams) {
       },
       withCredentials: true, // 쿠키 전달
     });
-    console.log('Response object:', response);
-    console.log('All headers:', response.headers);
     // 서버는 토큰을 access 키로 보냄.
     const accessToken = response.headers['access'];
-    console.log('accessToken:', accessToken);
-
     if (!accessToken) {
       // 에러 객체 생성만 하고 던지지 않기
       const error = new Error(response?.data?.message ?? '로그인 실패');
@@ -59,12 +55,6 @@ export const commonLogin = async function (params: CommonLoginParams) {
 // 로그아웃
 export const commonLogout = async (logoutPath: string) => {
   try {
-    console.log('로그아웃 요청 전 설정:', {
-      url: logoutPath,
-      headers: axiosInstance.defaults.headers,
-      cookies: document.cookie,
-    });
-
     if(useOpenViduStore.getState().session) {
       const store = useOpenViduStore.getState();
       await store.leaveSession();
@@ -72,8 +62,6 @@ export const commonLogout = async (logoutPath: string) => {
     }
 
     await axiosInstance.post(logoutPath);
-    console.log('로그아웃 요청 성공');
-
     // 토큰 제거  , 상태 업데이트는 스토어에서
     sessionStorage.removeItem('token');
 

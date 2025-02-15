@@ -23,12 +23,13 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const handleLogout = async () => {
     try {
       await logout();
+      disconnect()
       navigate('/control');
     } catch (error) {
       console.error('로그아웃 실패', error);
     }
   };
-  const { connect } = useControlsseStore();
+  const { connect,disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore(); // 인증 상태 확인
 
   useEffect(() => {
@@ -38,6 +39,10 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
         connect(userName);
       }
     };
+    const handleBeforeUnload = () => {
+      disconnect();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     connectSSE(); // 초기 연결
 
@@ -55,9 +60,11 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
     return () => {
       clearInterval(intervalId);
+      disconnect();
       window.removeEventListener('online', handleOnline);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [connect, isAuthenticated]);
+  }, [connect,disconnect, isAuthenticated]);
 
 
   const navItems = [
