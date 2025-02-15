@@ -3,11 +3,11 @@ import {
   DispatchPatientStore,
   DispatchFormData,
   DispatchSavePatientRequest,
+    PreKtasAIRequest
 } from '@/types/common/Patient.types.ts';
-import { updateDispatchPatientInfo } from '@features/dispatch/sevices/dispatchServiece.ts';
+import { updateDispatchPatientInfo, preKtasAI, sendProtectorMessage } from '@features/dispatch/sevices/dispatchServiece.ts';
 
 const initialFormData: DispatchFormData = {
-  patientId: null,
   patientName: '',
   patientGender: '',
   patientAge: '',
@@ -34,7 +34,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
   setPatientFromSSE: (data) => {
     set(() => ({
       formData: {
-        patientId: data.patient.patientId || null,
+        patientId: data.patient.patientId,
         patientName: data.patient.patientName || '',
         patientGender: data.patient.patientGender || '',
         patientAge: String(data.patient.patientAge) || '',
@@ -100,6 +100,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientPreKtas: formData.patientPreKtas,
       };
 
+      console.log('저장 요청 데이터:', requestData);  // 요청 데이터 확인
       const response = await updateDispatchPatientInfo(requestData);
 
       if (response.isSuccess) {
@@ -116,4 +117,50 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
       formData: initialFormData,
     });
   },
+
+  preKtasAI: async () => {
+    const {formData} = get()   // 환자 현재 정보 가져오기
+
+    try {
+      const requestData: PreKtasAIRequest = {
+        patientAge: formData.patientAge,
+        patientBloodSugar: formData.patientBloodSugar,
+        patientDiastolicBldPress: formData.patientDiastolicBldPress,
+        patientSystolicBldPress: formData.patientSystolicBldPress,
+        patientPulseRate: formData.patientPulseRate,
+        patientTemperature: formData.patientTemperature,
+        patientSpo2: formData.patientSpo2,
+        patientMental: formData.patientMental,
+        patientSymptom: formData.patientSymptom
+      }
+
+      const response = await preKtasAI(requestData);
+      if (response.patientPreKtas) {
+        get().updateFormData({
+          patientPreKtas: response.patientPreKtas
+        });
+      }
+      return response;
+    } catch (error) {
+      console.error("ktas 예측 실패", error);
+      throw error;
+    }
+  },
+
+  sendProtectorMessage: async (transferId: number) => {
+    const {formData} = get();
+    if (typeof formData.patientId !== 'number') {
+      throw new Error('유효한 환자 ID가 없습니다.');
+    }
+
+    try {
+      const response = await sendProtectorMessage(formData.patientId, transferId);
+      if (response.isSuccess) {
+        return response.data;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }));
