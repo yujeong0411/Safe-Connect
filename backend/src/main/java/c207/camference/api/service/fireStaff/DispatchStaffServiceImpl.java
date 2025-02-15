@@ -246,10 +246,11 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                         .hospitalPhone(hospital.getHospitalPhone())
                         .hospitalCapacity(item.path("hvec").asInt())
                         .hospitalAddress(hospital.getHospitalAddress())
-                        .hospitalLocation(hospital.getHospitalLocation())
+                        .hospitalLng(hospital.getHospitalLocation().getX())
+                        .hospitalLat(hospital.getHospitalLocation().getY())
                         .build();
 
-                Point latLong = availableHospitalResponse.getHospitalLocation();
+                Point latLong = hospital.getHospitalLocation();
                 double lng = latLong.getX();
                 double lat = latLong.getY();
                 double distance = hospitalRepository.calculateDistance(lng, lat, longitude, latitude);
@@ -280,7 +281,9 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException("일치하는 환자 정보가 없습니다."));
 
+        System.out.println("요청된 병원 IDs: " + request.getHospitalIds());
         List<Hospital> hospitals = hospitalRepository.findAllByHospitalIdIn(request.getHospitalIds());
+        System.out.println("찾은 병원 목록: " + hospitals);
         List<Hospital> activeHospitals = hospitals.stream()
                 .filter(Hospital::getHospitalIsActive)
                 .collect(Collectors.toList());

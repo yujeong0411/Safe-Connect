@@ -1,3 +1,5 @@
+// src/features/dispatch/pages/DispatchRecordPage.tsx
+
 import { useState, useEffect } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import DispatchRecordRow from '@/features/dispatch/components/DispatchRecordRow/DispatchRecordRow';
@@ -15,77 +17,92 @@ const DispatchRecordPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  // const [showAlert, setShowAlert] = useState<boolean>(false);
-  // const [alertConfig, setAlertConfig] = useState({
-  //   title: "",
-  //   description: "",
-  //   type: "default" as "default" | "destructive",
-  // });
-  //
-  // // 알림 처리 함수
-  // const handleAlertClose = (config: typeof alertConfig) => {
-  //   setAlertConfig(config);
-  //   setShowAlert(true);
-  //   setTimeout(() => {
-  //     setShowAlert(false);
-  //   }, 10000);
-  // }
-  //
-  // // SSE
-  // useEffect(() => {
-  //   const dispatchLoginId = sessionStorage.getItem("userName");
-  //   if (!dispatchLoginId) {
-  //     console.log("구급팀 정보가 없습니다.");
-  //     return;
-  //   }
-  //
-  //   let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-  //   if (subscribeUrl !== "http://localhost:8080") {
-  //     subscribeUrl += "/api"
-  //   }
-  //
-  //   // SSE 연결
-  //   const eventSource = new EventSource(`${subscribeUrl}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
-  //   console.log("SSE 연결 시도");
-  //
-  //   eventSource.onopen = () => {
-  //     console.log("SSE 연결 성공");
-  //   };
-  //
-  //   // 메시지 수신 처리
-  //   eventSource.onmessage = (event) => {
-  //     const response: DispatchOrderResponse = JSON.parse(event.data);
-  //     if (response.isSuccess) {
-  //       handleAlertClose({
-  //         title: "출동 지령 도착",
-  //         description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
-  //         type: "default"
-  //       });
-  //       console.log("SSE response = ", response)
-  //
-  //       // 상황실에서 받은 정보 저장
-  //       useDispatchPatientStore.getState().setPatientFromSSE(response.data);
-  //     } else {
-  //       handleAlertClose({
-  //         title: "출동 지령 수신 실패",
-  //         description: response.message || "출동 지령 수신에 실패했습니다",
-  //         type: "destructive"
-  //       });
-  //     }
-  //   };
-  //
-  //   // 에러 처리
-  //   eventSource.onerror = (error) => {
-  //     console.error("SSE 연결 에러: ", error);
-  //     eventSource.close();
-  //   };
-  //
-  //   // 컴포넌트 언마운트 시 연결 종료
-  //   return () => {
-  //     eventSource.close();
-  //   };
-  // }, []); // 컴포넌트 마운트 시 한 번만 실행
-  //
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: "",
+    description: "",
+    type: "default" as "default" | "destructive",
+  });
+
+  // 알림 처리 함수
+  const handleAlertClose = (config: typeof alertConfig) => {
+    setAlertConfig(config);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 10000);
+  }
+
+  // SSE
+  useEffect(() => {
+    const dispatchLoginId = localStorage.getItem("userName");
+    if (!dispatchLoginId) {
+      console.log("구급팀 정보가 없습니다.");
+      return;
+    }
+
+    let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    if (subscribeUrl !== "http://localhost:8080") {
+      subscribeUrl += "/api"
+    }
+
+    // SSE 연결
+    const eventSource = new EventSource(`${subscribeUrl}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
+    console.log("SSE 연결 시도");
+
+    eventSource.onopen = () => {
+      console.log("SSE 연결 성공");
+    };
+
+    // 출동 지령 수신
+    eventSource.addEventListener("dispatch-order", (event) => {
+      const response: DispatchOrderResponse = JSON.parse(event.data);
+      if (response.isSuccess) {
+        handleAlertClose({
+          title: "출동 지령 도착",
+          description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.callId})`,
+          type: "default"
+        });
+        console.log("SSE response = ", response)
+      } else {
+        handleAlertClose({
+          title: "출동 지령 수신 실패",
+          description: response.message || "출동 지령 수신에 실패했습니다",
+          type: "destructive"
+        });
+      }
+    });
+
+    // eventSource.onmessage = (event) => {
+    //   const response: DispatchOrderResponse = JSON.parse(event.data);
+    //   if (response.isSuccess) {
+    //     handleAlertClose({
+    //       title: "출동 지령 도착",
+    //       description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.callId})`,
+    //       type: "default"
+    //     });
+    //     console.log("SSE response = ", response)
+    //   } else {
+    //     handleAlertClose({
+    //       title: "출동 지령 수신 실패",
+    //       description: response.message || "출동 지령 수신에 실패했습니다",
+    //       type: "destructive"
+    //     });
+    //   }
+    // };
+
+    // 에러 처리
+    eventSource.onerror = (error) => {
+      console.error("SSE 연결 에러: ", error);
+      eventSource.close();
+    };
+
+    // 컴포넌트 언마운트 시 연결 종료
+    return () => {
+      eventSource.close();
+    };
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
+
 
   useEffect(() => {
     const fetchRecords = async () => {

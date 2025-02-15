@@ -227,7 +227,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
-                emitter.send(SseEmitter.event()
+                emitter.send(SseEmitter.event().name("dispatch-order")
                         .data(ResponseUtil.success(dispatchGroupData, "출동 지령 수신")));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
@@ -266,7 +266,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
-                emitter.send(SseEmitter.event()
+                emitter.send(SseEmitter.event().name("transfer-request")
                         .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 접수되었습니다.")));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);
@@ -285,7 +285,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
-                emitter.send(SseEmitter.event()
+                emitter.send(SseEmitter.event().name("hospital-response")
                         .data(ResponseUtil.success(response, answer)));
             } catch (IOException e) {
                 deadDispatchGroupEmitters.add(clientId);

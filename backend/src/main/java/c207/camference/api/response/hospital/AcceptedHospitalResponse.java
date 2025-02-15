@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class AcceptedHospitalResponse {
     private Integer hospitalId;
     private String hospitalName;
+    private Double latitude;
+    private Double longitude;
 }
