@@ -246,10 +246,11 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                         .hospitalPhone(hospital.getHospitalPhone())
                         .hospitalCapacity(item.path("hvec").asInt())
                         .hospitalAddress(hospital.getHospitalAddress())
-                        .hospitalLocation(hospital.getHospitalLocation())
+                        .hospitalLng(hospital.getHospitalLocation().getX())
+                        .hospitalLat(hospital.getHospitalLocation().getY())
                         .build();
 
-                Point latLong = availableHospitalResponse.getHospitalLocation();
+                Point latLong = hospital.getHospitalLocation();
                 double lng = latLong.getX();
                 double lat = latLong.getY();
                 double distance = hospitalRepository.calculateDistance(lng, lat, longitude, latitude);
