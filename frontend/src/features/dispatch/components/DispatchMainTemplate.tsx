@@ -100,6 +100,14 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
             type: "default"
           });
 
+          // dispatchSseStore로 코드 이동
+          // const openViduStore = useOpenViduStore.getState();
+          // openViduStore.handleChangeSessionId({
+          //   target: { value: response.data.sessionId }
+          // } as React.ChangeEvent<HTMLInputElement>);
+  
+          // openViduStore.joinSession();
+
           // drawer 열기
           setVideoDrawerOpen(true)
 
@@ -111,42 +119,6 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
             title: "출동 지령 수신 실패",
             description: "출동 지령 수신에 실패했습니다",
             type: "destructive"
-    // 출동 지령 수신
-    eventSource.addEventListener("dispatch-order", (event) => {
-      const response: DispatchOrderResponse = JSON.parse(event.data);
-      if (response.isSuccess) {
-        handleAlertClose({
-          title: "출동 지령 도착",
-          description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
-          type: "default"
-        });
-
-
-        // 상황실에서 받은 정보 저장
-        useDispatchPatientStore.getState().setPatientFromSSE(response.data);
-
-        const openViduStore = useOpenViduStore.getState();
-
-
-        openViduStore.handleChangeSessionId({
-          target: { value: response.data.sessionId }
-        } as React.ChangeEvent<HTMLInputElement>);
-
-
-        openViduStore.joinSession();
-
-        // drawer 열기
-        setVideoDrawerOpen(true)
-
-        // 환자 정보 작성페이지 열기
-        navigate('/dispatch/patient-info')
-
-      } else {
-        handleAlertClose({
-          title: "출동 지령 수신 실패",
-          description: response.message || "출동 지령 수신에 실패했습니다",
-          type: "destructive"
-        });
       }
     }, [patientData, navigate, setVideoDrawerOpen]);
 

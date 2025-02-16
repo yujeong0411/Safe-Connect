@@ -3,6 +3,7 @@ import { useDispatchAuthStore } from './dispatchAuthStore';
 import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.types';
 import { useDispatchPatientStore } from './dispatchPatientStore';
 import { AcceptedHospitalResponse, TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
+import { useOpenViduStore } from '../openvidu/OpenViduStore';
 // import { useState } from 'react';
 
 interface DispatchSSEState {
@@ -40,6 +41,17 @@ const handleDispatchOrder = (event: MessageEvent) => {
     const response: DispatchOrderResponse = JSON.parse(event.data);
     if (response.isSuccess) {
       useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+
+      // sessionId 부분 추가
+      const sessionId = response.data.sessionId;
+      if (sessionId) {
+        const openViduStore = useOpenViduStore.getState();
+        openViduStore.handleChangeSessionId({
+          target: { value: sessionId }
+        } as React.ChangeEvent<HTMLInputElement>);
+        openViduStore.joinSession();
+      }
+
       console.log("dispatch-order response", response);
     }
   } catch (error) {
