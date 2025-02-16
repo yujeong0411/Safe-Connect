@@ -22,23 +22,11 @@ const DispatchRecordRow: React.FC<DispatchRecordRowProps> = ({ record }) => {
 
   return (
     <tr>
-      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-        {record.dispatchId}
-      </td>
       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
         {formatDateTime(record.dispatchCreatedAt)}
       </td>
       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
         {formatDateTime(record.dispatchArriveAt)}
-      </td>
-      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-        {record.transfer ? formatDateTime(record.transfer.transferAcceptAt) : '-'}
-      </td>
-      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-        {record.transfer ? record.transfer.hospital.hospitalName : '-'}
-      </td>
-      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-        {record.transfer ? formatDateTime(record.transfer.transferArriveAt) : '-'}
       </td>
       <td className="px-4 py-4 whitespace-nowrap text-sm">
         <span
@@ -48,9 +36,19 @@ const DispatchRecordRow: React.FC<DispatchRecordRowProps> = ({ record }) => {
               : 'bg-yellow-100 text-yellow-800'
           }`}
         >
-          {record.dispatchIsTransfer ? '이송 완료' : '진행 중'}
+          {record.dispatchIsTransfer ? '이송' : '현장조치 완료'}
         </span>
       </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {record.transfer ? record.transfer.hospital.hospitalName : '-'}
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {record.transfer ? formatDateTime(record.transfer.transferAcceptAt) : '-'}
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {record.transfer ? formatDateTime(record.transfer.transferArriveAt) : '-'}
+      </td>
+
       <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
         <Button
           variant="ghost"

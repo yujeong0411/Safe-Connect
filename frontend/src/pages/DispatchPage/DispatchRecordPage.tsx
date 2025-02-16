@@ -79,28 +79,25 @@ const DispatchRecordPage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  출동 ID
-                </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
                   출동 시작 시간
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
                   현장 도착 시간
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이송 수락 시간
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  병원 이송 여부
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
                   이송 병원
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이송 도착 시간
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  이송 수락 시간
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  이송 상태
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  이송 완료 시간
                 </th>
-                <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
                   상세 정보
                 </th>
               </tr>
