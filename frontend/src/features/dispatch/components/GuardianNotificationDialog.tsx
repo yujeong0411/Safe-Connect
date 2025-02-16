@@ -14,7 +14,7 @@ const GuardianNotificationDialog = ({
   open,
   onClose,
 }: GuardianNotificationDialogProps) => {
-  const { formData, currentTransfer, dispatchStatus, sendProtectorMessage} = useDispatchPatientStore()
+  const { formData, currentTransfer, dispatchStatus, sendProtectorMessage, completeTransfer, updateTransferInfo} = useDispatchPatientStore()
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -31,36 +31,60 @@ const GuardianNotificationDialog = ({
     }, 1000);
   };
 
-  // 사전 검증
-  if (!formData.patientIsUser || !currentTransfer || dispatchStatus !== 'transferred') {
-    return (
-        <Dialog open={open} onOpenChange={onClose}>
-          <DialogContent className="max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">메세지 전송 불가</DialogTitle>
-            </DialogHeader>
-            <div className="p-3 ">
-              <div className="bg-dialog_content p-5 rounded-lg text-red-600">
-                {!formData.patientIsUser && (
-                    <p>비회원 환자의 경우 보호자 알림 전송이 불가능합니다.</p>
-                )}
-                {!currentTransfer && (
-                    <p>이송 정보가 없어 알림을 전송할 수 없습니다.</p>
-                )}
-                {dispatchStatus !== 'transferred' && (
-                    <p>이송이 완료되지 않아 알림을 전송할 수 없습니다.</p>
-                )}
-              </div>
-              <div className="flex justify-end mt-4">
-                <Button variant="gray" onClick={onClose}>
-                  닫기
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-    );
-  }
+  // 이송 종료
+  const handleCompelete = async () => {
+    try {
+      // 유저인 경우
+      if (formData.patientIsUser) {
+        const messageResponse = await sendProtectorMessage(formData.patientId, transferId);
+        if (!messageResponse.isSuccess) {
+          console.log("보호자 메세지 전송 실패")
+        }
+      }
+
+      // 이송 종료 처리
+      const transferResponse = await completeTransfer(transferId)
+      if (transferResponse.isSuccess) {
+        updateTransferInfo({ completedAt: new Date().toISOString() });
+
+        handleAlertClose({
+          title: formData.patientIsUser ? '처리 완료' : '이송 종료',
+          description: formData.patientIsUser
+              ? '보호자 알림 전송과 이송 종료가 완료되었습니다.'
+              : '이송이 종료되었습니다.',
+          type: 'default',
+        });
+    }
+ }
+
+
+  // // 이송 중이 아니거나 이송 정보가 없는 경우는 메세지 전송 불가
+  // if (!currentTransfer || dispatchStatus !== 'transferred') {
+  //   return (
+  //       <Dialog open={open} onOpenChange={onClose}>
+  //         <DialogContent className="max-w-[600px]">
+  //           <DialogHeader>
+  //             <DialogTitle className="text-2xl">메세지 전송 불가</DialogTitle>
+  //           </DialogHeader>
+  //           <div className="p-3 ">
+  //             <div className="bg-dialog_content p-5 rounded-lg text-red-600">
+  //               {!currentTransfer && (
+  //                   <p>이송 정보가 없습니다.</p>
+  //               )}
+  //               {dispatchStatus !== 'transferred' && (
+  //                   <p>이송이 완료되지 않아 알림을 전송할 수 없습니다.</p>
+  //               )}
+  //             </div>
+  //             <div className="flex justify-end mt-4">
+  //               <Button variant="gray" onClick={onClose}>
+  //                 닫기
+  //               </Button>
+  //             </div>
+  //           </div>
+  //         </DialogContent>
+  //       </Dialog>
+  //   );
+  // }
 
   const handleSendProtectorMessage = async () => {
     try {

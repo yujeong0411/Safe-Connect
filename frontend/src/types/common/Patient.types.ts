@@ -136,7 +136,8 @@ export interface DispatchSavePatientResponse {
   };
 }
 
-// 추후 수정
+// 이송 수락 받은 후 받은 이송 정보 응답 (병원 -> 구급대원)
+//
 export interface TransferInfo {
   transferId: number;
   hospitalName: string;
@@ -185,7 +186,7 @@ export interface DispatchPatientStore {
 
 // 구급대원 환자정보 폼데이터
 export interface DispatchFormData {
-  patientId?: number;
+  patientId: number;
   patientName: string;
   patientGender: string;
   patientAge: string;

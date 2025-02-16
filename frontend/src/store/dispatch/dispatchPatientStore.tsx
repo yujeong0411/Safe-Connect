@@ -13,7 +13,8 @@ import {
   completeTransfer,
 } from '@features/dispatch/sevices/dispatchServiece.ts';
 
-const initialFormData: DispatchFormData = {
+
+const initialFormData: Omit<DispatchFormData, 'patientId' | 'dispatchId'> = {
   patientName: '',
   patientGender: '',
   patientAge: '',
@@ -32,19 +33,20 @@ const initialFormData: DispatchFormData = {
   patientProtectorPhone: '',
   callSummary: '',
   patientIsUser: false,
-  dispatchId: null,
 };
 
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({
-  formData: initialFormData,
-  currentTransfer: null,
+  formData: initialFormData as DispatchFormData,
+  currentTransfer: null,   // 현재 이송
   dispatchStatus: 'ongoing' as const, // 초기 상태는 ongoing
 
   // SSE로 받은 환자 정보 formData에 설정 (출동 시작)
   setPatientFromSSE: (data) => {
     set(() => ({
       formData: {
+        ...initialFormData,
         patientId: data.patient.patientId,
+        dispatchId:data.patient.dispatchId,
         patientName: data.patient.patientName || '',
         patientGender: data.patient.patientGender || '',
         patientAge: String(data.patient.patientAge) || '',
@@ -75,7 +77,6 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientIsUser: data.patient.patientIsUser,
       },
       dispatchStatus: 'ongoing',
-      dispatchId:data.patient.dispatchId,
     }));
   },
 
@@ -195,7 +196,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
 
   resetPatientInfo: () => {
     set({
-      formData: initialFormData,
+      formData: initialFormData as DispatchFormData,  // 모든 데이터 초기화
       currentTransfer: null,
       dispatchStatus: 'ongoing',
     });
