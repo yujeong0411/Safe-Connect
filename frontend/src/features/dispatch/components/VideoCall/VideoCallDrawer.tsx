@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { controlService } from "@features/control/services/controlApiService";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore';
 import { useLocationStore } from "@/store/location/locationStore";
-import DispatchVideoSessionUI from '@features/caller/component/CallerVideoSessionUI.tsx';
+import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
 
 interface VideoCallDrawerProps {
   isOpen: boolean;
@@ -64,7 +64,7 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
           {/* 영상통화 화면 */}
           <div className="p-6 pb-2">
             <div className="bg-gray-900 rounded-lg h-96 flex items-center justify-center">
-              <DispatchVideoSessionUI />
+              <VideoSessionUI />
             </div>
           </div>
           {/* 신고 내용 입력 */}

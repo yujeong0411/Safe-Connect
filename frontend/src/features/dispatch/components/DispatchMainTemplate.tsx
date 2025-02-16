@@ -76,6 +76,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         const openViduStore = useOpenViduStore.getState();
 
 
+        console.log("설정 후 sessionId:", openViduStore.sessionId);
         openViduStore.handleChangeSessionId({
           target: { value: response.data.sessionId }
         } as React.ChangeEvent<HTMLInputElement>);

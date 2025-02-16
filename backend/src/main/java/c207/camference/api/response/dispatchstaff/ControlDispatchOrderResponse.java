@@ -26,9 +26,11 @@ public class ControlDispatchOrderResponse {
     private ControlDispatchOrderUserResponse user;
     private List<MediCategoryDto> mediInfo;
     private String sessionId;
+    private Integer dispatchId;
 
     public ControlDispatchOrderResponse(Dispatch dispatch, Call call, Patient patient, UserMediDetailRepository userMediDetailRepository,String sessionId) {
         this.dispatchGroupId = dispatch.getDispatchGroupId();
+        this.dispatchId = dispatch.getDispatchId();
         this.call = new ControlDispatchOrderCallResponse(call);
         this.sessionId = sessionId;
         this.patient = Patient.builder()

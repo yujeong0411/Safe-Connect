@@ -14,10 +14,11 @@ import useRecorderStore from '@/store/openvidu/MediaRecorderStore.tsx';
 const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const {
-    // sessionId,
+    sessionId,
     handleChangeSessionId,
     handleChangeUserName,
-    createAndJoinSession
+    createAndJoinSession,
+    setSessionId
   } = useOpenViduStore();
 
   const navigate = useNavigate();
@@ -29,14 +30,12 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
 
   useEffect(() => {
     // 세션 ID 자동 생성 (타임스탬프 + UUID)
-    const timestamp = new Date().getTime();
-    const sessionId = `${timestamp}-${userName}`;
-
+    if(!sessionId){
+      const timestamp = new Date().getTime();
+      const newSessionId = `${timestamp}-${userName}`;
     // 세션 ID 설정
-    handleChangeSessionId({
-      target: { value: sessionId }
-    } as React.ChangeEvent<HTMLInputElement>);
-
+    setSessionId(newSessionId);
+    }
     // 호스트 이름 설정
     handleChangeUserName({
       target: { value: `userName` }
