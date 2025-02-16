@@ -54,6 +54,7 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
      
        // 녹화 시작
       startRecording(); 
+
       // const inviteUrl = `/caller/join/${sessionId}?direct=true`;
       // await navigator.clipboard.writeText(window.location.origin + inviteUrl);
       onOpenChange(false)
@@ -61,7 +62,7 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
 
       navigate('/Control/patient-info')
 
-    
+      
 
     } catch (error) {
       console.error('세션 생성 실패:', error);
