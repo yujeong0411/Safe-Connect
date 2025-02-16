@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+// import { Textarea } from '@/components/ui/textarea';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
 import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
 import {controlService} from "@features/control/services/controlApiService.ts";
@@ -16,7 +16,7 @@ interface VideoProps {
 
 const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
-  const {formData, updateFormData, fetchCallSummary} = usePatientStore()
+  const {fetchCallSummary} = usePatientStore()
   const { callId,leaveSession } = useOpenViduStore();
   const setIsLoading = useLocationStore((state) => state.setIsLoading);
   const setLocation = useLocationStore((state) => state.setLocation);
@@ -63,7 +63,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     }
   }
 
-  // 신고내용 요약  (calltext는 받을수있는가?)
+  // 신고내용 요약
   const handleCallSummary = async () => {
   
     try {
@@ -77,10 +77,12 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       throw new Error('callId가 없습니다.');
     }
 
+    // fetchCallSummary에 저장 로직 있음.
     await fetchCallSummary(Number(callId), audioBlob);
-    
+      alert('AI 요약이 완료되었습니다.');
     } catch (error) {
       console.error("신고내용 요약 실패", error);
+      alert('AI 요약 중 오류가 발생했습니다.');
     }
   }
 
@@ -104,8 +106,14 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
               <Button variant="destructive" size="default" onClick={handleEndCall}>
                 전화 종료
               </Button>
+                {/*<Button variant="default" size="default" onClick={handleResendUrl}>*/}
+                {/*  URL 재전송*/}
+                {/*</Button>*/}
                 <Button variant="default" size="default" onClick={handleResendUrl}>
                   URL 재전송
+                </Button>
+                <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">
+                  AI 요약
                 </Button>
               <Button variant="outline" size="default" onClick={() => setIsOpen(false)}>
                 닫기
@@ -125,19 +133,22 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
             </div>
             {/* 신고 내용 입력 */}
             <div className="space-y-4 p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">신고 내용</h3>
+              <div className="flex justify-end space-x-4">
+                {/*<h3 className="text-lg font-semibold">신고 내용</h3>*/}
+                <Button variant="default" size="default" onClick={handleResendUrl}>
+                  URL 재전송
+                </Button>
                 <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">
                   AI 요약
                 </Button>
               </div>
-              <Textarea
-                value={formData.callSummary}
-                onChange={(e) => updateFormData({ callSummary: e.target.value})}
-                placeholder="AI요약을 누르면 자동으로 요약됩니다."
-                readOnly  // 읽기 전용
-                className="p-4 min-h-[120px] bg-white"
-              />
+              {/*<Textarea*/}
+              {/*  value={formData.callSummary}*/}
+              {/*  onChange={(e) => updateFormData({ callSummary: e.target.value})}*/}
+              {/*  placeholder="AI요약을 누르면 자동으로 요약됩니다."*/}
+              {/*  readOnly  // 읽기 전용*/}
+              {/*  className="p-4 min-h-[120px] bg-white"*/}
+              {/*/>*/}
             </div>
           </div>
         </div>

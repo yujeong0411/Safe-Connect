@@ -7,11 +7,13 @@ import { FormData } from '@/types/common/Patient.types.ts';
 import React from 'react';
 import { useEffect } from 'react';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import ConfirmDialog from "@components/organisms/ConfirmDialog/ConfirmDialog.tsx";
 
 const ControlPatientInfoForm = () => {
   const { patientInfo, formData, updateFormData, searchByPhone, savePatientInfo } =
     usePatientStore();
   const { callId, callerPhone } = useOpenViduStore();
+  const genderOptions = ['M', 'F'];
 
   // 영상통화 생성 시 전화번도 자동 검색
   useEffect(() => {
@@ -68,7 +70,7 @@ const ControlPatientInfoForm = () => {
 
   // 필드 변경 핸들러
   const handleInputChange =
-    (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { value } = e.target;
       console.log('Original value:', value); // 입력값 로깅
 
@@ -94,46 +96,61 @@ const ControlPatientInfoForm = () => {
       <div className="flex-1 p-4 max-w-4xl">
         <div className="bg-white rounded-lg p-6">
           <div className="grid grid-cols-[9fr_1fr] gap-4 mb-4">
-              <SearchBar_ver2
-                placeholder="환자 전화번호"
-                buttonText="조회"
-                formatValue={formatPhoneNumber}
-                onSearch={handleSearch}
-              />
-            <Button
-              type="button"
-              variant="gray"
-              onClick={() => {
-                if (window.confirm('입력된 모든 정보가 초기화됩니다. 계속하시겠습니까?')) {
-                  usePatientStore.getState().resetPatientInfo();
+            <SearchBar_ver2
+              placeholder="환자 전화번호"
+              buttonText="조회"
+              formatValue={formatPhoneNumber}
+              onSearch={handleSearch}
+            />
+            <ConfirmDialog
+                trigger={
+                  <Button
+                      type="button"
+                      variant="gray"
+                      className="min-w-20 min-h-[2.6rem]"
+                  >
+                    초기화
+                  </Button>
                 }
-              }}
-            >
-              초기화
-            </Button>
+                title="정보 초기화"
+                description="입력된 모든 정보가 초기화됩니다. 계속하시겠습니까?"
+                cancelVariant="secondary"
+                confirmVariant="destructive"
+                onConfirm={() => {
+                  usePatientStore.getState().resetPatientInfo();
+                }}
+            />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
               <Input
-                className="w-full border-gray-400"
+                className="w-full border-gray-800"
                 value={formData.userName}
                 onChange={handleInputChange('userName')}
               />
             </div>
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">성별</label>
-              <Input
-                className="w-full border-gray-400"
+              <label className="block text-gray-700 text-sm font-medium mb-1">성별</label>
+              <select
                 value={formData.userGender}
                 onChange={handleInputChange('userGender')}
-              />
+                name="patientGender"
+                className=" w-full px-3 py-[0.85rem] border border-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">선택</option>
+                {genderOptions.map((gender) => (
+                  <option key={gender} value={gender}>
+                    {gender}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">나이</label>
               <Input
-                className="w-full border-gray-400"
+                className="w-full border-gray-800"
                 value={formData.userAge}
                 onChange={handleInputChange('userAge')}
               />
@@ -144,7 +161,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
               <Input
-                className="w-full border-gray-400"
+                className="w-full border-gray-800"
                 value={formData.userPhone ? formatPhoneNumber(formData.userPhone) : ''}
                 onChange={handleInputChange('userPhone')}
               />
@@ -152,7 +169,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">보호자 연락처</label>
               <Input
-                className="w-full border-gray-400"
+                className="w-full border-gray-800"
                 value={
                   formData.userProtectorPhone ? formatPhoneNumber(formData.userProtectorPhone) : ''
                 }
@@ -164,7 +181,7 @@ const ControlPatientInfoForm = () => {
           <div className="col-span-1 mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-1">증상</label>
             <Input
-              className="w-full border-gray-400"
+              className="w-full border-gray-800"
               value={formData.symptom}
               onChange={handleInputChange('symptom')}
             />
@@ -172,9 +189,9 @@ const ControlPatientInfoForm = () => {
 
           <div className="grid grid-cols-2 gap-4 mt-6">
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">현재 병력</label>
+              <label className="block text-sm font-medium text-gray-800 mb-1">현재 병력</label>
               <textarea
-                className="w-full h-25 p-3 border border-gray-400 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full h-25 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
                 value={
                   patientInfo?.mediInfo
                     ? patientInfo.mediInfo
@@ -189,7 +206,7 @@ const ControlPatientInfoForm = () => {
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">복용 약물</label>
               <textarea
-                className="w-full h-25 p-3 border border-gray-400 rounded-md resize-none focus:outline-none
+                className="w-full h-25 p-3 border border-gray-800 rounded-md resize-none focus:outline-none
                 focus:ring-2 focus:ring-blue-200"
                 value={
                   patientInfo?.mediInfo
@@ -208,7 +225,7 @@ const ControlPatientInfoForm = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-400 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full h-32 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
                 // value={`${formData.callSummary}\n\n${formData.addSummary}`}
                 value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n\n' : ''}${formData.addSummary}`}
                 onChange={(e) => {

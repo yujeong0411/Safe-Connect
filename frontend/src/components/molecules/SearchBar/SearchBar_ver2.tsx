@@ -25,7 +25,7 @@ const SearchBar_ver2 = ({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="flex-1 h-10 px-4 bg-white border border-gray-400  focus:ring-blue-200 focus:ring-2 text-base focus:outline-none rounded max-w-full w-full" // h-10은 40px
+        className="flex-1 h-10 px-4 bg-white border border-gray-800  focus:ring-blue-200 focus:ring-2 text-base focus:outline-none rounded max-w-full w-full" // h-10은 40px
       />
       <button
         type="submit"
