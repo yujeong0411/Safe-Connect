@@ -188,7 +188,6 @@ public class ControlServiceImpl implements ControlService {
         Dispatch dispatch = Dispatch.builder()
                 .callId(controlRequest.getCallId())
                 .dispatchGroupId(controlRequest.getDispatchGroupId())
-                .dispatchCreateAt(LocalDateTime.now())
                 .build();
         dispatch = dispatchRepository.saveAndFlush(dispatch);
 
