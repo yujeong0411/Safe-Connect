@@ -39,7 +39,7 @@ const TransferRequestPage = () => {
     currentLocation,
     isSearching,
     error: searchError,
-    lastSearchedRadius,
+    lastSearchedRadius
   } = useHospitalSearch();
 
   const { updateTransferStatus } = useHospitalTransferStore();
@@ -80,7 +80,7 @@ const TransferRequestPage = () => {
       handleSearch();
       handleAlertClose({
         title: '검색 시작',
-        description: `주변 병원 검색을 시작하며, 발견된 병원에 자동으로 이송 요청을 보냅니다. (현재 반경: ${searchRadius}km)`,
+        description: `주변 병원 자동 검색을 시작합니다.`,
         type: 'default',
       });
     }
