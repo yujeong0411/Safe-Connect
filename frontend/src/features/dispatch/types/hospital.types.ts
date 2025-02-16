@@ -1,17 +1,15 @@
 export interface Hospital {
-  hospitalLat: number;
-  hospitalLng: number;
   hospitalId: number;
   hospitalName: string;
   hospitalPhone: string;
   hospitalCapacity: number;
   hospitalAddress: string;
-  // hospitalLocation: {
-  //   x: number; // longitude
-  //   y: number; // latitude
-  // };
   distance: number;
+  hospitalLat: number;
+  hospitalLng: number;
   requested?: boolean;
+  eta?: number;
+  exactDistance?: number;
 }
 
 export interface APIResponse<T> {
