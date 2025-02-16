@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { controlService } from "@features/control/services/controlApiService";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore';
 import { useLocationStore } from "@/store/location/locationStore";
 import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
+import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
+import {completeVideo} from "@features/dispatch/sevices/dispatchServiece.ts";
 
 interface VideoCallDrawerProps {
   isOpen: boolean;
@@ -10,12 +11,13 @@ interface VideoCallDrawerProps {
 }
 
 const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
-  const { callId, leaveSession } = useOpenViduStore();
+  const { leaveSession } = useOpenViduStore();
   const setIsLoading = useLocationStore((state) => state.setIsLoading);
+  const {formData} = useDispatchPatientStore()
 
   const handleEndCall = async () => {
-    if (!callId) {
-      console.log("callId가 없습니다.");
+    if (!formData.dispatchId) {
+      console.log("dispatchId가 없습니다.");
       return;
     }
 
@@ -24,7 +26,7 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
     }
 
     try {
-      await controlService.endCall(callId);
+      await completeVideo(formData.dispatchId);
       await leaveSession();
       setIsLoading(true);
       alert('신고가 종료되었습니다.');
@@ -38,7 +40,7 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
   return (
     <div
       className={`
-        fixed left-0 h-full bg-bg overflow-y-auto z-50
+        fixed left-0 h-full bg-bg overflow-y-auto z-40
         transform transition-all duration-300 ease-in-out
         top-[150px]
         ${isOpen ? 'w-1/2' : 'w-0'}
