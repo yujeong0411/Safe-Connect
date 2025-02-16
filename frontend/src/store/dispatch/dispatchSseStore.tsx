@@ -59,16 +59,18 @@ const handleDispatchOrder = (event: MessageEvent) => {
   }
 }
 
-// 병원 이송
-const handleTransferRequest = (event: MessageEvent) => {
-  try {
-    const response: TransferRequestResponse = JSON.parse(event.data);
-    console.log("transfer-request", response)
-  } catch (error) {
-    console.log("SSE 에러: ", error);
-  }
-}
+// 병원 이송은 이송 요청 페이지에서 핸들러 등록
+// // 병원 이송
+// const handleTransferRequest = (event: MessageEvent) => {
+//   try {
+//     const response: TransferRequestResponse = JSON.parse(event.data);
+//     console.log("transfer-request", response)
+//   } catch (error) {
+//     console.log("SSE 에러: ", error);
+//   }
+// }
 
+// 병원이 이송 요청 수락
 const handleHospitalResponse = (event: MessageEvent) => {
   try {
     const response: AcceptedHospitalResponse = JSON.parse(event.data);
@@ -92,7 +94,7 @@ const handleHospitalResponse = (event: MessageEvent) => {
 // 핸들러 등록
 const dispatchSseEventHandlers = {
   "dispatch-order": handleDispatchOrder,
-  "transfer-request": handleTransferRequest,
+  // "transfer-request": handleTransferRequest,
   "hospital-response": handleHospitalResponse,
 }
 

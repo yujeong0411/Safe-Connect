@@ -9,7 +9,7 @@ import {useVideoDrawerStore} from "@/store/dispatch/dispatchVideoStore.tsx";
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
-import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -44,7 +44,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   const patientData = useDispatchPatientStore((state) => state.formData);
 
   // 수락한 병원 데이터
-  const acceptedHospital = useDispatchSseStore((state) => state.acceptedHospital);
+  // const acceptedHospital = useDispatchSseStore((state) => state.acceptedHospital);
 
   // SSE 연결
   useEffect(() => {
@@ -119,28 +119,29 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
             title: "출동 지령 수신 실패",
             description: "출동 지령 수신에 실패했습니다",
             type: "destructive"
-      }
-    }, [patientData, navigate, setVideoDrawerOpen]);
-
-
-    // 이송 수락
-    useEffect(() => {
-      try {
-        if (acceptedHospital) {
-          handleAlertClose({
-            title: "환자 이송 요청 수락",
-            description: `이송 병원: ${acceptedHospital.hospitalName}`,
-            type: "default"
           })
         }
-      } catch (error) {
-        handleAlertClose({
-          title: "이송 수락 병원 데이터 수신 실패",
-          description: "이송을 수락한 병원의 데이터 가져오기에 실패했습니다.",
-          type: "destructive"
-      });
-      }
-    }, [acceptedHospital]);
+      }, [patientData, navigate, setVideoDrawerOpen]);
+
+
+    // // 이송 수락
+    // useEffect(() => {
+    //   try {
+    //     if (acceptedHospital) {
+    //       handleAlertClose({
+    //         title: "환자 이송 요청 수락",
+    //         description: `이송 병원: ${acceptedHospital.hospitalName}`,
+    //         type: "default"
+    //       })
+    //     }
+    //   } catch (error) {
+    //     handleAlertClose({
+    //       title: "이송 수락 병원 데이터 수신 실패",
+    //       description: "이송을 수락한 병원의 데이터 가져오기에 실패했습니다.",
+    //       type: "destructive"
+    //   });
+    //   }
+    // }, [acceptedHospital]);
 
     const handleLogout = async () => {
       try {
