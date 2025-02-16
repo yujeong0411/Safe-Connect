@@ -162,35 +162,35 @@ useEffect(() => {
   // } | null>(null);
 
   // 병원 응답
-  eventSource.addEventListener("hospital-response", (event) => {
-    try {
-      const response = JSON.parse(event.data) as SSEResponse;
-      if (response.isSuccess) {
-        handleAlertClose({
-          title: "환자 이송 수락",
-          description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
-          type: "success"
-        });
+  // eventSource.addEventListener("hospital-response", (event) => {
+  //   try {
+  //     const response = JSON.parse(event.data) as SSEResponse;
+  //     if (response.isSuccess) {
+  //       handleAlertClose({
+  //         title: "환자 이송 수락",
+  //         description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
+  //         type: "success"
+  //       });
 
-        if (response.data.hospitalId &&
-          response.data.hospitalName &&
-          response.data.latitude != null &&
-          response.data.longitude != null) {
-            const hospitalData = {
-              hospitalId: response.data.hospitalId,
-              hospitalName: response.data.hospitalName,
-              latitude: response.data.latitude,
-              longitude: response.data.longitude
-            }
-          console.log("수락 병원 data = ", hospitalData);
-          setAcceptedHospital(hospitalData);
-        };
-      }
+  //       if (response.data.hospitalId &&
+  //         response.data.hospitalName &&
+  //         response.data.latitude != null &&
+  //         response.data.longitude != null) {
+  //           const hospitalData = {
+  //             hospitalId: response.data.hospitalId,
+  //             hospitalName: response.data.hospitalName,
+  //             latitude: response.data.latitude,
+  //             longitude: response.data.longitude
+  //           }
+  //         console.log("수락 병원 data = ", hospitalData);
+  //         setAcceptedHospital(hospitalData);
+  //       };
+  //     }
 
-    } catch (error) {
-      console.error("병원 응답 메시지 처리 중 오류 발생: ", error)
-    }
-  });
+  //   } catch (error) {
+  //     console.error("병원 응답 메시지 처리 중 오류 발생: ", error)
+  //   }
+  // });
 
     eventSource.onerror = (error) => {
       console.error("SSE 연결 에러: ", error);
@@ -203,7 +203,7 @@ useEffect(() => {
     };
 
   // 요청 수락 병원 데이터 비우기
-  setAcceptedHospital(null);
+  // setAcceptedHospital(null);
 
   return () => {
     eventSource.close();

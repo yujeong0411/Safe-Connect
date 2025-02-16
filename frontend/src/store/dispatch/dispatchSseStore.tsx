@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { useDispatchAuthStore } from './dispatchAuthStore';
 import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.types';
 import { useDispatchPatientStore } from './dispatchPatientStore';
+import { AcceptedHospitalResponse, TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
+// import { useState } from 'react';
 
 interface DispatchSSEState {
   eventSource: EventSource | null;
@@ -15,6 +17,21 @@ interface DispatchSSEState {
   retryCount: number;
   maxRetries: number;
   retryDelay: number;
+
+  acceptedHospital: {
+    transferId: number;
+    hospitalId: number;
+    hospitalName: string;
+    latitude: number;
+    longitude: number;
+  } | null;
+  setAcceptedHospital: (data: {
+    transferId: number;
+    hospitalId: number;
+    hospitalName: string;
+    latitude: number;
+    longitude: number;
+  } | null) => void;
 }
 
 // 출동 지령
@@ -23,6 +40,7 @@ const handleDispatchOrder = (event: MessageEvent) => {
     const response: DispatchOrderResponse = JSON.parse(event.data);
     if (response.isSuccess) {
       useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+      console.log("dispatch-order response", response);
     }
   } catch (error) {
     console.error("SSE 에러: ", error);
@@ -30,14 +48,40 @@ const handleDispatchOrder = (event: MessageEvent) => {
 }
 
 // 병원 이송
+const handleTransferRequest = (event: MessageEvent) => {
+  try {
+    const response: TransferRequestResponse = JSON.parse(event.data);
+    console.log("transfer-request", response)
+  } catch (error) {
+    console.log("SSE 에러: ", error);
+  }
+}
+
+const handleHospitalResponse = (event: MessageEvent) => {
+  try {
+    const response: AcceptedHospitalResponse = JSON.parse(event.data);
+    if (response.isSuccess) {
+        const hospitalData = {
+          transferId: response.data.transferId,
+          hospitalId: response.data.hospitalId,
+          hospitalName: response.data.hospitalName,
+          latitude: response.data.latitude,
+          longitude: response.data.longitude
+        }
+        console.log("hospital-response", hospitalData);
+        useDispatchSseStore.getState().setAcceptedHospital(hospitalData);
+      };
+  } catch (error) {
+    console.log("SSE 에러", error);
+  }
+}
 
 
-// 병원 이송 수락
-
+// 핸들러 등록
 const dispatchSseEventHandlers = {
   "dispatch-order": handleDispatchOrder,
-  // 병원 이송
-  // 병원 이송 수락
+  "transfer-request": handleTransferRequest,
+  "hospital-response": handleHospitalResponse,
 }
 
 
@@ -48,6 +92,9 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
   retryCount: 0,
   maxRetries: 5,
   retryDelay: 1000,
+
+  acceptedHospital: null,
+  setAcceptedHospital: (data) => set({ acceptedHospital: data }),
 
   startReconnectTimer: () => {
     const currentTimer = get().reconnectTimer;
@@ -144,6 +191,10 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
     const currentEventSource = get().eventSource;
     if (currentEventSource) {
       // 등록된 모든 이벤트 리스너 제거
+      Object.entries(dispatchSseEventHandlers).forEach(([eventName, handler]) => {
+        currentEventSource.removeEventListener(eventName, handler);
+      });
+
       currentEventSource.close();
       set({
         eventSource: null,
@@ -155,6 +206,7 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
     }
   },
 
+  // 사용자가 로그인했는데 SSE 연결되지 않았을 때, 자동으로 연결 시도
   ensureConnection: () => {
     const { userName, isAuthenticated } = useDispatchAuthStore.getState();
     if (isAuthenticated && userName && !get().sseConnected) {

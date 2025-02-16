@@ -6,11 +6,9 @@ import GuardianNotificationDialog from './GuardianNotificationDialog';
 import VideoCallDrawer from './VideoCall/VideoCallDrawer';
 import { useDispatchAuthStore } from '@/store/dispatch/dispatchAuthStore.tsx';
 import {useVideoDrawerStore} from "@/store/dispatch/dispatchVideoStore.tsx";
-import {DispatchOrderResponse} from "@/types/dispatch/dispatchOrderResponse.types.ts";
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
-import { useControlsseStore } from '@/store/control/controlsseStore';
-import { useControlAuthStore } from '@/store/control/controlAuthStore';
+import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -21,8 +19,8 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const { isVideoDrawerOpen, setVideoDrawerOpen } = useVideoDrawerStore();  // 비디오 상태 전역으로 관리
   const {logout} = useDispatchAuthStore();
-  const { connect, disconnect } = useControlsseStore();
-  const { isAuthenticated } = useControlAuthStore();
+  const { connect, disconnect, startReconnectTimer } = useDispatchSseStore();
+  const { isAuthenticated } = useDispatchAuthStore();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -37,250 +35,144 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 10000);
+    }, 3000);
   }
 
 
+  // 출동 지령 데이터
+  const patientData = useDispatchPatientStore((state) => state.formData);
+
+  // 수락한 병원 데이터
+  const acceptedHospital = useDispatchSseStore((state) => state.acceptedHospital);
+
+  // SSE 연결
   useEffect(() => {
-
-    // 연결 재시도 타이머
-    let reconnectTimer: NodeJS.Timeout | null = null;
-
     // SSE 연결 함수
     const connectSSE = () => {
       const userName = sessionStorage.getItem("userName");
-      if (userName && isAuthenticated && location.pathname.startsWith("/dispatchGroup")) {
-        connect(userName);
+      if (userName && isAuthenticated && location.pathname.startsWith("/dispatch")) {
+        connect(userName); // 이때, 핸들러 자동 등록됨
+        startReconnectTimer();
+      }
 
-        // 출동 지령 수신
-        const handleDispatchOrder = (event: CustomEvent) => {
-          const response: DispatchOrderResponse = JSON.parse(event.detail);
-          if (response.isSuccess) {
-            handleAlertClose({
-              title: "출동 지령 도착",
-              description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
-              type: "default"
-            });
-            console.log("SSE response", response);
-            
-            // 상황실에서 받은 정보 저장
-            useDispatchPatientStore.getState().setPatientFromSSE(response.data);
-
-            // drawer 열기
-            setVideoDrawerOpen(true)
-
-            // 환자 정보 작성페이지 열기
-            navigate('/dispatch/patient-info')
-          } else {
-            handleAlertClose({
-              title: "출동 지령 수신 실패",
-              description: response.message || "출동 지령 수신에 실패했습니다",
-              type: "destructive"
-            });
-          }
-        };
-
-        // 이벤트 리스너 등록
-        window.addEventListener("dispatch-order", handleDispatchOrder);
-
-        // 25분마다 기존 연결 끊고, 재연결
-        reconnectTimer = setTimeout(() => {
+      // 브라우저가 온라인 상태로 돌아올 때 연결 다시 시도하는 함수
+      const handleOnline = () => {
+        if (location.pathname.startsWith("/dispatchGroup")) {
+          console.log("Browser is online, reconnecting SSE..");
           disconnect();
-          connect(userName);
-        }, 25 * 60 * 1000);
-
-        return () => {
-          window.removeEventListener("dispatch-order", handleDispatchOrder);
+          connectSSE();
         }
-      }
-    }
+      };
 
-    // 초기 연결 (컴포넌트 처음 렌더링 될 때)
+      // 브라우저 종료 || 새로고침 전에 연결 끊는 함수
+      const handleBeforeUnload = () => {
+        disconnect();
+      }
+
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      // clean up
+      return () => {
+
+        // 구급팀 경로를 벗어나면 연결 해제
+        if (!location.pathname.startsWith("/dispatchGroup")) {
+          disconnect();
+        }
+
+        // 이벤트 리스너 제거
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    };
     connectSSE();
+  }, [connect, disconnect, isAuthenticated, location.pathname]);
 
-    // 브라우저가 온라인 상태로 돌아올 때 연결 다시 시도하는 함수
-    const handleOnline = () => {
-      if (location.pathname.startsWith("/dispatchGroup")) {
-        console.log("Browser is online, reconnecting SSE..");
-
-        // 기존 타이머가 있다면 취소
-        if (reconnectTimer) {
-          clearTimeout(reconnectTimer);
-        }
-
-        disconnect();
-        connectSSE();
-      }
-    };
-
-    // 브라우저 종료 || 새로고침 전에 연결 끊는 함수
-    const handleBeforeUnload = () => {
-      disconnect();
-    }
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    // clean up
-    return () => {
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
-      }
-
-      // 구급팀 경로를 벗어나면 연결 해제
-      if (!location.pathname.startsWith("/dispatchGroup")) {
-        disconnect();
-      }
-
-      // 이벤트 리스너 제거
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [connect, disconnect, isAuthenticated, location.pathname, navigate, setVideoDrawerOpen]);
+    
+    // 출동 지령
+    useEffect(() => {
+      try {
+        if (patientData.patientId) {
+          handleAlertClose({
+            title: "출동 지령 도착",
+            description: "출동 지령이 도착했습니다.",
+            type: "default"
+          });
+          
+          // drawer 열기
+          setVideoDrawerOpen(true)
   
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/dispatch');
-    } catch (error) {
-      console.error('로그아웃 실패', error);
-    }
-  };
-
-  const navItems = [
-    {
-      label: '출동 현황',
-      path: '/dispatch/main',
-      active: location.pathname === '/dispatch/main'
-    },
-    {
-      label: '환자정보 작성',
-      path: '/dispatch/patient-info',
-      active: location.pathname === '/dispatch/patient-info'
-    },
-    {
-      label: '이송 요청',
-      path: '/dispatch/transfer-request',
-      active: location.pathname === '/dispatch/transfer-request'
-    },
-    {
-      label: '영상통화 연결',
-      path: '#',
-      hasModal: true,
-      onModalOpen: () => setVideoDrawerOpen(!isVideoDrawerOpen)
-    },
-    {
-      label: '보호자 알림',
-      path: '#',
-      hasModal: true,
-      onModalOpen: () => setShowNotificationModal(true)
-    }
-  ];
+          // 환자 정보 작성페이지 열기
+          navigate('/dispatch/patient-info')
+        }
+      } catch (error) {
+          handleAlertClose({
+            title: "출동 지령 수신 실패",
+            description: "출동 지령 수신에 실패했습니다",
+            type: "destructive"
+        });
+      }
+    }, [patientData, navigate, setVideoDrawerOpen]);
 
 
+    // 이송 수락
+    useEffect(() => {
+      try {
+        if (acceptedHospital) {
+          handleAlertClose({
+            title: "환자 이송 요청 수락",
+            description: `이송 병원: ${acceptedHospital.hospitalName}`,
+            type: "default"
+          })
+        }
+      } catch (error) {
+        handleAlertClose({
+          title: "이송 수락 병원 데이터 수신 실패",
+          description: "이송을 수락한 병원의 데이터 가져오기에 실패했습니다.",
+          type: "destructive"
+      });
+      }
+    }, [acceptedHospital]);
 
+    const handleLogout = async () => {
+      try {
+        await logout();
+        navigate('/dispatch');
+      } catch (error) {
+        console.error('로그아웃 실패', error);
+      }
+    };
 
-    // const dispatchLoginId = sessionStorage.getItem("userName");
-    // if (!dispatchLoginId) {
-    //   console.log("구급팀 정보가 없습니다.");
-    //   return;
-    // }
+    const navItems = [
+      {
+        label: '출동 현황',
+        path: '/dispatch/main',
+        active: location.pathname === '/dispatch/main'
+      },
+      {
+        label: '환자정보 작성',
+        path: '/dispatch/patient-info',
+        active: location.pathname === '/dispatch/patient-info'
+      },
+      {
+        label: '이송 요청',
+        path: '/dispatch/transfer-request',
+        active: location.pathname === '/dispatch/transfer-request'
+      },
+      {
+        label: '영상통화 연결',
+        path: '#',
+        hasModal: true,
+        onModalOpen: () => setVideoDrawerOpen(!isVideoDrawerOpen)
+      },
+      {
+        label: '보호자 알림',
+        path: '#',
+        hasModal: true,
+        onModalOpen: () => setShowNotificationModal(true)
+      }
+    ];
 
-    // let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-    // if (subscribeUrl !== "http://localhost:8080") {
-    //   subscribeUrl += "/api"
-    // }
-
-    // // SSE 연결
-    // const eventSource = new EventSource(`${subscribeUrl}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
-    // console.log("SSE 연결 시도");
-
-    // eventSource.onopen = () => {
-    //   console.log("SSE 연결 성공");
-    // };
-
-    // // 출동 지령 수신
-    // eventSource.addEventListener("dispatch-order", (event) => {
-    //   const response: DispatchOrderResponse = JSON.parse(event.data);
-    //   if (response.isSuccess) {
-    //     handleAlertClose({
-    //       title: "출동 지령 도착",
-    //       description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
-    //       type: "default"
-    //     });
-    //     console.log("SSE response = ", response)
-
-
-    //     // 상황실에서 받은 정보 저장
-    //     useDispatchPatientStore.getState().setPatientFromSSE(response.data);
-
-    //     // drawer 열기
-    //     setVideoDrawerOpen(true)
-
-    //     // 환자 정보 작성페이지 열기
-    //     navigate('/dispatch/patient-info')
-
-    //   } else {
-    //     handleAlertClose({
-    //       title: "출동 지령 수신 실패",
-    //       description: response.message || "출동 지령 수신에 실패했습니다",
-    //       type: "destructive"
-    //     });
-    //   }
-    // });
-
-    // // 에러 처리
-    // eventSource.onerror = (error) => {
-    //   console.error("SSE 연결 에러: ", error);
-    //   eventSource.close();
-    // };
-
-    // 컴포넌트 언마운트 시 연결 종료
-  //   return () => {
-  //     eventSource.close();
-  //   };
-  // }, [navigate, setVideoDrawerOpen]); // 컴포넌트 마운트 시 한 번만 실행
-
-
-
-  // const handleLogout = async () => {
-  //   try {
-  //     await logout();
-  //     navigate('/dispatch');
-  //   } catch (error) {
-  //     console.error('로그아웃 실패', error);
-  //   }
-  // };
-
-  // const navItems = [
-  //   {
-  //     label: '출동 현황',
-  //     path: '/dispatch/main',
-  //     active: location.pathname === '/dispatch/main'
-  //   },
-  //   {
-  //     label: '환자정보 작성',
-  //     path: '/dispatch/patient-info',
-  //     active: location.pathname === '/dispatch/patient-info'
-  //   },
-  //   {
-  //     label: '이송 요청',
-  //     path: '/dispatch/transfer-request',
-  //     active: location.pathname === '/dispatch/transfer-request'
-  //   },
-  //   {
-  //     label: '영상통화 연결',
-  //     path: '#',
-  //     hasModal: true,
-  //     onModalOpen: () => setVideoDrawerOpen(!isVideoDrawerOpen)
-  //   },
-  //   {
-  //     label: '보호자 알림',
-  //     path: '#',
-  //     hasModal: true,
-  //     onModalOpen: () => setShowNotificationModal(true)
-  //   }
-  // ];
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
