@@ -58,16 +58,19 @@ const initialState: OpenViduState = {
 export const useOpenViduStore = create<openViduStore>((set, get) => ({
   ...initialState,
 
+
   setSessionId: (newSessionId: string) => {
     set({ sessionId: newSessionId });
+  },
+
+  handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => { // 이 부분이 sessionId 수정
+    set({ sessionId: e.target.value });
+
   },
 
   setUserName: (newUserName: string) => {
     set({ userName: newUserName });
   },
-    handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
-      set({ sessionId: e.target.value });
-    },
 
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ userName: e.target.value });
@@ -80,7 +83,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   createAndJoinSession: async (e: React.FormEvent, callerPhone: string) => {
     e.preventDefault();
 
-    console.log('openviduStore - createAndJoinSession 실행 완료'); //테스트용. 푸시 전 삭제할것
 
     if (!callerPhone) {
       alert('전화번호를 입력해주세요.');
@@ -104,7 +106,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     try {
       await createSession(sessionId, callerPhone);
       // 세션 제작 성공
-      console.log("세션제작 성공")
+      console.log("세션제작 성공, ", sessionId);
       set({ sessionId });
       await joinSession();
     } catch (error) {
