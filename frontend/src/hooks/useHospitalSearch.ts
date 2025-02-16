@@ -20,6 +20,7 @@ export const useHospitalSearch = () => {
   const [requestedHospitals] = useState<Set<number>>(new Set());
   const [addressInfo, setAddressInfo] = useState<AddressInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastSearchedRadius, setLastSearchedRadius] = useState(0);
 
   // 에러 메시지 설정 함수
   const handleError = useCallback((error: unknown) => {
@@ -33,8 +34,6 @@ export const useHospitalSearch = () => {
     
     setError(errorMessage);
     console.error('오류 발생:', errorMessage);
-    
-    // 3초 후 에러 메시지 초기화
     setTimeout(() => setError(null), 3000);
   }, []);
 
@@ -101,40 +100,35 @@ export const useHospitalSearch = () => {
     }
   }, [getAddressInfo, handleError]);
 
+  // 이송 요청 함수
+  const requestTransfer = useCallback(async (hospitalIds: number[]) => {
+    try {
+      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
+        hospitalIds
+      } as TransferRequestParams);
+
+      if (response.data.isSuccess) {
+        // 요청된 병원들 표시
+        setHospitals(prev => 
+          prev.map(hospital => ({
+            ...hospital,
+            requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
+          }))
+        );
+        return true;
+      }
+      return false;
+    } catch (error) {
+      handleError(error);
+      return false;
+    }
+  }, [handleError]);
+
   // 병원 검색
   const searchHospitals = useCallback(async (radius: number) => {
-    if (!currentLocation) return;
-  
+    if (!currentLocation || !addressInfo) return;
+
     try {
-      // 카카오맵 Geocoder로 현재 위치의 행정구역 정보 획득
-      const addressInfo = await new Promise<{siDo: string; siGunGu: string}>((resolve, reject) => {
-        const geocoder = new kakao.maps.services.Geocoder();
-        
-        geocoder.coord2RegionCode(
-          currentLocation.lng, 
-          currentLocation.lat, 
-          (result, status) => {
-            if (status === kakao.maps.services.Status.OK) {
-              // 첫 번째 결과에서 시도와 시군구 정보 추출
-              const region = result[0];
-              resolve({
-                siDo: region.region_1depth_name,      // 시도 (예: "광주광역시")
-                siGunGu: region.region_2depth_name    // 시군구 (예: "광산구")
-              });
-            } else {
-              reject(new Error('주소 변환에 실패했습니다.'));
-            }
-          }
-        );
-      });
-  
-      console.log('위치 정보:', {
-        위치: currentLocation,
-        행정구역: addressInfo,
-        반경: radius
-      });
-  
-      // 백엔드 API 호출
       const response = await axiosInstance.get<HospitalResponse>(
         '/dispatch_staff/emergency_room',
         {
@@ -147,62 +141,30 @@ export const useHospitalSearch = () => {
           }
         }
       );
-  
+
       if (response.data.isSuccess) {
-        const newHospitals: Hospital[] = response.data.data.map((hospital) => ({
-          ...hospital,
-          requested: requestedHospitals.has(hospital.hospitalId)
-        }));
-  
-        setHospitals(prev => {
-          const existingIds = new Set(prev.map((h: Hospital) => h.hospitalId));
-          const uniqueNewHospitals = newHospitals.filter((h: Hospital) => !existingIds.has(h.hospitalId));
-          return [...prev, ...uniqueNewHospitals];
-        });
-  
-        console.log('검색 결과:', {
-          검색반경: `${radius}km`,
-          검색결과수: newHospitals.length
-        });
-  
+        // 새로운 병원만 필터링
+        const existingHospitalIds = new Set(hospitals.map(h => h.hospitalId));
+        const newHospitals = response.data.data.filter(
+          hospital => !existingHospitalIds.has(hospital.hospitalId) && !requestedHospitals.has(hospital.hospitalId)
+        );
+
+        if (newHospitals.length > 0) {
+          // 새로운 병원들 추가
+          setHospitals(prev => [...prev, ...newHospitals]);
+          
+          // 새로운 병원들에 대해 자동으로 이송 요청
+          await requestTransfer(newHospitals.map(h => h.hospitalId));
+        }
+
+        setLastSearchedRadius(radius);
         return newHospitals;
       }
     } catch (error) {
-      let errorMessage = '병원 검색 중 오류가 발생했습니다.';
-      
-      if (error instanceof Error) {
-        if (error.message === '주소 변환에 실패했습니다.') {
-          errorMessage = '현재 위치의 주소를 확인할 수 없습니다.';
-        } else if (axios.isAxiosError(error)) {
-          if (error.response?.status === 500) {
-            errorMessage = '서버 내부 오류가 발생했습니다.';
-          } else if (error.response?.data?.message) {
-            errorMessage = error.response.data.message;
-          }
-        }
-      }
-  
-      handleError(errorMessage);
+      handleError(error);
       return [];
     }
-  }, [currentLocation, requestedHospitals, handleError]);
-  // 이송 요청
-  const requestTransfer = useCallback(async (hospitalIds: number[]) => {
-    try {
-      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
-        hospitalIds
-      } as TransferRequestParams);
-
-      if (response.data.isSuccess) {
-        markHospitalsAsRequested(hospitalIds);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      handleError(error);
-      return false;
-    }
-  }, [handleError]);
+  }, [currentLocation, addressInfo, hospitals, requestedHospitals, requestTransfer, handleError]);
 
   const handleSearch = useCallback(async () => {
     if (!currentLocation || !addressInfo) return;
@@ -222,6 +184,7 @@ export const useHospitalSearch = () => {
   const stopSearch = useCallback(() => {
     setIsSearching(false);
     setSearchRadius(1.0);
+    setLastSearchedRadius(0);
   }, []);
 
   // 검색 시작 시 자동으로 실행
@@ -231,25 +194,16 @@ export const useHospitalSearch = () => {
     }
   }, [searchRadius, currentLocation, addressInfo, isSearching, handleSearch]);
 
-  const markHospitalsAsRequested = useCallback((hospitalIds: number[]) => {
-    setHospitals(prev =>
-      prev.map(hospital => ({
-        ...hospital,
-        requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
-      }))
-    );
-  }, []);
-
   return {
     hospitals,
     searchRadius,
     handleSearch,
     stopSearch,
     requestTransfer,
-    markHospitalsAsRequested,
     currentLocation,
     isSearching,
     addressInfo,
-    error
+    error,
+    lastSearchedRadius
   };
 };

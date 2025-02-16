@@ -1,3 +1,4 @@
+// HospitalList.tsx
 import { Hospital } from '../types/hospital.types';
 import DispatchButton from './DispatchButton/DispatchButton';
 
@@ -5,7 +6,6 @@ interface HospitalListProps {
   hospitals: Hospital[];
   searchRadius: number;
   onSearch: () => void;
-  onBulkRequest: () => void;
   isSearching?: boolean;
   selectedHospitalId?: number;
   onHospitalSelect?: (hospitalId: number) => void;
@@ -15,7 +15,6 @@ const HospitalList = ({
   hospitals,
   searchRadius,
   onSearch,
-  onBulkRequest,
   isSearching,
   selectedHospitalId,
   onHospitalSelect
@@ -38,20 +37,9 @@ const HospitalList = ({
             size="md"
             width="auto"
             onClick={onSearch}
-            disabled={isSearching}
             className="flex-1 shadow-sm hover:shadow-md transition-shadow"
           >
             {isSearching ? '검색 중지' : '검색 시작'}
-          </DispatchButton>
-          <DispatchButton
-            variant="blue"
-            size="md"
-            width="auto"
-            onClick={onBulkRequest}
-            disabled={isSearching || hospitals.length === 0}
-            className="flex-1 shadow-sm hover:shadow-md transition-shadow"
-          >
-            일괄 전송 ({hospitals.length})
           </DispatchButton>
         </div>
       </div>
