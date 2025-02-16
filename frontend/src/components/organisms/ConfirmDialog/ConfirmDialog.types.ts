@@ -6,7 +6,7 @@ export interface ConfirmDialogProps {
     cancelText?: string;
     onConfirm?: () => void;
     onCancel?: () => void;
-    triggerVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'blue'
-    cancelVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'blue';
-    confirmVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'blue';
+    triggerVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+    cancelVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+    confirmVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
 }

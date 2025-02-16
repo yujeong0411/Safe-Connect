@@ -1,21 +1,39 @@
 import SearchBar_ver2 from '@components/molecules/SearchBar/SearchBar_ver2.tsx';
+import { SearchBarRef } from '@components/molecules/SearchBar/SearchBar.types.ts';
 import Input from '@components/atoms/Input/Input.tsx';
 import Button from '@components/atoms/Button/Button.tsx';
 import { formatPhoneNumber } from '@features/auth/servies/signupService.ts';
 import { usePatientStore } from '@/store/control/patientStore.tsx';
 import { FormData } from '@/types/common/Patient.types.ts';
-import React from 'react';
-import { useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
-import ConfirmDialog from "@components/organisms/ConfirmDialog/ConfirmDialog.tsx";
+import ConfirmDialog from '@components/organisms/ConfirmDialog/ConfirmDialog.tsx';
+import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
+import { CircleCheckBig, CircleAlert } from 'lucide-react';
 
 const ControlPatientInfoForm = () => {
   const { patientInfo, formData, updateFormData, searchByPhone, savePatientInfo } =
     usePatientStore();
   const { callId, callerPhone } = useOpenViduStore();
   const genderOptions = ['M', 'F'];
+  const searchBarRef = useRef<SearchBarRef>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    description: '',
+    type: 'default' as 'default' | 'destructive' | 'info' | 'warning' | 'success',
+  });
 
-  // 영상통화 생성 시 전화번도 자동 검색
+  // 알림창 표시 핸들러
+  const handleAlertClose = (config: typeof alertConfig) => {
+    setAlertConfig(config);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 1000);
+  };
+
+  // 영상통화 생성 시 전화번호 자동 검색
   useEffect(() => {
     console.log('Caller Phone changed:', callerPhone);
     if (callerPhone) {
@@ -56,21 +74,32 @@ const ControlPatientInfoForm = () => {
       const formattedPhone = formatPhoneNumber(phone);
       const response = await searchByPhone(formattedPhone);
 
-      if (!response?.isSuccess) {
+      if (response?.isSuccess) {
         // 명시적인 오류 메시지 표시
-        alert(response?.message || '환자 정보를 찾을 수 없습니다.');
+        handleAlertClose({
+          title: '신고자 조회 성공',
+          description: '회원이 조회되었습니다.',
+          type: 'default',
+        });
         updateFormData({ userPhone: formattedPhone });
+      } else {
+        handleAlertClose({
+          title: '미가입자 조회',
+          description: '등록된 회원이 아닙니다.',
+          type: 'info',
+        });
+          updateFormData({ userPhone: formattedPhone });
       }
     } catch (error) {
       // 네트워크 오류 등 처리
       console.error('환자 검색 중 오류 발생:', error);
-      alert('환자 정보 조회에 실패했습니다.');
     }
   };
 
   // 필드 변경 핸들러
   const handleInputChange =
-    (name: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    (name: keyof FormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { value } = e.target;
       console.log('Original value:', value); // 입력값 로깅
 
@@ -91,34 +120,38 @@ const ControlPatientInfoForm = () => {
     await savePatientInfo(callId || 0);
   };
 
+  // 초기화
+  const handleReset = () => {
+    // 스토어 초기화
+    usePatientStore.getState().resetPatientInfo();
+
+    // searchbar 초기화
+    searchBarRef.current?.reset();
+  };
+
   return (
     <div className="flex w-full items-center justify-center">
       <div className="flex-1 p-4 max-w-4xl">
         <div className="bg-white rounded-lg p-6">
           <div className="grid grid-cols-[9fr_1fr] gap-4 mb-4">
             <SearchBar_ver2
+              ref={searchBarRef}
               placeholder="환자 전화번호"
               buttonText="조회"
               formatValue={formatPhoneNumber}
               onSearch={handleSearch}
             />
             <ConfirmDialog
-                trigger={
-                  <Button
-                      type="button"
-                      variant="gray"
-                      className="min-w-20 min-h-[2.6rem]"
-                  >
-                    초기화
-                  </Button>
-                }
-                title="정보 초기화"
-                description="입력된 모든 정보가 초기화됩니다. 계속하시겠습니까?"
-                cancelVariant="secondary"
-                confirmVariant="destructive"
-                onConfirm={() => {
-                  usePatientStore.getState().resetPatientInfo();
-                }}
+              trigger={
+                <Button type="button" variant="gray" className="min-w-20 min-h-[2.6rem]">
+                  초기화
+                </Button>
+              }
+              title="정보 초기화"
+              description="입력된 모든 정보가 초기화됩니다. 계속하시겠습니까?"
+              cancelVariant="secondary"
+              confirmVariant="destructive"
+              onConfirm={handleReset}
             />
           </div>
 
@@ -249,6 +282,26 @@ const ControlPatientInfoForm = () => {
           </div>
         </div>
       </div>
+      {showAlert && (
+        <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
+          <Alert
+            variant={alertConfig.type}
+            className={`w-[400px] shadow-lg bg-white ${
+              alertConfig.type === 'default'
+                ? '[&>svg]:text-blue-600 text-blue-600'
+                : '[&>svg]:text-pink-500 text-pink-500'
+            }`}
+          >
+            {alertConfig.type === 'default' ? (
+              <CircleCheckBig className="h-6 w-6" />
+            ) : (
+              <CircleAlert className="h-6 w-6" />
+            )}
+            <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+            <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
+          </Alert>
+        </div>
+      )}
     </div>
   );
 };

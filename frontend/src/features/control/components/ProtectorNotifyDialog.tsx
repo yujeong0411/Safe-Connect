@@ -112,7 +112,7 @@ const ProtectorNotifyDialog = ({ open, onOpenChange }: DialogProps) => {
               <CircleAlert className="h-6 w-6" />
             )}
             <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-            <AlertDescription className="text-sm m-2">{alertConfig.description}</AlertDescription>
+            <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
           </Alert>
         </div>
       )}

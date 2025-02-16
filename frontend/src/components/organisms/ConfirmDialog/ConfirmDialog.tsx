@@ -20,7 +20,7 @@ const ConfirmDialog = ({
                          cancelText = "취소",
                          onConfirm,
                          onCancel,
-                         triggerVariant = 'blue',
+                         triggerVariant = 'default',
                          cancelVariant = 'outline',
                          confirmVariant = "destructive",
 }: ConfirmDialogProps) => {
