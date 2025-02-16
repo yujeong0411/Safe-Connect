@@ -17,7 +17,6 @@ const ProtectorNotifyDialog = ({ open, onOpenChange }: DialogProps) => {
   });
   const {callStartedAt} = useOpenViduStore()
 
-
   // 알림창 표시 핸들러
   const handleAlertClose = (config: typeof alertConfig) => {
     setAlertConfig(config);
@@ -100,11 +99,7 @@ const ProtectorNotifyDialog = ({ open, onOpenChange }: DialogProps) => {
         <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
           <Alert
             variant={alertConfig.type}
-            className={`w-[400px] shadow-lg bg-white ${
-              alertConfig.type === 'default'
-                ? '[&>svg]:text-blue-600 text-blue-600'
-                : '[&>svg]:text-red-500 text-red-500'
-            }`}
+            className="w-[400px] shadow-lg bg-white"
           >
             {alertConfig.type === 'default' ? (
               <CircleCheckBig className="h-6 w-6" />

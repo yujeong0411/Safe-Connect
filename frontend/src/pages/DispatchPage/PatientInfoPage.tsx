@@ -383,11 +383,7 @@ const PatientInfoPage = () => {
           <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
             <Alert
               variant={alertConfig.type}
-              className={`w-[400px] shadow-lg bg-white ${
-                alertConfig.type === 'default'
-                  ? '[&>svg]:text-blue-600 text-blue-600'
-                  : '[&>svg]:text-red-500 text-red-500'
-              }`}
+              className="w-[400px] shadow-lg bg-white"
             >
               <AlertTitle>{alertConfig.title}</AlertTitle>
               <AlertDescription>{alertConfig.description}</AlertDescription>

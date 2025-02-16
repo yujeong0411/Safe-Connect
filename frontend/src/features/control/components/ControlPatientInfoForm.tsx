@@ -117,7 +117,20 @@ const ControlPatientInfoForm = () => {
 
   // 저장 핸들러
   const handleSubmit = async () => {
+    if (!callId) {
+      handleAlertClose({
+        title: '신고 없음',
+        description: '현재 신고가 업습니다.',
+        type: 'destructive',
+      });
+      return;
+    }
     await savePatientInfo(callId || 0);
+    handleAlertClose({
+      title: '저장 성공',
+      description: '저장되었습니다.',
+      type: 'default',
+    });
   };
 
   // 초기화
@@ -142,16 +155,15 @@ const ControlPatientInfoForm = () => {
               onSearch={handleSearch}
             />
             <ConfirmDialog
-              trigger={
-                <Button type="button" variant="gray" className="min-w-20 min-h-[2.6rem]">
-                  초기화
-                </Button>
-              }
+              trigger="초기화"
               title="정보 초기화"
               description="입력된 모든 정보가 초기화됩니다. 계속하시겠습니까?"
-              cancelVariant="secondary"
+              confirmText="초기화"
+              triggerVariant="gray"
+              cancelVariant="gray"
               confirmVariant="destructive"
               onConfirm={handleReset}
+              className="min-w-20 min-h-[2.6rem] text-base"  // 트리거 버튼
             />
           </div>
 
@@ -286,11 +298,7 @@ const ControlPatientInfoForm = () => {
         <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
           <Alert
             variant={alertConfig.type}
-            className={`w-[400px] shadow-lg bg-white ${
-              alertConfig.type === 'default'
-                ? '[&>svg]:text-blue-600 text-blue-600'
-                : '[&>svg]:text-pink-500 text-pink-500'
-            }`}
+            className="w-[400px] shadow-lg bg-white"
           >
             {alertConfig.type === 'default' ? (
               <CircleCheckBig className="h-6 w-6" />
