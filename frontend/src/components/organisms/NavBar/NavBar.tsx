@@ -12,7 +12,7 @@ const NavBar = ({ navItems }: NavBarProps) => {
   return (
     <nav className="w-flex h-[50px] relative">
       <div className="w-full h-full absolute bg-banner" />
-      <div className=" h-full flex justify-center items-center space-x-[8rem]">
+      <div className=" h-full flex justify-start items-center pl-20 gap-20">
         {navItems.map((item, index) => (
           <Link
             // index를 추가하여 더 안전한 키 생성
