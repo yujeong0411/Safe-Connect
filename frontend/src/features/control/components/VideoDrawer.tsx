@@ -41,6 +41,8 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       setLocation(37.566826, 126.9786567)  // 서울시청 좌표로 초기화
       setIsLoading(true)
 
+      
+
       alert('신고가 종료되었습니다.')
       setIsOpen(false);  // Drawer 닫기
     } catch (error) {
