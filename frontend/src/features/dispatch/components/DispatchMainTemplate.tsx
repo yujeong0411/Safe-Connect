@@ -67,7 +67,6 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
           description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
           type: "default"
         });
-        console.log("SSE response = ", response)
 
 
         // 상황실에서 받은 정보 저장
@@ -76,12 +75,10 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         const openViduStore = useOpenViduStore.getState();
 
 
-        console.log("설정 후 sessionId:", openViduStore.sessionId);
         openViduStore.handleChangeSessionId({
           target: { value: response.data.sessionId }
         } as React.ChangeEvent<HTMLInputElement>);
 
-        console.log("설정 후 sessionId:", openViduStore.sessionId);
 
         openViduStore.joinSession();
 

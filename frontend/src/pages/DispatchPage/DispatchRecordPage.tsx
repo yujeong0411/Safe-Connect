@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import DispatchRecordRow from '@/features/dispatch/components/DispatchRecordRow/DispatchRecordRow';
 import Pagination from '@/components/atoms/Pagination/Pagination';
-import { DispatchRecord } from '@/features/dispatch/types/dispatchRecord.types';
+import { DispatchRecord } from '@/types/dispatch/dispatchRecord.types';
+import { useTransferListStore } from '@/store/dispatch/transferListStore';
+import DispatchDetailDialog from '@features/dispatch/components/TransferDetailDialog/DispatchDetailDialog.tsx';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -11,43 +13,20 @@ const DispatchRecordPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const dispatchDetail = useTransferListStore((state) => state.dispatchDetail);
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        // TODO: API 연동
-        const mockData: DispatchRecord[] = Array.from({ length: 23 }, (_, index) => ({
-          id: String(index + 1),
-          dispatchResponsible: `구급대원 ${index + 1}`,
-          dispatchStartTime: '2024-02-13 14:30:00',
-          dispatchEndTime: '2024-02-13 15:45:00',
-          hasTransfer: index % 3 !== 0,
-          hospitalName: index % 3 !== 0 ? '서울대병원' : null,
-          transferStartTime: index % 3 !== 0 ? '2024-02-13 15:00:00' : null,
-          transferEndTime: index % 3 !== 0 ? '2024-02-13 15:45:00' : null,
-          patientInfo: {
-            name: `환자${index + 1}`,
-            gender: '남',
-            age: '45',
-            patientContact: '010-1234-5678',
-            guardianContact: '010-8765-4321',
-            consciousness: '명료',
-            preKTAS: '2',
-            sbp: '120',
-            dbp: '80',
-            pr: '88',
-            bt: '36.5',
-            spo2: '98',
-            bst: '110',
-            medicalHistory: '고혈압',
-            medications: '혈압약',
-            reportSummary: '갑자기 가슴 통증을 호소',
-            symptoms: '흉통, 호흡곤란'
-          }
-        }));
+        await useTransferListStore.getState().fetchDispatchList();
+        const dispatchRecords = useTransferListStore.getState().dispatchList;
 
-        setRecords(mockData);
-        setTotalPages(Math.ceil(mockData.length / ITEMS_PER_PAGE));
+        if (dispatchRecords) {
+          setRecords(dispatchRecords);
+          setTotalPages(Math.ceil(dispatchRecords.length / ITEMS_PER_PAGE));
+        }
         setIsLoading(false);
       } catch (error) {
         console.error('출동 기록 조회 실패:', error);
@@ -57,6 +36,17 @@ const DispatchRecordPage = () => {
 
     fetchRecords();
   }, []);
+
+  // dispatchDetail이 변경되면 다이얼로그 열기
+  useEffect(() => {
+    if (dispatchDetail) {
+      setIsDetailOpen(true);
+    }
+  }, [dispatchDetail]);
+
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+  };
 
   const getCurrentPageData = () => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -88,37 +78,34 @@ const DispatchRecordPage = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    출동 담당자
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    출동 시작 일시
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    출동 종료 일시
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    이송 유무
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    이송 병원
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    이송 시작 일시
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    이송 종료 일시
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    상세 정보
-                  </th>
-                </tr>
+              <tr>
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  출동 시작 시간
+                </th>
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  현장 도착 시간
+                </th>
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  병원 이송 여부
+                </th>
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  이송 병원
+                </th>
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  이송 수락 시간
+                </th>
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  이송 완료 시간
+                </th>
+                <th scope="col" className="px-4 py-3 text-middle text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  상세 정보
+                </th>
+              </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {getCurrentPageData().map((record) => (
-                  <DispatchRecordRow key={record.id} record={record} />
-                ))}
+              {getCurrentPageData().map((record) => (
+                <DispatchRecordRow key={record.dispatchId} record={record} />
+              ))}
               </tbody>
             </table>
           </div>
@@ -132,6 +119,12 @@ const DispatchRecordPage = () => {
             />
           </div>
         </div>
+
+        <DispatchDetailDialog
+          open={isDetailOpen}
+          onClose={handleCloseDetail}
+          data={dispatchDetail || []} // null 체크만 하면 됨
+        />
       </div>
     </DispatchMainTemplate>
   );

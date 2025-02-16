@@ -1,59 +1,64 @@
-import { useState } from 'react';
-import Button from '@/components/atoms/Button/Button';
-import { DispatchRecord } from '../../types/dispatchRecord.types';
-import TransferDetailDialog from '../TransferDetailDialog/TransferDetailDialog';
+import React from 'react';
+import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { DispatchRecord } from '@/types/dispatch/dispatchRecord.types';
+import { useTransferListStore } from '@/store/dispatch/transferListStore';
 
 interface DispatchRecordRowProps {
   record: DispatchRecord;
 }
 
-const DispatchRecordRow = ({ record }: DispatchRecordRowProps) => {
-  const [showDetailDialog, setShowDetailDialog] = useState(false);
+const DispatchRecordRow: React.FC<DispatchRecordRowProps> = ({ record }) => {
+  const fetchDispatchDetail = useTransferListStore((state) => state.fetchDispatchDetail);
+
+  const handleDetailClick = () => {
+    fetchDispatchDetail(record.dispatchId);
+  };
+
+  const formatDateTime = (dateTimeStr: string | null) => {
+    if (!dateTimeStr) return '-';
+    return format(new Date(dateTimeStr), 'yyyy-MM-dd HH:mm:ss');
+  };
 
   return (
-    <>
-      <tr className="hover:bg-gray-50 text-sm">
-        <td className="px-4 py-3 whitespace-nowrap">
-          {record.dispatchResponsible}
-        </td>
-        <td className="px-4 py-3 whitespace-nowrap">
-          {record.dispatchStartTime}
-        </td>
-        <td className="px-4 py-3 whitespace-nowrap">
-          {record.dispatchEndTime}
-        </td>
-        <td className="px-4 py-3 whitespace-nowrap">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-            ${record.hasTransfer ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-            {record.hasTransfer ? '이송' : '미이송'}
-          </span>
-        </td>
-        <td className="px-4 py-3 whitespace-nowrap">
-          {record.hospitalName || '-'}
-        </td>
-        <td className="px-4 py-3 whitespace-nowrap">
-          {record.transferStartTime || '-'}
-        </td>
-        <td className="px-4 py-3 whitespace-nowrap">
-          {record.transferEndTime || '-'}
-        </td>
-        <td className="px-4 py-3 whitespace-nowrap text-right">
-          <Button
-            variant="blue"
-            size="sm"
-            onClick={() => setShowDetailDialog(true)}
-          >
-            상세 정보
-          </Button>
-        </td>
-      </tr>
+    <tr>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {formatDateTime(record.dispatchCreatedAt)}
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {formatDateTime(record.dispatchArriveAt)}
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm">
+        <span
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            record.dispatchIsTransfer
+              ? 'bg-green-100 text-green-800'
+              : 'bg-yellow-100 text-yellow-800'
+          }`}
+        >
+          {record.dispatchIsTransfer ? '이송' : '현장조치 완료'}
+        </span>
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {record.transfer ? record.transfer.hospital.hospitalName : '-'}
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {record.transfer ? formatDateTime(record.transfer.transferAcceptAt) : '-'}
+      </td>
+      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+        {record.transfer ? formatDateTime(record.transfer.transferArriveAt) : '-'}
+      </td>
 
-      <TransferDetailDialog 
-        open={showDetailDialog}
-        onClose={() => setShowDetailDialog(false)}
-        data={record.patientInfo}
-      />
-    </>
+      <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <Button
+          variant="ghost"
+          className="text-indigo-600 hover:text-indigo-900"
+          onClick={handleDetailClick}
+        >
+          상세보기
+        </Button>
+      </td>
+    </tr>
   );
 };
 
