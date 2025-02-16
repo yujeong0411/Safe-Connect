@@ -94,7 +94,7 @@ public class DispatchStaffController {
         return dispatchStaffService.updateDepartTime(request);
     }
 
-    @PutMapping("/departure")
+    @PutMapping("/arrive_time")
     public ResponseEntity<?> derpature(@RequestBody DispatchRequest request) {
         return dispatchStaffService.updateDispatchArriveAt(request);
     }

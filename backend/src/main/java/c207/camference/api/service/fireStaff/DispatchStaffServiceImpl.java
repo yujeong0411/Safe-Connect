@@ -425,8 +425,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
 
         dispatch.setDispatchArriveAt(LocalDateTime.now());
-        System.out.println(dispatch.getDispatchArriveAt());
-        dispatchRepository.save(dispatch);
+        dispatch=dispatchRepository.saveAndFlush(dispatch);
 
 
         Map<String, Object> response = new HashMap<>();
