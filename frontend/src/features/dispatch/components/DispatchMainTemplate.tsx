@@ -9,6 +9,7 @@ import {useVideoDrawerStore} from "@/store/dispatch/dispatchVideoStore.tsx";
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -35,7 +36,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 3000);
+    }, 10000);
   }
 
 
@@ -88,7 +89,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     connectSSE();
   }, [connect, disconnect, isAuthenticated, location.pathname]);
 
-    
+
     // 출동 지령
     useEffect(() => {
       try {
@@ -98,10 +99,10 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
             description: "출동 지령이 도착했습니다.",
             type: "default"
           });
-          
+
           // drawer 열기
           setVideoDrawerOpen(true)
-  
+
           // 환자 정보 작성페이지 열기
           navigate('/dispatch/patient-info')
         }
@@ -110,6 +111,41 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
             title: "출동 지령 수신 실패",
             description: "출동 지령 수신에 실패했습니다",
             type: "destructive"
+    // 출동 지령 수신
+    eventSource.addEventListener("dispatch-order", (event) => {
+      const response: DispatchOrderResponse = JSON.parse(event.data);
+      if (response.isSuccess) {
+        handleAlertClose({
+          title: "출동 지령 도착",
+          description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
+          type: "default"
+        });
+
+
+        // 상황실에서 받은 정보 저장
+        useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+
+        const openViduStore = useOpenViduStore.getState();
+
+
+        openViduStore.handleChangeSessionId({
+          target: { value: response.data.sessionId }
+        } as React.ChangeEvent<HTMLInputElement>);
+
+
+        openViduStore.joinSession();
+
+        // drawer 열기
+        setVideoDrawerOpen(true)
+
+        // 환자 정보 작성페이지 열기
+        navigate('/dispatch/patient-info')
+
+      } else {
+        handleAlertClose({
+          title: "출동 지령 수신 실패",
+          description: response.message || "출동 지령 수신에 실패했습니다",
+          type: "destructive"
         });
       }
     }, [patientData, navigate, setVideoDrawerOpen]);
@@ -143,42 +179,41 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       }
     };
 
-    const navItems = [
-      {
-        label: '출동 현황',
-        path: '/dispatch/main',
-        active: location.pathname === '/dispatch/main'
-      },
-      {
-        label: '환자정보 작성',
-        path: '/dispatch/patient-info',
-        active: location.pathname === '/dispatch/patient-info'
-      },
-      {
-        label: '이송 요청',
-        path: '/dispatch/transfer-request',
-        active: location.pathname === '/dispatch/transfer-request'
-      },
-      {
-        label: '영상통화 연결',
-        path: '#',
-        hasModal: true,
-        onModalOpen: () => setVideoDrawerOpen(!isVideoDrawerOpen)
-      },
-      {
-        label: '보호자 알림',
-        path: '#',
-        hasModal: true,
-        onModalOpen: () => setShowNotificationModal(true)
-      }
-    ];
-
+  const navItems = [
+    {
+      label: '출동 현황',
+      path: '/dispatch/main',
+      active: location.pathname === '/dispatch/main'
+    },
+    {
+      label: '출동 업무',
+      path: '/dispatch/patient-info',
+      active: location.pathname === '/dispatch/patient-info'
+    },
+    {
+      label: '이송 업무',
+      path: '/dispatch/transfer-request',
+      active: location.pathname === '/dispatch/transfer-request'
+    },
+    {
+      label: '전화 업무',
+      path: '#',
+      hasModal: true,
+      onModalOpen: () => setVideoDrawerOpen(!isVideoDrawerOpen)
+    },
+    {
+      label: '보호자 메세지',
+      path: '#',
+      hasModal: true,
+      onModalOpen: () => setShowNotificationModal(true)
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col">
+    <div className="h-screen bg-bg flex flex-col">
       {/* Alert UI */}
       {showAlert && (
-          <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">
+          <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
             <Alert
                 variant={alertConfig.type}
                 className={`w-[400px] shadow-lg bg-white ${
@@ -187,8 +222,8 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
                         : '[&>svg]:text-red-500 text-red-500'
                 }`}
             >
-              <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-              <AlertDescription className="text-sm m-2">
+              <AlertTitle className="text-xl ml-2">{alertConfig.title}</AlertTitle>
+              <AlertDescription className="text-base m-2">
                 {alertConfig.description}
               </AlertDescription>
             </Alert>
@@ -196,7 +231,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       )}
 
 
-      <div className="-space-y-4">
+      <div className="-space-y-2">
         <PublicHeader
           labels={[
             {
@@ -208,7 +243,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         />
         <DispatchNavBar navItems={navItems} />
       </div>
-      <div className="flex-1 relative">
+      <div className="flex-1">
       <div className={`transition-all duration-300 ${isVideoDrawerOpen ? 'ml-[50%] w-[50%]' : 'w-full'}`}>
           {children}
         </div>
@@ -221,11 +256,6 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         <GuardianNotificationDialog
           open={showNotificationModal}
           onClose={() => setShowNotificationModal(false)}
-          patientInfo={{
-            name: "김환자",
-            hospitalName: "서울대병원"
-          }}
-          guardianContact="010-1234-5678"
         />
       </div>
     </div>

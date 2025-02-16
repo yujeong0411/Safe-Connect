@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import axiosInstance from '@/features/dispatch/api/axios';
+import {axiosInstance} from '@/utils/axios';
 import { Hospital, HospitalResponse } from '@/features/dispatch/types/hospital.types';
 
 interface AddressInfo {
@@ -12,6 +12,11 @@ interface TransferRequestParams {
   hospitalIds: number[];
 }
 
+interface RouteInfo {
+  eta: number | "알 수 없음";
+  distance: number | "알 수 없음";
+}
+
 export const useHospitalSearch = () => {
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [searchRadius, setSearchRadius] = useState(1.0);
@@ -20,6 +25,7 @@ export const useHospitalSearch = () => {
   const [requestedHospitals] = useState<Set<number>>(new Set());
   const [addressInfo, setAddressInfo] = useState<AddressInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastSearchedRadius, setLastSearchedRadius] = useState(0);
 
   // 에러 메시지 설정 함수
   const handleError = useCallback((error: unknown) => {
@@ -33,9 +39,60 @@ export const useHospitalSearch = () => {
     
     setError(errorMessage);
     console.error('오류 발생:', errorMessage);
-    
-    // 3초 후 에러 메시지 초기화
     setTimeout(() => setError(null), 3000);
+  }, []);
+
+  // TMAP API를 사용한 경로 계산
+  const calculateRoute = useCallback(async (
+    startLat: number, 
+    startLng: number, 
+    endLat: number, 
+    endLng: number
+  ): Promise<RouteInfo> => {
+    const TMAP_API_KEY = import.meta.env.VITE_TMAP_API_KEY;
+  
+    try {
+      // 좌표 유효성 검사
+      if (!startLat || !startLng || !endLat || !endLng) {
+        console.log('유효하지 않은 좌표:', { startLat, startLng, endLat, endLng });
+        return { eta: "알 수 없음", distance: "알 수 없음" };
+      }
+  
+      const response = await axios.post(
+        "https://apis.openapi.sk.com/tmap/routes",
+        {
+          "version": 1,
+          "format": "json",
+          "startName": "출발지",
+          "endName": "도착지",
+          "startX": startLng,
+          "startY": startLat,
+          "endX": endLng,
+          "endY": endLat,
+          "reqCoordType": "WGS84GEO",
+          "resCoordType": "WGS84GEO",
+          "searchOption": "0",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "appKey": TMAP_API_KEY,
+          },
+        }
+      );
+  
+      if (response.data.features?.[0]?.properties) {
+        const { totalTime, totalDistance } = response.data.features[0].properties;
+        return {
+          eta: Math.round(totalTime / 60),  // 초를 분으로 변환
+          distance: Math.round(totalDistance / 100) / 10  // 미터를 km로 변환
+        };
+      }
+      return { eta: "알 수 없음", distance: "알 수 없음" };
+    } catch (error) {
+      console.error("Tmap API 호출 실패:", error);
+      return { eta: "알 수 없음", distance: "알 수 없음" };
+    }
   }, []);
 
   // 좌표로 주소 정보 가져오기
@@ -73,119 +130,110 @@ export const useHospitalSearch = () => {
   }, []);
 
   // 현재 위치 가져오기
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
+  // 현재 위치 가져오기
+useEffect(() => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        try {
+          // 먼저 주소 정보를 가져옴
+          const address = await getAddressInfo(location.lat, location.lng);
+          // 주소 정보가 성공적으로 얻어진 후에 위치 설정
+          setAddressInfo(address);
           setCurrentLocation(location);
-          try {
-            await getAddressInfo(location.lat, location.lng);
-          } catch (error) {
-            handleError(error);
-          }
-        },
-        (error) => {
+        } catch (error) {
           handleError(error);
+          // 에러 발생 시 서울역 좌표로 설정
           const defaultLocation = {
-            lat: 37.5665,
-            lng: 126.978,
+            lat: 37.5546788,  // 서울역 위도
+            lng: 126.9706069, // 서울역 경도
           };
+          const defaultAddress = {
+            siDo: "서울특별시",
+            siGunGu: "중구"
+          };
+          setAddressInfo(defaultAddress);
           setCurrentLocation(defaultLocation);
-          getAddressInfo(defaultLocation.lat, defaultLocation.lng);
         }
-      );
-    }
-  }, [getAddressInfo, handleError]);
+      },
+      (error) => {
+        handleError(error);
+        // 위치 권한 거부 시에도 서울역 좌표로 설정
+        const defaultLocation = {
+          lat: 37.5546788,
+          lng: 126.9706069,
+        };
+        const defaultAddress = {
+          siDo: "서울특별시",
+          siGunGu: "중구"
+        };
+        setAddressInfo(defaultAddress);
+        setCurrentLocation(defaultLocation);
+      }
+    );
+  }
+}, [getAddressInfo, handleError]);
 
   // 병원 검색
   const searchHospitals = useCallback(async (radius: number) => {
     if (!currentLocation) return;
-  
+
     try {
-      // 카카오맵 Geocoder로 현재 위치의 행정구역 정보 획득
-      const addressInfo = await new Promise<{siDo: string; siGunGu: string}>((resolve, reject) => {
-        const geocoder = new kakao.maps.services.Geocoder();
-        
-        geocoder.coord2RegionCode(
-          currentLocation.lng, 
-          currentLocation.lat, 
-          (result, status) => {
-            if (status === kakao.maps.services.Status.OK) {
-              // 첫 번째 결과에서 시도와 시군구 정보 추출
-              const region = result[0];
-              resolve({
-                siDo: region.region_1depth_name,      // 시도 (예: "광주광역시")
-                siGunGu: region.region_2depth_name    // 시군구 (예: "광산구")
-              });
-            } else {
-              reject(new Error('주소 변환에 실패했습니다.'));
-            }
-          }
-        );
-      });
-  
-      console.log('위치 정보:', {
-        위치: currentLocation,
-        행정구역: addressInfo,
-        반경: radius
-      });
-  
-      // 백엔드 API 호출
       const response = await axiosInstance.get<HospitalResponse>(
         '/dispatch_staff/emergency_room',
         {
           params: {
-            siDo: addressInfo.siDo,
-            siGunGu: addressInfo.siGunGu,
+            siDo: addressInfo?.siDo,
+            siGunGu: addressInfo?.siGunGu,
             longitude: currentLocation.lng,
             latitude: currentLocation.lat,
             range: radius
           }
         }
       );
-  
+
       if (response.data.isSuccess) {
-        const newHospitals: Hospital[] = response.data.data.map((hospital) => ({
-          ...hospital,
-          requested: requestedHospitals.has(hospital.hospitalId)
-        }));
-  
+        // 새로운 병원들의 거리 및 시간 계산
+        const hospitalPromises = response.data.data.map(async (hospital) => {
+          const routeInfo = await calculateRoute(
+            currentLocation.lat,
+            currentLocation.lng,
+            hospital.hospitalLat,
+            hospital.hospitalLng
+          );
+        
+          return {
+            ...hospital,
+            requested: requestedHospitals.has(hospital.hospitalId),
+            eta: routeInfo.eta === "알 수 없음" ? Math.round(hospital.distance * 2) : routeInfo.eta,
+            distance: routeInfo.distance === "알 수 없음" ? hospital.distance : routeInfo.distance
+          } as Hospital;
+        });
+
+        const newHospitals = await Promise.all(hospitalPromises);
+        
+        // 거리순으로 정렬
+        const sortedHospitals = newHospitals.sort((a, b) => a.distance - b.distance);
+
         setHospitals(prev => {
-          const existingIds = new Set(prev.map((h: Hospital) => h.hospitalId));
-          const uniqueNewHospitals = newHospitals.filter((h: Hospital) => !existingIds.has(h.hospitalId));
-          return [...prev, ...uniqueNewHospitals];
+          const existingIds = new Set(prev.map(h => h.hospitalId));
+          const uniqueHospitals = sortedHospitals.filter(h => !existingIds.has(h.hospitalId));
+          const updatedHospitals = [...prev, ...uniqueHospitals];
+          return updatedHospitals.sort((a, b) => a.distance - b.distance);
         });
-  
-        console.log('검색 결과:', {
-          검색반경: `${radius}km`,
-          검색결과수: newHospitals.length
-        });
-  
-        return newHospitals;
+
+        setLastSearchedRadius(radius);
+        return sortedHospitals;
       }
     } catch (error) {
-      let errorMessage = '병원 검색 중 오류가 발생했습니다.';
-      
-      if (error instanceof Error) {
-        if (error.message === '주소 변환에 실패했습니다.') {
-          errorMessage = '현재 위치의 주소를 확인할 수 없습니다.';
-        } else if (axios.isAxiosError(error)) {
-          if (error.response?.status === 500) {
-            errorMessage = '서버 내부 오류가 발생했습니다.';
-          } else if (error.response?.data?.message) {
-            errorMessage = error.response.data.message;
-          }
-        }
-      }
-  
-      handleError(errorMessage);
+      handleError(error);
       return [];
     }
-  }, [currentLocation, requestedHospitals, handleError]);
+  }, [currentLocation, addressInfo, calculateRoute, requestedHospitals, handleError]);
   // 이송 요청
   const requestTransfer = useCallback(async (hospitalIds: number[]) => {
     try {
@@ -194,7 +242,12 @@ export const useHospitalSearch = () => {
       } as TransferRequestParams);
 
       if (response.data.isSuccess) {
-        markHospitalsAsRequested(hospitalIds);
+        setHospitals(prev =>
+          prev.map(hospital => ({
+            ...hospital,
+            requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
+          }))
+        );
         return true;
       }
       return false;
@@ -222,6 +275,7 @@ export const useHospitalSearch = () => {
   const stopSearch = useCallback(() => {
     setIsSearching(false);
     setSearchRadius(1.0);
+    setLastSearchedRadius(0);
   }, []);
 
   // 검색 시작 시 자동으로 실행
@@ -231,25 +285,16 @@ export const useHospitalSearch = () => {
     }
   }, [searchRadius, currentLocation, addressInfo, isSearching, handleSearch]);
 
-  const markHospitalsAsRequested = useCallback((hospitalIds: number[]) => {
-    setHospitals(prev =>
-      prev.map(hospital => ({
-        ...hospital,
-        requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
-      }))
-    );
-  }, []);
-
   return {
     hospitals,
     searchRadius,
     handleSearch,
     stopSearch,
     requestTransfer,
-    markHospitalsAsRequested,
     currentLocation,
     isSearching,
     addressInfo,
-    error
+    error,
+    lastSearchedRadius
   };
 };
