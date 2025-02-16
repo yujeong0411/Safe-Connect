@@ -29,10 +29,10 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
       await completeVideo(formData.dispatchId);
       await leaveSession();
       setIsLoading(true);
-      alert('신고가 종료되었습니다.');
+      alert('통화가 종료되었습니다.');
       onClose();  // drawer 닫기
     } catch (error) {
-      console.error("신고 종료 실패", error);
+      console.error("통화 종료 실패", error);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import PublicHeader from '@components/organisms/PublicHeader/PublicHeader';
 import NavBar from '@components/organisms/NavBar/NavBar';
 import VideoCallDrawer from './VideoDrawer';
@@ -8,6 +8,9 @@ import ProtectorNotifyDialog from '@features/control/components/ProtectorNotifyD
 import { useControlAuthStore } from '@/store/control/controlAuthStore.tsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useControlsseStore } from '@/store/control/controlsseStore.ts';
+import {usePatientStore} from "@/store/control/patientStore.tsx";
+import {Alert, AlertDescription, AlertTitle} from "@components/ui/alert.tsx";
+import {CircleAlert, CircleCheckBig} from "lucide-react";
 
 interface ControlTemplateProps {
   children?: React.ReactNode;
@@ -22,6 +25,37 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { logout } = useControlAuthStore();
   const { connect, disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore();
+  const { patientInfo } = usePatientStore();
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    description: '',
+    type: 'default' as 'default' | 'destructive',
+  });
+
+  // 알림창 표시 핸들러
+  const handleAlertClose = (config: typeof alertConfig) => {
+    setAlertConfig(config);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 1000);
+  };
+
+  const handleProtectorNotify = () => {
+    if (!patientInfo?.userId || !patientInfo?.userProtectorPhone) {
+      // 회원이 아니거나 보호자 번호가 없는 경우 알림 표시
+      // alert('등록된 보호자가 없거나 회원이 아닙니다.');
+      handleAlertClose({
+        title: '메세지 전송 불가',
+        description: '등록된 보호자가 없거나 회원이 아닙니다.',
+        type: 'destructive',
+      });
+      return;
+    }
+    setIsNotifyModalOpen(true);
+  };
+
 
   const handleLogout = async () => {
     try {
@@ -100,7 +134,8 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       label: '보호자 알림',
       path: '#',
       hasModal: true,
-      onModalOpen: () => setIsNotifyModalOpen(true),
+      onModalOpen: handleProtectorNotify,   // 유지이고 보호자번호가 있는 경우만 열림
+      disabled: !patientInfo?.userId || !patientInfo?.userProtectorPhone  // 비활성화
     },
     { label: '신고 내역', path: '/control/main' },
   ];
@@ -124,6 +159,23 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       </div>
       <VideoCallCreateDialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen} />
       <ProtectorNotifyDialog open={isNotifyModalOpen} onOpenChange={setIsNotifyModalOpen} />
+
+      {showAlert && (
+          <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
+            <Alert
+                variant={alertConfig.type}
+                className="w-[400px] shadow-lg bg-white"
+            >
+              {alertConfig.type === 'default' ? (
+                  <CircleCheckBig className="h-6 w-6" />
+              ) : (
+                  <CircleAlert className="h-6 w-6" />
+              )}
+              <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+              <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
+            </Alert>
+          </div>
+      )}
     </div>
   );
 };
