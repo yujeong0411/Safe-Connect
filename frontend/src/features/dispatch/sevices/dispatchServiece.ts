@@ -5,6 +5,7 @@ import {
     PreKtasAIRequest,
     PreKtasAIResponse
 } from "@/types/common/Patient.types.ts";
+import { DispatchResponse, PatientDetailResponse } from '@/types/dispatch/dispatchRecord.types.ts';
 
 export const updateDispatchPatientInfo = async (patientInfo: DispatchSavePatientRequest):Promise<DispatchSavePatientResponse> => {
     try {
@@ -38,6 +39,32 @@ export const sendProtectorMessage = async (patientId: number, transferId:number)
         return response.data
     } catch (error) {
         console.log("보호자 메세지 전송 실패", error)
+        throw error;
+    }
+}
+
+// 이송 내역 전체 조회
+export const getDispatchReport = async ():Promise<DispatchResponse> => {
+    try {
+        const response = await axiosInstance.get('/dispatch_staff/report')
+        console.log("report 조회 성공", response.data)
+        return response.data
+    } catch (error) {
+        console.log("report 조회 실패", error)
+        throw error;
+    }
+}
+
+// 이송 내역 전체 조회
+export const getDispatchDetailReport = async (dispatchId:number):Promise<PatientDetailResponse> => {
+    try {
+        const response = await axiosInstance.get('/dispatch_staff/report/detail'
+          ,{params:{dispatchId}}
+    )
+        console.log("report 조회 성공", response.data)
+        return response.data
+    } catch (error) {
+        console.log("report 조회 실패", error)
         throw error;
     }
 }
