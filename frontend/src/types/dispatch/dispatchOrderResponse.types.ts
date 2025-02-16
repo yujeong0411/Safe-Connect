@@ -46,5 +46,6 @@ export interface DispatchOrderResponse {
     patient: Patient;
     user: User | null;
     mediInfo: MedicalCategory[] | null;
+    sessionId: string;
   }
 }

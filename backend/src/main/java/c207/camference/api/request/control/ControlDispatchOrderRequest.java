@@ -9,4 +9,5 @@ public class ControlDispatchOrderRequest {
     private Integer dispatchGroupId;
     private Integer callId;
     private Integer patientId;
+    private String sessionId;
 }
