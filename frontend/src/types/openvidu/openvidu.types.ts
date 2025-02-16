@@ -11,7 +11,7 @@ export interface openViduStore {
   // State
   callId : number | undefined;
   isActive : boolean
-  OV: OpenVidu;
+  OV: OpenVidu | undefined;
   sessionId: string;
   userName: string;
   session: Session | undefined;
@@ -37,3 +37,20 @@ export interface openViduStore {
   createToken: (sessionId: string) => Promise<any>;
   createAndJoinSession: (e: React.FormEvent,callerPhone:string)=> Promise<void>;
 }
+
+export interface OpenViduState {
+  isActive: boolean,
+  callId: number | undefined,
+  OV: OpenVidu | undefined,
+  sessionId: string,
+  userName: string,
+  session: Session | undefined,
+  mainStreamManager: StreamManager | undefined,
+  publisher: Publisher | null,
+  subscribers: Subscriber[],
+  localUser: LocalUser,
+  callStartedAt: string,   // 신고시각
+  callerPhone: string,
+  fireStaffId: number | undefined,
+}
+

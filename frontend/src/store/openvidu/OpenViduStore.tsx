@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { openViduStore } from '@/types/openvidu/openvidu.types.ts';
+import { openViduStore, OpenViduState } from '@/types/openvidu/openvidu.types.ts';
 import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
 import { OpenVidu } from 'openvidu-browser';
@@ -33,10 +33,11 @@ const forceOverrideBrowserCheck = () => {
   });
 };
 
-export const useOpenViduStore = create<openViduStore>((set, get) => ({
+// 초기 상태
+const initialState: OpenViduState = {
   isActive: false,
   callId : undefined,
-  OV: new OpenVidu(),
+  OV: undefined,
   sessionId: '',
   userName: `Guest_${Math.floor(Math.random() * 100)}`,
   session: undefined,
@@ -52,6 +53,11 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   callerPhone:'',
   fireStaffId:undefined,
 
+};
+
+export const useOpenViduStore = create<openViduStore>((set, get) => ({
+  ...initialState,
+
   setSessionId: (newSessionId: string) => {
     set({ sessionId: newSessionId });
   },
@@ -59,10 +65,9 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   setUserName: (newUserName: string) => {
     set({ userName: newUserName });
   },
-
-  handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
-    set({ sessionId: e.target.value });
-  },
+    handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
+      set({ sessionId: e.target.value });
+    },
 
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ userName: e.target.value });
@@ -79,6 +84,12 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       alert('전화번호를 입력해주세요.');
       return;
     }
+
+    // 컴포넌트가 시작할 떄가 아니라, 영상통화방이 만들어질때 Openvidu 객체 생성
+    const OV = new OpenVidu();
+    OV.enableProdMode();
+    set({ OV });
+
     // 브라우저 체크 우회를 먼저 적용
     forceOverrideBrowserCheck();
 
@@ -207,23 +218,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     usePatientStore.getState().resetPatientInfo()
 
     set({
-      OV: undefined,
-      sessionId: '',
-      userName: `Guest_${Math.floor(Math.random() * 100)}`,
-      session: undefined,
-      mainStreamManager: undefined,
-      publisher: undefined,
-      subscribers: [],
-      localUser: {
-        connectionId: undefined,
-        streamManager: undefined,
-        userName: undefined,
-      },
-      isActive: false,
-      callId : undefined,
-      callStartedAt: '',
-      callerPhone:'',
-      fireStaffId:undefined,
+      ...initialState
     });
   },
 
@@ -243,7 +238,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       console.log('Create Session Response:', response.data);
 
       set({
-        callId : response.data.data.call.callId,
+        callId: response.data.data.call.callId as number,
         callStartedAt: response.data.data.call.callStartedAt,
         callerPhone:response.data.data.call.caller.callerPhone,
         fireStaffId: response.data.data.call.fireStaff.fireStaffId,

@@ -51,10 +51,9 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
     e.preventDefault();
     try {
       await createAndJoinSession(e,phoneNumber); //반드시 커밋전, 주석 풀것
-      console.log("세션 생성 성공");
+     
        // 녹화 시작
       startRecording(); 
-      console.log("녹화 시작 호출 끝");
       // const inviteUrl = `/caller/join/${sessionId}?direct=true`;
       // await navigator.clipboard.writeText(window.location.origin + inviteUrl);
       onOpenChange(false)
