@@ -4,7 +4,7 @@ import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.ty
 import { useDispatchPatientStore } from './dispatchPatientStore';
 import { AcceptedHospitalResponse, TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
 import { useOpenViduStore } from '../openvidu/OpenViduStore';
-// import { useState } from 'react';
+
 
 interface DispatchSSEState {
   eventSource: EventSource | null;
@@ -33,6 +33,19 @@ interface DispatchSSEState {
     latitude: number;
     longitude: number;
   } | null) => void;
+
+
+  currentCallId: number | null;
+  setCurrentCallId: (callId: number | null) => void;
+  // 페이지 바뀔때마다 응답이 새로 오는 부분 수정하려고
+  notificationStatus: {
+    [callId: number]: {
+      shown: boolean;
+    };
+  };
+  setNotificationShown: (callId: number) => void;
+  hasNotificationBeenShown: (callId: number) => boolean;
+  resetNotificationStatus: (callId: number) => void;
 }
 
 // 출동 지령
@@ -40,7 +53,10 @@ const handleDispatchOrder = (event: MessageEvent) => {
   try {
     const response: DispatchOrderResponse = JSON.parse(event.data);
     if (response.isSuccess) {
+      const callId = response.data.call.callId;
+
       useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+      useDispatchSseStore.getState().setCurrentCallId(callId);
 
       // sessionId 부분 추가
       const sessionId = response.data.sessionId;
@@ -109,6 +125,33 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
 
   acceptedHospital: null,
   setAcceptedHospital: (data) => set({ acceptedHospital: data }),
+
+  currentCallId: null,
+  setCurrentCallId: (callId) => set({ currentCallId: callId }),
+
+  notificationStatus: {},
+  setNotificationShown: (callId: number) => {
+    set((state) => ({
+      notificationStatus: {
+        ...state.notificationStatus,
+        [callId]: {
+          shown: true
+        }
+      }
+    }));
+  },
+
+  hasNotificationBeenShown: (callId: number) => {
+    const status = get().notificationStatus[callId];
+    return status?.shown || false;
+  },
+
+  resetNotificationStatus: (callId: number) => {
+    set((state) => {
+      const { [callId]: _, ...rest } = state.notificationStatus;
+      return { notificationStatus: rest };
+    });
+  },
 
   startReconnectTimer: () => {
     const currentTimer = get().reconnectTimer;
@@ -213,10 +256,11 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
       set({
         eventSource: null,
         sseConnected: false,
-        retryCount: 0
+        retryCount: 0,
+        notificationStatus: {}, // 알림 상태 초기화
+        currentCallId: null,
       });
-      // 연결 해제시 재연결 타이머 정리
-      get().clearReconnectTimer();
+      get().clearReconnectTimer(); // 연결 해제시 재연결 타이머 정리
     }
   },
 

@@ -20,7 +20,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const { isVideoDrawerOpen, setVideoDrawerOpen } = useVideoDrawerStore();  // 비디오 상태 전역으로 관리
   const {logout} = useDispatchAuthStore();
-  const { connect, disconnect, startReconnectTimer } = useDispatchSseStore();
+  const { connect, disconnect, startReconnectTimer, resetNotificationStatus } = useDispatchSseStore();
   const { isAuthenticated } = useDispatchAuthStore();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -29,6 +29,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     description: "",
     type: "default" as "default" | "destructive",
   });
+
 
   // 알림 처리 함수
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -42,6 +43,9 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
 
   // 출동 지령 데이터
   const patientData = useDispatchPatientStore((state) => state.formData);
+  const currentCallId = useDispatchSseStore((state) => state.currentCallId);
+  console.log("currentCallId = ", currentCallId);
+  const hasNotificationBeenShown = useDispatchSseStore((state) => state.hasNotificationBeenShown);
 
   // 수락한 병원 데이터
   // const acceptedHospital = useDispatchSseStore((state) => state.acceptedHospital);
@@ -90,38 +94,41 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   }, [connect, disconnect, isAuthenticated, location.pathname]);
 
 
-    // 출동 지령
-    useEffect(() => {
-      try {
-        if (patientData.patientId) {
-          handleAlertClose({
-            title: "출동 지령 도착",
-            description: "출동 지령이 도착했습니다.",
-            type: "default"
-          });
+  // 출동 지령
+  useEffect(() => {
+    try {
+      if (patientData.patientId && currentCallId !== null && !hasNotificationBeenShown(currentCallId)) {
+        console.log("Condition satisfied, showing alert");
+        handleAlertClose({
+          title: "출동 지령 도착",
+          description: "출동 지령이 도착했습니다.",
+          type: "default"
+        });
 
-          // dispatchSseStore로 코드 이동
-          // const openViduStore = useOpenViduStore.getState();
-          // openViduStore.handleChangeSessionId({
-          //   target: { value: response.data.sessionId }
-          // } as React.ChangeEvent<HTMLInputElement>);
-  
-          // openViduStore.joinSession();
+        // dispatchSseStore로 코드 이동
+        // const openViduStore = useOpenViduStore.getState();
+        // openViduStore.handleChangeSessionId({
+        //   target: { value: response.data.sessionId }
+        // } as React.ChangeEvent<HTMLInputElement>);
 
-          // drawer 열기
-          setVideoDrawerOpen(true)
+        // openViduStore.joinSession();
 
-          // 환자 정보 작성페이지 열기
-          navigate('/dispatch/patient-info')
-        }
-      } catch (error) {
-          handleAlertClose({
-            title: "출동 지령 수신 실패",
-            description: "출동 지령 수신에 실패했습니다",
-            type: "destructive"
-          })
-        }
-      }, [patientData, navigate, setVideoDrawerOpen]);
+        // drawer 열기
+        setVideoDrawerOpen(true)
+
+        // 환자 정보 작성페이지 열기
+        navigate('/dispatch/patient-info')
+
+        useDispatchSseStore.getState().setNotificationShown(currentCallId);
+      }
+    } catch (error) {
+        handleAlertClose({
+          title: "출동 지령 수신 실패",
+          description: "출동 지령 수신에 실패했습니다",
+          type: "destructive"
+        })
+      }
+    }, [patientData.patientId, currentCallId, hasNotificationBeenShown, navigate, setVideoDrawerOpen]);
 
 
     // // 이송 수락
