@@ -1,10 +1,11 @@
-import {axiosInstance} from "@utils/axios.ts";
+import {axiosInstance} from "@/utils/axios.ts";
 import {
     DispatchSavePatientRequest,
     DispatchSavePatientResponse,
     PreKtasAIRequest,
     PreKtasAIResponse
 } from "@/types/common/Patient.types.ts";
+import { DispatchResponse, PatientDetailResponse } from '@/types/dispatch/dispatchRecord.types.ts';
 
 export const updateDispatchPatientInfo = async (patientInfo: DispatchSavePatientRequest):Promise<DispatchSavePatientResponse> => {
     try {
@@ -42,6 +43,23 @@ export const sendProtectorMessage = async (patientId: number, transferId:number)
     }
 }
 
+// 이송 내역 전체 조회
+export const getDispatchReport = async ():Promise<DispatchResponse> => {
+    try {
+        const response = await axiosInstance.get('/dispatch_staff/report')
+        console.log("report 조회 성공", response.data)
+        return response.data
+    } catch (error) {
+        console.log("report 조회 실패", error)
+        return {
+            isSuccess: false,
+            code: 500,
+            message: '조회에 실패했습니다.',
+            data: []
+        }
+    }
+};
+        
 // 이송 종료(병원 인계 여부 수정 -> 병원 도착시간 기입)
 export const completeTransfer = async (transferId: number): Promise<{ isSuccess: boolean; message: string }> => {
     try {
@@ -69,6 +87,19 @@ export const completeVideo  = async (dispatchId:number):Promise<{ isSuccess: boo
     }
 }
 
+// 이송 내역 전체 조회
+export const getDispatchDetailReport = async (dispatchId:number):Promise<PatientDetailResponse> => {
+    try {
+        const response = await axiosInstance.get('/dispatch_staff/report/detail'
+          ,{params:{dispatchId}}
+    )
+        console.log("report 조회 성공", response.data)
+        return response.data
+    } catch (error) {
+        console.log("report 조회 실패", error)
+        throw error;
+    }
+}
 
 // 출동 종료(현장에서 상황종료)
 export const completeDispatch = async (dispatchId: number): Promise<{ isSuccess: boolean; message: string }> => {
@@ -84,4 +115,3 @@ export const completeDispatch = async (dispatchId: number): Promise<{ isSuccess:
         throw error;
     }
 };
-
