@@ -24,6 +24,8 @@ export interface openViduStore {
   fireStaffId:number | undefined;
 
   // Actions
+  setSessionId:(newSessionId:string) => void;
+  setUserName:(newUserName:string) => void;
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => void;
   joinSession: () => Promise<void>;

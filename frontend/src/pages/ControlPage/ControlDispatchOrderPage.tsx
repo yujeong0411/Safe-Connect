@@ -20,7 +20,7 @@ const ControlDispatchOrderPage = () => {
     description: '',
     type: 'default' as 'default' | 'destructive',
   });
-  const { callId } = useOpenViduStore();
+  const { callId, sessionId } = useOpenViduStore();
   const { currentCall } = usePatientStore.getState();
 
   const patientId = currentCall?.patientId;
@@ -53,7 +53,7 @@ const ControlDispatchOrderPage = () => {
     try {
       // 출동 지령 HTTP 요청 전송
       if (callId && patientId) {
-        await orderDispatch(selectedTeam, callId, patientId); // dispatchGroupId, callId, patientId
+        await orderDispatch(selectedTeam, callId, patientId,sessionId); // dispatchGroupId, callId, patientId
       }
 
       handleAlertClose({

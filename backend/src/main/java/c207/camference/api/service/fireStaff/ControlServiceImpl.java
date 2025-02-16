@@ -196,7 +196,7 @@ public class ControlServiceImpl implements ControlService {
 
         // SSE
         // 구급팀 응답 생성
-        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository);
+        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository, controlRequest.getSessionId());
 
         sseEmitterService.sendDispatchOrder(controlRequest, dispatchGroupOrderResponse);
 

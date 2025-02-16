@@ -52,6 +52,14 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   callerPhone:'',
   fireStaffId:undefined,
 
+  setSessionId: (newSessionId: string) => {
+    set({ sessionId: newSessionId });
+  },
+
+  setUserName: (newUserName: string) => {
+    set({ userName: newUserName });
+  },
+
   handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
     set({ sessionId: e.target.value });
   },
@@ -125,6 +133,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       // 연결 시도
       const token = await get().createToken(sessionId);
       await session.connect(token, { clientData: userName });
+      console.log("Session connected with token:", token);
 
       // iOS에 최적화된 설정으로 퍼블리셔 초기화
       const publisher = await OV.initPublisherAsync(undefined, {
@@ -139,6 +148,8 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       });
 
       await session.publish(publisher);
+
+      console.log("Publisher created:", publisher);
 
       const localUser = {
         connectionId: session.connection.connectionId,
