@@ -6,10 +6,7 @@ import c207.camference.api.request.dispatchstaff.PreKtasRequest;
 import c207.camference.api.request.dispatchstaff.TransferUpdateRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.response.common.ResponseData;
-import c207.camference.api.response.dispatchstaff.AvailableHospitalResponse;
-import c207.camference.api.response.dispatchstaff.DispatchGroupPatientTransferResponse;
-import c207.camference.api.response.dispatchstaff.FinishDispatchResponse;
-import c207.camference.api.response.dispatchstaff.TransferUpdateResponse;
+import c207.camference.api.response.dispatchstaff.*;
 import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
@@ -91,7 +88,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     public ResponseEntity<?> getReports(){
         try{
             String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-            System.out.println("입력된 ID: " + fireStaffLoginId);
 
             // 1. FireStaff 조회
             FireStaff fireStaff = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId)
@@ -103,28 +99,32 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             if (dispatchStaff == null) {
                 throw new EntityNotFoundException("해당 직원의 출동팀 정보가 없습니다.");
             }
-            System.out.println("DispatchStaff 조회 성공: " + dispatchStaff.getDispatchGroup().getDispatchGroupId());
 
             // 3. DispatchGroup 조회
             DispatchGroup dispatchGroup = dispatchStaff.getDispatchGroup();
-            System.out.println("DispatchGroup 조회 성공: " + dispatchGroup.getDispatchGroupId());
 
-            // 4. Transfer와 Dispatch 조회
-            List<TransferResponse> transfers = transferRepository.findByDispatchGroup(dispatchGroup)
-                    .stream().map(TransferResponse::new)
+            // 4. Dispatch 목록 조회
+            List<Dispatch> dispatches = dispatchRepository.findByDispatchGroup(dispatchGroup);
+
+            // 5. Transfer 목록 조회 및 Map으로 변환 (dispatchId를 키로 사용)
+            Map<Integer, Transfer> transferMap = transferRepository.findByDispatchGroup(dispatchGroup)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            transfer -> transfer.getDispatchId(),
+                            transfer -> transfer
+                    ));
+
+            // 6. 통합된 응답 생성
+            List<DispatchResponse> reports = dispatches.stream()
+                    .map(dispatch -> new DispatchResponse(
+                            dispatch,
+                            transferMap.get(dispatch.getDispatchId())
+                    ))
                     .collect(Collectors.toList());
-            List<DispatchResponse> dispatches = dispatchRepository.findByDispatchGroup(dispatchGroup)
-                    .stream().map(DispatchResponse::new)
-                    .collect(Collectors.toList());
 
+            ResponseData<List> response = ResponseUtil.success(reports, "출동기록 조회 완료");
 
-            Map<String, Object> data = new HashMap<>();
-            data.put("transfer", transfers);
-            data.put("dispatch", dispatches);
-
-            ResponseData<Map> response = ResponseUtil.success(data, "전체 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
-
 
         } catch (EntityNotFoundException e) {
             System.out.println("EntityNotFoundException: " + e.getMessage());
@@ -177,6 +177,33 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient, userMediDetailRepository);
 
             ResponseData<TransferDetailResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (EntityNotFoundException e) {
+            System.out.println("EntityNotFoundException: " + e.getMessage());
+            ResponseData<Void> response = ResponseUtil.fail(404, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+            ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<?> getReportDetail(int dispatchId){
+        try{
+            List<Patient> patients = patientRepository.findPatientsByDispatchId(dispatchId);
+
+            List<DispatchReportDetailResponse> data = patients.stream()
+                    .map(patient->new DispatchReportDetailResponse(patient,userMediDetailRepository))
+                    .collect(Collectors.toList());
+
+            ResponseData<List> response = ResponseUtil.success(data, "상세 조회 완료");
+
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
         } catch (EntityNotFoundException e) {

@@ -6,7 +6,7 @@ import BulkTransferRequestDialog from '@/features/dispatch/components/BulkTransf
 import { useHospitalSearch } from '@/hooks/useHospitalSearch';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
-import axiosInstance from '@/features/dispatch/api/axios';
+import {axiosInstance} from '@/utils/axios';
 
 interface AlertConfig {
   title: string;
@@ -153,13 +153,6 @@ useEffect(() => {
     }
   });
 
-
-  // const [ acceptedHospital, setAcceptedHospital ] = useState<{
-  //   hospitalId: number;
-  //   hospitalName: string;
-  //   latitude: number;
-  //   longitude: number;
-  // } | null>(null);
 
   // 병원 응답
   eventSource.addEventListener("hospital-response", (event) => {

@@ -21,7 +21,7 @@ import java.io.IOException;
 public class DispatchStaffController {
     private final SmsService smsService;
     private final SseEmitterServiceImpl sseEmitterService;
-    DispatchStaffService dispatchStaffService;
+    private final DispatchStaffService dispatchStaffService;
 
     public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService, SseEmitterServiceImpl sseEmitterService) {
         this.dispatchStaffService = dispatchStaffService;
@@ -32,6 +32,11 @@ public class DispatchStaffController {
     @GetMapping("/report")
     public ResponseEntity<?> getReports(){
         return dispatchStaffService.getReports();
+    }
+
+    @GetMapping("/report/detail")
+    public ResponseEntity<?> getReportDetail(@RequestParam int dispatchId){
+        return dispatchStaffService.getReportDetail(dispatchId);
     }
 
     @GetMapping("/emergency_room")
