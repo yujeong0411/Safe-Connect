@@ -182,6 +182,7 @@ public class ControlServiceImpl implements ControlService {
                 .orElseThrow(() -> new RuntimeException("일치하는 신고가 존재하지 않습니다."));
 
         call.setCallIsDispatched(true);
+        call = callRepository.saveAndFlush(call);
 
         // dispatch insert
         Dispatch dispatch = Dispatch.builder()
