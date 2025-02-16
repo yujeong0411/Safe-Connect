@@ -51,6 +51,14 @@ export const getDispatchReport = async ():Promise<DispatchResponse> => {
         return response.data
     } catch (error) {
         console.log("report 조회 실패", error)
+        return {
+            isSuccess: false,
+            code: 500,
+            message: '조회에 실패했습니다.',
+            data: []
+        }
+    }
+};
         
 // 이송 종료(병원 인계 여부 수정 -> 병원 도착시간 기입)
 export const completeTransfer = async (transferId: number): Promise<{ isSuccess: boolean; message: string }> => {
