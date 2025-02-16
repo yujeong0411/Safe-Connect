@@ -9,6 +9,7 @@ import {useVideoDrawerStore} from "@/store/dispatch/dispatchVideoStore.tsx";
 import {DispatchOrderResponse} from "@/types/dispatch/dispatchOrderResponse.types.ts";
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -71,6 +72,18 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
 
         // 상황실에서 받은 정보 저장
         useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+
+        const openViduStore = useOpenViduStore.getState();
+
+
+        console.log("설정 후 sessionId:", openViduStore.sessionId);
+        openViduStore.handleChangeSessionId({
+          target: { value: response.data.sessionId }
+        } as React.ChangeEvent<HTMLInputElement>);
+
+        console.log("설정 후 sessionId:", openViduStore.sessionId);
+
+        openViduStore.joinSession();
 
         // drawer 열기
         setVideoDrawerOpen(true)
@@ -174,7 +187,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         />
         <DispatchNavBar navItems={navItems} />
       </div>
-      <div className="flex-1 relative">
+      <div className="flex-1">
       <div className={`transition-all duration-300 ${isVideoDrawerOpen ? 'ml-[50%] w-[50%]' : 'w-full'}`}>
           {children}
         </div>
