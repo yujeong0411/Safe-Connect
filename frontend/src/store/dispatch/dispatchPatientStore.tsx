@@ -38,7 +38,7 @@ const initialFormData: Omit<DispatchFormData, 'patientId' | 'dispatchId'> = {
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({
   formData: initialFormData as DispatchFormData,
   currentTransfer: null,   // 현재 이송
-  dispatchStatus: 'ongoing' as const, // 초기 상태는 ongoing
+  dispatchStatus: 'ongoing' as const, // 초기 상태 출동 중
 
   // SSE로 받은 환자 정보 formData에 설정 (출동 시작)
   setPatientFromSSE: (data) => {
@@ -46,7 +46,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
       formData: {
         ...initialFormData,
         patientId: data.patient.patientId,
-        dispatchId:data.patient.dispatchId,
+        dispatchId:data.dispatchId,
         patientName: data.patient.patientName || '',
         patientGender: data.patient.patientGender || '',
         patientAge: String(data.patient.patientAge) || '',
@@ -76,13 +76,14 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         callSummary: data.call.callSummary,
         patientIsUser: data.patient.patientIsUser,
       },
-      dispatchStatus: 'ongoing',
+      dispatchStatus: 'ongoing',    // 출동 지령 받았을 때 출동 중
     }));
   },
 
   // 정보가 없을 경우 구급대원이 자유롭게 입력 가능
   updateFormData: (data) => {
     const { dispatchStatus } = get();
+    // 출동 중이 아니라면
     if (dispatchStatus !== 'ongoing') {
       throw new Error('이미 종료된 출동은 수정할 수 없습니다.');
     }
@@ -136,13 +137,14 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
   // 이송 정보 설정 (병원 수락 시)
   setTransferInfo: (info) => {
     const { dispatchStatus } = get();
+    // 출동 중이 아니라면 
     if (dispatchStatus !== 'ongoing') {
       throw new Error('이미 종료된 출동입니다.');
     }
-    set({ currentTransfer: info });
+    set({ currentTransfer: info });   // transferId 포함
   },
 
-  // 이송 정보 업데이트
+  // 이송 정보 업데이트   -> 필요없으면 지우기
   updateTransferInfo: (info) => {
     set((state) => ({
       currentTransfer: state.currentTransfer ? { ...state.currentTransfer, ...info } : null,
@@ -153,19 +155,21 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
   completeTransfer: async (transferId: number) => {
     const { dispatchStatus, currentTransfer } = get();
 
+    // 출동 중이 아니거나 현재 이송이 없다면
     if (dispatchStatus !== 'ongoing' || !currentTransfer) {
       throw new Error('이송을 종료할 수 없습니다.');
     }
 
     try {
-      await completeTransfer(transferId); // API 호출
+      const response = await completeTransfer(transferId); // API 호출
       set({
-        dispatchStatus: 'transferred',
+        dispatchStatus: 'transferred',    // 이송 완료 상태 변경
         currentTransfer: {
           ...currentTransfer,
           completedAt: new Date().toISOString(),
         },
       });
+      return response
     } catch (error) {
       throw error;
     }
@@ -186,7 +190,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
     try {
       await completeDispatch(formData.dispatchId); // API 호출
       set({
-        dispatchStatus: 'completed',
+        dispatchStatus: 'completed',    // 출동 완료 상태 변경
         currentTransfer: null,
       });
     } catch (error) {
@@ -198,7 +202,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
     set({
       formData: initialFormData as DispatchFormData,  // 모든 데이터 초기화
       currentTransfer: null,
-      dispatchStatus: 'ongoing',
+      dispatchStatus: 'ongoing',  // 다시 초기화
     });
   },
 
@@ -231,8 +235,9 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
     }
   },
 
-  sendProtectorMessage: async (transferId: number) => {
-    const { formData, dispatchStatus } = get();
+  // 보호자 메세지 전송
+  sendProtectorMessage: async () => {
+    const { formData, dispatchStatus, currentTransfer } = get();
 
     if (dispatchStatus !== 'transferred') {
       throw new Error('이송이 완료되지 않았습니다.');
@@ -242,8 +247,12 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
       throw new Error('보호자 알림을 전송할 수 없는 환자입니다.');
     }
 
+    if (!currentTransfer?.transferId) {
+      throw new Error('이송 정보가 없습니다.');
+    }
+
     try {
-      const response = await sendProtectorMessage(formData.patientId, transferId);
+      const response = await sendProtectorMessage(formData.patientId, currentTransfer.transferId);
       if (response.isSuccess) {
         return response;
       }

@@ -24,7 +24,7 @@ const MainTemplate = ({ children, navItems, logoutDirect }: MainTemplateProps) =
   };
 
   return (
-    <div className="h-screen w-full flex flex-col bg-bg flex flex-col">
+    <div className="h-screen w-full flex flex-col bg-bg">
       {/* 콘텐츠 영역 */}
         <div className="-space-y-2">  {/* 음수 마진으로 간격을 줄임 */}
       <PublicHeader

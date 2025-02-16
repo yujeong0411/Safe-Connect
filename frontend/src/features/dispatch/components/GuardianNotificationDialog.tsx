@@ -14,7 +14,7 @@ const GuardianNotificationDialog = ({
   open,
   onClose,
 }: GuardianNotificationDialogProps) => {
-  const { formData, currentTransfer, dispatchStatus, sendProtectorMessage, completeTransfer, updateTransferInfo} = useDispatchPatientStore()
+  const { formData, currentTransfer, sendProtectorMessage, completeTransfer} = useDispatchPatientStore()
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -33,29 +33,46 @@ const GuardianNotificationDialog = ({
 
   // 이송 종료
   const handleCompelete = async () => {
+    if (!currentTransfer?.transferId) {
+      handleAlertClose({
+        title: '처리 실패',
+        description: '이송 정보가 없습니다.',
+        type: 'destructive',
+      });
+      return;
+    }
+
     try {
-      // 유저인 경우
-      if (formData.patientIsUser) {
-        const messageResponse = await sendProtectorMessage(formData.patientId, transferId);
+      // 유저이고 보호자 번호가 있는 경우 메세지 전송
+      if (formData.patientIsUser && formData.patientProtectorPhone) {
+        const messageResponse = await sendProtectorMessage();
         if (!messageResponse.isSuccess) {
           console.log("보호자 메세지 전송 실패")
         }
       }
 
-      // 이송 종료 처리
-      const transferResponse = await completeTransfer(transferId)
+      // 이송 종료 처리 (유저 + 비유저)
+      const transferResponse = await completeTransfer(currentTransfer.transferId)
       if (transferResponse.isSuccess) {
-        updateTransferInfo({ completedAt: new Date().toISOString() });
-
         handleAlertClose({
           title: formData.patientIsUser ? '처리 완료' : '이송 종료',
           description: formData.patientIsUser
-              ? '보호자 알림 전송과 이송 종료가 완료되었습니다.'
+              ? '보호자 메세지 전송과 이송 종료가 완료되었습니다.'
               : '이송이 종료되었습니다.',
           type: 'default',
         });
     }
- }
+ } catch (error) {
+    handleAlertClose({
+      title: '처리 실패',
+      description: formData.patientIsUser
+          ? '보호자 알림 전송 또는 이송 종료에 실패했습니다.'
+          : '이송 종료에 실패했습니다.',
+      type: 'destructive',
+    })
+    console.error("이송 종료 처리 실패", error)
+    }
+  }
 
 
   // // 이송 중이 아니거나 이송 정보가 없는 경우는 메세지 전송 불가
@@ -86,32 +103,32 @@ const GuardianNotificationDialog = ({
   //   );
   // }
 
-  const handleSendProtectorMessage = async () => {
-    try {
-      const transferId = 1;  // 아직 벡엔드 추가 안함. mockId
-      const response = await sendProtectorMessage(transferId);
-      if (response.isSuccess) {
-        handleAlertClose({
-          title: '메세지 전송 완료',
-          description: '메세지가 전송되었습니다.',
-          type: 'default',
-        });
-        setTimeout(() => {
-          onClose();
-        }, 1000);
-      }
-    } catch (error) {
-      handleAlertClose({
-        title: '메세지 전송 실패',
-        description: '등록된 보호자가 없습니다.',
-        type: 'destructive',
-      });
-      setTimeout(() => {
-        onClose();
-      }, 1000);
-      console.error("보호자 메세지 실패", error);
-    }
-  };
+  // const handleSendProtectorMessage = async () => {
+  //   try {
+  //     const transferId = 1;  // 아직 벡엔드 추가 안함. mockId
+  //     const response = await sendProtectorMessage(transferId);
+  //     if (response.isSuccess) {
+  //       handleAlertClose({
+  //         title: '메세지 전송 완료',
+  //         description: '메세지가 전송되었습니다.',
+  //         type: 'default',
+  //       });
+  //       setTimeout(() => {
+  //         onClose();
+  //       }, 1000);
+  //     }
+  //   } catch (error) {
+  //     handleAlertClose({
+  //       title: '메세지 전송 실패',
+  //       description: '등록된 보호자가 없습니다.',
+  //       type: 'destructive',
+  //     });
+  //     setTimeout(() => {
+  //       onClose();
+  //     }, 1000);
+  //     console.error("보호자 메세지 실패", error);
+  //   }
+  // };
 
 
   return (
@@ -119,8 +136,10 @@ const GuardianNotificationDialog = ({
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-[600px]">
           <DialogHeader>
-            <DialogTitle className="text-2xl">보호자 메세지 전송</DialogTitle>
+            <DialogTitle className="text-2xl">{formData.patientIsUser ? '보호자 메세지 전송' : '이송 종료'}</DialogTitle>
           </DialogHeader>
+          {/*유저인 경우만 메세지 내용 노출*/}
+          {formData.patientIsUser && formData.patientProtectorPhone &&  (
           <div className="space-y-4">
             <div className="bg-dialog_content p-4 rounded-lg">
               <p className="text-lg font-medium mb-4">
@@ -144,9 +163,16 @@ const GuardianNotificationDialog = ({
               </p>
             </div>
           </div>
+          )}
+          {/*유저가 아니고 보호자번호가 없는 경우 바로 이송 종료*/}
+          {(!formData.patientIsUser || !formData.patientProtectorPhone)&& (
+              <div className="bg-dialog_content p-4 rounded-lg">
+                <p className="text-lg">이송을 종료하시겠습니까?</p>
+              </div>
+          )}
           <div className="flex justify-end gap-4 mt-2">
-            <Button variant="blue" onClick={handleSendProtectorMessage}>
-              전송
+            <Button variant="blue" onClick={handleCompelete}>
+              {formData.patientIsUser && formData.patientProtectorPhone ? '전송 및 종료' : '이송 종료'}
             </Button>
           </div>
         </DialogContent>

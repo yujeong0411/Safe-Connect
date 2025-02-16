@@ -34,7 +34,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 10000);
+    }, 1000);
   }
 
   // SSE
@@ -130,23 +130,23 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       active: location.pathname === '/dispatch/main'
     },
     {
-      label: '환자정보 작성',
+      label: '출동 업무',
       path: '/dispatch/patient-info',
       active: location.pathname === '/dispatch/patient-info'
     },
     {
-      label: '이송 요청',
+      label: '이송 업무',
       path: '/dispatch/transfer-request',
       active: location.pathname === '/dispatch/transfer-request'
     },
     {
-      label: '영상통화 연결',
+      label: '전화 업무',
       path: '#',
       hasModal: true,
       onModalOpen: () => setVideoDrawerOpen(!isVideoDrawerOpen)
     },
     {
-      label: '보호자 알림',
+      label: '보호자 메세지',
       path: '#',
       hasModal: true,
       onModalOpen: () => setShowNotificationModal(true)
@@ -154,10 +154,10 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col">
+    <div className="h-screen bg-bg flex flex-col">
       {/* Alert UI */}
       {showAlert && (
-          <div className="fixed left-1/2 top-80 -translate-x-1/2 z-50">
+          <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
             <Alert
                 variant={alertConfig.type}
                 className={`w-[400px] shadow-lg bg-white ${
@@ -166,8 +166,8 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
                         : '[&>svg]:text-red-500 text-red-500'
                 }`}
             >
-              <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-              <AlertDescription className="text-sm m-2">
+              <AlertTitle className="text-xl ml-2">{alertConfig.title}</AlertTitle>
+              <AlertDescription className="text-base m-2">
                 {alertConfig.description}
               </AlertDescription>
             </Alert>
@@ -175,7 +175,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       )}
 
 
-      <div className="-space-y-4">
+      <div className="-space-y-2">
         <PublicHeader
           labels={[
             {

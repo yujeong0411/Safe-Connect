@@ -15,6 +15,7 @@ const PatientInfoPage = () => {
     completeDispatch,
     currentTransfer,
     dispatchStatus,
+      resetPatientInfo,
   } = useDispatchPatientStore();
   const ktasOptions = ['1', '2', '3', '4', '5'];
   const mentalOptions = ['A', 'V', 'P', 'U'];
@@ -27,6 +28,15 @@ const PatientInfoPage = () => {
     type: 'default' as 'default' | 'destructive',
   });
 
+  const showAlertWithTimeout = (config: typeof alertConfig) => {
+    setAlertConfig(config);
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 1000);
+  };
+
+  // 출동 종료 핸들러
   const handleCompleteDispatch = async () => {
     // 저장되지 않은 변경사항이 있는지 확인
     const confirmSave = window.confirm(
@@ -34,18 +44,32 @@ const PatientInfoPage = () => {
     );
 
     if (confirmSave) {
+      if (!formData.dispatchId) {
+        showAlertWithTimeout({
+          title: '처리 실패',
+          description: '출동 ID가 없습니다.',
+          type: 'destructive',
+        });
+        return;
+      }
+
       try {
         await completeDispatch();
-        setAlertConfig({
+
+        showAlertWithTimeout({
           title: '출동 종료',
           description: '출동이 종료되었습니다.',
           type: 'default',
         });
+
+        navigate('/dispatch/main');  // 메인 페이지로 먼저 이동 후  리셋
         setShowAlert(true);
-        // 필요한 경우 페이지 이동
-        navigate('/dispatch/main');
+        setTimeout(() => {
+        resetPatientInfo()  // 종료 후 모든 정보 초기화
+        }, 1000)
+
       } catch (error) {
-        setAlertConfig({
+        showAlertWithTimeout({
           title: '처리 실패',
           description: '출동 종료 처리 중 오류가 발생했습니다.',
           type: 'destructive',
@@ -55,6 +79,7 @@ const PatientInfoPage = () => {
     }
   };
 
+  // 환자 정보 저장
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {

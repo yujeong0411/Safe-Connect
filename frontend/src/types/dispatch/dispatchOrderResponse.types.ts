@@ -32,7 +32,6 @@ export interface Patient {
   patientMental: string;
   patientPreKtas: number;
   patientSymptom: string;
-  dispatchId: number;
 }
 
 
@@ -42,6 +41,7 @@ export interface DispatchOrderResponse {
   message: string;
   data: {
     dispatchGroupId: number;
+    dispatchId: number;
     call: Call;
     patient: Patient;
     user: User | null;

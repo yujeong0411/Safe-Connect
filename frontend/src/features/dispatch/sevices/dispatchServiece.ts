@@ -58,6 +58,16 @@ export const completeTransfer = async (transferId: number): Promise<{ isSuccess:
 };
 
 // 현장 도착시간 (영상통화 종료)
+export const completeVideo  = async (dispatchId:number):Promise<{ isSuccess: boolean; message: string }> => {
+    try {
+        const response = await axiosInstance.put<{isSuccess : boolean; message:string;}>('/dispatch_staff/departure', { dispatchId })
+        console.log("영상통화 종료 성공", response.data)
+        return response.data
+    } catch (error) {
+        console.error("영상통화 종료 실패", error)
+        throw error;
+    }
+}
 
 
 // 출동 종료(현장에서 상황종료)
