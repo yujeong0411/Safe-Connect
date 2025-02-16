@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import axiosInstance from '@/features/dispatch/api/axios';
+import {axiosInstance} from '@/utils/axios';
 import { Hospital, HospitalResponse } from '@/features/dispatch/types/hospital.types';
 
 interface AddressInfo {

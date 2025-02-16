@@ -41,6 +41,7 @@ export interface DispatchOrderResponse {
   message: string;
   data: {
     dispatchGroupId: number;
+    dispatchId: number;
     call: Call;
     patient: Patient;
     user: User | null;

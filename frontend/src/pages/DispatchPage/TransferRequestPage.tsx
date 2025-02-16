@@ -6,7 +6,7 @@ import BulkTransferRequestDialog from '@/features/dispatch/components/BulkTransf
 import { useHospitalSearch } from '@/hooks/useHospitalSearch';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
-import { useHospitalTransferStore } from '@/store/hospital/hospitalTransferStore';
+import {axiosInstance} from '@/utils/axios';
 
 interface AlertConfig {
   title: string;
@@ -38,8 +38,7 @@ const TransferRequestPage = () => {
     stopSearch,
     currentLocation,
     isSearching,
-    error: searchError,
-    lastSearchedRadius
+    error: searchError
   } = useHospitalSearch();
 
   const { updateTransferStatus } = useHospitalTransferStore();
@@ -119,6 +118,17 @@ const TransferRequestPage = () => {
       }
     });
 
+
+  // 병원 응답
+  eventSource.addEventListener("hospital-response", (event) => {
+    try {
+      const response = JSON.parse(event.data) as SSEResponse;
+      if (response.isSuccess) {
+        handleAlertClose({
+          title: "환자 이송 수락",
+          description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
+          type: "success"
+        });
     // 병원 응답 수신
     eventSource.addEventListener('hospital-response', (event) => {
       try {

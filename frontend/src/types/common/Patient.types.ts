@@ -136,10 +136,21 @@ export interface DispatchSavePatientResponse {
   };
 }
 
+// 이송 수락 받은 후 받은 이송 정보 응답(병원 -> 구급대원)
+// 추후 확인 후 수정 예정
+export interface CurrentTransferInfo {
+  transferId: number;
+  hospitalName: string;
+  hospitalId: number;
+  acceptedAt?: string;
+  completedAt?: string;
+}
+
 // 구급대원 환자 스토어
 export interface DispatchPatientStore {
-  // 기본 정보 (상황실에서 받은 정보)  -> 상황에 따라 좀 더 유연하게 설정
-  // baseInfo: Partial<CurrentCall> | null;
+  // 현재 출동 내용
+  currentTransfer: CurrentTransferInfo | null;
+  dispatchStatus:'ongoing' | 'completed' | 'transferred';
 
   // 구급대원이 입력하는 모든 정보(기본정보 + 생체정보)
   formData: DispatchFormData;
@@ -148,6 +159,7 @@ export interface DispatchPatientStore {
   // 상황실에서 받은 정보로 세팅
   setPatientFromSSE: (data: {
     dispatchGroupId: number;
+    dispatchId: number;
     call: Call;
     patient: Patient;
     user: User | null;
@@ -160,14 +172,23 @@ export interface DispatchPatientStore {
   savePatientInfo: () => Promise<{ patientId: number } | undefined>;
   // 초기화
   resetPatientInfo: () => void;
+
   preKtasAI: () => Promise<{patientPreKtas: string}>;
-  sendProtectorMessage: (transferId:number) => Promise<ProtectorMessageResponse>;
+  sendProtectorMessage: () => Promise<ProtectorMessageResponse>;
+
+  // 출동 관련
+  completeDispatch: () => Promise<void>;  // 출동 종료
+
+  // 이송 관련
+  setTransferInfo: (info: CurrentTransferInfo) => void;
+  updateTransferInfo: (info: Partial<CurrentTransferInfo>) => void;
+  completeTransfer: (transferId: number) => Promise<{ isSuccess: boolean }>;  // 이송 종료
 }
 
 
 // 구급대원 환자정보 폼데이터
 export interface DispatchFormData {
-  patientId?: number;
+  patientId: number;
   patientName: string;
   patientGender: string;
   patientAge: string;
@@ -185,6 +206,8 @@ export interface DispatchFormData {
   patientPhone?: string;
   patientProtectorPhone?: string;
   callSummary: string;
+  patientIsUser: boolean;
+  dispatchId: number;
 }
 
 

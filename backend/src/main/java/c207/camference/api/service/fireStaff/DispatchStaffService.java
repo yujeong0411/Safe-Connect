@@ -13,6 +13,7 @@ public interface DispatchStaffService {
     ResponseEntity<?> dispatchDetail(int DispatchId);
     ResponseEntity<?> transferDetail(int transferId);
     ResponseEntity<?> getReqHospital(int dispatchId);
+    ResponseEntity<?> getReportDetail(int dispatchId);
     ResponseEntity<?> transferRequest(PatientTransferRequest request);
     ResponseEntity<?> transferUpdate(TransferUpdateRequest request);
     ResponseEntity<?> updatePatientInfo(PatientInfoRequest request);
