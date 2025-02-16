@@ -108,7 +108,7 @@ const HospitalList = ({
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">예상 도착 시간</span>
                     <span className="text-sm font-medium text-gray-800">
-                      약 {Math.round(hospital.distance * 2)}분
+                    약 {hospital.eta}분
                     </span>
                   </div>
 
