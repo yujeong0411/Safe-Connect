@@ -4,9 +4,10 @@ import HospitalKakaoMap from '@/features/dispatch/components/Hospitalkakaomap';
 import HospitalList from '@/features/dispatch/components/HospitalList';
 import BulkTransferRequestDialog from '@/features/dispatch/components/BulkTransferRequestDialog';
 import { useHospitalSearch } from '@/hooks/useHospitalSearch';
+import { useHospitalTransferStore } from '@/store/hospital/hospitalTransferStore';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
-import {axiosInstance} from '@/utils/axios';
+import { axiosInstance } from '@/utils/axios';
 
 interface AlertConfig {
   title: string;
@@ -33,12 +34,12 @@ interface SSEResponse {
 const TransferRequestPage = () => {
   const {
     hospitals,
-    searchRadius,
+    searchRadius, // lastSearchedRadius 대신 사용
     handleSearch,
     stopSearch,
     currentLocation,
     isSearching,
-    error: searchError
+    error: searchError,
   } = useHospitalSearch();
 
   const { updateTransferStatus } = useHospitalTransferStore();
@@ -109,7 +110,7 @@ const TransferRequestPage = () => {
         if (response.isSuccess) {
           handleAlertClose({
             title: '환자 이송 요청 전송',
-            description: `${lastSearchedRadius}km 반경 내 병원들에 이송 요청을 전송했습니다.\n\n요청 병원 목록:\n${response.data.hospitalNames?.map((hospital) => `- ${hospital}`).join('\n')}`,
+            description: `${searchRadius}km 반경 내 병원들에 이송 요청을 전송했습니다.\n\n요청 병원 목록:\n${response.data.hospitalNames?.map((hospital) => `- ${hospital}`).join('\n')}`,
             type: 'default',
           });
         }
@@ -118,17 +119,6 @@ const TransferRequestPage = () => {
       }
     });
 
-
-  // 병원 응답
-  eventSource.addEventListener("hospital-response", (event) => {
-    try {
-      const response = JSON.parse(event.data) as SSEResponse;
-      if (response.isSuccess) {
-        handleAlertClose({
-          title: "환자 이송 수락",
-          description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
-          type: "success"
-        });
     // 병원 응답 수신
     eventSource.addEventListener('hospital-response', (event) => {
       try {
@@ -181,7 +171,7 @@ const TransferRequestPage = () => {
     return () => {
       eventSource.close();
     };
-  }, [stopSearch, lastSearchedRadius, updateTransferStatus]);
+  }, [stopSearch, searchRadius, updateTransferStatus]);
 
   return (
     <DispatchMainTemplate>
@@ -218,16 +208,13 @@ const TransferRequestPage = () => {
         )}
 
         {/* 지도 */}
-        <div className="absolute inset-0">
-          <HospitalKakaoMap
-            currentLocation={currentLocation}
-            hospitals={hospitals}
-            onHospitalSelect={handleHospitalSelect}
-            selectedHospitalId={selectedHospitalId}
-          />
-        </div>
+        <HospitalKakaoMap
+          currentLocation={currentLocation}
+          hospitals={hospitals}
+          onHospitalSelect={handleHospitalSelect}
+          selectedHospitalId={selectedHospitalId}
+        />
 
-        {/* 병원 목록 */}
         <HospitalList
           hospitals={hospitals}
           searchRadius={searchRadius}
@@ -235,16 +222,6 @@ const TransferRequestPage = () => {
           isSearching={isSearching}
           selectedHospitalId={selectedHospitalId}
           onHospitalSelect={handleHospitalSelect}
-        />
-
-        {/* 이송 요청 다이얼로그 */}
-        <BulkTransferRequestDialog
-          open={showBulkRequestDialog}
-          onClose={() => setShowBulkRequestDialog(false)}
-          onConfirm={() => {
-            setShowBulkRequestDialog(false);
-          }}
-          hospitalNames={hospitals.filter((h) => !h.requested).map((h) => h.hospitalName)}
         />
       </div>
     </DispatchMainTemplate>
