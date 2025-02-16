@@ -20,6 +20,9 @@ const VideoSessionUI = () => {
     filterSubscribers();
     // 주기적으로 체크
     const interval = setInterval(filterSubscribers, 2000);
+    
+    console.log('videoSessionUI - subscribers', subscribers);
+    console.log('videoSessionUI - localUser', localUser);
 
     return () => clearInterval(interval);
   }, [subscribers, localUser]);
