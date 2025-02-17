@@ -33,8 +33,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const widthStyles = {
       full: 'w-full', // 100%
-      half: 'w-1/2', // 50%
-      quarter: 'w-1/4', // 25%
+      half: 'w-full md:w-1/2', // 50%
+      quarter: 'w-full sm:w-1/2 md:w-1/4', // 25%
       auto: 'w-auto', // 자동
     };
 
