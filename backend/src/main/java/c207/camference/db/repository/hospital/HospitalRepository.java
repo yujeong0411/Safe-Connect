@@ -28,4 +28,20 @@ public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
             @Param("longitude2") double longitude2,
             @Param("latitude2") double latitude2
     );
+
+    // 특정 좌표 기준으로 반경 내에 있는 병원들 조회 (거리 포함)
+    @Query(value = "SELECT h.hospital_id, h.hospital_name, " +
+            "ST_X(h.hospital_location) as longitude, " +
+            "ST_Y(h.hospital_location) as latitude, " +
+            "ST_Distance_Sphere(h.hospital_location, POINT(:baseLong, :baseLat)) / 1000 as distance_km, " +
+            "h.hospital_phone, " +
+            "h.hospital_address " +
+            "FROM hospital h " +
+            "HAVING distance_km > (:radiusKm - 1) AND distance_km <= :radiusKm " +
+            "ORDER BY distance_km", nativeQuery = true)
+    List<Object[]> findHospitalsWithinRadius(
+            @Param("baseLong") double baseLongitude,
+            @Param("baseLat") double baseLatitude,
+            @Param("radiusKm") double radiusInKilometers
+    );
 }

@@ -245,44 +245,81 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     @Transactional
     @Override
     public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu, Double longitude, Double latitude, Double range) {
-        List<AvailableHospitalResponse> responses = new ArrayList<>();
+        // List<AvailableHospitalResponse> responses = new ArrayList<>();
         HttpURLConnection urlConnection = null;
 
-        try {
-            String urlStr = availableHospitalUrl +
-                    "?ServiceKey=" + serviceKey +
-                    "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
-                    "&STAGE2=" + URLEncoder.encode(siGunGu, StandardCharsets.UTF_8) +
-                    "&numOfRows=" + 100;
+        /**
+         * 여기서부터 수정된 로직(2025.02.17)
+         */
 
-            String response = OpenApiUtil.getHttpResponse(urlStr);
-            JSONObject jsonResponse = XML.toJSONObject(response);
-            String jsonStr = jsonResponse.toString();
-
-            JsonNode root = objectMapper.readTree(jsonStr);
-            JsonNode itemNode = root.path("response").path("body").path("items").path("item");
-
-            // item이 단일 객체인 경우
-            if (itemNode.isObject()) {
-                processHospitalItem(itemNode, responses, longitude, latitude, range);
-            }
-            // item이 배열인 경우
-            else if (itemNode.isArray()) {
-                for (JsonNode item : itemNode) {
-                    processHospitalItem(item, responses, longitude, latitude, range);
-                }
-            }
-
-            return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
+        List<Object[]> results = hospitalRepository.findHospitalsWithinRadius(longitude, latitude, range);
+        System.out.println("병원 리스트 : ");
+        for (Object[] result : results) {
+            System.out.printf(
+                    "병원ID: %d, 병원명: %s, 경도: %.6f, 위도: %.6f, 거리: %.2fkm%n",
+                    result[0],  // hospital_id
+                    result[1],  // hospital_name
+                    result[2],  // longitude
+                    result[3],  // latitude
+                    result[4],   // distance_km
+                    result[5],  // latitude
+                    result[6]   // distance_km
+            );
         }
+
+        List<AvailableHospitalResponse> responses = results.stream()
+                .map(result -> AvailableHospitalResponse.builder()
+                        .hospitalId((Integer) result[0])
+                        .hospitalName((String) result[1])
+                        .hospitalLng((Double) result[2])
+                        .hospitalLat((Double) result[3])
+                        .distance((Double) result[4])
+                        .hospitalPhone((String) result[5])
+                        .hospitalAddress((String) result[6])
+                        .hospitalCapacity(null)  // 아직 이 정보는 조회하지 않음
+                        .build())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
+        /**
+         * 수정된 로직 끝
+         * 이제 이 밑에 필터링한 결과가 가용가능한지를 Open API로 검색을 해야 한다.
+         */
+//        try {
+//            String urlStr = availableHospitalUrl +
+//                    "?ServiceKey=" + serviceKey +
+//                    "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
+//                    "&STAGE2=" + URLEncoder.encode(siGunGu, StandardCharsets.UTF_8) +
+//                    "&numOfRows=" + 100;
+//
+//            String response = OpenApiUtil.getHttpResponse(urlStr);
+//            JSONObject jsonResponse = XML.toJSONObject(response);
+//            String jsonStr = jsonResponse.toString();
+//
+//            JsonNode root = objectMapper.readTree(jsonStr);
+//            JsonNode itemNode = root.path("response").path("body").path("items").path("item");
+//
+//            // item이 단일 객체인 경우
+//            if (itemNode.isObject()) {
+//                processHospitalItem(itemNode, responses, longitude, latitude, range);
+//            }
+//            // item이 배열인 경우
+//            else if (itemNode.isArray()) {
+//                for (JsonNode item : itemNode) {
+//                    processHospitalItem(item, responses, longitude, latitude, range);
+//                }
+//            }
+//
+//            return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
+//        } finally {
+//            if (urlConnection != null) {
+//                urlConnection.disconnect();
+//            }
+//        }
     }
 
     private void processHospitalItem(JsonNode item, List<AvailableHospitalResponse> responses,
