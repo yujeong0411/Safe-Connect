@@ -6,10 +6,12 @@ import GuardianNotificationDialog from './GuardianNotificationDialog';
 import VideoCallDrawer from './VideoCall/VideoCallDrawer';
 import { useDispatchAuthStore } from '@/store/dispatch/dispatchAuthStore.tsx';
 import {useVideoDrawerStore} from "@/store/dispatch/dispatchVideoStore.tsx";
-import {DispatchOrderResponse} from "@/types/dispatch/dispatchOrderResponse.types.ts";
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
-import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
+import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@radix-ui/react-toast';
+
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -20,6 +22,8 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const { isVideoDrawerOpen, setVideoDrawerOpen } = useVideoDrawerStore();  // 비디오 상태 전역으로 관리
   const {logout} = useDispatchAuthStore();
+  const { connect, disconnect, startReconnectTimer, resetNotificationStatus } = useDispatchSseStore();
+  const { isAuthenticated } = useDispatchAuthStore();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -28,59 +32,98 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     type: "default" as "default" | "destructive",
   });
 
+
   // 알림 처리 함수
   const handleAlertClose = (config: typeof alertConfig) => {
     setAlertConfig(config);
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 1000);
+    }, 10000);
   }
 
-  // SSE
+
+  // 출동 지령 데이터
+  const patientData = useDispatchPatientStore((state) => state.formData);
+  const currentCallId = useDispatchSseStore((state) => state.currentCallId);
+  console.log("currentCallId = ", currentCallId);
+  const hasNotificationBeenShown = useDispatchSseStore((state) => state.hasNotificationBeenShown);
+
+  // 수락한 병원 데이터
+  // const acceptedHospital = useDispatchSseStore((state) => state.acceptedHospital);
+
+  // SSE 연결
   useEffect(() => {
-    const dispatchLoginId = sessionStorage.getItem("userName");
-    if (!dispatchLoginId) {
-      console.log("구급팀 정보가 없습니다.");
-      return;
-    }
+    // SSE 연결 함수
+    const connectSSE = () => {
+      const userName = sessionStorage.getItem("userName");
+      if (userName && isAuthenticated && location.pathname.startsWith("/dispatch")) {
+        connect(userName); // 이때, 핸들러 자동 등록됨
+        startReconnectTimer();
+      }
 
-    let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-    if (subscribeUrl !== "http://localhost:8080") {
-      subscribeUrl += "/api"
-    }
+      // 브라우저가 온라인 상태로 돌아올 때 연결 다시 시도하는 함수
+      const handleOnline = () => {
+        if (location.pathname.startsWith("/dispatch")) {
+          console.log("Browser is online, reconnecting SSE..");
+          disconnect();
+          connectSSE();
+        }
+      };
 
-    // SSE 연결
-    const eventSource = new EventSource(`${subscribeUrl}/dispatchGroup/subscribe?clientId=${dispatchLoginId}`);
-    console.log("SSE 연결 시도");
+      // 브라우저 종료 || 새로고침 전에 연결 끊는 함수
+      const handleBeforeUnload = () => {
+        disconnect();
+      }
 
-    eventSource.onopen = () => {
-      console.log("SSE 연결 성공");
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      // clean up
+      return () => {
+
+        // 구급팀 경로를 벗어나면 연결 해제
+        if (!location.pathname.startsWith("/dispatch")) {
+          disconnect();
+        }
+
+        // 이벤트 리스너 제거
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
     };
+    connectSSE();
+  }, [connect, disconnect, isAuthenticated, location.pathname]);
 
-    // 출동 지령 수신
-    eventSource.addEventListener("dispatch-order", (event) => {
-      const response: DispatchOrderResponse = JSON.parse(event.data);
-      if (response.isSuccess) {
-        handleAlertClose({
+
+  // 출동 지령
+  useEffect(() => {
+    try {
+      if (patientData.patientId && currentCallId !== null && !hasNotificationBeenShown(currentCallId)) {
+
+        toast({
           title: "출동 지령 도착",
-          description: `출동 지령이 도착했습니다. (신고 ID: ${response.data.call.callId})`,
-          type: "default"
-        });
+          description: "출동 지령이 도착했습니다.",
+          duration: Infinity,
+          action: <ToastAction altText="닫기">닫기</ToastAction>,
+          className: "bg-white border-blue-500 border-2 text-blue-500",
+        })
+        setVideoDrawerOpen(true);
+        navigate('/dispatch/patient-info');
 
+        // handleAlertClose({
+        //   title: "출동 지령 도착",
+        //   description: "출동 지령이 도착했습니다.",
+        //   type: "default"
+        // });
 
-        // 상황실에서 받은 정보 저장
-        useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+        // dispatchSseStore로 코드 이동
+        // const openViduStore = useOpenViduStore.getState();
+        // openViduStore.handleChangeSessionId({
+        //   target: { value: response.data.sessionId }
+        // } as React.ChangeEvent<HTMLInputElement>);
 
-        const openViduStore = useOpenViduStore.getState();
-
-
-        openViduStore.handleChangeSessionId({
-          target: { value: response.data.sessionId }
-        } as React.ChangeEvent<HTMLInputElement>);
-
-
-        openViduStore.joinSession();
+        // openViduStore.joinSession();
 
         // drawer 열기
         setVideoDrawerOpen(true)
@@ -88,37 +131,45 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         // 환자 정보 작성페이지 열기
         navigate('/dispatch/patient-info')
 
-      } else {
+        useDispatchSseStore.getState().setNotificationShown(currentCallId);
+      }
+    } catch (error) {
         handleAlertClose({
           title: "출동 지령 수신 실패",
-          description: response.message || "출동 지령 수신에 실패했습니다",
+          description: "출동 지령 수신에 실패했습니다",
           type: "destructive"
-        });
+        })
       }
-    });
+    }, [patientData.patientId, currentCallId, hasNotificationBeenShown, navigate, setVideoDrawerOpen]);
 
-    // 에러 처리
-    eventSource.onerror = (error) => {
-      console.error("SSE 연결 에러: ", error);
-      eventSource.close();
+
+    // // 이송 수락
+    // useEffect(() => {
+    //   try {
+    //     if (acceptedHospital) {
+    //       handleAlertClose({
+    //         title: "환자 이송 요청 수락",
+    //         description: `이송 병원: ${acceptedHospital.hospitalName}`,
+    //         type: "default"
+    //       })
+    //     }
+    //   } catch (error) {
+    //     handleAlertClose({
+    //       title: "이송 수락 병원 데이터 수신 실패",
+    //       description: "이송을 수락한 병원의 데이터 가져오기에 실패했습니다.",
+    //       type: "destructive"
+    //   });
+    //   }
+    // }, [acceptedHospital]);
+
+    const handleLogout = async () => {
+      try {
+        await logout();
+        navigate('/dispatch');
+      } catch (error) {
+        console.error('로그아웃 실패', error);
+      }
     };
-
-    // 컴포넌트 언마운트 시 연결 종료
-    return () => {
-      eventSource.close();
-    };
-  }, [navigate, setVideoDrawerOpen]); // 컴포넌트 마운트 시 한 번만 실행
-
-
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/dispatch');
-    } catch (error) {
-      console.error('로그아웃 실패', error);
-    }
-  };
 
   const navItems = [
     {
