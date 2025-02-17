@@ -22,6 +22,7 @@ const CallerPage = () => {
   const [retryCount, setRetryCount] = useState(0);
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const prevSessionIdRef = useRef<String | null>(null);
 
   const MAX_RETRIES = 5;
   const INITIAL_RETRY_DELAY = 1000;
@@ -62,7 +63,8 @@ const CallerPage = () => {
       };
 
       newEventSource.onerror = (error) => {
-        console.error("SSE 연결 에러: ", error)
+        console.error("SSE 연결 에러: ", error);
+        setSseConnected(false);
 
         if (retryCount < MAX_RETRIES) {
           const nextRetryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
@@ -113,17 +115,22 @@ const CallerPage = () => {
 
 
   useEffect(() => {
-    // 자주 재연결되는 것을 막기 위헤 조건에 !sseConnected 추가 (이미 연결된 상태면 추가 요청 하지 않도록)
-    if (sessionId && !sseConnected) {
+    if (sessionId) {
       connectSSE();
     } else {
       console.log("현재 신고 내역이 없습니다.");
     }
 
+    // 세션 아이디가 변경된 경우에만 재연결
+    if (prevSessionIdRef.current !== sessionId) {
+      disconnect();
+      connectSSE();
+    }
+
     return () => {
       disconnect();
     };
-  }, [sessionId, sseConnected]);
+  }, [sessionId]);
 
 
   return (
