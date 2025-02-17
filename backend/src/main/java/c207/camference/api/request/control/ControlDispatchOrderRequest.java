@@ -10,4 +10,6 @@ public class ControlDispatchOrderRequest {
     private Integer callId;
     private Integer patientId;
     private String sessionId;
+    private Double lat;
+    private Double lng;
 }
