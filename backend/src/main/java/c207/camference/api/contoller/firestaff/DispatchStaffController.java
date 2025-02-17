@@ -41,12 +41,11 @@ public class DispatchStaffController {
 
     @GetMapping("/emergency_room")
     // 신고자의 위치 정보(시도, 시군구)를 바탕으로 응급실 실시간 가용병상정보 조회
-    public ResponseEntity<?> getAvailableEmergencyRooms(@RequestParam String siDo,
-                                                        @RequestParam String siGunGu,
+    public ResponseEntity<?> getAvailableEmergencyRooms(
                                                         @RequestParam Double longitude,
                                                         @RequestParam Double latitude,
                                                         @RequestParam Double range) {
-        return dispatchStaffService.getAvailableHospital(siDo, siGunGu, longitude, latitude, range);
+        return dispatchStaffService.getAvailableHospital(longitude, latitude, range);
     }
 
     @GetMapping("/dispatch/detail")

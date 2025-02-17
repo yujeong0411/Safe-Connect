@@ -244,7 +244,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu, Double longitude, Double latitude, Double range) {
+    public ResponseEntity<?> getAvailableHospital(Double longitude, Double latitude, Double range) {
         // List<AvailableHospitalResponse> responses = new ArrayList<>();
         HttpURLConnection urlConnection = null;
 
@@ -256,16 +256,20 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         System.out.println("병원 리스트 : ");
         for (Object[] result : results) {
             System.out.printf(
-                    "병원ID: %d, 병원명: %s, 경도: %.6f, 위도: %.6f, 거리: %.2fkm%n",
+                    "병원ID: %d, 병원명: %s, 경도: %.6f, 위도: %.6f, 거리: %.2fkm%n, 휴대폰 : %s, 주소 : %s ",
                     result[0],  // hospital_id
                     result[1],  // hospital_name
                     result[2],  // longitude
                     result[3],  // latitude
                     result[4],   // distance_km
-                    result[5],  // latitude
-                    result[6]   // distance_km
+                    result[5],  //
+                    result[6]   // address
             );
+
+
         }
+
+        //String fullAddress = results[6];
 
         List<AvailableHospitalResponse> responses = results.stream()
                 .map(result -> AvailableHospitalResponse.builder()
@@ -280,11 +284,27 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                         .build())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
+
+        /**
+         * 필터링한 병원들로부터 시도, 군구 추출
+         * -> OpenAPI에 넘겨서 결과를 확인한다.
+         */
+        try{
+
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+
         /**
          * 수정된 로직 끝
-         * 이제 이 밑에 필터링한 결과가 가용가능한지를 Open API로 검색을 해야 한다.
          */
+
 //        try {
 //            String urlStr = availableHospitalUrl +
 //                    "?ServiceKey=" + serviceKey +
@@ -310,7 +330,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 //                }
 //            }
 //
-//            return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
+//            // return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
 //
 //        } catch (Exception e) {
 //            e.printStackTrace();
@@ -320,6 +340,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 //                urlConnection.disconnect();
 //            }
 //        }
+        return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
     }
 
     private void processHospitalItem(JsonNode item, List<AvailableHospitalResponse> responses,
