@@ -11,6 +11,7 @@ import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
 import { dispatchDepartAt } from '@features/dispatch/sevices/dispatchServiece.ts';
+import { useLocationTracking } from '@features/dispatch/hooks/locationTracking.ts';
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const {formData} = useDispatchPatientStore()
+  useLocationTracking();
   const [alertConfig, setAlertConfig] = useState({
     title: "",
     description: "",
