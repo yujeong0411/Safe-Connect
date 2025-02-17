@@ -29,7 +29,7 @@ public class ControlDispatchOrderResponse {
     private String sessionId;
     private Integer dispatchId;
 
-    private CallerLocationDto location;
+    private CallerLocationDto callerLocation;
 
     public ControlDispatchOrderResponse(Dispatch dispatch, Call call, Patient patient, UserMediDetailRepository userMediDetailRepository,
                                         String sessionId, Double lat, Double lng) {
@@ -53,7 +53,7 @@ public class ControlDispatchOrderResponse {
                 .patientPreKtas(patient.getPatientPreKtas())
                 .patientSymptom(patient.getPatientSymptom())
                 .build();
-        this.location = new CallerLocationDto(lat, lng);
+        this.callerLocation = new CallerLocationDto(lat, lng);
 
         // user면 medi 넣어주기
         if (patient.getPatientIsUser()) {
