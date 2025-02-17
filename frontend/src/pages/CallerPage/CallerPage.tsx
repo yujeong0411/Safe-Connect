@@ -1,6 +1,8 @@
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore';
 import CallerTemplate from '@features/caller/component/CallerTemplate.tsx';
 import { useEffect, useRef, useState } from 'react';
+import { useAmbulanceLocationStore } from '@/store/caller/ambulanceLocationStore';
+
 
 interface shareLocationResponse {
   isSuccess: boolean;
@@ -8,10 +10,9 @@ interface shareLocationResponse {
   message: string;
   name: string;
   data: {
-    callId: number;
-    dispatchGroupId: number;
-    dispatchGroupLatitude: number;
-    dispatchGroupLongitude: number;
+  sessionId: string;
+  lng:number;
+  lat:number;
   }
 }
 
@@ -49,10 +50,17 @@ const CallerPage = () => {
       const newEventSource = new EventSource(`${subscribeUrl}/caller/subscribe?clientId=${sessionId}`,
         { withCredentials: true }
       )
-
       newEventSource.addEventListener("ambulanceLocation-shared", (event) => {
         const response: shareLocationResponse = JSON.parse(event.data);
         console.log("구급차 위치 공유 데이터", response);
+
+        if (response.isSuccess && response.data) {
+          useAmbulanceLocationStore.getState().setLocation({
+            sessionId: response.data.sessionId,
+            lat: response.data.lat,
+            lng: response.data.lng
+          });
+        }
       });
 
       newEventSource.onopen = () => {

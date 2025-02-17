@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
 import { FormData } from '@features/auth/types/SignupForm.types';
 import { MedicalCategory, MedicalItem } from '@/types/common/medical.types.ts';
+import {useAuthStore} from "@/store/user/authStore.tsx";
 
 // 이메일 중복 확인 API 호출
 export const checkEmailDuplication = async (email: string) => {
@@ -92,19 +93,14 @@ export const handleSignUp = async (
 // 회원탈퇴 로직
 export const signOut = async (navigate: (path: string) => void) => {
   try {
-    const confirmed = window.confirm('정말 회원 탈퇴하시겠습니까?');
-    if (confirmed) {
-      const response = await axiosInstance.delete('/user/signout');
-      if (response.data.isSuccess) {
-        alert('회원 탈퇴가 완료되었습니다.');
-        navigate('/user/login');
-        return true;
-      }
-    }
-    return false;
+  await axiosInstance.delete('/user');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('userName');
+  document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  await useAuthStore.getState().logout();
+  navigate('/user/login');
   } catch (error) {
-    alert('회원 탈퇴에 실패하였습니다.');
-    throw error;
+    console.error('탈퇴 실패', error);
   }
 };
 
