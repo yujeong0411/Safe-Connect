@@ -55,7 +55,11 @@ const handleDispatchOrder = (event: MessageEvent) => {
     if (response.isSuccess) {
       const callId = response.data.call.callId;
 
-      useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+      // useDispatchPatientStore.getState().setPatientFromSSE(response.data);
+      useDispatchPatientStore.getState().setPatientFromSSE({
+        ...response.data,
+        callerLocation: response.data.callerLocation
+      })
       useDispatchSseStore.getState().setCurrentCallId(callId);
 
       // sessionId 부분 추가
