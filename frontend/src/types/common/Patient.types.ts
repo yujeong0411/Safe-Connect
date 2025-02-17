@@ -163,6 +163,10 @@ export interface DispatchPatientStore {
     patient: Patient;
     user: User | null;
     mediInfo: MedicalCategory[] | null;
+    callerLocation?: {
+      lat: number;
+      lng: number;
+    };
   }) => void;
 
   // 폼데이터 업데이트

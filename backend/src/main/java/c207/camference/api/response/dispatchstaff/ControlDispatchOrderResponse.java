@@ -1,5 +1,6 @@
 package c207.camference.api.response.dispatchstaff;
 
+import c207.camference.api.dto.caller.CallerLocationDto;
 import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.dto.medi.MediDto;
 import c207.camference.db.entity.etc.Medi;
@@ -28,7 +29,10 @@ public class ControlDispatchOrderResponse {
     private String sessionId;
     private Integer dispatchId;
 
-    public ControlDispatchOrderResponse(Dispatch dispatch, Call call, Patient patient, UserMediDetailRepository userMediDetailRepository,String sessionId) {
+    private CallerLocationDto location;
+
+    public ControlDispatchOrderResponse(Dispatch dispatch, Call call, Patient patient, UserMediDetailRepository userMediDetailRepository,
+                                        String sessionId, Double lat, Double lng) {
         this.dispatchGroupId = dispatch.getDispatchGroupId();
         this.dispatchId = dispatch.getDispatchId();
         this.call = new ControlDispatchOrderCallResponse(call);
@@ -49,6 +53,7 @@ public class ControlDispatchOrderResponse {
                 .patientPreKtas(patient.getPatientPreKtas())
                 .patientSymptom(patient.getPatientSymptom())
                 .build();
+        this.location = new CallerLocationDto(lat, lng);
 
         // user면 medi 넣어주기
         if (patient.getPatientIsUser()) {
