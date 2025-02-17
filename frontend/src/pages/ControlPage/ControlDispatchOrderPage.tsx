@@ -9,6 +9,7 @@ import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
 import { orderDispatch } from '@features/control/services/controlApiService.ts';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import { usePatientStore } from '@/store/control/patientStore';
+import { useNavigate } from 'react-router-dom';
 
 const ControlDispatchOrderPage = () => {
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
@@ -19,7 +20,8 @@ const ControlDispatchOrderPage = () => {
     title: '',
     description: '',
     type: 'default' as 'default' | 'destructive',
-  });
+  })
+  const navigate = useNavigate();
   const { callId, sessionId } = useOpenViduStore();
   const { currentCall } = usePatientStore.getState();
 
@@ -52,8 +54,26 @@ const ControlDispatchOrderPage = () => {
 
     try {
       // 출동 지령 HTTP 요청 전송
+      if (!patientId){
+        handleAlertClose({
+          title: '환자 정보가 없습니다.',
+          description: '환자 정보를 저장해주세요.',
+          type: 'default',
+        });
+        setTimeout(() => {
+          navigate('/control/patient-info');
+        }, 1500);
+        return;
+      }
+
       if (callId && patientId) {
-        await orderDispatch(selectedTeam, callId, patientId,sessionId); // dispatchGroupId, callId, patientId
+        await orderDispatch(selectedTeam, callId, patientId, sessionId); // dispatchGroupId, callId, patientId
+      }else{
+        handleAlertClose({
+          title: '신고가 없습니다.',
+          description: '신고가 없어 출동지령을 못 보냅니다..',
+          type: 'default',
+        });
       }
 
       handleAlertClose({
