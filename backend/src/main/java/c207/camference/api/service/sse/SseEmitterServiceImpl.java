@@ -250,7 +250,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
             }
             if (hospitalIds.contains(clientId)) {
                 try {
-                    emitter.send(SseEmitter.event()
+                    emitter.send(SseEmitter.event().name("transfer-request")
                             .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
                 } catch (IOException e) {
                     deadHospitalEmitters.add(clientId);
@@ -296,33 +296,18 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     // 구급차 현재 위치 전송
     public void sendDispatchGroupPosition(DispatchCurrentPositionRequest request) {
         List<String> deadCallerEmitters = new ArrayList<>();
+        String sessionId = request.getSessionId();
         callerEmitters.forEach((clientId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event().name("ambulance location shared!")
-                        .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
-            } catch (IOException e) {
-                deadCallerEmitters.add(clientId);
+            if(sessionId.equals(clientId)) {
+                try {
+                    emitter.send(SseEmitter.event().name("ambulanceLocation-shared")
+                            .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
+                } catch (IOException e) {
+                    deadCallerEmitters.add(clientId);
+                }
             }
-//            try {
-//                emitter.send(SseEmitter.event()
-//                        .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
-//            } catch (IOException e) {
-//                deadCallerEmitters.add(clientId);
-//            }
         });
         deadCallerEmitters.forEach(callerEmitters::remove);
-//        Integer callId = request.getCallId();
-//        // 신고자는 해당 신고 id를 구독
-//        SseEmitter emitter = callerEmitters.get(callId);
-//        if (emitter != null) {
-//            try {
-//                emitter.send(SseEmitter.event().name("ambulance location shared!")
-//                        .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
-//            } catch (IOException e) {
-//                callerEmitters.remove(callId);
-//                System.out.println("Error sending update: " + e.getMessage());
-//            }
-//        }
     }
 
     @Override
