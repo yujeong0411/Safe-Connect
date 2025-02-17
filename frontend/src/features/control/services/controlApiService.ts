@@ -164,9 +164,6 @@ export const orderDispatch = async (
   callerLocation: { lat: number; lng:number; }
 ) => {
     try {
-      // 테스트용 임시 데이터
-      //const mockCallId = 1; // 실제 callId가 없을 때 사용할 임시 ID
-
       const response = await axiosInstance.post<DispatchGroupResponse>(
         '/control/dispatch_group_order',
         {dispatchGroupId, callId, patientId,sessionId, callerLocation: callerLocation})
