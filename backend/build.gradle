@@ -84,6 +84,9 @@ dependencies {
     // Google Speech-to-text
     implementation 'com.google.cloud:google-cloud-speech:4.51.0'
 
+    // Google Cloud Storage
+    implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.48.2'
+
 }
 
 tasks.named('test') {
