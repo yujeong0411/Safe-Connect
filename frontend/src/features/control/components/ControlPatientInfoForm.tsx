@@ -6,6 +6,7 @@ import { formatPhoneNumber } from '@features/auth/servies/signupService.ts';
 import { usePatientStore } from '@/store/control/patientStore.tsx';
 import { FormData } from '@/types/common/Patient.types.ts';
 import React, { useState, useEffect, useRef } from 'react';
+import {useNavigate} from "react-router-dom";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import ConfirmDialog from '@components/organisms/ConfirmDialog/ConfirmDialog.tsx';
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
@@ -16,6 +17,7 @@ const ControlPatientInfoForm = () => {
     usePatientStore();
   const { callId, callerPhone } = useOpenViduStore();
   const genderOptions = ['M', 'F'];
+  const navigate = useNavigate();
   const searchBarRef = useRef<SearchBarRef>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -75,20 +77,9 @@ const ControlPatientInfoForm = () => {
       const response = await searchByPhone(formattedPhone);
 
       if (response?.isSuccess) {
-        // 명시적인 오류 메시지 표시 : 페이지 변경 시마다 계속 뜸...
-        // handleAlertClose({
-        //   title: '신고자 조회 성공',
-        //   description: '회원이 조회되었습니다.',
-        //   type: 'default',
-        // });
         console.log("가입자")
         updateFormData({ userPhone: formattedPhone });
       } else {
-        // handleAlertClose({
-        //   title: '미가입자 조회',
-        //   description: '등록된 회원이 아닙니다.',
-        //   type: 'info',
-        // });
         console.log("미가입자")
           updateFormData({ userPhone: formattedPhone });
       }
@@ -122,17 +113,29 @@ const ControlPatientInfoForm = () => {
     if (!callId) {
       handleAlertClose({
         title: '신고 없음',
-        description: '현재 신고가 업습니다.',
+        description: '현재 신고가 없습니다.',
         type: 'destructive',
       });
       return;
     }
+    try {
     await savePatientInfo(callId || 0);
     handleAlertClose({
       title: '저장 성공',
       description: '저장되었습니다.',
       type: 'default',
     });
+    // 출동 지령 페이지로 이동
+    setTimeout(() => {
+      navigate('/control/dispatch-order')
+    }, 1000)
+    } catch (error) {
+      handleAlertClose({
+        title: '저장 실패',
+        description: '저장에 실패했습니다.',
+        type: 'destructive',
+      });
+    }
   };
 
   // 초기화

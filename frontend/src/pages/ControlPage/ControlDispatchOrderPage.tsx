@@ -10,10 +10,12 @@ import { orderDispatch } from '@features/control/services/controlApiService.ts';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import { usePatientStore } from '@/store/control/patientStore';
 import { useNavigate } from 'react-router-dom';
+import {useLocationStore} from "@/store/location/locationStore.tsx";
 
 const ControlDispatchOrderPage = () => {
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
   const { selectedStation, setSelectedStation, dispatchGroups } = useDispatchGroupStore();
+  const { center } = useLocationStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -67,7 +69,7 @@ const ControlDispatchOrderPage = () => {
       }
 
       if (callId && patientId) {
-        await orderDispatch(selectedTeam, callId, patientId, sessionId); // dispatchGroupId, callId, patientId
+        await orderDispatch(selectedTeam, callId, patientId, sessionId, { lat: center.lat, lng:center.lng}); // dispatchGroupId, callId, patientId
        setIsDispatched(true);   // 출동 지령 상태 변경
       }else{
         handleAlertClose({
