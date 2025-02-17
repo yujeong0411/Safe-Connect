@@ -60,12 +60,14 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
       
 
+
       // alert('신고가 종료되었습니다.')
       handleAlertClose({
         title: '신고 종료',
         description: '현재 신고가 종료되었습니다.',
         type: 'default',
       });
+
       setIsOpen(false);  // Drawer 닫기
     } catch (error) {
       console.error("신고 종료 실패", error);

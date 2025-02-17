@@ -130,6 +130,8 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       if (!sessionId) return;
 
 
+
+      console.log('openvidu store - session 생성 시도 전'); // 테스트용
       const session = OV.initSession();
 
 
@@ -156,9 +158,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
 
 
       
-
-      //await session.connect(token, { clientData: userName });
-
 
       // iOS에 최적화된 설정으로 퍼블리셔 초기화
       const publisher = await OV.initPublisherAsync(undefined, {
@@ -208,6 +207,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   },
 
   leaveSession: () => {
+    console.log('openviduStore - leaveSession 실행 완료'); //테스트용. 푸시 전 삭제할것
     const { session, publisher } = get();
 
     if (session) {
@@ -253,8 +253,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       console.log('Create Session Response:', response.data);
 
       set({
-        sessionId, // 두번째 영상통화부터 안되는 문제 해결위해 추가
-        callId: response.data.data.call.callId as number,
+        callId : response.data.data.call.callId,
         callStartedAt: response.data.data.call.callStartedAt,
         callerPhone: response.data.data.call.caller.callerPhone,
         fireStaffId: response.data.data.call.fireStaff.fireStaffId,
