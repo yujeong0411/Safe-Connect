@@ -8,4 +8,11 @@ import lombok.Getter;
 public class CallerLocationDto {
     private Double lat;
     private Double lng;
+    private String address;
+
+    public CallerLocationDto(Double lat, Double lng) {
+        this.lat = lat;
+        this.lng = lng;
+        this.address = null;
+    }
 }

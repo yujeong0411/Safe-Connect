@@ -7,6 +7,7 @@ import c207.camference.api.response.dispatchstaff.ControlDispatchOrderResponse;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
+import c207.camference.api.service.geocoding.GeocodingService;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.db.entity.call.Caller;
@@ -72,6 +73,7 @@ public class ControlServiceImpl implements ControlService {
     private final DispatchRepository dispatchRepository;
     private final SmsService smsService;
     private final PatientRepository patientRepository;
+    private final GeocodingService geocodingService;
 
 
     @Override
@@ -196,9 +198,10 @@ public class ControlServiceImpl implements ControlService {
         Patient patient = patientRepository.findById(controlRequest.getPatientId())
                 .orElse(null);
 
-        // SSE
-        // 구급팀 응답 생성
-        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository, controlRequest.getSessionId(), controlRequest.getLat(), controlRequest.getLng());
+        // 위도, 경도로 주소 가져오기
+        String address = geocodingService.reverseGeocoding(controlRequest.getLat(), controlRequest.getLng());
+        // SSE 구급팀 응답 생성
+        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository, controlRequest.getSessionId(), controlRequest.getLat(), controlRequest.getLng(), address);
         sseEmitterService.sendDispatchOrder(controlRequest, dispatchGroupOrderResponse);
 
         return ResponseEntity.ok().body(ResponseUtil.success("출동 지령 전송 성공"));

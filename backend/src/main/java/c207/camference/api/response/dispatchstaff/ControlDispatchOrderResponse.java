@@ -32,7 +32,7 @@ public class ControlDispatchOrderResponse {
     private CallerLocationDto callerLocation;
 
     public ControlDispatchOrderResponse(Dispatch dispatch, Call call, Patient patient, UserMediDetailRepository userMediDetailRepository,
-                                        String sessionId, Double lat, Double lng) {
+                                        String sessionId, Double lat, Double lng, String address) {
         this.dispatchGroupId = dispatch.getDispatchGroupId();
         this.dispatchId = dispatch.getDispatchId();
         this.call = new ControlDispatchOrderCallResponse(call);
@@ -53,7 +53,7 @@ public class ControlDispatchOrderResponse {
                 .patientPreKtas(patient.getPatientPreKtas())
                 .patientSymptom(patient.getPatientSymptom())
                 .build();
-        this.callerLocation = new CallerLocationDto(lat, lng);
+        this.callerLocation = new CallerLocationDto(lat, lng, address);
 
         // user면 medi 넣어주기
         if (patient.getPatientIsUser()) {
