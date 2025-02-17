@@ -105,7 +105,8 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
           title: "출동 지령 도착",
           description: "출동 지령이 도착했습니다.",
           duration: Infinity,
-          action: <ToastAction altText="닫기">닫기</ToastAction>
+          action: <ToastAction altText="닫기">닫기</ToastAction>,
+          className: "bg-white border-blue-500 border-2 text-blue-500",
         })
         setVideoDrawerOpen(true);
         navigate('/dispatch/patient-info');
