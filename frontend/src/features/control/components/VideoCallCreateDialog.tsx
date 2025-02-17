@@ -25,8 +25,16 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const { setIsOpen } = useVideoCallStore();
   const {userName} = useControlAuthStore();
 
-  const { startRecording, initializeRecorder } = useRecorderStore();
+  const { startRecording, initializeRecorder, cleanup } = useRecorderStore();
 
+  useEffect(() => {
+
+    
+    return () => {
+      // 컴포넌트가 종료될때 녹음기 정리
+      cleanup();
+    };
+  }, []);
 
   useEffect(() => {
     // 세션 ID 자동 생성 (타임스탬프 + UUID)
@@ -41,21 +49,16 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
       target: { value: `userName` }
     } as React.ChangeEvent<HTMLInputElement>);
 
-    // 녹음기 초기화
-    initializeRecorder();
+    
   }, [handleChangeSessionId, handleChangeUserName, sessionId, userName]);
 
-  // 컴포넌트가 마운트될 때 레코더 초기화
-  // useEffect(() => {
-  //   initializeRecorder();
-  // }, [initializeRecorder]);
 
   const handleCreateSession = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await createAndJoinSession(e,phoneNumber); //반드시 커밋전, 주석 풀것
-     
-       // 녹화 시작
+      // 녹음기 초기화 및 시작
+      initializeRecorder();
       startRecording(); 
 
       // const inviteUrl = `/caller/join/${sessionId}?direct=true`;
