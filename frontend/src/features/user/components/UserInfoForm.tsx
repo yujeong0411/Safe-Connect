@@ -20,7 +20,7 @@ const UserInfoForm = () => {
     <div className="w-full flex flex-row gap-20 max-w-4xl">
       {/*왼쪽*/}
       <div className="flex-1">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           {/*이메일 (비활성화)*/}
           <Input
             label="이메일"
@@ -52,7 +52,7 @@ const UserInfoForm = () => {
 
       {/*오른쪽*/}
       <div className="flex-1">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           {/*주민등록번호 (비활성화)*/}
           <Input
             label="성별"

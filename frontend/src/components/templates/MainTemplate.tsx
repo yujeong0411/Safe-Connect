@@ -24,7 +24,7 @@ const MainTemplate = ({ children, navItems, logoutDirect }: MainTemplateProps) =
   };
 
   return (
-    <div className="h-screen w-full flex flex-col bg-bg">
+    <div className="min-h-screen w-full flex flex-col bg-bg">
       {/* 콘텐츠 영역 */}
         <div className="-space-y-2">  {/* 음수 마진으로 간격을 줄임 */}
       <PublicHeader
@@ -39,7 +39,7 @@ const MainTemplate = ({ children, navItems, logoutDirect }: MainTemplateProps) =
       <NavBar navItems={navItems} />
         </div>
       {/* 자식 요소 */}
-      <div className="flex-1  flex items-center justify-center">{children}</div>
+      <div className="flex items-center justify-center mb-auto">{children}</div>
         <Footer />
     </div>
   );

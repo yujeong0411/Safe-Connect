@@ -5,11 +5,14 @@ import UserInfoForm from '@features/user/components/UserInfoForm.tsx';
 import { useAuthStore } from '@/store/user/authStore.tsx';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import { useEffect, useState } from 'react';
+import {useNavigate} from "react-router-dom";
 import { useLoadUserInfo } from '@/hooks/useLoadUserInfo.ts';
 import { Alert, AlertTitle, AlertDescription } from "@components/ui/alert";
 import { CircleCheckBig, CircleAlert } from "lucide-react";
+import {signOut} from "@features/auth/servies/apiService.ts";
 
 const UserInfoPage = () => {
+  const navigate = useNavigate();
   const { loadUserInfo } = useLoadUserInfo('user');
   const { updateUserInfo, logout } = useAuthStore();
   const { formData, validateFields } = useSignupStore();
@@ -78,10 +81,35 @@ const UserInfoPage = () => {
   };
 
   // 회원탈퇴 핸들러
-  const handleSignout = async () => {};
+  const handleSignout = async () => {
+    try {
+      await signOut(navigate)
+      handleShowAlert({
+        title: '회원 탈퇴 완료',
+        description: '회원 탈퇴가 완료되었습니다.',
+        type: 'default',
+      });
+    } catch (error) {
+      handleShowAlert({
+        title: '회원 탈퇴 실패',
+        description: '회원 탈퇴에 실패했습니다.',
+        type: 'destructive',
+      });
+    }
+  };
 
   return (
       <>
+        {/*<ConfirmDialog*/}
+        {/*    trigger="회원 탈퇴"*/}
+        {/*    title="회원 탈퇴"*/}
+        {/*    description="정말로 탈퇴하시겠습니까? 탈퇴 시 모든 개인정보와 의료정보가 삭제되며, 이 작업은 되돌릴 수 없습니다. 삭제된 정보는 복구할 수 없으며, 서비스를 다시 이용하시려면 재가입이 필요합니다."*/}
+        {/*    confirmText="탈퇴"*/}
+        {/*    cancelText="취소"*/}
+        {/*    onConfirm={handleSignout}*/}
+        {/*    triggerVariant="gray"*/}
+        {/*    className="w-24 h-10"*/}
+        {/*/>*/}
     <MainTemplate
       navItems={[
         { label: '개인 정보 수정', path: '/user/info' },
@@ -92,7 +120,13 @@ const UserInfoPage = () => {
     >
       <UserInfoTemplate
         title="개인 정보 수정"
-        content="회원님의 개인정보는 응급 상황 발생 시 본인 확인과 보호자 연락에 사용됩니다. 이름, 이메일, 생년월일을 제외한 연락처 정보를 수정할 수 있습니다."
+        content={
+          <>
+            회원님의 개인정보는 응급 상황 발생 시 본인 확인과 보호자 연락에 사용됩니다.
+            <br />
+            이름, 이메일, 생년월일을 제외한 연락처 정보를 수정할 수 있습니다.
+          </>
+        }
         logoSrc={userImg}
         primaryButtonOnClick={handleSave}
         secondaryButtonOnClick={handleSignout}
