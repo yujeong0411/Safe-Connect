@@ -10,6 +10,13 @@ export const useLocationTracking = () => {
 
     const handleSuccess = async (position: GeolocationPosition) => {
       const { latitude, longitude } = position.coords;
+      console.log('현재 위치:', {
+        위도: latitude,
+        경도: longitude,
+        timestamp: new Date().toLocaleString(),
+        정확도: `${position.coords.accuracy}미터`
+      });
+      console.log(sessionId)
 
       if (sessionId) {
         try {

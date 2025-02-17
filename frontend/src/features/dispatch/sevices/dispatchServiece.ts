@@ -130,14 +130,14 @@ export const dispatchDepartAt = async (dispatchId: number): Promise<{ isSuccess:
         throw error;
     }
 };
-export const dispatchLocation = async (sesionId:string,lat:number,lng:number):Promise<{ isSuccess: boolean; message: string }> => {
+export const dispatchLocation = async (sessionId:string,lat:number,lng:number):Promise<{ isSuccess: boolean; message: string }> => {
     try {
         const response = await axiosInstance.post<
           { isSuccess: boolean; message: string }
         >(
           '/dispatch_staff/current_pos',
           {
-              sesionId,
+              sessionId,
               lat,
               lng
           }

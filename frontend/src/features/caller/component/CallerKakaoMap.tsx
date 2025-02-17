@@ -5,10 +5,12 @@ import { callerService } from '@/features/caller/services/callerApiService.ts';
 import useKakaoLoader from '@/hooks/useKakaoLoader';
 import { Aed } from '@/types/common/aed.types.ts';
 import { useLocationStore } from '@/store/location/locationStore.tsx';
+import { useAmbulanceLocationStore } from '@/store/caller/ambulanceLocationStore.tsx';
 
 const CallerKakaoMap = () => {
   useKakaoLoader();
   const { center, isLoading } = useLocationStore();
+  const ambulanceLocation = useAmbulanceLocationStore((state) => state.location);
   const [aedList, setAedList] = useState<Aed[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
 
@@ -51,6 +53,26 @@ const CallerKakaoMap = () => {
             }}
             title="현재 위치"
           />
+        )}
+
+        {/* 현재 앰뷸런스 위치 마커 */}
+        {ambulanceLocation && (
+          <CustomOverlayMap
+            position={{ lat: ambulanceLocation.lat, lng: ambulanceLocation.lng }}
+          >
+            <div className="relative">
+              <div className="w-12 h-12 rounded-full bg-blue-500 border-2 border-white shadow-lg overflow-hidden flex items-center justify-center animate-pulse">
+                <img
+                  src="src/assets/image/ambulance.png"
+                  alt="구급차"
+                  className="w-10 h-10 object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow text-sm whitespace-nowrap">
+                구급차 이동중
+              </div>
+            </div>
+          </CustomOverlayMap>
         )}
 
         {/* AED 위치 마커들 */}
