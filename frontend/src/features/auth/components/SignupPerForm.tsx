@@ -39,8 +39,14 @@ const SignupPerForm = ({ isChecked, setIsChecked }: SignupPerFormProps) => {
             <Checkbox
               isChecked={isChecked}
               onChange={setIsChecked}
-              label="본인은 위의 동의서 내용을 충분히 숙지하였으며, 신속·정확한 응급출동 서비스를 제공받기
-            위해 개인정보를 수집·이용하는 것에 동의합니다."
+              label={
+                <span>
+                  본인은 위의 동의서 내용을 충분히 숙지하였으며, 신속·정확한 응급출동 서비스를
+                  제공받기 위해
+                  <br />
+                  개인정보를 수집·이용하는 것에 동의합니다.
+                </span>
+              }
             />
           </div>
         </div>

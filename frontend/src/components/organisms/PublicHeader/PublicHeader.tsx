@@ -45,7 +45,7 @@ const PublicHeader = ({ labels = [] }: PublicHeaderProps) => {
         <Logo />
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 text-sm md:text-base">
         {getUserName() && (
           <span className="text-gray-700">
             <span className="text-pink-500 px-2 py-2">{getUserName()}</span>님

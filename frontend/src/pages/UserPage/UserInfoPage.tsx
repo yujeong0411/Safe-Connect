@@ -40,6 +40,16 @@ const UserInfoPage = () => {
 
   // 정보 저장 핸들러
   const handleSave = async () => {
+    // 전화번호 인증 여부 확인
+    if (!formData.isPhoneVerified) {
+      handleShowAlert({
+        title: '전화번호 인증 필요',
+        description: '전화번호 인증이 완료되지 않았습니다.',
+        type: 'destructive',
+      });
+      return;
+    }
+
     // 유효성 검사
     const phoneError = validateFields('userPhone', formData.userPhone);
     // 필수가 아니므로 있을때만 유효성 검사 시행
