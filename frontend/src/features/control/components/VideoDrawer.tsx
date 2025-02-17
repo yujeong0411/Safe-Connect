@@ -199,35 +199,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
                 <VideoSessionUI />
               </div>
             </div>
-            {/* 신고 내용 입력 */}
-            <div className="space-y-4 p-6">
-              <div className="flex justify-end space-x-4">
-                {/*<h3 className="text-lg font-semibold">신고 내용</h3>*/}
-                <ConfirmDialog
-                    trigger="전화 종료"
-                    title="전화 종료"
-                    description="현재 신고 전화를 종료하시겠습니까?"
-                    confirmText = "종료"
-                    triggerVariant="destructive"
-                    cancelVariant="gray"
-                    confirmVariant="destructive"
-                    onConfirm={handleEndCall}
-                />
-                <Button variant="default" size="default" onClick={handleResendUrl}>
-                  URL 재전송
-                </Button>
-                <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">
-                  AI 요약
-                </Button>
-              </div>
-              {/*<Textarea*/}
-              {/*  value={formData.callSummary}*/}
-              {/*  onChange={(e) => updateFormData({ callSummary: e.target.value})}*/}
-              {/*  placeholder="AI요약을 누르면 자동으로 요약됩니다."*/}
-              {/*  readOnly  // 읽기 전용*/}
-              {/*  className="p-4 min-h-[120px] bg-white"*/}
-              {/*/>*/}
-            </div>
           </div>
         </div>
       </div>

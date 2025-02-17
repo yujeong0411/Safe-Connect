@@ -13,12 +13,15 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.api.gax.longrunning.OperationFuture;
 import com.google.cloud.speech.v1.*;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
 import com.google.protobuf.ByteString;
 import io.openvidu.java.client.Connection;
 import io.openvidu.java.client.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,11 +35,15 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +66,9 @@ public class WebRtcServiceImpl implements WebRtcService {
     private final SpeechClient speechClient;
     private final SmsService smsService;
     private final ObjectMapper objectMapper;
+
+    @Autowired
+    private Storage storage;
 
     @PostConstruct
     public void init() {
@@ -165,6 +175,15 @@ public class WebRtcServiceImpl implements WebRtcService {
         @Override
         @Transactional
         public String speechToText (MultipartFile audioFile) throws IOException {
+            // 1. GCS에 파일 업로드
+            String bucketName = "camference";
+            String blobName = UUID.randomUUID() + ".webm";
+            BlobId blobId = BlobId.of(bucketName, blobName);
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+
+            storage.create(blobInfo, audioFile.getBytes());
+            String gcsUri = "gs://" + bucketName + "/" + blobName;
+
             if (audioFile.isEmpty()) {
                 throw new IOException("전달받은 음성 데이터 audioFile 빈파일.");
             }
@@ -202,6 +221,9 @@ public class WebRtcServiceImpl implements WebRtcService {
                     transcription.append(recognitionResult.getAlternatives(0).getTranscript())
                             .append(" ");
                 }
+
+                // GCS 파일 삭제 (굳이 안해도 되긴 함)
+                // storage.delete(blobId);
 
                 return transcription.toString().trim();
 
