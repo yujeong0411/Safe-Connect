@@ -150,4 +150,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
       throw error;
     }
   },
+
+  // 회원탈퇴
 }));
