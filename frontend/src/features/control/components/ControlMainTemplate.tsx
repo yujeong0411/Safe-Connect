@@ -11,6 +11,7 @@ import { useControlsseStore } from '@/store/control/controlsseStore.ts';
 import {usePatientStore} from "@/store/control/patientStore.tsx";
 import {Alert, AlertDescription, AlertTitle} from "@components/ui/alert.tsx";
 import {CircleAlert, CircleCheckBig} from "lucide-react";
+import Footer from "@components/organisms/Footer/Footer";
 
 interface ControlTemplateProps {
   children?: React.ReactNode;
@@ -25,7 +26,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { logout } = useControlAuthStore();
   const { connect, disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore();
-  const { patientInfo } = usePatientStore();
+  const { patientInfo, currentCall } = usePatientStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -43,7 +44,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   };
 
   const handleProtectorNotify = () => {
-    if (!patientInfo?.userId || !patientInfo?.userProtectorPhone) {
+    if (!currentCall?.userId || !patientInfo?.userProtectorPhone) {
       // 회원이 아니거나 보호자 번호가 없는 경우 알림 표시
       // alert('등록된 보호자가 없거나 회원이 아닙니다.');
       handleAlertClose({
@@ -134,8 +135,8 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       label: '보호자 알림',
       path: '#',
       hasModal: true,
-      onModalOpen: handleProtectorNotify,   // 유지이고 보호자번호가 있는 경우만 열림
-      disabled: !patientInfo?.userId || !patientInfo?.userProtectorPhone  // 비활성화
+      onModalOpen: handleProtectorNotify,   // 유저이고 보호자번호가 있는 경우만 열림
+      disabled: !currentCall?.userId || !patientInfo?.userProtectorPhone  // 비활성화
     },
     { label: '신고 내역', path: '/control/main' },
   ];
@@ -176,6 +177,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
             </Alert>
           </div>
       )}
+      <Footer />
     </div>
   );
 };

@@ -75,19 +75,21 @@ const ControlPatientInfoForm = () => {
       const response = await searchByPhone(formattedPhone);
 
       if (response?.isSuccess) {
-        // 명시적인 오류 메시지 표시
-        handleAlertClose({
-          title: '신고자 조회 성공',
-          description: '회원이 조회되었습니다.',
-          type: 'default',
-        });
+        // 명시적인 오류 메시지 표시 : 페이지 변경 시마다 계속 뜸...
+        // handleAlertClose({
+        //   title: '신고자 조회 성공',
+        //   description: '회원이 조회되었습니다.',
+        //   type: 'default',
+        // });
+        console.log("가입자")
         updateFormData({ userPhone: formattedPhone });
       } else {
-        handleAlertClose({
-          title: '미가입자 조회',
-          description: '등록된 회원이 아닙니다.',
-          type: 'info',
-        });
+        // handleAlertClose({
+        //   title: '미가입자 조회',
+        //   description: '등록된 회원이 아닙니다.',
+        //   type: 'info',
+        // });
+        console.log("미가입자")
           updateFormData({ userPhone: formattedPhone });
       }
     } catch (error) {

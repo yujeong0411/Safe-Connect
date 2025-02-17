@@ -22,6 +22,10 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   currentCall: null, // 현재 처리 중인 신고 정보
   formData: initialFormData,
   reportContent:'',
+  isDispatched: false,  // 출동 지령 상태 표시
+
+  // 현재 출동 지령 상태
+  setIsDispatched: (isDispatched: boolean) => set({isDispatched}),
 
 
   // reportContent 업데이트
@@ -84,7 +88,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   // 신고 내용 저장(수정)
   savePatientInfo: async () => {
     try {
-      const {  formData } = get();  // 내부 상태 가져오기
+      const { formData } = get();  // 내부 상태 가져오기
       const {callId} = useOpenViduStore.getState()
 
       // callId 유효성 체크 추가
@@ -95,7 +99,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
 
       // callSummary와 addSummary 합치기
       const combinedSummary = formData.addSummary
-          ? `${formData.callSummary}\n\n${formData.addSummary}`
+          ? `${formData.callSummary}\n${formData.addSummary}`
           : formData.callSummary;
 
       // 현재 선택된 회원 ID와 신고 ID 추가
@@ -138,7 +142,8 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
     set({
       patientInfo: null,
       currentCall: null,
-      formData: initialFormData  // formData 초기화 추가
+      formData: initialFormData,  // formData 초기화 추가
+      isDispatched: false,   // 출동 지령 상태 초기화
     });
   },
 

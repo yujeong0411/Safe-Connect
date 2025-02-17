@@ -12,7 +12,6 @@ export const patientService = {
   // 신고자 전화번호 검색
   searchByPhone: async (phone: string): Promise<PatientResponse> => {
     try {
-      console.log('API 호출 전화번호:', phone);
       const response = await axiosInstance.get<PatientResponse>('/control/medi_list', {
         params: { callerPhone: phone },
       });

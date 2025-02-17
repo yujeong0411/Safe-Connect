@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Map, MapMarker, MapTypeControl, ZoomControl } from 'react-kakao-maps-sdk';
+import { Map, MapMarker, MapTypeControl, ZoomControl, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import useKakaoLoader from '@/hooks/useKakaoLoader.ts';
 import {
   Marker,
@@ -16,30 +16,104 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [info, setInfo] = useState<Marker | null>(null);
-  const { center, isLoading } = useLocationStore();
+  const { center, isLoading, setIsLoading, setLocation, setAddress } = useLocationStore();
   const TMAP_API_KEY = import.meta.env.VITE_TMAP_API_KEY;
 
 
-  useEffect(() => {
-    if (navigator.geolocation && !center.lat && !center.lng) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('위치 가져오기 성공:', {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
+  // 위도,경도로 주소 변환하는 함수
+  const getAddressFromCoords = (lat: number, lng: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const geocoder = new kakao.maps.services.Geocoder();
 
-          useLocationStore
-            .getState()
-            .setLocation(position.coords.latitude, position.coords.longitude);
-        },
-        () => {
-          // 위치 거부시 현재 저장된 위치 유지 (초기값이나 마지막으로 받은 신고자 위치)
-          useLocationStore.getState().setIsLoading(false);
+      geocoder.coord2Address(lng, lat, (result, status) => {
+        if (status === kakao.maps.services.Status.OK && result[0]) {
+          const addressInfo = result[0];
+
+          // 도로명 주소가 있으면 도로명 주소를, 없으면 지번 주소를 사용
+          const fullAddress = addressInfo.road_address
+              ? addressInfo.road_address.address_name
+              : addressInfo.address.address_name;
+
+          resolve(fullAddress);
+        } else {
+          reject('주소를 찾을 수 없습니다.');
         }
-      );
+      });
+    });
+  };
+
+// 위치가 변경될 때마다 주소 업데이트
+  useEffect(() => {
+    if (center.lat && center.lng) {
+      getAddressFromCoords(center.lat, center.lng)
+          .then((addr) => {
+            setAddress(addr); // store에 주소 저장
+          })
+          .catch(error => {
+            console.error('주소 변환 실패:', error);
+            setAddress('주소를 찾을 수 없습니다.');
+          });
     }
-  }, [center]);
+  }, [center.lat, center.lng, setAddress]);
+
+
+  // 위치 초기화 useEffect
+  useEffect(() => {
+    // 신고자 위치가 없을 때 (center가 비어있을 때)
+    if (!center.lat && !center.lng) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+              console.log('현재 위치 가져오기 성공:', {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              });
+
+              // 현재 위치를 center로 설정
+              setLocation(position.coords.latitude, position.coords.longitude);
+              setIsLoading(false);
+            },
+            (error) => {
+              console.error('위치 가져오기 실패:', error);
+              // 위치 가져오기 실패 시 서울시청을 기본 위치로 설정
+              setLocation(37.5666805, 126.9784147);
+              setIsLoading(false);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0
+            }
+        );
+      } else {
+        // 지오로케이션이 지원되지 않는 경우 서울시청을 기본 위치로 설정
+        setLocation(37.5666805, 126.9784147);
+        setIsLoading(false);
+      }
+    }
+  }, []);  // 한번만 시행
+
+
+  // useEffect(() => {
+  //   if (navigator.geolocation && !center.lat && !center.lng) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         console.log('위치 가져오기 성공:', {
+  //           lat: position.coords.latitude,
+  //           lng: position.coords.longitude,
+  //         });
+  //
+  //         useLocationStore
+  //           .getState()
+  //           .setLocation(position.coords.latitude, position.coords.longitude);
+  //       },
+  //       () => {
+  //         // 위치 거부시 현재 저장된 위치 유지 (초기값이나 마지막으로 받은 신고자 위치)
+  //         useLocationStore.getState().setIsLoading(false);
+  //       }
+  //     );
+  //   }
+  // }, [center]);
 
   // Tmap API를 사용하여 예상 도착 시간과 거리 계산
   const calculateRoute = async (
@@ -195,17 +269,40 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
       level={4}
       onCreate={setMap}
     >
-      {/*현재 신고자 위치*/}
+      {/* 신고자 위치 마커 */}
       {!isLoading && (
-        <MapMarker
-          position={center}
-          image={{
-            src: userMaker,
-            size: { width: 64, height: 69 },
-            options: { offset: { x: 27, y: 69 } },
-          }}
-          title="신고자 위치"
-        />
+          <>
+            <MapMarker
+                position={center}
+                image={{
+                  src: userMaker,
+                  size: { width: 55, height: 55 },
+                  options: { offset: { x: 27, y: 69 } },
+                }}
+                onClick={() => setInfo(null)}  // 마커 클릭 시 info 초기화
+            />
+            {/* 주소 정보 오버레이는 별도로 렌더링 */}
+            {info === null && (  // info가 null일 때만 주소 표시
+                <CustomOverlayMap position={center}>
+                  <div
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        padding: '8px 15px',
+                        borderRadius: '15px',
+                        border: 'none',
+                        boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.2)',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        maxWidth: '300px',
+                        whiteSpace: 'nowrap',
+                        transform: 'translateY(-95px)',
+                      }}
+                  >
+                    📍 {useLocationStore.getState().address || '주소를 불러오는 중...'}
+                  </div>
+                </CustomOverlayMap>
+            )}
+          </>
       )}
 
       {/*소방서 위치*/}
@@ -234,7 +331,6 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
                 position: 'relative', // 기본 인포윈도우 스타일 방지
                 color: '#333',
                 padding: '5px 12px',
-                backgroundColor: 'white',
                 borderRadius: '8px',
                 fontSize: '16px',
                 fontWeight: 'bold',
