@@ -1,16 +1,16 @@
 import { create } from 'zustand';
-import { openViduStore } from '@/types/openvidu/openvidu.types.ts';
+import { openViduStore, OpenViduState } from '@/types/openvidu/openvidu.types.ts';
 import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
 import { OpenVidu } from 'openvidu-browser';
 import React from 'react';
-import {usePatientStore} from "@/store/control/patientStore.tsx";
+import { usePatientStore } from "@/store/control/patientStore.tsx";
 
 // 더 강력한 브라우저 체크 우회
 const forceOverrideBrowserCheck = () => {
   // UserAgent 변경
   Object.defineProperty(navigator, 'userAgent', {
-    get: function() {
+    get: function () {
       return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
     },
     configurable: true
@@ -18,7 +18,7 @@ const forceOverrideBrowserCheck = () => {
 
   // Platform 변경
   Object.defineProperty(navigator, 'platform', {
-    get: function() {
+    get: function () {
       return 'MacIntel';
     },
     configurable: true
@@ -26,17 +26,18 @@ const forceOverrideBrowserCheck = () => {
 
   // vendor 변경
   Object.defineProperty(navigator, 'vendor', {
-    get: function() {
+    get: function () {
       return 'Google Inc.';
     },
     configurable: true
   });
 };
 
-export const useOpenViduStore = create<openViduStore>((set, get) => ({
+// 초기 상태
+const initialState: OpenViduState = {
   isActive: false,
-  callId : undefined,
-  OV: new OpenVidu(),
+  callId: undefined,
+  OV: undefined,
   sessionId: '',
   userName: `Guest_${Math.floor(Math.random() * 100)}`,
   session: undefined,
@@ -49,19 +50,26 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     userName: undefined,
   },
   callStartedAt: '',   // 신고시각
-  callerPhone:'',
-  fireStaffId:undefined,
+  callerPhone: '',
+  fireStaffId: undefined,
+
+};
+
+export const useOpenViduStore = create<openViduStore>((set, get) => ({
+  ...initialState,
+
 
   setSessionId: (newSessionId: string) => {
     set({ sessionId: newSessionId });
   },
 
-  setUserName: (newUserName: string) => {
-    set({ userName: newUserName });
+  handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => { // 이 부분이 sessionId 수정
+    set({ sessionId: e.target.value });
+
   },
 
-  handleChangeSessionId: (e: React.ChangeEvent<HTMLInputElement>) => {
-    set({ sessionId: e.target.value });
+  setUserName: (newUserName: string) => {
+    set({ userName: newUserName });
   },
 
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,13 +80,20 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     set({ isActive: active });
   },
 
-  createAndJoinSession: async (e: React.FormEvent,callerPhone : string) => {
+  createAndJoinSession: async (e: React.FormEvent, callerPhone: string) => {
     e.preventDefault();
+
 
     if (!callerPhone) {
       alert('전화번호를 입력해주세요.');
       return;
     }
+
+    // 컴포넌트가 시작할 떄가 아니라, 영상통화방이 만들어질때 Openvidu 객체 생성
+    const OV = new OpenVidu();
+    OV.enableProdMode();
+    set({ OV });
+
     // 브라우저 체크 우회를 먼저 적용
     forceOverrideBrowserCheck();
 
@@ -89,9 +104,9 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     }
 
     try {
-      await createSession(sessionId,callerPhone);
+      await createSession(sessionId, callerPhone);
       // 세션 제작 성공
-      console.log("세션제작 성공")
+      console.log("세션제작 성공, ", sessionId);
       set({ sessionId });
       await joinSession();
     } catch (error) {
@@ -111,9 +126,14 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       set({ OV });
 
       const { sessionId, userName } = get();
+      
       if (!sessionId) return;
 
+
+
+      console.log('openvidu store - session 생성 시도 전'); // 테스트용
       const session = OV.initSession();
+
 
       session.on('streamCreated', (event) => {
         const subscriber = session.subscribe(event.stream, undefined);
@@ -130,10 +150,14 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         }));
       });
 
+     
       // 연결 시도
       const token = await get().createToken(sessionId);
       await session.connect(token, { clientData: userName });
       console.log("Session connected with token:", token);
+
+
+      
 
       // iOS에 최적화된 설정으로 퍼블리셔 초기화
       const publisher = await OV.initPublisherAsync(undefined, {
@@ -147,9 +171,8 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         mirror: false,
       });
 
-      await session.publish(publisher);
 
-      console.log("Publisher created:", publisher);
+      await session.publish(publisher);
 
       const localUser = {
         connectionId: session.connection.connectionId,
@@ -184,6 +207,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   },
 
   leaveSession: () => {
+    console.log('openviduStore - leaveSession 실행 완료'); //테스트용. 푸시 전 삭제할것
     const { session, publisher } = get();
 
     if (session) {
@@ -202,38 +226,24 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         console.error('Error leaving session:', err);
       }
     }
-    
+
     // patientStore에서 데이터 초기화 메서드 호출 : 통화 종료 시 환자 데이터 초기화
     usePatientStore.getState().resetPatientInfo()
 
     set({
-      OV: undefined,
-      sessionId: '',
-      userName: `Guest_${Math.floor(Math.random() * 100)}`,
-      session: undefined,
-      mainStreamManager: undefined,
-      publisher: undefined,
-      subscribers: [],
-      localUser: {
-        connectionId: undefined,
-        streamManager: undefined,
-        userName: undefined,
-      },
-      isActive: false,
-      callId : undefined,
-      callStartedAt: '',
-      callerPhone:'',
-      fireStaffId:undefined,
+      ...initialState
     });
+
+
   },
 
-  createSession: async (sessionId: string, callerPhone : string) => {
+  createSession: async (sessionId: string, callerPhone: string) => {
     try {
       const response = await axiosInstance.post(
         `/control/video`,
         {
           customSessionId: sessionId,
-          callerPhone:callerPhone
+          callerPhone: callerPhone
         },
         {
           headers: { 'Content-Type': 'application/json' },
@@ -245,13 +255,14 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       set({
         callId : response.data.data.call.callId,
         callStartedAt: response.data.data.call.callStartedAt,
-        callerPhone:response.data.data.call.caller.callerPhone,
+        callerPhone: response.data.data.call.caller.callerPhone,
         fireStaffId: response.data.data.call.fireStaff.fireStaffId,
       })
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 409) {
+          set({ sessionId });
           return sessionId;
         }
         console.error('Session creation failed:', error.message);

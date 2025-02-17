@@ -7,6 +7,12 @@ const VideoSessionUI = () => {
   const { publisher, subscribers, localUser } = useOpenViduStore();
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
 
+ 
+
+  useEffect(() => {
+    console.log('VideoSessionUI - mounted');
+  }, []); // 테스트용. 푸시 전 지울것
+
   useEffect(() => {
     // 자신의 스트림을 제외한 subscribers만 필터링
     const filterSubscribers = () => {
@@ -20,6 +26,9 @@ const VideoSessionUI = () => {
     filterSubscribers();
     // 주기적으로 체크
     const interval = setInterval(filterSubscribers, 2000);
+    
+    console.log('videoSessionUI - subscribers', subscribers);
+    console.log('videoSessionUI - localUser', localUser);
 
     return () => clearInterval(interval);
   }, [subscribers, localUser]);

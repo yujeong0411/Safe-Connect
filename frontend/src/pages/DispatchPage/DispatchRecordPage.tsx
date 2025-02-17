@@ -4,7 +4,7 @@ import DispatchRecordRow from '@/features/dispatch/components/DispatchRecordRow/
 import Pagination from '@/components/atoms/Pagination/Pagination';
 import { DispatchRecord } from '@/types/dispatch/dispatchRecord.types';
 import { useTransferListStore } from '@/store/dispatch/transferListStore';
-import DispatchDetailDialog from '@features/dispatch/components/TransferDetailDialog/DispatchDetailDialog.tsx';
+import DispatchDetailDialog from '@features/dispatch/components/TransferDialog/DispatchDetailDialog.tsx';
 
 const ITEMS_PER_PAGE = 10;
 

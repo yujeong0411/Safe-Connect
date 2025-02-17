@@ -78,7 +78,7 @@ export const completeTransfer = async (transferId: number): Promise<{ isSuccess:
 // 현장 도착시간 (영상통화 종료)
 export const completeVideo  = async (dispatchId:number):Promise<{ isSuccess: boolean; message: string }> => {
     try {
-        const response = await axiosInstance.put<{isSuccess : boolean; message:string;}>('/dispatch_staff/departure', { dispatchId })
+        const response = await axiosInstance.put<{isSuccess : boolean; message:string;}>('/dispatch_staff/arrive_time', { dispatchId })
         console.log("영상통화 종료 성공", response.data)
         return response.data
     } catch (error) {
@@ -109,6 +109,21 @@ export const completeDispatch = async (dispatchId: number): Promise<{ isSuccess:
             { dispatchId }
         );
         console.log("출동 종료 성공", response.data);
+        return response.data;
+    } catch (error) {
+        console.log("출동 종료 실패", error);
+        throw error;
+    }
+};
+
+// 출동 종료(현장에서 상황종료)
+export const dispatchDepartAt = async (dispatchId: number): Promise<{ isSuccess: boolean; message: string }> => {
+    try {
+        const response = await axiosInstance.put<{ isSuccess: boolean; message: string }>(
+          '/dispatch_staff/depart_time',
+          { dispatchId }
+        );
+        console.log("출동 시작", response.data);
         return response.data;
     } catch (error) {
         console.log("출동 종료 실패", error);

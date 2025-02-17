@@ -422,8 +422,7 @@ public class ControlServiceImpl implements ControlService {
         String url = videoCall.getVideoCallUrl();
 
         ResponseEntity<?> response = smsService.sendMessage(userPhone, url);
-
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     // 활성화된 의약품/질환 목록 조회

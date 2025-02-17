@@ -58,12 +58,16 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       setLocation(37.566826, 126.9786567)  // 서울시청 좌표로 초기화
       setIsLoading(true)
 
+      
+
+
       // alert('신고가 종료되었습니다.')
       handleAlertClose({
         title: '신고 종료',
         description: '현재 신고가 종료되었습니다.',
         type: 'default',
       });
+
       setIsOpen(false);  // Drawer 닫기
     } catch (error) {
       console.error("신고 종료 실패", error);
