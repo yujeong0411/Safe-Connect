@@ -162,13 +162,12 @@ const Dropdown = ({
 
       {/* 선택된 항목들을 하단에 표시 */}
       {selectedOptions.length > 0 && (
-        <div className="mt-2">
-          <div className="text-sm text-gray-600 mb-1">선택된 항목:</div>
+        <div className="mt-5">
           <div className="flex flex-wrap gap-2">
             {selectedOptions.map((option) => (
               <span
                 key={option.value}
-                className="bg-pink-100 px-2 py-1 rounded-md flex items-center text-sm"
+                className="bg-pink-100 px-2 py-1 rounded-md flex items-center text-base"
               >
                 {option.label}
                 <button
