@@ -116,7 +116,7 @@ const UserSignupPage2 = () => {
 
   return (
       <>
-    <SignupTemplate currentStep={2} buttonText="다음" onButtonClick={handleNext}>
+    <SignupTemplate currentStep={2} buttonText="회원가입" onButtonClick={handleNext}>
       <SignupInfoForm />
     </SignupTemplate>
 
