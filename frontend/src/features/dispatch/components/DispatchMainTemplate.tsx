@@ -12,6 +12,8 @@ import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
 import { dispatchDepartAt } from '@features/dispatch/sevices/dispatchServiece.ts';
 import { useLocationTracking } from '@features/dispatch/hooks/locationTracking.ts';
+import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
+import Footer from '@/components/organisms/Footer/Footer';
 
 interface DispatchMainTemplateProps {
   children: React.ReactNode;
@@ -19,6 +21,7 @@ interface DispatchMainTemplateProps {
 
 const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   const location = useLocation();
+  const {sessionId} = useOpenViduStore();  // 전달받은 세션id 가져오기
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showDispatchDialog, setShowDispatchDialog] = useState(false);
   const { isVideoDrawerOpen, setVideoDrawerOpen } = useVideoDrawerStore();
@@ -125,9 +128,11 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
 
   const navItems = [
     {
-      label: '출동 현황',
-      path: '/dispatch/main',
-      active: location.pathname === '/dispatch/main'
+      label: '전화 업무',
+      path: '#',
+      hasModal: true,
+      disabled: !sessionId,
+      onModalOpen: () => sessionId && setVideoDrawerOpen(!isVideoDrawerOpen)  // 세션 아이디가 있어야 열림
     },
     {
       label: '출동 업무',
@@ -140,72 +145,72 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       active: location.pathname === '/dispatch/transfer-request'
     },
     {
-      label: '전화 업무',
-      path: '#',
-      hasModal: true,
-      onModalOpen: () => setVideoDrawerOpen(!isVideoDrawerOpen)
-    },
-    {
-      label: '보호자 메세지',
+      label: '알림 / 이송 종료',
       path: '#',
       hasModal: true,
       onModalOpen: () => setShowNotificationModal(true)
-    }
+    },
+    {
+      label: '출동 현황',
+      path: '/dispatch/main',
+      active: location.pathname === '/dispatch/main'
+    },
   ];
 
   return (
-    <div className="h-screen bg-bg flex flex-col">
-      {showAlert && (
-        <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
-          <Alert
-            variant={alertConfig.type}
-            className={`w-[400px] shadow-lg bg-white ${
-              alertConfig.type === 'default'
-                ? '[&>svg]:text-blue-600 text-blue-600'
-                : '[&>svg]:text-red-500 text-red-500'
-            }`}
-          >
-            <AlertTitle className="text-xl ml-2">{alertConfig.title}</AlertTitle>
-            <AlertDescription className="text-base m-2">
-              {alertConfig.description}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+      <div className="min-h-screen bg-bg flex flex-col">
+        {showAlert && (
+            <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
+              <Alert
+                  variant={alertConfig.type}
+                  className="w-[90%] md:w-[400px] shadow-lg bg-white mx-auto"
+              >
+                <AlertTitle className="text-lg md:text-xl ml-2">{alertConfig.title}</AlertTitle>
+                <AlertDescription className="text-sm md:text-base m-2">
+                  {alertConfig.description}
+                </AlertDescription>
+              </Alert>
+            </div>
+        )}
 
-      <DispatchNotificationDialog
-        open={showDispatchDialog}
-        onOpenChange={setShowDispatchDialog}
-        onVideoCall={handleVideoCall}
-        onPatientInfo={handlePatientInfo}
-      />
+        <DispatchNotificationDialog
+            open={showDispatchDialog}
+            onOpenChange={setShowDispatchDialog}
+            onVideoCall={handleVideoCall}
+            onPatientInfo={handlePatientInfo}
+        />
 
-      <div className="-space-y-2">
-        <PublicHeader
-          labels={[
-            {
-              label: '로그아웃',
-              href: '#',
-              onClick: handleLogout,
-            },
-          ]}
-        />
-        <DispatchNavBar navItems={navItems} />
-      </div>
-      <div className="flex-1">
-        <div className={`transition-all duration-300 ${isVideoDrawerOpen ? 'ml-[50%] w-[50%]' : 'w-full'}`}>
-          {children}
+        <div className="-space-y-2">
+          <PublicHeader
+              labels={[
+                {
+                  label: '로그아웃',
+                  href: '#',
+                  onClick: handleLogout,
+                },
+              ]}
+          />
+          <DispatchNavBar navItems={navItems} />
         </div>
-        <VideoCallDrawer
-          isOpen={isVideoDrawerOpen}
-          onClose={() => setVideoDrawerOpen(false)}
-        />
-        <GuardianNotificationDialog
-          open={showNotificationModal}
-          onClose={() => setShowNotificationModal(false)}
-        />
+        <div className="flex-1">
+          <div className={`transition-all duration-300 ${
+              isVideoDrawerOpen
+                  ? 'md:ml-[50%] md:w-[50%] w-full'
+                  : 'w-full'
+          }`}>
+            {children}
+          </div>
+          <VideoCallDrawer
+              isOpen={isVideoDrawerOpen}
+              onClose={() => setVideoDrawerOpen(false)}
+          />
+          <GuardianNotificationDialog
+              open={showNotificationModal}
+              onClose={() => setShowNotificationModal(false)}
+          />
+        </div>
+        <Footer />
       </div>
-    </div>
   );
 };
 

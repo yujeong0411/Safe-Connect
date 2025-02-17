@@ -111,7 +111,7 @@ const CallRecordForm = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg overflow-hidden">
+            <div className="bg-white rounded-sm overflow-hidden">
               <Table className="w-full">
                 <TableHeader>
                   <TableRow className="bg-gray-200 hover:bg-gray-200">
