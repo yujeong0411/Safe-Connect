@@ -58,9 +58,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       setLocation(37.566826, 126.9786567)  // 서울시청 좌표로 초기화
       setIsLoading(true)
 
-      
-
-
       // alert('신고가 종료되었습니다.')
       handleAlertClose({
         title: '신고 종료',
@@ -88,7 +85,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     }
     try {
       await controlService.resendUrl(callId);
-      alert("URL이 재전송되었습니다.");
       handleAlertClose({
         title: 'URL 재전송',
         description: 'URL이 재전송되었습니다.',
