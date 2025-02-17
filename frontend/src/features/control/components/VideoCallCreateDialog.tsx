@@ -40,12 +40,15 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
     handleChangeUserName({
       target: { value: `userName` }
     } as React.ChangeEvent<HTMLInputElement>);
-  }, [handleChangeSessionId, handleChangeUserName]);
+
+    // 녹음기 초기화
+    initializeRecorder();
+  }, [handleChangeSessionId, handleChangeUserName, sessionId, userName]);
 
   // 컴포넌트가 마운트될 때 레코더 초기화
-  useEffect(() => {
-    initializeRecorder();
-  }, [initializeRecorder]);
+  // useEffect(() => {
+  //   initializeRecorder();
+  // }, [initializeRecorder]);
 
   const handleCreateSession = async (e: React.FormEvent) => {
     e.preventDefault();

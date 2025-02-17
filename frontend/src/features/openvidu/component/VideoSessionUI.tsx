@@ -7,9 +7,7 @@ const VideoSessionUI = () => {
   const { publisher, subscribers, localUser } = useOpenViduStore();
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
 
-  useEffect(() => {
-    console.log('VideoSessionUI - mounted');
-  }, []); // 테스트용. 푸시 전 지울것
+ 
 
   useEffect(() => {
     // 자신의 스트림을 제외한 subscribers만 필터링

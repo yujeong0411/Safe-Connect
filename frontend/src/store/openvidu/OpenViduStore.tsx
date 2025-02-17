@@ -126,12 +126,12 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       set({ OV });
 
       const { sessionId, userName } = get();
-      console.log('openvidu store - sessionId : ', sessionId, ',userName :', userName); // 테스트용
+      
       if (!sessionId) return;
 
-      console.log('openvidu store - session 생성 시도 전'); // 테스트용
+
       const session = OV.initSession();
-      console.log('openvidu store - session 생성 시도  후'); // 테스트용
+
 
       session.on('streamCreated', (event) => {
         const subscriber = session.subscribe(event.stream, undefined);
@@ -148,18 +148,18 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         }));
       });
 
-      //console.log('openvidu store - token생성 시도 전'); // 테스트용
+     
       // 연결 시도
       const token = await get().createToken(sessionId);
       await session.connect(token, { clientData: userName });
       console.log("Session connected with token:", token);
 
 
-      console.log('openvidu store - userName : ', userName); // 테스트용
+      
 
-      await session.connect(token, { clientData: userName });
-      
-      
+      //await session.connect(token, { clientData: userName });
+
+
       // iOS에 최적화된 설정으로 퍼블리셔 초기화
       const publisher = await OV.initPublisherAsync(undefined, {
         audioSource: undefined,
@@ -171,21 +171,9 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         insertMode: 'APPEND',
         mirror: false,
       });
-      
-      // if (!publisher) {
-      //   console.error('Publisher initialization 실패');
-      // }
-      // console.log("publisher initialization 성공");
 
-      try {
-        await session.publish(publisher);
 
-      } catch (e) {
-        console.log("openvidu store - session.publish 에러", e);
-      }
-      console.log('openvidu store - session.publish 성공');
-
-      console.log("Publisher created:", publisher);
+      await session.publish(publisher);
 
       const localUser = {
         connectionId: session.connection.connectionId,
@@ -220,7 +208,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   },
 
   leaveSession: () => {
-    console.log('openviduStore - leaveSession 실행 완료'); //테스트용. 푸시 전 삭제할것
     const { session, publisher } = get();
 
     if (session) {
@@ -266,6 +253,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       console.log('Create Session Response:', response.data);
 
       set({
+        sessionId, // 두번째 영상통화부터 안되는 문제 해결위해 추가
         callId: response.data.data.call.callId as number,
         callStartedAt: response.data.data.call.callStartedAt,
         callerPhone: response.data.data.call.caller.callerPhone,
@@ -275,6 +263,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 409) {
+          set({ sessionId });
           return sessionId;
         }
         console.error('Session creation failed:', error.message);
