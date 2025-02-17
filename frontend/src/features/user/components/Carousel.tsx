@@ -41,36 +41,39 @@ const Carousel = () => {
     // 접근성 개선을 위한 설정 추가
     accessibility: true, // 키보드 탐색 활성화
     swipeToSlide: true, // 스와이프로 슬라이드 이동 가능
+    focusOnSelect: false,  // 슬라이드 클릭 시 포커스 방지
+    pauseOnFocus: false,   // 포커스 시 자동 재생 유지
+    pauseOnHover: false,   // 호버 시 자동 재생 유지
   };
 
   return (
-    <div className="w-full max-w-[1500px] h-full flex justify-center items-center ml-40">
-      <Slider {...settings} className="w-full">
-        <div className="relative w-full">
+    <div className="w-full h-[600px] relative overflow-hidden">
+      <Slider {...settings} className="h-full">
+        <div className="relative aspect-[16/9]">
           <img
             src={carousel1}
             alt="carousel1"
-            className="w-full  h-full object-cover object-center scale-90 ml-20"
+            className="w-full h-full object-contain"
           />
           <div className="absolute top-[40%] left-1/2 transform -translate-x-[0%] -translate-y-1/2 text-[#08455A] text-center">
-            <h2 className="text-2xl md:text-4xl font-bold font-sans mb-2 md:mb-5 text-orange-400">
+            <h2 className="text-xl md:text-3xl font-bold font-sans mb-2 md:mb-5 text-orange-400">
               "실시간 소통으로 더 정확한 응급처치"
             </h2>
             <p className="text-base md:text-lg font-sans" style={{ lineHeight: '2rem' }}>
               상황실과의 영상통화로 현장 도착 전에도 응급 지도를 받을 수 있습니다. <br />
-              또한 119간 실시간 응급 상황을 공유하여 최적의 구급팀이 즉시 출동합니다.
+              또한 실시간 응급 상황을 공유하여 최적의 구급팀이 즉시 출동합니다.
             </p>
           </div>
         </div>
 
-        <div className="relative w-full">
+        <div className="relative aspect-[16/9]">
           <img
             src={carousel2}
             alt="carousel2"
-            className="w-full h-full object-cover object-center ml-20"
+            className="w-full h-full object-contain"
           />
           <div className="absolute top-1 left-1/2 transform translate-x-[10%] translate-y-[20%] text-[#08455A] text-center">
-            <h2 className="text-2xl md:text-4xl font-bold font-sans mb-2 md:mb-4 text-orange-400">
+            <h2 className="text-xl md:text-3xl font-bold font-sans mb-2 md:mb-4 text-orange-400">
               "한 번의 등록으로 언제나 안전하게"
             </h2>
             <p className="text-base md:text-lg font-sans" style={{ lineHeight: '2rem' }}>
@@ -80,14 +83,14 @@ const Carousel = () => {
           </div>
         </div>
 
-        <div className="relative w-full">
+        <div className="relative aspect-[16/9]">
           <img
             src={carousel3}
             alt="carousel3"
-            className="w-full h-full object-cover object-center scale-90 ml-20"
+            className="w-full h-full object-contain"
           />
-          <div className="absolute w-1/2 top-1 left-1/2 transform translate-x-[10%] translate-y-[0%] text-[#08455A] text-center">
-            <h2 className="text-2xl md:text-4xl font-bold font-sans mb-2 md:mb-5 text-orange-400">
+          <div className="absolute w-1/2 top-1 left-1/2 transform translate-x-[5%] translate-y-[0%] text-[#08455A] text-center">
+            <h2 className="text-xl md:text-3xl font-bold font-sans mb-2 md:mb-4 text-orange-400">
               "정확한 위치, 빠른 도착"
             </h2>
             <p className="text-base md:text-lg font-sans" >

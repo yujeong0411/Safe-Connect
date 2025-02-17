@@ -5,8 +5,8 @@ const UserPublicPage = () => {
   return (
 
       <UserPublicTemplate>
-          <div className="w-full h-full flex justify-center items-center">
-              <div className="max-w-[1100px] h-[70vh] flex items-center justify-center mt-10 transform -translate-x-40">
+          <div className="w-full flex justify-center items-center">
+              <div className="max-w-[1100px] flex items-center justify-center mt-10 transform -translate-x-40">
                   <Carousel/>
               </div>
           </div>
