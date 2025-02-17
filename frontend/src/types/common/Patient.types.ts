@@ -32,6 +32,7 @@ export interface CurrentCall {
   patientId: number | null;
 }
 
+
 // 전화번호 조회시 얻는 정보(현재 신고 중인 환자)
 export interface PatientInfo {
   userId: number;
@@ -74,6 +75,9 @@ export interface SavePatientResponse {
 
 // 상황실 환자 스토어
 export interface PatientStore {
+  isDispatched :boolean;  // 현재 출동 지령 상태 표시
+  setIsDispatched(isDispatched: boolean): void;
+
   patientInfo: PatientInfo | null;
   currentCall: CurrentCall | null;
   formData: FormData;

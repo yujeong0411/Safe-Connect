@@ -8,6 +8,7 @@ const Button = ({
   onClick,
   type,
   className,
+    disabled,
 }: ButtonProps) => {
   // 모든 버튼에 공통으로 적용되는 기본 스타일
   const baseStyle = 'rounded-md transition-colors'; // 둥근 모서리, hover 시 부드러운 색상 전환
@@ -42,6 +43,7 @@ const Button = ({
       className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${widthStyles[width]} ${className}`}
       onClick={onClick}
       type={type}
+      disabled={disabled}
     >
       {children}
     </button>

@@ -6,6 +6,8 @@ interface LocationState {
     lat: number;
     lng: number;
   };
+  address: string;  // 변환 주소
+  setAddress: (address: string) => void;
   isLoading: boolean;
   setLocation: (lat: number, lng: number) => void;
   setIsLoading: (loading: boolean) => void;
@@ -16,10 +18,15 @@ interface LocationState {
 export const useLocationStore = create<LocationState>((set) => ({
   center: { lat: 37.566826, lng: 126.9786567 }, // 서울시청 좌표 (기본값)
   isLoading: true,
+  address:'',
+
   setLocation: (lat: number, lng: number) =>
     set({ center: { lat, lng }, isLoading: false }),
 
   setIsLoading: (loading: boolean) => set({ isLoading: loading }),
+
+  setAddress: (address: string) =>
+      set(() => ({ address })),
 
   fetchUserLocation: () => {
     if (navigator.geolocation) {
