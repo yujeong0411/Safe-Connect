@@ -298,7 +298,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         List<String> deadCallerEmitters = new ArrayList<>();
         callerEmitters.forEach((clientId, emitter) -> {
             try {
-                emitter.send(SseEmitter.event().name("ambulance location shared!")
+                emitter.send(SseEmitter.event().name("ambulanceLocation-shared")
                         .data(ResponseUtil.success(request, "구급차 현재 위치 공유 성공")));
             } catch (IOException e) {
                 deadCallerEmitters.add(clientId);
