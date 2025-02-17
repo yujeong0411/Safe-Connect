@@ -9,6 +9,8 @@ import {useVideoDrawerStore} from "@/store/dispatch/dispatchVideoStore.tsx";
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
+import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@radix-ui/react-toast';
 
 
 interface DispatchMainTemplateProps {
@@ -62,7 +64,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
 
       // 브라우저가 온라인 상태로 돌아올 때 연결 다시 시도하는 함수
       const handleOnline = () => {
-        if (location.pathname.startsWith("/dispatchGroup")) {
+        if (location.pathname.startsWith("/dispatch")) {
           console.log("Browser is online, reconnecting SSE..");
           disconnect();
           connectSSE();
@@ -81,7 +83,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
       return () => {
 
         // 구급팀 경로를 벗어나면 연결 해제
-        if (!location.pathname.startsWith("/dispatchGroup")) {
+        if (!location.pathname.startsWith("/dispatch")) {
           disconnect();
         }
 
@@ -98,12 +100,21 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
   useEffect(() => {
     try {
       if (patientData.patientId && currentCallId !== null && !hasNotificationBeenShown(currentCallId)) {
-        console.log("Condition satisfied, showing alert");
-        handleAlertClose({
+
+        toast({
           title: "출동 지령 도착",
           description: "출동 지령이 도착했습니다.",
-          type: "default"
-        });
+          duration: Infinity,
+          action: <ToastAction altText="닫기">닫기</ToastAction>
+        })
+        setVideoDrawerOpen(true);
+        navigate('/dispatch/patient-info');
+
+        // handleAlertClose({
+        //   title: "출동 지령 도착",
+        //   description: "출동 지령이 도착했습니다.",
+        //   type: "default"
+        // });
 
         // dispatchSseStore로 코드 이동
         // const openViduStore = useOpenViduStore.getState();
