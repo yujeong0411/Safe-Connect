@@ -1,5 +1,5 @@
 import UserRoutes from '@/routes/UserRoutes.tsx';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import DispatchRoutes from '@/routes/DispatchRoutes.tsx';
 import HospitalRoutes from '@/routes/HospitalRoutes.tsx';
 import AdminRoutes from '@/routes/AdminRoutes.tsx';
@@ -10,6 +10,9 @@ const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
+        {/*초기화면*/}
+        <Route path="/" element={<Navigate to="/user" replace />} />
+
         {/*일반 사용자*/}
         <Route path="/user/*" element={<UserRoutes />} />
 
