@@ -2,14 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {axiosInstance} from '@/utils/axios';
 import { Hospital, HospitalResponse } from '@/features/dispatch/types/hospital.types';
+import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
 
 interface AddressInfo {
   siDo: string;
   siGunGu: string;
 }
 
-interface TransferRequestParams {
+interface PatientTransferRequest {
+  dispatchId: number | null;
   hospitalIds: number[];
+  patientId: number | null;
 }
 
 interface RouteInfo {
@@ -205,7 +208,7 @@ useEffect(() => {
             hospital.hospitalLat,
             hospital.hospitalLng
           );
-        
+
           return {
             ...hospital,
             requested: requestedHospitals.has(hospital.hospitalId),
@@ -215,7 +218,7 @@ useEffect(() => {
         });
 
         const newHospitals = await Promise.all(hospitalPromises);
-        
+
         // 거리순으로 정렬
         const sortedHospitals = newHospitals.sort((a, b) => a.distance - b.distance);
 
@@ -235,12 +238,13 @@ useEffect(() => {
     }
   }, [currentLocation, addressInfo, calculateRoute, requestedHospitals, handleError]);
   // 이송 요청
+  const formData = useDispatchPatientStore((state) => state.formData);
+
   const requestTransfer = useCallback(async (hospitalIds: number[]) => {
     try {
-      console.log(hospitalIds)
-      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
-        hospitalIds
-      } as TransferRequestParams);
+
+      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request',
+        {dispatchId:formData.dispatchId,hospitalIds,patientId:formData.patientId});
 
       if (response.data.isSuccess) {
         setHospitals(prev =>
@@ -256,7 +260,7 @@ useEffect(() => {
       handleError(error);
       return false;
     }
-  }, [handleError]);
+  }, [formData, handleError]);
 
   const handleSearch = useCallback(async () => {
     if (!currentLocation || !addressInfo) return;
