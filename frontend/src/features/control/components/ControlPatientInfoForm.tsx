@@ -271,16 +271,19 @@ const ControlPatientInfoForm = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
                 className="w-full h-32 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
-                // value={`${formData.callSummary}\n\n${formData.addSummary}`}
-                value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n\n' : ''}${formData.addSummary}`}
+                value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n' : ''}${formData.addSummary}`}
                 onChange={(e) => {
                   const totalValue = e.target.value;
-                  // ai 요약본과 추가 텍스트 입력 가능
-                  const callSummaryNewLine = formData.callSummary
-                    ? formData.addSummary + '\n\n'
-                    : '';
-                  const newAddSummary = totalValue.replace(callSummaryNewLine, '');
-                  updateFormData({ addSummary: newAddSummary });
+                  // callSummary 부분을 제외한 나머지를 addSummary로 설정
+                  if (formData.callSummary) {
+                    // 줄바꿈을 포함한 AI 요약본 부분을 찾아서 제거
+                    const summaryPart = formData.callSummary + (formData.addSummary ? '\n' : '');
+                    const newAddSummary = totalValue.replace(summaryPart, '');
+                    updateFormData({ addSummary: newAddSummary });
+                  } else {
+                    // AI 요약본이 없는 경우 전체를 추가 요약본으로 설정
+                    updateFormData({ addSummary: totalValue });
+                  }
                 }}
                 placeholder="추가 내용을 입력하세요."
               />

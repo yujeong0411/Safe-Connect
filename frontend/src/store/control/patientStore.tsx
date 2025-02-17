@@ -162,13 +162,14 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
           ...state,
           formData: {
             ...state.formData,
-            callSummary: response.data.callSummary,
-            addSummary: '', // 새로운 AI요약본 받아올때 최소화
+            callSummary: response.callSummary,
+            addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화
           }
         }))
       }
     } catch (error) {
       console.error("신고내용 요약 실패", error)
+      throw error;
     }
   }
 }))

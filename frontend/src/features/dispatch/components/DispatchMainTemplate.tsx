@@ -61,6 +61,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     // 출동 지령 수신
     eventSource.addEventListener("dispatch-order", (event) => {
       const response: DispatchOrderResponse = JSON.parse(event.data);
+      console.log(response);
       if (response.isSuccess) {
         handleAlertClose({
           title: "출동 지령 도착",
@@ -73,7 +74,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
         useDispatchPatientStore.getState().setPatientFromSSE(response.data);
 
         const openViduStore = useOpenViduStore.getState();
-
+        console.log(openViduStore);
 
         openViduStore.handleChangeSessionId({
           target: { value: response.data.sessionId }

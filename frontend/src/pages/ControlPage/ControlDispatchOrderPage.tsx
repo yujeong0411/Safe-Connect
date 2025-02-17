@@ -36,7 +36,7 @@ const ControlDispatchOrderPage = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 10000);
+    }, 1000);
   };
 
   // 출동지령 알림창

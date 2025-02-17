@@ -17,7 +17,8 @@ const PublicHeader = ({ labels = [] }: PublicHeaderProps) => {
             case 'dispatch': return '/dispatch/main';
             case 'admin': return '/admin/main';
             case 'user': return '/user/main';
-            default: return '/';  // 기본 경로 추가
+            default:
+                return '/';  // 기본 경로 추가
         }
     };
 

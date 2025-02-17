@@ -160,9 +160,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold">전화 업무</h2>
               <div className="space-x-4">
-              {/*<Button variant="destructive" size="default" onClick={handleEndCall}>*/}
-              {/*  전화 종료*/}
-              {/*</Button>*/}
                 <ConfirmDialog
                     trigger="전화 종료"
                     title="전화 종료"
@@ -197,25 +194,25 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
             </div>
             {/* 신고 내용 입력 */}
             <div className="space-y-4 p-6">
-              <div className="flex justify-end space-x-4">
-                {/*<h3 className="text-lg font-semibold">신고 내용</h3>*/}
-                <ConfirmDialog
-                    trigger="전화 종료"
-                    title="전화 종료"
-                    description="현재 신고 전화를 종료하시겠습니까?"
-                    confirmText = "종료"
-                    triggerVariant="destructive"
-                    cancelVariant="gray"
-                    confirmVariant="destructive"
-                    onConfirm={handleEndCall}
-                />
-                <Button variant="default" size="default" onClick={handleResendUrl}>
-                  URL 재전송
-                </Button>
-                <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">
-                  AI 요약
-                </Button>
-              </div>
+              {/*<div className="flex justify-end space-x-4">*/}
+              {/*  /!*<h3 className="text-lg font-semibold">신고 내용</h3>*!/*/}
+              {/*  <ConfirmDialog*/}
+              {/*      trigger="전화 종료"*/}
+              {/*      title="전화 종료"*/}
+              {/*      description="현재 신고 전화를 종료하시겠습니까?"*/}
+              {/*      confirmText = "종료"*/}
+              {/*      triggerVariant="destructive"*/}
+              {/*      cancelVariant="gray"*/}
+              {/*      confirmVariant="destructive"*/}
+              {/*      onConfirm={handleEndCall}*/}
+              {/*  />*/}
+              {/*  <Button variant="default" size="default" onClick={handleResendUrl}>*/}
+              {/*    URL 재전송*/}
+              {/*  </Button>*/}
+              {/*  <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">*/}
+              {/*    AI 요약*/}
+              {/*  </Button>*/}
+              {/*</div>*/}
               {/*<Textarea*/}
               {/*  value={formData.callSummary}*/}
               {/*  onChange={(e) => updateFormData({ callSummary: e.target.value})}*/}
