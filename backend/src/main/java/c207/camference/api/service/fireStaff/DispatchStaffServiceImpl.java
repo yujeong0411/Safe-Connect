@@ -250,52 +250,68 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         try {
             String urlStr = availableHospitalUrl +
-                    "?ServiceKey=" + serviceKey +  // serviceKey는 인코딩하지 않음
+                    "?ServiceKey=" + serviceKey +
                     "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
                     "&STAGE2=" + URLEncoder.encode(siGunGu, StandardCharsets.UTF_8) +
                     "&numOfRows=" + 100;
 
             String response = OpenApiUtil.getHttpResponse(urlStr);
-            JSONObject jsonResponse = XML.toJSONObject(response); // XML 문자열 -> JSON 객체
+            JSONObject jsonResponse = XML.toJSONObject(response);
             String jsonStr = jsonResponse.toString();
 
             JsonNode root = objectMapper.readTree(jsonStr);
-            JsonNode itemArray = root.path("response").path("body").path("items").path("item");
+            JsonNode itemNode = root.path("response").path("body").path("items").path("item");
 
-            for (JsonNode item : itemArray) {
-                String hospitalName = item.path("dutyName").asText();
-                Hospital hospital = hospitalRepository.findByHospitalName(hospitalName)
-                        .orElse(null);
-
-                AvailableHospitalResponse availableHospitalResponse = AvailableHospitalResponse.builder()
-                        .hospitalId(hospital.getHospitalId())
-                        .hospitalName(hospitalName)
-                        .hospitalPhone(hospital.getHospitalPhone())
-                        .hospitalCapacity(item.path("hvec").asInt())
-                        .hospitalAddress(hospital.getHospitalAddress())
-                        .hospitalLng(hospital.getHospitalLocation().getX())
-                        .hospitalLat(hospital.getHospitalLocation().getY())
-                        .build();
-
-                Point latLong = hospital.getHospitalLocation();
-                double lng = latLong.getX();
-                double lat = latLong.getY();
-                double distance = hospitalRepository.calculateDistance(lng, lat, longitude, latitude);
-                // 신고자와 병원사이의 거리가 입력받은 범위 안에 있는지 계산
-                if(range >= distance && distance >= range - 1.0){
-                    availableHospitalResponse.setDistance(distance);
-                    responses.add(availableHospitalResponse);
+            // item이 단일 객체인 경우
+            if (itemNode.isObject()) {
+                processHospitalItem(itemNode, responses, longitude, latitude, range);
+            }
+            // item이 배열인 경우
+            else if (itemNode.isArray()) {
+                for (JsonNode item : itemNode) {
+                    processHospitalItem(item, responses, longitude, latitude, range);
                 }
             }
 
             return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
 
-
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
+            }
+        }
+    }
+
+    private void processHospitalItem(JsonNode item, List<AvailableHospitalResponse> responses,
+                                     Double longitude, Double latitude, Double range) {
+        System.out.println("Processing item: " + item);  // 디버깅용
+        String hospitalName = item.get("dutyName").asText();
+        System.out.println("Hospital Name: " + hospitalName);  // 디버깅용
+
+        Hospital hospital = hospitalRepository.findByHospitalName(hospitalName)
+                .orElse(null);
+
+        if (hospital != null) {
+            AvailableHospitalResponse availableHospitalResponse = AvailableHospitalResponse.builder()
+                    .hospitalId(hospital.getHospitalId())
+                    .hospitalName(hospitalName)
+                    .hospitalPhone(hospital.getHospitalPhone())
+                    .hospitalCapacity(item.get("hvec").asInt())
+                    .hospitalAddress(hospital.getHospitalAddress())
+                    .hospitalLng(hospital.getHospitalLocation().getX())
+                    .hospitalLat(hospital.getHospitalLocation().getY())
+                    .build();
+
+            Point latLong = hospital.getHospitalLocation();
+            double distance = hospitalRepository.calculateDistance(
+                    latLong.getX(), latLong.getY(), longitude, latitude);
+
+            if(range >= distance && distance >= range - 1.0){
+                availableHospitalResponse.setDistance(distance);
+                responses.add(availableHospitalResponse);
             }
         }
     }
