@@ -22,11 +22,11 @@ const UserRoutes = () => {
         <Route path="info" element={<UserInfoPage />} />
         <Route path="medi" element={<UserMediPage />} />
         <Route path="updatepassword" element={<UserUpdatePwPage />} /> // 로그인
-        <Route path="signup/medi" element={<UserSignupPage3 />} />
       </Route>
 
       {/* 모든 사용자 접근 가능 */}
       <Route element={<PublicRoute />}>
+        <Route path="signup/medi" element={<UserSignupPage3 />} />
         <Route path="" element={<UserPublicPage />} />
         <Route path="login" element={<UserLoginPage />} />
         <Route path="signup" element={<UserSignupPage1 />} />

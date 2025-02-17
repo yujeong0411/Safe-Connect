@@ -110,16 +110,6 @@ const UserInfoPage = () => {
 
   return (
       <>
-        {/*<ConfirmDialog*/}
-        {/*    trigger="회원 탈퇴"*/}
-        {/*    title="회원 탈퇴"*/}
-        {/*    description="정말로 탈퇴하시겠습니까? 탈퇴 시 모든 개인정보와 의료정보가 삭제되며, 이 작업은 되돌릴 수 없습니다. 삭제된 정보는 복구할 수 없으며, 서비스를 다시 이용하시려면 재가입이 필요합니다."*/}
-        {/*    confirmText="탈퇴"*/}
-        {/*    cancelText="취소"*/}
-        {/*    onConfirm={handleSignout}*/}
-        {/*    triggerVariant="gray"*/}
-        {/*    className="w-24 h-10"*/}
-        {/*/>*/}
     <MainTemplate
       navItems={[
         { label: '개인 정보 수정', path: '/user/info' },
@@ -146,22 +136,17 @@ const UserInfoPage = () => {
     </MainTemplate>
 
   {showAlert && (
-      <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[9999]">
+      <div className="fixed left-1/2 md:left-2/3 top-[300px] -translate-x-1/2 z-[9999]">
         <Alert
             variant={alertConfig.type}
-            className={`w-[400px] shadow-lg bg-white ${
-                alertConfig.type === 'default'
-                    ? '[&>svg]:text-blue-600 text-blue-600'
-                    : '[&>svg]:text-red-500 text-red-500'
-            }`}
         >
           {alertConfig.type === 'default' ? (
-              <CircleCheckBig className="h-6 w-6" />
+              <CircleCheckBig className="h-5 md:h-6 w-5 md:w-6" />
           ) : (
-              <CircleAlert className="h-6 w-6" />
+              <CircleAlert className="h-5 md:h-6 w-5 md:w-6" />
           )}
-          <AlertTitle className="text-xl ml-4 font-sans">{alertConfig.title}</AlertTitle>
-          <AlertDescription className="text-base m-2 font-sans whitespace-pre-line">
+          <AlertTitle>{alertConfig.title}</AlertTitle>
+          <AlertDescription>
             {alertConfig.description}
           </AlertDescription>
         </Alert>
