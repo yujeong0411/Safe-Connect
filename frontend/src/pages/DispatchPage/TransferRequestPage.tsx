@@ -44,7 +44,6 @@ const TransferRequestPage = () => {
     error: searchError,
   } = useHospitalSearch();
 
-  // const { updateTransferStatus } = useHospitalTransferStore();
 
   const [showBulkRequestDialog, setShowBulkRequestDialog] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
