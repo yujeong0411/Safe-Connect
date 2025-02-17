@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.api.gax.longrunning.OperationFuture;
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 import io.openvidu.java.client.Connection;
@@ -31,7 +32,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -184,18 +187,46 @@ public class WebRtcServiceImpl implements WebRtcService {
                             .setLanguageCode("ko-KR")
                             .build();
 
-            // 오디오-텍스트 변환 수행
-            RecognizeResponse response = speechClient.recognize(recognitionConfig, recognitionAudio);
-            List<SpeechRecognitionResult> results = response.getResultsList();
+            // 입력받은 파일이 1분 이상일 경우를 위해
+            try {
+                // 비동기 변환 요청
+                OperationFuture<LongRunningRecognizeResponse, LongRunningRecognizeMetadata> response
+                        = speechClient.longRunningRecognizeAsync(recognitionConfig, recognitionAudio);
 
-            if (!results.isEmpty()) {
-                // 주어진 말 뭉치에 대해 여러 가능한 스크립트를 제공. 0번(가장 가능성 있는)을 사용한다.
-                SpeechRecognitionResult result = results.get(0);
-                return result.getAlternatives(0).getTranscript();
-            } else {
-                System.out.println("No transcription result found");
-                return "";
+                // 결과 대기 (최대 3분)
+                LongRunningRecognizeResponse result = response.get(3, TimeUnit.MINUTES);
+
+                // 결과 처리
+                StringBuilder transcription = new StringBuilder();
+                for (SpeechRecognitionResult recognitionResult : result.getResultsList()) {
+                    transcription.append(recognitionResult.getAlternatives(0).getTranscript())
+                            .append(" ");
+                }
+
+                return transcription.toString().trim();
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("음성 변환이 중단되었습니다.", e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException("음성 변환 중 오류가 발생했습니다.", e);
+            } catch (TimeoutException e) {
+                throw new RuntimeException("음성 변환 시간이 초과되었습니다.", e);
             }
+
+
+            // 오디오-텍스트 변환 수행
+//            RecognizeResponse response = speechClient.recognize(recognitionConfig, recognitionAudio);
+//            List<SpeechRecognitionResult> results = response.getResultsList();
+//
+//            if (!results.isEmpty()) {
+//                // 주어진 말 뭉치에 대해 여러 가능한 스크립트를 제공. 0번(가장 가능성 있는)을 사용한다.
+//                SpeechRecognitionResult result = results.get(0);
+//                return result.getAlternatives(0).getTranscript();
+//            } else {
+//                System.out.println("No transcription result found");
+//                return "";
+//            }
         }
 
         // 텍스트로 변환한 음성을 요약해주는 기능
