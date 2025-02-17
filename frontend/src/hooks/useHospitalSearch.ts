@@ -237,6 +237,7 @@ useEffect(() => {
   // 이송 요청
   const requestTransfer = useCallback(async (hospitalIds: number[]) => {
     try {
+      console.log(hospitalIds)
       const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
         hospitalIds
       } as TransferRequestParams);
