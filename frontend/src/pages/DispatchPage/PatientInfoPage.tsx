@@ -5,6 +5,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore.tsx';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {CircleAlert, CircleCheckBig} from "lucide-react";
 
 const PatientInfoPage = () => {
   const {
@@ -86,6 +87,11 @@ const PatientInfoPage = () => {
       const response = await savePatientInfo();
       if (response) {
         console.log('환자 저장 성공(페이지)', response);
+        showAlertWithTimeout({
+          title: '저장 성공',
+          description: '저장되었습니다.',
+          type: 'default',
+        });
       }
     } catch (error) {
       console.error('환자 저장 실패(페이지)', error);
@@ -380,15 +386,20 @@ const PatientInfoPage = () => {
         </form>
 
         {showAlert && (
-          <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
-            <Alert
-              variant={alertConfig.type}
-              className="w-[400px] shadow-lg bg-white"
-            >
-              <AlertTitle>{alertConfig.title}</AlertTitle>
-              <AlertDescription>{alertConfig.description}</AlertDescription>
-            </Alert>
-          </div>
+            <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
+              <Alert
+                  variant={alertConfig.type}
+                  className="w-[400px] shadow-lg bg-white"
+              >
+                {alertConfig.type === 'default' ? (
+                    <CircleCheckBig className="h-6 w-6" />
+                ) : (
+                    <CircleAlert className="h-6 w-6" />
+                )}
+                <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+                <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
+              </Alert>
+            </div>
         )}
       </div>
     </DispatchMainTemplate>

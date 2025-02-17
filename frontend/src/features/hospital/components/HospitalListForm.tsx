@@ -250,36 +250,38 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
 
 
   return (
-      <div className="w-full p-10 ">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">
+      <div className="w-full p-10 flex flex-col h-screen ">
+        <h1 className="text-xl font-bold mb-2 text-gray-800">
           {type === 'request' ? '실시간 이송 요청' : '이송 수락 목록'}
         </h1>
 
-        {/* 필터 영역 */}
-        <div className="flex gap-4 items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
+        {/* 필터 영역 : 수락 목록에만 보이게 수정*/}
+        {type === 'accept' && (
+        <div className="flex gap-2 items-center p-2 rounded-lg">
           <input
               type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
-              className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 p-2 w-34 h-9 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
           <span className="text-gray-500">~</span>
           <input
               type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
-              className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 p-2 w-34 h-9 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-          <button onClick={handleSearch} className="px-4 py-2 rounded-md bg-banner text-white">
+          <button onClick={handleSearch} className="px-4 py-1 rounded-md bg-banner text-white">
             조회
           </button>
           <button
               onClick={handleReset}
-              className="px-4 py-2 rounded-md border bg-graybtn text-black"
+              className="px-4 py-1 rounded-md border bg-graybtn text-black"
           >
             초기화
           </button>
         </div>
+        )}
 
         {/* 테이블 */}
         <div className="bg-white rounded-lg overflow-hidden">
