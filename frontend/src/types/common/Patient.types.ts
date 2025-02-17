@@ -100,9 +100,8 @@ export interface CallSummaryResponse {
   isSuccess: boolean;
   code: number;
   message: string;
-  data: {
-    callSummary: string;
-  };
+  callSummary: string;
+
 }
 
 // 구급대원의 환자 정보 저장 요청 타입

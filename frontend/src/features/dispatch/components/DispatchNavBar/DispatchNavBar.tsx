@@ -11,7 +11,7 @@ const DispatchNavBar = ({ navItems }: DispatchNavBarProps) => {
   };
 
   return (
-    <nav className="w-flex h-[50px] relative">
+    <nav className="w-flex h-[45px] relative">
       <div className="w-full h-full absolute bg-banner" />
       <div className="h-full flex justify-start items-center pl-20 gap-20">
         {navItems.map((item, index) => (

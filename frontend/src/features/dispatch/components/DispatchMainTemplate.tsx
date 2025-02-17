@@ -38,7 +38,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 10000);
+    }, 1000);
   }
 
   const patientData = useDispatchPatientStore((state) => state.formData);
