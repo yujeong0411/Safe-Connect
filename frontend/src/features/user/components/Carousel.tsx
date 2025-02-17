@@ -47,7 +47,7 @@ const Carousel = () => {
   };
 
   return (
-    <div className="w-full h-[600px] relative overflow-hidden">
+    <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] relative overflow-hidden">
       <Slider {...settings} className="h-full">
         <div className="relative aspect-[16/9]">
           <img
