@@ -85,8 +85,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> getReports(){
-        try{
+    public ResponseEntity<?> getReports() {
+        try {
             String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
 
             // 1. FireStaff 조회
@@ -142,8 +142,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> dispatchDetail(int dispatchId){
-        try{
+    public ResponseEntity<?> dispatchDetail(int dispatchId) {
+        try {
             Dispatch dispatch = dispatchRepository.findByDispatchId(dispatchId)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 출동내역이 없습니다."));
 
@@ -167,14 +167,14 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> transferDetail(int transferId){
-        try{
+    public ResponseEntity<?> transferDetail(int transferId) {
+        try {
             Transfer transfer = transferRepository.findByTransferId(transferId)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 이송내역이 없습니다."));
             Patient patient = patientRepository.findByTransferId(transfer.getTransferId())
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 환자가 없습니다."));
 
-            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer,patient, userMediDetailRepository);
+            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer, patient, userMediDetailRepository);
 
             ResponseData<TransferDetailResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -194,12 +194,12 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> getReportDetail(int dispatchId){
-        try{
+    public ResponseEntity<?> getReportDetail(int dispatchId) {
+        try {
             List<Patient> patients = patientRepository.findPatientsByDispatchId(dispatchId);
 
             List<DispatchReportDetailResponse> data = patients.stream()
-                    .map(patient->new DispatchReportDetailResponse(patient,userMediDetailRepository))
+                    .map(patient -> new DispatchReportDetailResponse(patient, userMediDetailRepository))
                     .collect(Collectors.toList());
 
             ResponseData<List> response = ResponseUtil.success(data, "상세 조회 완료");
@@ -221,8 +221,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Transactional
     @Override
-    public ResponseEntity<?> getReqHospital(int dispatchId){
-        try{
+    public ResponseEntity<?> getReqHospital(int dispatchId) {
+        try {
             List<ReqHospitalResponse> reqHospital = reqHospitalRepository.findReqHospitalsByDispatchId(dispatchId)
                     .stream().map(ReqHospitalResponse::new)
                     .collect(Collectors.toList());
@@ -242,107 +242,110 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         }
     }
 
+    /**
+     * 여기서부터 수정된 로직(2025.02.17)
+
+     * 필터링한 병원들로부터 시도, 군구 추출
+     * -> OpenAPI에 넘겨서 결과를 확인한다.
+     * -> 결과와 일치하는 항목이 있다면
+     * -> response에 추가
+     *
+     */
     @Transactional
     @Override
     public ResponseEntity<?> getAvailableHospital(Double longitude, Double latitude, Double range) {
-        // List<AvailableHospitalResponse> responses = new ArrayList<>();
-        HttpURLConnection urlConnection = null;
-
-        /**
-         * 여기서부터 수정된 로직(2025.02.17)
-         */
-
+        List<AvailableHospitalResponse> responses = new ArrayList<>();
+        ArrayList<String> hospitals;
         List<Object[]> results = hospitalRepository.findHospitalsWithinRadius(longitude, latitude, range);
-        System.out.println("병원 리스트 : ");
-        for (Object[] result : results) {
-            System.out.printf(
-                    "병원ID: %d, 병원명: %s, 경도: %.6f, 위도: %.6f, 거리: %.2fkm%n, 휴대폰 : %s, 주소 : %s ",
-                    result[0],  // hospital_id
-                    result[1],  // hospital_name
-                    result[2],  // longitude
-                    result[3],  // latitude
-                    result[4],   // distance_km
-                    result[5],  //
-                    result[6]   // address
-            );
+        try {
 
+            System.out.println("병원 리스트 : ");
+            for (Object[] result : results) {
 
-        }
+                /**
+                 * result[0],  // hospital_id
+                 * result[1],  // hospital_name
+                 * result[2],  // longitude
+                 * result[3],  // latitude
+                 * result[4],   // distance_km
+                 * result[5],  // phone_number
+                 * result[6]   // address
+                 */
+                String hospitalName = (String) result[1];
+                Double distance = (Double) result[4];
 
-        //String fullAddress = results[6];
+                // 범위안에 있는 병원들의 주소의 시도, 구군을 자른다. 
+                String fullAddress = (String) result[6];
+                String[] addressParts = fullAddress.split(" ");
 
-        List<AvailableHospitalResponse> responses = results.stream()
-                .map(result -> AvailableHospitalResponse.builder()
-                        .hospitalId((Integer) result[0])
-                        .hospitalName((String) result[1])
-                        .hospitalLng((Double) result[2])
-                        .hospitalLat((Double) result[3])
-                        .distance((Double) result[4])
-                        .hospitalPhone((String) result[5])
-                        .hospitalAddress((String) result[6])
-                        .hospitalCapacity(null)  // 아직 이 정보는 조회하지 않음
-                        .build())
-                .collect(Collectors.toList());
+                String siDo = addressParts[0];    // 첫 번째 부분 (시/도)
+                String siGunGu = addressParts[1];  // 두 번째 부분 (시/군/구)
 
+                // 자른 시도, 구군을 바탕으로 해당 행정구역안의 남는 침상이 있는 응급실 조회 
+                hospitals = checkEmergencyRooms(siDo, siGunGu);
 
-        /**
-         * 필터링한 병원들로부터 시도, 군구 추출
-         * -> OpenAPI에 넘겨서 결과를 확인한다.
-         */
-        try{
+                // 만일 범위안의 병원의 남는 침상이 있다면 응답에 추가
+                if (hospitals.contains(hospitalName)) {
+                    Hospital hospital = hospitalRepository.findByHospitalName(hospitalName)
+                            .orElse(null);
 
+                    if (hospital != null) {
+                        AvailableHospitalResponse response = AvailableHospitalResponse.builder()
+                                .hospitalId(hospital.getHospitalId())
+                                .hospitalName(hospital.getHospitalName())
+                                .hospitalPhone(hospital.getHospitalPhone())
+                                .hospitalAddress(hospital.getHospitalAddress())
+                                .hospitalLng(hospital.getHospitalLocation().getX())
+                                .hospitalLat(hospital.getHospitalLocation().getY())
+                                .hospitalDistance(distance)
+                                .build();
 
-        }catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
+                        responses.add(response);
+                    }
+                }
             }
+            return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("OpenAPI로 병원 정보 조회 중 오류 발생", e);
         }
-
-        /**
-         * 수정된 로직 끝
-         */
-
-//        try {
-//            String urlStr = availableHospitalUrl +
-//                    "?ServiceKey=" + serviceKey +
-//                    "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
-//                    "&STAGE2=" + URLEncoder.encode(siGunGu, StandardCharsets.UTF_8) +
-//                    "&numOfRows=" + 100;
-//
-//            String response = OpenApiUtil.getHttpResponse(urlStr);
-//            JSONObject jsonResponse = XML.toJSONObject(response);
-//            String jsonStr = jsonResponse.toString();
-//
-//            JsonNode root = objectMapper.readTree(jsonStr);
-//            JsonNode itemNode = root.path("response").path("body").path("items").path("item");
-//
-//            // item이 단일 객체인 경우
-//            if (itemNode.isObject()) {
-//                processHospitalItem(itemNode, responses, longitude, latitude, range);
-//            }
-//            // item이 배열인 경우
-//            else if (itemNode.isArray()) {
-//                for (JsonNode item : itemNode) {
-//                    processHospitalItem(item, responses, longitude, latitude, range);
-//                }
-//            }
-//
-//            // return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new RuntimeException("병원 정보 조회 중 오류 발생", e);
-//        } finally {
-//            if (urlConnection != null) {
-//                urlConnection.disconnect();
-//            }
-//        }
-        return ResponseEntity.ok().body(ResponseUtil.success(responses, "가용 가능한 응급실 조회 성공"));
     }
 
+    private ArrayList<String> checkEmergencyRooms(String siDo, String siGunGu) throws Exception {
+        ArrayList<String> hospitalNames = new ArrayList<>();
+        String urlStr = availableHospitalUrl +
+                "?ServiceKey=" + serviceKey +
+                "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
+                "&STAGE2=" + URLEncoder.encode(siGunGu, StandardCharsets.UTF_8) +
+                "&numOfRows=" + 100;
+
+        String response = OpenApiUtil.getHttpResponse(urlStr);
+        JSONObject jsonResponse = XML.toJSONObject(response);
+        String jsonStr = jsonResponse.toString();
+
+        JsonNode root = objectMapper.readTree(jsonStr);
+        JsonNode itemNode = root.path("response").path("body").path("items").path("item");
+
+        // item이 단일 객체인 경우
+        if (itemNode.isObject()) {
+            System.out.println();
+            System.out.println(itemNode);
+            hospitalNames.add(itemNode.get("dutyName").asText());
+
+        }
+        // item이 배열인 경우
+        else if (itemNode.isArray()) {
+            for (JsonNode item : itemNode) {
+                System.out.println();
+                System.out.println(item);
+                hospitalNames.add(item.get("dutyName").asText());
+            }
+        }
+        return hospitalNames;
+    }
+
+    // 이건 이제 더이상 안쓰니까 민재형 컨펌 끝나면 지워도 될듯?(김성준. 25.02.18)
     private void processHospitalItem(JsonNode item, List<AvailableHospitalResponse> responses,
                                      Double longitude, Double latitude, Double range) {
         System.out.println("Processing item: " + item);  // 디버깅용
@@ -367,10 +370,10 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             double distance = hospitalRepository.calculateDistance(
                     latLong.getX(), latLong.getY(), longitude, latitude);
 
-            if(range >= distance && distance >= range - 1.0){
-                availableHospitalResponse.setDistance(distance);
-                responses.add(availableHospitalResponse);
-            }
+//            if (range >= distance && distance >= range - 1.0) {
+//                availableHospitalResponse.setDistance(distance);
+//                responses.add(availableHospitalResponse);
+//            }
         }
     }
 
@@ -429,11 +432,11 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> updatePatientInfo(PatientInfoRequest request){
+    public ResponseEntity<?> updatePatientInfo(PatientInfoRequest request) {
 
-        try{
+        try {
             Patient patient = patientRepository.findById(request.getPatientId())
-                    .orElseThrow(()->new EntityNotFoundException("환자 정보가 없습니다."));
+                    .orElseThrow(() -> new EntityNotFoundException("환자 정보가 없습니다."));
 
 
             ModelMapper modelMapper = new ModelMapper();
@@ -464,7 +467,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         }
     }
 
-    /** 출동 시간 수정 → 영상통화 참여가 트리거
+    /**
+     * 출동 시간 수정 → 영상통화 참여가 트리거
      *
      * @param request
      * @return ResponseEntity(dispatch 테이블)
@@ -489,6 +493,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     /**
      * 현장 도착 시간 수정 → 영상통화 종료가 트리거
+     *
      * @param request
      * @return ResponseEntity(dispatch 객체, 메시지)
      */
@@ -499,7 +504,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
 
         dispatch.setDispatchArriveAt(LocalDateTime.now());
-        dispatch=dispatchRepository.saveAndFlush(dispatch);
+        dispatch = dispatchRepository.saveAndFlush(dispatch);
 
 
         Map<String, Object> response = new HashMap<>();
@@ -524,6 +529,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
     /**
      * Google STT를 통해서 텍스트로 변환한 신고 내역을 바탕으로 preKTAS를 대략적으로 진단해주는 메서드
+     *
      * @param request
      * @return ResponseEntity(preKTAS추측값, 메시지)
      */
@@ -535,11 +541,10 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         System.out.println(preKTAS);
 
         Map<String, Object> response = new HashMap<>();
-        if(preKTAS >= 1 && preKTAS <= 5){
+        if (preKTAS >= 1 && preKTAS <= 5) {
             response.put("patientPreKtas", preKTAS);
             response.put("message", "preKTAS 환자 중증도 분류 성공");
-        }
-        else{
+        } else {
             response.put("patientPreKtas", "");
             response.put("message", "서버 오류");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
