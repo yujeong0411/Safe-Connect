@@ -130,3 +130,22 @@ export const dispatchDepartAt = async (dispatchId: number): Promise<{ isSuccess:
         throw error;
     }
 };
+export const dispatchLocation = async (sesionId:string,lat:number,lng:number):Promise<{ isSuccess: boolean; message: string }> => {
+    try {
+        const response = await axiosInstance.post<
+          { isSuccess: boolean; message: string }
+        >(
+          '/dispatch_staff/current_pos',
+          {
+              sesionId,
+              lat,
+              lng
+          }
+        );
+        console.log("위치 정보 전송 성공", response.data);
+        return response.data;
+    } catch (error) {
+        console.log("위치 정보 전송 실패", error);
+        throw error;
+    }
+}
