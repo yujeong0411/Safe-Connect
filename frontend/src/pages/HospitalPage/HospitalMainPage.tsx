@@ -2,7 +2,7 @@ import MainTemplate from '@components/templates/MainTemplate.tsx';
 import HospitalListForm from '@features/hospital/components/HospitalListForm.tsx';
 import { useHospitalAuthStore } from '@/store/hospital/hospitalAuthStore.tsx';
 import { useHospitalTransferStore } from '@/store/hospital/hospitalTransferStore.tsx';
-import { useState} from 'react';
+import { useRef, useState} from 'react';
 import { useToast } from '@/hooks/use-toast.ts';
 import { ToastAction } from '@components/ui/toast.tsx';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
@@ -39,229 +39,221 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   });
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // useSSE({
-  //   subscribeUrl: '/api/hospital/subscribe',
-  //   clientId: hospitalId!,
-  //   onMessage: (response) => {
-  //     //     const patientData = response.data.patient;
-  //
-  //     if (response.message === '환자 이송 요청이 접수되었습니다.') {
-  //       toast({
-  //         description: (
-  //           <div className="mt-1 space-y-1">
-  //             <div className="flex items-center gap-3 mb-2">
-  //               <h2 className="text-lg font-sans font-semibold">신규 이송 요청</h2>
-  //               <span
-  //                 className={`px-2 py-1 rounded text-md ${
-  //                   patientData.patientPreKtas === '1'
-  //                     ? 'bg-red-500 text-white'
-  //                     : patientData.patientPreKtas === '2'
-  //                       ? 'bg-orange-500 text-white'
-  //                       : patientData.patientPreKtas === '3'
-  //                         ? 'bg-yellow-300 text-black'
-  //                         : 'bg-green-100 text-green-800'
-  //                 }`}
-  //               >
-  //                 KTAS {patientData.patientPreKtas}
-  //               </span>
-  //             </div>
-  //             <p>
-  //               <span className="text-base font-sans">
-  //                 환자 정보 : {patientData.patientAge}세 / {patientData.patientGender}
-  //               </span>
-  //             </p>
-  //             <p>
-  //               <span className="text-base font-sans">증상 : {patientData.patientSympthom}</span>
-  //             </p>
-  //           </div>
-  //         ),
-  //         action: (
-  //           <ToastAction
-  //             altText="상세보기"
-  //             onClick={async () => {
-  //               try {
-  //                 const detailData = await useHospitalTransferStore
-  //                   .getState()
-  //                   .fetchTransferDetail(response.data.dispatchId, 'request');
-  //
-  //                 setSelectedPatient({
-  //                   patientId: detailData.patientId,
-  //                   name: detailData.patientName ?? null,
-  //                   gender: detailData.patientGender ?? null,
-  //                   age: detailData.patientAge ?? null,
-  //                   mental: detailData.patientMental,
-  //                   preKTAS: patientData.patients?.[0]?.patientPreKtas ?? '',
-  //                   sbp: detailData.patientSystolicBldPress,
-  //                   dbp: detailData.patientDiastolicBldPress,
-  //                   pr: detailData.patientPulseRate,
-  //                   bt: detailData.patientTemperature,
-  //                   spo2: detailData.patientSpo2,
-  //                   bst: detailData.patientBloodSugar,
-  //                   phone: detailData.userPhone,
-  //                   protectorPhone: detailData.userProtectorPhone ?? null,
-  //                   symptoms: detailData.patientSymptom,
-  //                   diseases: detailData.patientDiseases?.join(', ') ?? undefined,
-  //                   medications: detailData.patientMedications?.join(', ') ?? undefined,
-  //                   requestTransferAt: '0',
-  //                   //   requestTransferAt: format(
-  //                   //   new Date(patientData.reqHospitalCreatedAt),
-  //                   //   'yyyy-MM-dd HH:mm:ss'
-  //                   // ),
-  //                 });
-  //                 setIsDetailOpen(true);
-  //               } catch (error) {
-  //                 console.error('상세 조회 실패:', error);
-  //               }
-  //             }}
-  //           >
-  //             상세보기
-  //           </ToastAction>
-  //         ),
-  //         duration: 60000, // 시간 조정하기
-  //         className: 'bg-white border-l-4 border-pink-400',
-  //       });
-  //       fetchCombinedTransfers();
-  //     }
-  //   },
-  // });
+  // SSE 관련
+  const [sseConnected, setSseConnected] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const eventSourceRef = useRef<EventSourcePolyfill | null>(null);
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 알림 권한 요청
-  useEffect(() => {
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
+  const MAX_RETRIES = 5;
+  const INITIAL_RETRY_DELAY = 1000;
+  const RECONNECT_INTERVAL = 1500000;
+
+  const showTransferRequestToast = (patientData: any, response: any) => {
+    toast({
+      description: (
+          <div className="mt-1 space-y-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-lg font-sans font-semibold">신규 이송 요청</h2>
+              <span
+                  className={`px-2 py-1 rounded text-md ${
+                      patientData.patientPreKtas === '1'
+                          ? 'bg-red-500 text-white'
+                          : patientData.patientPreKtas === '2'
+                              ? 'bg-orange-500 text-white'
+                              : patientData.patientPreKtas === '3'
+                                  ? 'bg-yellow-300 text-black'
+                                  : 'bg-green-100 text-green-800'
+                  }`}
+              >
+                  KTAS {patientData.patientPreKtas}
+                </span>
+            </div>
+            <p>
+                <span className="text-base font-sans">
+                  환자 정보 : {patientData.patientAge}세 / {patientData.patientGender}
+                </span>
+            </p>
+            <p>
+              <span className="text-base font-sans">증상 : {patientData.patientSympthom}</span>
+            </p>
+          </div>
+      ),
+      action: (
+          <ToastAction
+              altText="상세보기"
+              onClick={async () => {
+                try {
+                  const detailData = await useHospitalTransferStore
+                      .getState()
+                      .fetchTransferDetail(response.data.dispatchId, 'request');
+
+                  setSelectedPatient({
+                    patientId: detailData.patientId,
+                    name: detailData.patientName ?? null,
+                    gender: detailData.patientGender ?? null,
+                    age: detailData.patientAge ?? null,
+                    mental: detailData.patientMental,
+                    preKTAS: detailData.patientPreKtas,
+                    sbp: detailData.patientSystolicBldPress,
+                    dbp: detailData.patientDiastolicBldPress,
+                    pr: detailData.patientPulseRate,
+                    bt: detailData.patientTemperature,
+                    spo2: detailData.patientSpo2,
+                    bst: detailData.patientBloodSugar,
+                    phone: detailData.userPhone,
+                    protectorPhone: detailData.userProtectorPhone ?? null,
+                    symptoms: detailData.patientSymptom,
+                    diseases: detailData.patientDiseases?.join(', ') ?? undefined,
+                    medications: detailData.patientMedications?.join(', ') ?? undefined,
+                    requestTransferAt: '0',
+                    //   requestTransferAt: format(
+                    //   new Date(patientData.reqHospitalCreatedAt),
+                    //   'yyyy-MM-dd HH:mm:ss'
+                    // ),
+                  });
+                  setIsDetailOpen(true);
+                } catch (error) {
+                  console.error('상세 조회 실패:', error);
+                }
+              }}
+          >
+            상세보기
+          </ToastAction>
+      ),
+      duration: 60000,
+      className: 'bg-white border-l-4 border-pink-400',
+    });
+    // 데이터 새로 고침
+    fetchCombinedTransfers();
+  };
+
+  const connectSSE = () => {
+    if (sseConnected && eventSourceRef.current) {
+      console.log("SSE already connected");
+      return;
     }
 
-    // if (!hospitalId) return;  // 병원 ID가 없으면 연결하지 않음
-    // console.log(`SSE 연결 시도: /hospital/subscribe`);
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
 
-    const token = sessionStorage.getItem('token');
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("토큰을 찾을 수 없습니다.");
+      return;
+    }
 
-    // SSE연결
-    const eventSource = new EventSourcePolyfill(
-        // 'http://localhost:8080/hospital/subscribe',
-        'https://i12c207.p.ssafy.io/api/hospital/subscribe',
-        {
+    let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    if (subscribeUrl !== "http://localhost:8080") {
+      subscribeUrl += "/api"
+    }
+
+    try {
+      const newEventSource = new EventSourcePolyfill(`${subscribeUrl}/hospital/subscribe`,
+        { 
           headers: {
-            'Authorization': `Bearer ${token}`,
+            "Authorization": `Bearer ${token}`,
           },
-          withCredentials: true,
+          withCredentials: true
         }
-    );
+      );
 
-    // 서버에서 메세지를 받을 때마다 실행
-    eventSource.onmessage = (event) => {
-      console.log('SSE 메시지 수신:', event.data);
-      const response = JSON.parse(event.data);
-
-      // 응답 데이터 구조 확인
-      console.log('파싱된 응답:', response);
-
-      // data 필드에서 환자 정보 추출
-      const patientData = response.data.patient;
-
-      // 새로운 이송 요청이 왔을 때
-      if (response.message === "환자 이송 요청이 접수되었습니다.") {
-        toast({
-          description: (
-              <div className="mt-1 space-y-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-lg font-sans font-semibold">신규 이송 요청</h2>
-                  <span
-                      className={`px-2 py-1 rounded text-md ${
-                          patientData.patientPreKtas === '1'
-                              ? 'bg-red-500 text-white'
-                              : patientData.patientPreKtas === '2'
-                                  ? 'bg-orange-500 text-white'
-                                  : patientData.patientPreKtas === '3'
-                                      ? 'bg-yellow-300 text-black'
-                                      : 'bg-green-100 text-green-800'
-                      }`}
-                  >
-                      KTAS {patientData.patientPreKtas}
-                    </span>
-                </div>
-                <p>
-                    <span className="text-base font-sans">
-                      환자 정보 : {patientData.patientAge}세 / {patientData.patientGender}
-                    </span>
-                </p>
-                <p>
-                  <span className="text-base font-sans">증상 : {patientData.patientSympthom}</span>
-                </p>
-              </div>
-          ),
-          action: (
-              <ToastAction
-                  altText="상세보기"
-                  onClick={async () => {
-                    try {
-                      const detailData = await useHospitalTransferStore
-                          .getState()
-                          .fetchTransferDetail(response.data.dispatchId, 'request');
-
-                      setSelectedPatient({
-                        patientId: detailData.patientId,
-                        name: detailData.patientName ?? null,
-                        gender: detailData.patientGender ?? null,
-                        age: detailData.patientAge ?? null,
-                        mental: detailData.patientMental,
-                        preKTAS: detailData.patientPreKtas,
-                        sbp: detailData.patientSystolicBldPress,
-                        dbp: detailData.patientDiastolicBldPress,
-                        pr: detailData.patientPulseRate,
-                        bt: detailData.patientTemperature,
-                        spo2: detailData.patientSpo2,
-                        bst: detailData.patientBloodSugar,
-                        phone: detailData.userPhone,
-                        protectorPhone: detailData.userProtectorPhone ?? null,
-                        symptoms: detailData.patientSymptom,
-                        diseases: detailData.patientDiseases?.join(', ') ?? undefined,
-                        medications: detailData.patientMedications?.join(', ') ?? undefined,
-                        requestTransferAt: '0',
-                        //   requestTransferAt: format(
-                        //   new Date(patientData.reqHospitalCreatedAt),
-                        //   'yyyy-MM-dd HH:mm:ss'
-                        // ),
-                      });
-                      setIsDetailOpen(true);
-                    } catch (error) {
-                      console.error('상세 조회 실패:', error);
-                    }
-                  }}
-              >
-                상세보기
-              </ToastAction>
-          ),
-          duration: 60000,
-          className: 'bg-white border-l-4 border-pink-400',
-        });
-
-        // 데이터 새로 고침
+      newEventSource.addEventListener("transfer-request", (event) => {
+        console.log("event = ", event)
+        const response = JSON.parse(event.data);
+        console.log("response = ", response)
+        showTransferRequestToast(response.data.patient, response);
         fetchCombinedTransfers();
-      }
-    };
+      });
 
-    eventSource.onerror = (error) => {
-      console.error("SSE 연결 에러:", error);
-      eventSource.close();
-    };
+      newEventSource.onopen = () => {
+        console.log("SSE 연결 성공");
+        setSseConnected(true);
+        setRetryCount(0),
+        startReconnectTimer();
+      };
+
+      newEventSource.onerror = (error) => {
+        console.error("SSE 연결 에러: ", error);
+        setSseConnected(false);
+
+        if (retryCount < MAX_RETRIES) {
+          const nextRetryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+          console.log(`${nextRetryDelay}ms 후 재시도... (${retryCount + 1}/${MAX_RETRIES})`);
+
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            connectSSE();
+          }, nextRetryDelay);
+        } else {
+          console.log("최대 재시도 횟수 도달, 연결 종료");
+          disconnect();
+        }
+      };
+
+      eventSourceRef.current = newEventSource;
+    } catch (error) {
+      console.log("EventSource 생성 중 에러 발생: ", error);
+      setSseConnected(false);
+    }
+  };
+
+  const startReconnectTimer = () => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+    }
+
+    reconnectTimerRef.current = setTimeout(() => {
+      console.log("예약된 재연결 시작");
+      disconnect();
+      connectSSE();
+    }, RECONNECT_INTERVAL);
+  };
+
+  const disconnect = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+
+    setSseConnected(false);
+    setRetryCount(0);
+  };
+
+  useEffect(() => {
+    // 알림 권한 요청
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  
+    const token = sessionStorage.getItem("token");
+    if (token && !sseConnected) {
+      connectSSE();
+    }
 
     return () => {
-      eventSource.close();
+      disconnect();
     };
-  }, []);   // hospitalId가 변경될 때마다 재연결  -> 삭제함. 토큰 이용
+  }, []);
 
-
-  // 이송 신청 온 목록(즉, 해당 페이지에 있는 리스트 수)
+  // 목록 카운트 계산
   const unacceptedTransfers = combinedTransfers
-    ? combinedTransfers.filter((item) => !item.transferAcceptAt && !item.dispatchTransferAccepted)
-        .length
-    : 0;
+  ? combinedTransfers.filter((item) => !item.transferAcceptAt && !item.dispatchTransferAccepted)
+      .length
+  : 0;
 
-  // 이송 중인 항목 (transferAcceptAt은 있지만 transferArriveAt은 없는 항목)
   const transferringTransfers = combinedTransfers
     ? combinedTransfers.filter((item) => item.transferAcceptAt && !item.transferArriveAt).length
     : 0;
+
+
+
 
   return (
     <MainTemplate

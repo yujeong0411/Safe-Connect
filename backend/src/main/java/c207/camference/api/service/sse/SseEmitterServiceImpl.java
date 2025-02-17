@@ -250,7 +250,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
             }
             if (hospitalIds.contains(clientId)) {
                 try {
-                    emitter.send(SseEmitter.event()
+                    emitter.send(SseEmitter.event().name("transfer-request")
                             .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
                 } catch (IOException e) {
                     deadHospitalEmitters.add(clientId);
