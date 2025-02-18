@@ -10,17 +10,9 @@ export const useLocationTracking = () => {
 
     const handleSuccess = async (position: GeolocationPosition) => {
       const { latitude, longitude } = position.coords;
-      console.log('현재 위치:', {
-        위도: latitude,
-        경도: longitude,
-        timestamp: new Date().toLocaleString(),
-        정확도: `${position.coords.accuracy}미터`
-      });
-      console.log(sessionId)
 
       if (sessionId) {
         try {
-          console.log("현재 내 위치는 :", latitude, longitude);
           await dispatchLocation(sessionId, latitude, longitude);
         } catch (error) {
           console.error('Failed to send location:', error);
@@ -54,8 +46,7 @@ export const useLocationTracking = () => {
     const registerServiceWorker = async () => {
       if ('serviceWorker' in navigator) {
         try {
-          const registration = await navigator.serviceWorker.register('/service-worker.js');
-          console.log('ServiceWorker registration successful:', registration);
+          await navigator.serviceWorker.register('/service-worker.js');
         } catch (error) {
           console.error('ServiceWorker registration failed:', error);
         }

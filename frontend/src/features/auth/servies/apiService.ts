@@ -40,11 +40,9 @@ export const checkEmailDuplication = async (email: string) => {
 // 휴대폰 인증번호 요청 API 호출
 export const sendPhoneVerification = async (phoneNumber: string) => {
   try {
-    console.log('Sending phone verification for:', phoneNumber);
     const response = await axiosInstance.post('/user/valid/phone', {
       userPhone: phoneNumber.replace(/-/g, ''), // json 형식 전송
     });
-    console.log('Phone verification response:', response.data);
     return response.data.isSuccess === true;
   } catch (error: unknown) {
     console.error('Phone verification send error', error);
@@ -55,12 +53,10 @@ export const sendPhoneVerification = async (phoneNumber: string) => {
 // 휴대폰 인증번호 확인 API 호출
 export const authCode = async (phoneNumber: string, verificationCode: string) => {
   try {
-    console.log('Verifying phone code for:', phoneNumber, 'Code:', verificationCode);
     const response = await axiosInstance.post('/user/valid/phone/check', {
       userPhone: phoneNumber.replace(/-/g, ''),
       authCode: verificationCode,
     });
-    console.log('Phone code verification response:', response.data);
     return response.data.isSuccess === true;
   } catch (error) {
     console.error('Phone verification check error', error);
@@ -112,7 +108,6 @@ export const findEmail = async (userName: string, userPhone: string) => {
     });
 
     // 전체 응답 데이터 로깅
-    console.log('전체 응답 데이터:', response.data);
 
     if (response.data.isSuccess === true) {
       return {
@@ -143,7 +138,7 @@ export const findEmail = async (userName: string, userPhone: string) => {
 /*export const findPassword = async (userEmail: string) => {
   try {
     const response = await axiosInstance.put('/user/find/password', { userEmail: userEmail });
-    console.log('find Password response', response.data);
+
     if (response.data.isSuccess === true) {
       return {
         isSuccess: true,
@@ -164,8 +159,6 @@ export const findEmail = async (userName: string, userPhone: string) => {
 export const fetchMedicalData = async () => {
   try {
     const response = await axiosInstance.get('/user/medi/list');
-    console.log('API 응답:', response.data); // 전체 응답 데이터 확인
-
     const medicationOptions =
       response.data.data
         .find((category: MedicalCategory) => category.categoryName === '복용약물')
@@ -182,7 +175,6 @@ export const fetchMedicalData = async () => {
           label: item.mediName,
         })) || [];
 
-    console.log('변환된 옵션:', { medicationOptions, diseaseOptions });
     return { medicationOptions, diseaseOptions };
   } catch (error) {
     console.error('fetchMedicalData failed:', error);

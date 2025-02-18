@@ -34,7 +34,7 @@ export const useDispatchGroupStore = create<DispatchGroupStore>((set, get) => ({
 
       set({ dispatchGroups: filterGroups });
     } catch (error) {
-      console.log('소방팀 조회 실패', error);
+      console.error('소방팀 조회 실패', error);
       set({ dispatchGroups: [] }); // 이전 항목 랜더링 방지
     }
   },

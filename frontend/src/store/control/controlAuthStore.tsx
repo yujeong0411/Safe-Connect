@@ -14,8 +14,6 @@ export const useControlAuthStore = create<FireAuthStore>((set) => ({
     const formData = new URLSearchParams();
     formData.append('fireStaffLoginId', data.fireStaffLoginId);
     formData.append('fireStaffPassword', data.fireStaffPassword);
-    // 문자열로 변환
-    console.log(formData.toString());
     // 로그인 공통 로직 사용
     const accessToken = await commonLogin({
       loginPath: '/control/login',

@@ -2,12 +2,9 @@ import { useEffect, useState } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import HospitalKakaoMap from '@/features/dispatch/components/Hospitalkakaomap';
 import HospitalList from '@/features/dispatch/components/HospitalList';
-import BulkTransferRequestDialog from '@/features/dispatch/components/BulkTransferRequestDialog';
 import { useHospitalSearch } from '@/hooks/useHospitalSearch';
-import { useHospitalTransferStore } from '@/store/hospital/hospitalTransferStore';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
-import { axiosInstance } from '@/utils/axios';
 import { TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
 import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
@@ -46,7 +43,6 @@ const TransferRequestPage = () => {
   } = useHospitalSearch();
 
 
-  const [showBulkRequestDialog, setShowBulkRequestDialog] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [selectedHospitalId, setSelectedHospitalId] = useState<number | undefined>();
   const formData = useDispatchPatientStore(state => state.formData);
@@ -101,7 +97,6 @@ const TransferRequestPage = () => {
             type: 'default',
           });
         }
-        console.log("transfer-request", response);
       } catch (error) {
         console.error("SSE 데이터 처리 오류", error);
       }

@@ -33,7 +33,6 @@ const CallerPage = () => {
   // SSE 연결 관련
   const connectSSE = () => {
     if (sseConnected && eventSourceRef.current) {
-      console.log("SSE already connnected")
       return;
     }
 
@@ -52,7 +51,6 @@ const CallerPage = () => {
       )
       newEventSource.addEventListener("ambulanceLocation-shared", (event) => {
         const response: shareLocationResponse = JSON.parse(event.data);
-        console.log("구급차 위치 공유 데이터", response);
 
         if (response.isSuccess && response.data) {
           useAmbulanceLocationStore.getState().setLocation({
@@ -64,7 +62,6 @@ const CallerPage = () => {
       });
 
       newEventSource.onopen = () => {
-        console.log("SSE 연결 성공");
         setSseConnected(true);
         setRetryCount(0);
         startReconnectTimer();
@@ -76,14 +73,11 @@ const CallerPage = () => {
 
         if (retryCount < MAX_RETRIES) {
           const nextRetryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
-          console.log(`${nextRetryDelay}ms 후 재시도... (${retryCount + 1}/${MAX_RETRIES})`);
-
           setTimeout(() => {
             setRetryCount(prev => prev + 1);
             connectSSE();
           }, nextRetryDelay);
         } else {
-          console.log("최대 재시도 횟수 도달, 연결 종료");
           disconnect();
         }
       };
@@ -100,7 +94,6 @@ const CallerPage = () => {
     }
 
     reconnectTimerRef.current = setTimeout(() => {
-      console.log("예약된 재연결 시작");
       disconnect();
       connectSSE();
     }, RECONNECT_INTERVAL);
@@ -125,8 +118,6 @@ const CallerPage = () => {
   useEffect(() => {
     if (sessionId) {
       connectSSE();
-    } else {
-      console.log("현재 신고 내역이 없습니다.");
     }
 
     // 세션 아이디가 변경된 경우에만 재연결

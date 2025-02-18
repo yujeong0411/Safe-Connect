@@ -15,7 +15,6 @@ export const patientService = {
       const response = await axiosInstance.get<PatientResponse>('/control/medi_list', {
         params: { callerPhone: phone },
       });
-      console.log('API 응답:', response);
       return response.data;
     } catch (error: any) {
       // 구체적인 에러 처리
@@ -31,9 +30,7 @@ export const patientService = {
   // 환자 정보 저장
   savePatientInfo: async (info: CallInfoRequest): Promise<SavePatientResponse> => {
     try {
-      console.log('저장할 정보:', info);
       const response = await axiosInstance.put<SavePatientResponse>('/control/call', info);
-      console.log('저장 응답:', response);
       return response.data;
     } catch (error: any) {
       console.error('savePatientInfo 에러:', error);
@@ -49,14 +46,7 @@ export const controlService = {
   // 신고 전체 조회
   fetchCallList: async (): Promise<CallListResponse> => {
     try {
-      console.log('API 호출 시작');
       const response = await axiosInstance.get<CallListResponse>('/control/call');
-
-      console.log('API 직접 응답:', {
-        status: response.status,
-        data: response.data,
-      });
-
       return response.data;
     } catch (error: any) {
       console.error('API 호출 중 에러:', {
@@ -76,7 +66,6 @@ export const controlService = {
       });
       return response.data;
     } catch (error: any) {
-      console.log('신고 상세 조회 실패', error.message);
       throw error;
     }
   },
@@ -85,7 +74,6 @@ export const controlService = {
   endCall : async (callId:number): Promise<CallListResponse> => {
     try {
       const response = await axiosInstance.put<CallListResponse>('/control/call_end', {callId})
-      console.log("상황실 신고 종료", response);
       return response.data
     } catch (error: any) {
       console.error("신고 종료 실패", error);
@@ -97,7 +85,6 @@ export const controlService = {
   resendUrl: async (callId:number): Promise<CallListResponse> => {
     try {
       const response = await axiosInstance.post<CallListResponse>('/control/resend', {callId});
-      console.log("url 재전송", response)
       return response.data
     } catch (error: any) {
       console.error("url 재전송 실패", error)
@@ -118,8 +105,6 @@ export const controlService = {
           'Content-Type': 'multipart/form-data' 
         }
       });
-
-      console.log("신고내용 요약", response.data)
       return response.data
     } catch (error: any) {
       console.error("신고내용 요약 실패", error)
@@ -147,7 +132,6 @@ export const protectorService = {
 export const fetchDispatchGroups = async () => {
   try{
     const response = await axiosInstance.get<DispatchGroupResponse>('/control/dispatch_group')
-    console.log("소방팀 조회", response.data);
     return response.data;
   } catch (error: any) {
     console.error('소방팀 조회 실패', error)
@@ -168,7 +152,6 @@ export const orderDispatch = async (
       const response = await axiosInstance.post<DispatchGroupResponse>(
         '/control/dispatch_group_order',
         {dispatchGroupId, callId, patientId,sessionId, lat, lng})
-      console.log("출동 지령 성공", response.data);
       return response.data;
     } catch (error: any) {
       console.error('출동 지령 실패', error)

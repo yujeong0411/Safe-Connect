@@ -28,10 +28,6 @@ const AdminMediForm = ({ userType }: AdminUserTableProps) => {
         setSelectedPatient(null);
     };
 
-    const handleSearch = (keyword: string) => {
-        console.log('keyword:', keyword);
-        // 검색로직 구현
-    };
 
     // 컬럼 정의
     const columns: {
@@ -80,7 +76,7 @@ const AdminMediForm = ({ userType }: AdminUserTableProps) => {
     return (
         <div className="w-full">
             {/* 검색창 */}
-            <SearchBar_ver2 onSearch={handleSearch} className="p-5" />
+            <SearchBar_ver2 className="p-5" />
 
             {/* 테이블 */}
             <div className="w-full overflow-x-auto">

@@ -112,7 +112,6 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
       const detailData = await useHospitalTransferStore
         .getState()
         .fetchTransferDetail(data.dispatchId, type);
-      console.log("상세 데이터:", detailData);
       setSelectedPatient({
         patientId:detailData.patientId,    // 현재 null로 들어옴.?? 해결??
         name: detailData.patientName ?? null,
