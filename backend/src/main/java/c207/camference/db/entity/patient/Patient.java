@@ -56,9 +56,9 @@ public class Patient {
     @Comment(value = "성별(남성:F, 여성:M)")
     private Character patientGender;
 
-    @Column(name = "patient_age", length = 1)
+    @Column(name = "patient_age")
     @Comment(value = "나이 (10 단위로 앞자리 숫자 이용)")
-    private String patientAge;
+    private Integer patientAge;
 
     @Column(name = "patient_blood_sugar", nullable = false)
     @Comment(value = "혈당")

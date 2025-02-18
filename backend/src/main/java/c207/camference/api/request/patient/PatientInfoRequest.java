@@ -8,7 +8,7 @@ public class PatientInfoRequest {
     private boolean patientIsUser;
     private String patientName;
     private Character patientGender;
-    private String patientAge;
+    private Integer patientAge;
     private Integer patientBloodSugar;
     private Integer patientDiastolicBldPress;
     private Integer patientSystolicBldPress;
