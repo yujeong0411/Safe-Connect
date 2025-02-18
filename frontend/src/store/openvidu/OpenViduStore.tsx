@@ -134,7 +134,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
 
 
 
-      console.log('openvidu store - session 생성 시도 전'); // 테스트용
+
       const session = OV.initSession();
 
 
@@ -145,11 +145,18 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         }));
 
         // 녹음이 아직 시작되지 않았을 때만 초기화 및 시작
-        const recorderStore = useRecorderStore.getState();
-        if (!recorderStore.isRecording) {
+        //const recorderStore = useRecorderStore.getState();
+    
+        // 구독자의 스트림이 실제로 재생 가능할 때까지 대기
+        await new Promise<void>(resolve => {
+          subscriber.on('streamPlaying', () => {
+            resolve();
+          });
+        });
+
+
           await initializeRecorder(subscriber);
           await startRecording();
-        }
 
       });
 
@@ -165,7 +172,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       // 연결 시도
       const token = await get().createToken(sessionId);
       await session.connect(token, { clientData: userName });
-      console.log("Session connected with token:", token);
+
 
 
       
@@ -218,7 +225,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   },
 
   leaveSession: () => {
-    console.log('openviduStore - leaveSession 실행 완료'); //테스트용. 푸시 전 삭제할것
+
     const { session, publisher } = get();
 
     if (session) {
@@ -261,7 +268,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         }
       );
 
-      console.log('Create Session Response:', response.data);
+
 
       set({
         callId : response.data.data.call.callId,

@@ -34,6 +34,7 @@ const useRecorderStore = create<RecorderState>((set, get) => ({
     try {
       
       if (get().mediaRecorder) {
+        console.log("녹음기가 이미 초기화되었습니다. 종료합니다.");
         return;
       }
 
@@ -49,18 +50,41 @@ const useRecorderStore = create<RecorderState>((set, get) => ({
 
       const stream = subscriber.stream.getMediaStream();
 
+      // --------------로깅---------------------
+      // 스트림 상태 확인 로깅 추가
+     // 더 자세한 스트림 검증
+      console.log('Stream active:', stream.active);
+      const tracks = stream.getTracks();
+      console.log('All tracks:', tracks);
+      
+      // 모든 트랙을 순회하면서 오디오 트랙 찾기
+      const audioTrack = tracks.find(track => track.kind === 'audio');
+      console.log('Found audio track:', audioTrack);
+
+      if (!audioTrack) {
+        throw new Error('No audio track found in the stream');
+      }
+
+      // 오디오 트랙만 포함한 새로운 스트림 생성
+      const audioStream = new MediaStream([audioTrack]);
+      console.log('New audio stream tracks:', audioStream.getTracks());
+
       // MediaRecorder 옵션 타입 명시
-      const recorder: MediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
+      const recorder: MediaRecorder = new MediaRecorder(audioStream, {
+        mimeType: 'audio/webm',
+        audioBitsPerSecond: 128000
       });
       
+      //-------------------로깅----------------------
+
       // 이벤트 핸들러에 타입 명시
       recorder.ondataavailable = (event: BlobEvent) => {
+        console.log('Data chunk size:', event.data.size);  // 청크 크기 확인
         set((state) => ({
           audioChunks: [...state.audioChunks, event.data]
         }));
       };
-
+      
       recorder.onstop = () => {
         const chunks = get().audioChunks;
         const blob = new Blob(chunks, { type: 'audio/webm;codecs=opus' });
