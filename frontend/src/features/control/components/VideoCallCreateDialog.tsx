@@ -29,11 +29,11 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
 
   useEffect(() => {
 
-    
-    return () => {
-      // 컴포넌트가 종료될때 녹음기 정리
-      cleanup();
-    };
+
+    // return () => {
+    //   // 컴포넌트가 종료될때 녹음기 정리
+    //   cleanup();
+    // };
   }, []);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
     try {
       await createAndJoinSession(e,phoneNumber); //반드시 커밋전, 주석 풀것
       // 녹음기 초기화 및 시작
-      initializeRecorder();
+      await initializeRecorder();
       startRecording(); 
 
       // const inviteUrl = `/caller/join/${sessionId}?direct=true`;
