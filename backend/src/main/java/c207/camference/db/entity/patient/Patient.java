@@ -6,10 +6,7 @@ import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.entity.users.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -17,10 +14,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "patient")
-@Data
+//@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 public class Patient {
 
     @Id
@@ -57,9 +56,9 @@ public class Patient {
     @Comment(value = "성별(남성:F, 여성:M)")
     private Character patientGender;
 
-    @Column(name = "patient_age", length = 1)
+    @Column(name = "patient_age")
     @Comment(value = "나이 (10 단위로 앞자리 숫자 이용)")
-    private String patientAge;
+    private Integer patientAge;
 
     @Column(name = "patient_blood_sugar", nullable = false)
     @Comment(value = "혈당")
@@ -128,4 +127,9 @@ public class Patient {
     @ManyToOne
     @JoinColumn(name = "dispatch_id", insertable = false, updatable = false)
     private DispatchGroup dispatchGroup;
+
+
+    public boolean getPatientIsUser() {
+        return this.patientIsUser;
+    }
 }

@@ -17,7 +17,7 @@ public class ControlUserResponse {
     private String userName;
     private Character userGender;
     private String userBirthday;
-    private String userAge;
+    private Integer userAge;
     private String userPhone;
     private String userProtectorPhone;
 
@@ -38,7 +38,7 @@ public class ControlUserResponse {
     }
 
 
-    public static String calculateAge(String birthday) {
+    public static Integer calculateAge(String birthday) {
         int year = Integer.parseInt(birthday.substring(0, 2));
         int month = Integer.parseInt(birthday.substring(2, 4));
         int day = Integer.parseInt(birthday.substring(4, 6));
@@ -46,10 +46,6 @@ public class ControlUserResponse {
         int fullYear = year < 50 ? 2000 + year : 1900 + year;
 
         LocalDate birthDate = LocalDate.of(fullYear, month, day);
-
-        int age =  Period.between(birthDate, LocalDate.now()).getYears();
-
-        String ageString = String.valueOf(age);
-        return ageString.substring(0, 1);
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 }

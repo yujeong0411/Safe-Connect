@@ -13,7 +13,7 @@ public class CallUpdateResponse {
     // 환자 == 유저
     private String userName;
     private Character userGender;
-    private String userAge;
+    private Integer userAge;
     private String userPhone;
     private String userProtectorPhone;
     private List<MediCategoryDto> mediInfo;
