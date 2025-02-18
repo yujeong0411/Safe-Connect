@@ -39,14 +39,32 @@ const useRecorderStore = create<RecorderState>((set, get) => ({
         return;
       }
 
-      const stream: MediaStream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          sampleRate: 48000,    // 오디오 샘플링 레이트 설정 (1초당 오디오 샘플 수)
-          channelCount: 1,       // 오디오 채널 수 설정
-          echoCancellation: true, // 에코 제거 기능 활성화
-          noiseSuppression: true // 주변 소음 제거 기능 활성화
-        }
+      // const stream: MediaStream = await navigator.mediaDevices.getUserMedia({ 
+      //   audio: {
+      //     sampleRate: 48000,    // 오디오 샘플링 레이트 설정 (1초당 오디오 샘플 수)
+      //     channelCount: 1,       // 오디오 채널 수 설정
+      //     echoCancellation: true, // 에코 제거 기능 활성화
+      //     noiseSuppression: true // 주변 소음 제거 기능 활성화
+      //   }
+      // });
+
+
+      //--------------------시스템 오디오 녹음--------------------
+      // 변경 후 (시스템 오디오)
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({ 
+        video: true,
+        audio: true
       });
+
+      // 오디오 트랙만 추출
+      const audioTrack = displayStream.getAudioTracks()[0];
+      if (!audioTrack) {
+        throw new Error('오디오 트랙을 찾을 수 없습니다.');
+      }
+      // --------------------------------------------------------
+
+      // 새로운 MediaStream 생성
+      const stream = new MediaStream([audioTrack]);
 
       // MediaRecorder 옵션 타입 명시
       const recorder: MediaRecorder = new MediaRecorder(stream, {
