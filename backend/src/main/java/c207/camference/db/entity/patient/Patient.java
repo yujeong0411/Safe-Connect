@@ -6,10 +6,7 @@ import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.entity.users.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -17,10 +14,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "patient")
-@Data
+//@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 public class Patient {
 
     @Id
@@ -128,4 +127,9 @@ public class Patient {
     @ManyToOne
     @JoinColumn(name = "dispatch_id", insertable = false, updatable = false)
     private DispatchGroup dispatchGroup;
+
+
+    public boolean getPatientIsUser() {
+        return this.patientIsUser;
+    }
 }
