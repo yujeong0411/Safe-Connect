@@ -15,22 +15,6 @@ interface AlertConfig {
   type: 'default' | 'destructive' | 'success' | 'error';
 }
 
-// SSE 응답 타입 정의
-// interface SSEResponse {
-//   isSuccess: boolean;
-//   code: number;
-//   message: string;
-//   data: {
-//     dispatchId?: number;
-//     hospitalNames?: string[];
-//     patientId?: number;
-//     hospitalId?: number;
-//     hospitalName?: string;
-//     latitude?: number;
-//     longitude?: number;
-//   };
-// }
-
 const TransferRequestPage = () => {
   const {
     hospitals,

@@ -95,14 +95,12 @@ const handleHospitalResponse = (event: MessageEvent) => {
   }
 }
 
-
 // 핸들러 등록
 const dispatchSseEventHandlers = {
   "dispatch-order": handleDispatchOrder,
   // "transfer-request": handleTransferRequest,
   "hospital-response": handleHospitalResponse,
 }
-
 
 export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
   eventSource: null,
