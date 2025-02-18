@@ -86,7 +86,6 @@ const PatientInfoPage = () => {
     try {
       const response = await savePatientInfo();
       if (response) {
-        console.log('환자 저장 성공(페이지)', response);
         showAlertWithTimeout({
           title: '저장 성공',
           description: '저장되었습니다.',

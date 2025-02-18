@@ -7,11 +7,7 @@ import {useHospitalTransferStore} from "@/store/hospital/hospitalTransferStore.t
 const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) => {
   // 이송 신청 답변
   const handleTransferStatus = async (status:'ACCEPTED' | 'REJECTED') => {
-    console.log('handleTransferStatus 호출됨', {
-      patientId: data.patientId,
-      status,
-      fullData: data
-    });
+
 
     if (!data?.patientId) {
         console.error('환자 ID가 없습니다');

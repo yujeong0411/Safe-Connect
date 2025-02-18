@@ -88,6 +88,7 @@ export interface PatientStore {
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
+  resetPatientInfo2: () => void;
   sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
   fetchCallSummary: (callId: number, audioBlob: Blob) => Promise<void>;
 }

@@ -17,16 +17,7 @@ export const axiosInstance = axios.create({
 
 // 요청 인터셉터  (요청 보내기 전에 실행)
 axiosInstance.interceptors.request.use(   
-  (config) => {
-    console.log('Request Config Details:', {
-      url: config.url,
-      method: config.method,
-      data: config.data ? JSON.stringify(config.data) : null, // JSON 문자열로 변환
-      headers: config.headers,
-      withCredentials: config.withCredentials,
-    });
-
-    // 토큰이 있다면 헤더에 추가
+  (config) => {    // 토큰이 있다면 헤더에 추가
     const token = sessionStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // JWT 토큰 헤더에 추가
@@ -42,12 +33,6 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    console.log('토큰 갱신 요청 에러 상세:', {
-      status: error.response?.status,
-      data: error.response?.data,
-      headers: error.response?.headers,
-      config: error.config,
-    });
     const originalRequest = error.config;
 
     // 로그인 요청은 토큰 갱신 시도 제외
@@ -57,7 +42,6 @@ axiosInstance.interceptors.response.use(
 
     // 401에러이고 재시도 중이 아닌 경우
     if (error.response?.status === 401 && !originalRequest._retry) {
-      console.log('401 에러 발생, 토큰 갱신 시도');
       originalRequest._retry = true;
 
       // 무한 루프 방지 조건 추가
@@ -67,13 +51,11 @@ axiosInstance.interceptors.response.use(
       }
 
       try {
-          console.log('토큰 갱신 요청 시작');
           const response = await axiosInstance.post('/reissue', {}, {
               withCredentials: true
           });
           // 새 토큰 가져오기 (서버는 access로 내려줌)
         const newAccessToken = response.headers['access'];
-        console.log('새로운 액세스 토큰:', newAccessToken);
 
         if (newAccessToken) {
           // 새토큰 저장

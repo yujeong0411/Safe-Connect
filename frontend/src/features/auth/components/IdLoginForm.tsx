@@ -40,13 +40,11 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
     setError(null);
 
     try {
-      console.log('3. login 호출 전');
       // 타입 안전성을 높이기 위해 직접 키 사용
       await loginStore.login({
         [fields.UserId]: formData.UserId,
         [fields.UserPassword]: formData.UserPassword,
       });
-      console.log('4. login 완료');
 
 
       // 로그인 성공 시 폼 초기화

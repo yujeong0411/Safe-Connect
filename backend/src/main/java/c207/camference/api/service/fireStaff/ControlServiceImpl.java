@@ -135,11 +135,17 @@ public class ControlServiceImpl implements ControlService {
     }
     @Override
     @Transactional
-    public ResponseEntity<?> getUser(String callerPhone){
-        try{
+    public ResponseEntity<?> getUser(String callerPhone) {
+        try {
             User user = userRepository.findByUserPhone(callerPhone)
-                    .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
-
+                    .orElse(null);
+            if (user == null) {
+                ResponseData<ControlUserResponse> response = ResponseUtil.success(
+                        null,
+                        "조회된 사용자가 없습니다."
+                );
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
             List<MediCategoryDto> mediCategoryDto = null;
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
 
@@ -151,8 +157,8 @@ public class ControlServiceImpl implements ControlService {
             ControlUserResponse controlUserResponse = ControlUserResponse.from(user, mediCategoryDto);
             ResponseData<ControlUserResponse> response = ResponseUtil.success(controlUserResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }catch (Exception e){
-            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
+        } catch (Exception e) {
+            ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
