@@ -24,7 +24,7 @@ public class DispatchReportDetailResponse {
     private Integer patientId;
     private String patientName;
     private Character patientGender;
-    private String patientAge;
+    private Integer patientAge;
     private String patientMental;
     private Integer patientSystolicBldPress;
     private Integer patientDiastolicBldPress;
