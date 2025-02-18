@@ -161,12 +161,13 @@ export const orderDispatch = async (
   callId:number, 
   patientId:number,
   sessionId:string,
-  callerLocation: { lat: number; lng:number; }
+ lat: number,
+  lng:number,
 ) => {
     try {
       const response = await axiosInstance.post<DispatchGroupResponse>(
         '/control/dispatch_group_order',
-        {dispatchGroupId, callId, patientId,sessionId, callerLocation: callerLocation})
+        {dispatchGroupId, callId, patientId,sessionId, lat, lng})
       console.log("출동 지령 성공", response.data);
       return response.data;
     } catch (error: any) {

@@ -11,16 +11,14 @@ const DispatchNavBar = ({ navItems }: DispatchNavBarProps) => {
   };
 
   return (
-    <nav className="w-flex h-[45px] relative">
+    <nav className="w-flex h-[43px] relative">
       <div className="w-full h-full absolute bg-banner" />
-      <div className="h-full flex justify-start items-center pl-20 gap-20">
+      <div className="h-full flex justify-start items-center p-5 md:pl-20 gap-10 md:gap-20">
         {navItems.map((item, index) => (
           <Link
             key={`${item.path}-${index}`}
             to={item.path}
-            className={`relative z-10 text-lg font-medium text-white ${
-              item.active ? 'font-bold' : ''
-            }`}
+            className="relative z-10 text-sm md:text-base font-medium  text-white"
             onClick={(e) => handleClick(item, e)}
           >
             {item.label}

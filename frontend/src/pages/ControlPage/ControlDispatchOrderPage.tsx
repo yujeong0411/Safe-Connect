@@ -69,7 +69,7 @@ const ControlDispatchOrderPage = () => {
       }
 
       if (callId && patientId) {
-        await orderDispatch(selectedTeam, callId, patientId, sessionId, { lat: center.lat, lng:center.lng}); // dispatchGroupId, callId, patientId
+        await orderDispatch(selectedTeam, callId, patientId, sessionId, center.lat, center.lng); // dispatchGroupId, callId, patientId
        setIsDispatched(true);   // 출동 지령 상태 변경
       }else{
         handleAlertClose({

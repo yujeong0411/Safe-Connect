@@ -59,7 +59,7 @@ const TransferRequestPage = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 10000);
+    }, 1000);
   };
 
   const handleSearchStart = () => {
@@ -110,11 +110,11 @@ const TransferRequestPage = () => {
       
       // SSE 연결 오류 처리
       eventSource.onerror = (error) => {
-        handleAlertClose({
-          title: '연결 오류',
-          description: '실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.',
-          type: 'error',
-        });
+        // handleAlertClose({
+        //   title: '연결 오류',
+        //   description: '실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.',
+        //   type: 'error',
+        // });
         console.error("SSE 연결 오류: ", error);
       };
     }
