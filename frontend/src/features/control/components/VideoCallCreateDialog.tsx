@@ -9,8 +9,6 @@ import { useVideoCallStore } from '@/store/control/videoCallStore.ts';
 import { useNavigate } from 'react-router-dom';
 import {formatPhoneNumber} from "@features/auth/servies/signupService.ts";
 
-import useRecorderStore from '@/store/openvidu/MediaRecorderStore.tsx';
-
 const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const {
