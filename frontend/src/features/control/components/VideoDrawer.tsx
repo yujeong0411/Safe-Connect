@@ -98,6 +98,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
   // 신고내용 요약
   const handleCallSummary = async () => {
+    console.log("handleCallSummary 실행");
     try {
       const audioBlob:Blob = await stopRecording();
 
