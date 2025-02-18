@@ -93,18 +93,17 @@ public class WebRtcServiceImpl implements WebRtcService {
 
             callRepository.save(call);
 
-            Map<String, String> response = new HashMap<>();
-            response.put("callSummary", summary);
-            response.put("message", "신고내역요약 ");
+            Map<String, String> data = new HashMap<>();
+            data.put("callSummary", summary);
 
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.ok(ResponseUtil.success(data, "신고내역요약"));
 
         } catch (EntityNotFoundException e) {
             System.out.println("EntityNotFoundException: " + e.getMessage());
             ResponseData<Void> response = ResponseUtil.fail(404, e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
+            System.out.println("Save Summary Exception: " + e.getMessage());
             e.printStackTrace();
             ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생했습니다: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -196,7 +195,8 @@ public class WebRtcServiceImpl implements WebRtcService {
             // 오디오 객체 생성
             ByteString audioData = ByteString.copyFrom(audioBytes);
             RecognitionAudio recognitionAudio = RecognitionAudio.newBuilder()
-                    .setContent(audioData)
+                    .setContent(audioData) // 인라인 방식(1분 이하)
+//                    .setUri(gcsUri) // 구글 스토리지 방식(1분 이상)
                     .build();
 
             // 설정 객체 생성
@@ -223,6 +223,7 @@ public class WebRtcServiceImpl implements WebRtcService {
                             .append(" ");
                 }
 
+                System.out.println("음성 텍스트로 변환 결과 : " + transcription.toString());
                 // GCS 파일 삭제 (굳이 안해도 되긴 함)
                 // storage.delete(blobId);
 
@@ -260,12 +261,23 @@ public class WebRtcServiceImpl implements WebRtcService {
             // 요약을 요청하는 프롬프트 생성
 
             String prompt = String.format(
-                    "너는 119 상담사와 긴급 상황 신고자의 대화 내용을 바탕으로 대화 내용을 요약해주는 비서야." +
-                            "다음 텍스트를 환자의 증상을 중심으로 간결하게 요약해줘." +
-                            "만약 대화 내용이 너무 짧아 요약을 할 내용이 없다면, \"요약 정보 없음\"이라고만 말해. " +
-                            "즉, 앞으로 네가 할 수 있는 대답은 \"요약 정보 없음\", 혹은 네가 요약을 해준 결과물. 이 둘 중 하나밖에 없어." +
-                            "알겠다는 대답도 하지 마., 지금부터 시작이야.",
-                    "\n\n%s\n\n요약:",
+                    "당신은 주어진 텍스트에서 신체 증상과 관련된 중요한 내용을 요약하는 AI입니다. 텍스트에서 신체 증상, 건강 상태, 감각적인 변화, 질병 관련 정보를 추출하여 간결하고 명확하게 요약하세요.\n" +
+                            "\n" +
+                            "**규칙:**  \n" +
+                            "- 신체 증상 및 건강 상태가 언급되었을 경우, 해당 내용을 빠짐없이 요약하세요.  \n" +
+                            "- 신체 증상과 무관한 일반적인 내용이 포함되어 있을 경우, 그것을 무시하세요.  \n" +
+                            "- 입력이 요약할 가치가 없거나 빈 입력일 경우, 다음과 같은 기본 응답을 반환하세요:  \n" +
+                            "  \"해당 입력에서 신체 증상이나 건강 상태와 관련된 중요한 정보를 찾을 수 없습니다.\"  \n" +
+                            "- 지금부터 시작입니다. 이 질문을 포함해서, 만약 빈 입력일 경우, 기본 응답을 반환하세요. \n" +
+                            "\n" +
+                            "**예시:**  \n" +
+                            "입력: \"어제부터 머리가 아프고 속이 메스꺼워요.\"  \n" +
+                            "출력: \"두통과 메스꺼움이 발생함. 증상은 어제부터 시작됨.\"  \n" +
+                            "\n" +
+                            "입력: \"오늘 날씨가 너무 좋고, 기분이 상쾌해요!\"  \n" +
+                            "출력: \"해당 텍스트에서 신체 증상이나 건강 상태와 관련된 중요한 정보를 찾을 수 없습니다.\"  \n" +
+                            "\n" +
+                            "입력 : %s",
                     speechToText
             );
 
@@ -370,6 +382,8 @@ public class WebRtcServiceImpl implements WebRtcService {
 
                     // 코드 블록 제거 (예: ```json ... ```)
                     content = removeCodeBlock(content);
+
+                    System.out.println(content);
 
                     return content;
                 }
