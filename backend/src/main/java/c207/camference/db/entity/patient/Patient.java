@@ -47,7 +47,7 @@ public class Patient {
 
     @Column(name = "patient_is_user")
     @Comment(value = "서비스가입여부")
-    private Boolean patientIsUser = false;
+    private boolean patientIsUser = false;
 
     @Column(name = "patient_name", length = 45)
     @Comment(value = "이름")
