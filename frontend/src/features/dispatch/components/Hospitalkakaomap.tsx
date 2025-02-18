@@ -178,9 +178,6 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
         <h3 class="font-bold text-lg mb-2">신고자 위치</h3>
         <div class="text-sm text-gray-600">
           <p>${callerLocation.address}</p>
-          <p class="text-xs mt-1">
-            (${callerLocation.lat}, ${callerLocation.lng})
-          </p>
         </div>
       </div>
     `,
