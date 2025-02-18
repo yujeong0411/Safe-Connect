@@ -6,7 +6,7 @@ import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 const initialFormData: FormData = {
   userName: '',
   userGender: '',
-  userAge: '',
+  userAge: 0,
   userPhone: '',
   userProtectorPhone: '',
   diseases: '',
@@ -64,7 +64,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
             ...get().formData,
             userName: patientInfo.userName || '',
             userGender: patientInfo.userGender || '',
-            userAge: patientInfo.userAge?.toString() || '',
+            userAge: patientInfo.userAge|| 0,
             userPhone: patientInfo.userPhone || '',
             userProtectorPhone: patientInfo.userProtectorPhone || '',
             diseases: patientInfo.mediInfo
