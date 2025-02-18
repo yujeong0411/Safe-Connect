@@ -159,7 +159,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
       );
 
       newEventSource.addEventListener("transfer-request", (event) => {
-        const response = JSON.parse(event.data);
+        const response = JSON.parse((event as MessageEvent).data);
         showTransferRequestToast(response.data.patient, response);
         fetchCombinedTransfers();
       });
