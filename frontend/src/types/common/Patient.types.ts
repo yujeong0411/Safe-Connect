@@ -118,6 +118,7 @@ export interface DispatchSavePatientRequest {
   patientPhone?: string;
   patientProtectorPhone?: string;
   callSummary: string;
+  patientIsUser: boolean;
   // 생체정보 개별 필드로 변경
   patientBloodSugar: number | null;
   patientDiastolicBldPress: number | null;
