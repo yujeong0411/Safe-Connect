@@ -9,7 +9,6 @@ import java.util.List;
 @Repository
 public interface ReqHospitalRepository extends JpaRepository<ReqHospital, Integer> {
     List<ReqHospital> findReqHospitalsByDispatchId(int dispatchId);
-
-
     List<ReqHospital> findAllByHospitalId(Integer hospitalId);
+    boolean existsByHospitalIdAndDispatchId(Integer hospitalId, Integer dispatchId);
 }

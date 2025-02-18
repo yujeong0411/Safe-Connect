@@ -19,7 +19,8 @@ public class GoogleCloudConfig {
     @Bean
     public SpeechClient speechClient() throws IOException {
         // JSON 문자열을 ByteArrayInputStream으로 변환
-        ByteArrayInputStream credentialsStream = new ByteArrayInputStream(jsonCredentials.getBytes(StandardCharsets.UTF_8));
+        String normalizedJson = jsonCredentials.replace("\\\\n", "\\n"); //
+        ByteArrayInputStream credentialsStream = new ByteArrayInputStream(normalizedJson.getBytes(StandardCharsets.UTF_8));
         ServiceAccountCredentials credentials = ServiceAccountCredentials.fromStream(credentialsStream);
         SpeechSettings speechSettings = SpeechSettings.newBuilder()
                 .setCredentialsProvider(() -> credentials)
