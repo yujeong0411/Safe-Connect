@@ -2,14 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {axiosInstance} from '@/utils/axios';
 import { Hospital, HospitalResponse } from '@/features/dispatch/types/hospital.types';
+import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
 
 interface AddressInfo {
   siDo: string;
   siGunGu: string;
-}
-
-interface TransferRequestParams {
-  hospitalIds: number[];
 }
 
 interface RouteInfo {
@@ -18,14 +15,18 @@ interface RouteInfo {
 }
 
 export const useHospitalSearch = () => {
+  // formData를 최상단에 추가
+  const formData = useDispatchPatientStore((state) => state.formData);
+
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [searchRadius, setSearchRadius] = useState(1.0);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [requestedHospitals] = useState<Set<number>>(new Set());
+  const [requestedHospitals, setRequestedHospitals] = useState<Set<number>>(new Set());
   const [addressInfo, setAddressInfo] = useState<AddressInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastSearchedRadius, setLastSearchedRadius] = useState(0);
+
 
   // 에러 메시지 설정 함수
   const handleError = useCallback((error: unknown) => {
@@ -178,9 +179,51 @@ useEffect(() => {
   }
 }, [getAddressInfo, handleError]);
 
+  const requestTransfer = useCallback(async (hospitalIds: number[]) => {
+    try {
+      if (!formData?.dispatchId || !formData?.patientId) {
+        handleError(new Error('출동 정보가 없습니다. 출동 지령을 먼저 받아주세요.'));
+        return false;
+      }
+
+      console.log('Sending transfer request:', {
+        dispatchId: formData.dispatchId,
+        hospitalIds,
+        patientId: formData.patientId
+      });
+
+      // 직접 객체를 만들어서 전송
+      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
+        dispatchId: formData.dispatchId,
+        hospitalIds,
+        patientId: formData.patientId
+      });
+
+      if (response.data.isSuccess) {
+        setRequestedHospitals(prev => {
+          const newSet = new Set(prev);
+          hospitalIds.forEach(id => newSet.add(id));
+          return newSet;
+        });
+
+        setHospitals(prev =>
+          prev.map(hospital => ({
+            ...hospital,
+            requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
+          }))
+        );
+        return true;
+      }
+      return false;
+    } catch (error) {
+      handleError(error);
+      return false;
+    }
+  }, [formData, handleError]);
+
   // 병원 검색
   const searchHospitals = useCallback(async (radius: number) => {
-    if (!currentLocation) return;
+    if (!currentLocation) return [];
 
     try {
       const response = await axiosInstance.get<HospitalResponse>(
@@ -197,7 +240,6 @@ useEffect(() => {
       );
 
       if (response.data.isSuccess) {
-        // 새로운 병원들의 거리 및 시간 계산
         const hospitalPromises = response.data.data.map(async (hospital) => {
           const routeInfo = await calculateRoute(
             currentLocation.lat,
@@ -205,7 +247,7 @@ useEffect(() => {
             hospital.hospitalLat,
             hospital.hospitalLng
           );
-        
+
           return {
             ...hospital,
             requested: requestedHospitals.has(hospital.hospitalId),
@@ -215,10 +257,9 @@ useEffect(() => {
         });
 
         const newHospitals = await Promise.all(hospitalPromises);
-        
-        // 거리순으로 정렬
         const sortedHospitals = newHospitals.sort((a, b) => a.distance - b.distance);
 
+        // 중복 제거 및 상태 업데이트
         setHospitals(prev => {
           const existingIds = new Set(prev.map(h => h.hospitalId));
           const uniqueHospitals = sortedHospitals.filter(h => !existingIds.has(h.hospitalId));
@@ -229,40 +270,29 @@ useEffect(() => {
         setLastSearchedRadius(radius);
         return sortedHospitals;
       }
+      return [];
     } catch (error) {
       handleError(error);
       return [];
     }
   }, [currentLocation, addressInfo, calculateRoute, requestedHospitals, handleError]);
-  // 이송 요청
-  const requestTransfer = useCallback(async (hospitalIds: number[]) => {
-    try {
-      console.log(hospitalIds)
-      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
-        hospitalIds
-      } as TransferRequestParams);
-
-      if (response.data.isSuccess) {
-        setHospitals(prev =>
-          prev.map(hospital => ({
-            ...hospital,
-            requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
-          }))
-        );
-        return true;
-      }
-      return false;
-    } catch (error) {
-      handleError(error);
-      return false;
-    }
-  }, [handleError]);
 
   const handleSearch = useCallback(async () => {
     if (!currentLocation || !addressInfo) return;
-    
+
     setIsSearching(true);
-    await searchHospitals(searchRadius);
+    const foundHospitals = await searchHospitals(searchRadius);
+
+    // 새로 찾은 병원들 중 아직 요청하지 않은 병원들의 ID 추출
+    const newHospitalIds = foundHospitals
+      .filter(hospital => !hospital.requested)
+      .map(hospital => hospital.hospitalId);
+
+    // 이송 요청할 병원이 있으면 요청 보내기
+    if (newHospitalIds.length > 0) {
+      console.log(`${searchRadius}km 반경 병원 이송 요청:`, newHospitalIds);
+      await requestTransfer(newHospitalIds);
+    }
 
     if (searchRadius < 10) {
       setTimeout(() => {
@@ -271,7 +301,14 @@ useEffect(() => {
     } else {
       setIsSearching(false);
     }
-  }, [searchRadius, currentLocation, addressInfo, searchHospitals]);
+  }, [searchRadius, currentLocation, addressInfo, searchHospitals, requestTransfer]);
+
+  // 검색 시작 시 자동으로 실행
+  useEffect(() => {
+    if (currentLocation && addressInfo && isSearching && searchRadius <= 10) {
+      handleSearch();
+    }
+  }, [searchRadius, currentLocation, addressInfo, isSearching, handleSearch]);
 
   const stopSearch = useCallback(() => {
     setIsSearching(false);
