@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { useDispatchAuthStore } from './dispatchAuthStore';
 import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.types';
 import { useDispatchPatientStore } from './dispatchPatientStore';
-import { AcceptedHospitalResponse, TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
+import { AcceptedHospitalResponse } from '@/types/dispatch/dispatchTransferResponse.types';
 import { useOpenViduStore } from '../openvidu/OpenViduStore';
 
 

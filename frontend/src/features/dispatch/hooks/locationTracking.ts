@@ -46,7 +46,7 @@ export const useLocationTracking = () => {
     const registerServiceWorker = async () => {
       if ('serviceWorker' in navigator) {
         try {
-          const registration = await navigator.serviceWorker.register('/service-worker.js');
+          await navigator.serviceWorker.register('/service-worker.js');
         } catch (error) {
           console.error('ServiceWorker registration failed:', error);
         }

@@ -76,7 +76,7 @@ const AdminMediForm = ({ userType }: AdminUserTableProps) => {
     return (
         <div className="w-full">
             {/* 검색창 */}
-            <SearchBar_ver2 onSearch={handleSearch} className="p-5" />
+            <SearchBar_ver2 className="p-5" />
 
             {/* 테이블 */}
             <div className="w-full overflow-x-auto">
