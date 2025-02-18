@@ -96,10 +96,16 @@ export const useControlsseStore = create<SSEState>((set, get) => ({
         try {
           const response = JSON.parse(event.data);
           if (response.isSuccess && response.data) {
-            useLocationStore.getState().setLocation(
-              response.data.lat,
-              response.data.lng
-            );
+            // callerLocation 상태 업데이트
+            set({ callerLocation: response.data });
+
+            // locationStore 업데이트
+            const locationStore = useLocationStore.getState();
+            locationStore.setLocation(response.data.lat, response.data.lng);
+            locationStore.setIsEmergencyCall(true); // 위치 데이터를 받았을 때 신고 상태로 설정
+
+            console.log("Location updated:", response.data); //
+
           }
         } catch (error) {
           console.error("Error parsing SSE message:", error);

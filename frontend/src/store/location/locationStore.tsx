@@ -6,53 +6,79 @@ interface LocationState {
     lat: number;
     lng: number;
   };
-  address: string;  // 변환 주소
+  controllerLocation: {  // 관제사의 현재 위치
+    lat: number;
+    lng: number;
+  };
+  address: string;
+  isEmergencyCall: boolean;  // 신고 통화 중인지 여부
+  setIsEmergencyCall: (isCall: boolean) => void;
   setAddress: (address: string) => void;
   isLoading: boolean;
   setLocation: (lat: number, lng: number) => void;
+  setControllerLocation: (lat: number, lng: number) => void;
   setIsLoading: (loading: boolean) => void;
-  fetchUserLocation: (lat: number, lng: number) => void;  // 위치 가져오는 함수
+  fetchUserLocation: () => void;
   sendUserLocation: (lat: number, lng: number, sessionId: string) => void;
+  resetToControllerLocation: () => void;  // 관제사 위치로 초기화
 }
 
 export const useLocationStore = create<LocationState>((set) => ({
-  center: { lat: 37.566826, lng: 126.9786567 }, // 서울시청 좌표 (기본값)
+  center: { lat: 37.566826, lng: 126.9786567 },
+  controllerLocation: { lat: 37.566826, lng: 126.9786567 },
+  isEmergencyCall: false,
   isLoading: true,
-  address:'',
+  address: '',
+
+  setIsEmergencyCall: (isCall: boolean) =>
+    set({ isEmergencyCall: isCall }),
 
   setLocation: (lat: number, lng: number) =>
     set({ center: { lat, lng }, isLoading: false }),
 
-  setIsLoading: (loading: boolean) => set({ isLoading: loading }),
+  setControllerLocation: (lat: number, lng: number) =>
+    set({ controllerLocation: { lat, lng } }),
+
+  setIsLoading: (loading: boolean) =>
+    set({ isLoading: loading }),
 
   setAddress: (address: string) =>
-      set(() => ({ address })),
+    set(() => ({ address })),
 
   fetchUserLocation: () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-          (position) => {
-            set({
-              center: {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              },
-              isLoading: false,
-            });
-          },
-          () => {
-            // 위치 거부 시 서울시청으로 설정
-            set({ center: { lat: 37.566826, lng: 126.9786567 }, isLoading: false });
-          }
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          set({
+            center: { lat, lng },
+            controllerLocation: { lat, lng },
+            isLoading: false,
+          });
+        },
+        () => {
+          set({
+            center: { lat: 37.566826, lng: 126.9786567 },
+            controllerLocation: { lat: 37.566826, lng: 126.9786567 },
+            isLoading: false
+          });
+        }
       );
     }
   },
-  sendUserLocation : async (lat: number, lng: number, sessionId: string)=>{
+
+  resetToControllerLocation: () => {
+    set((state) => ({
+      center: state.controllerLocation,
+      isEmergencyCall: false
+    }));
+  },
+
+  sendUserLocation: async (lat: number, lng: number, sessionId: string) => {
     try {
-      console.log("보내기 시작")
       const response = await axiosInstance.post(
-        '/user/location'
-        ,
+        '/user/location',
         {
           lat,
           lng,
@@ -62,10 +88,7 @@ export const useLocationStore = create<LocationState>((set) => ({
           headers: { 'Content-Type': 'application/json' },
         }
       );
-      console.log("보내기 끝")
-
       return response.data;
-
     } catch (error) {
       console.log(error);
     }
