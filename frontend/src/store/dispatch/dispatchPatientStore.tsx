@@ -17,7 +17,7 @@ import {
 const initialFormData: Omit<DispatchFormData, 'patientId' | 'dispatchId'> = {
   patientName: '',
   patientGender: '',
-  patientAge: '',
+  patientAge: 0,
   patientBloodSugar: null,
   patientDiastolicBldPress: null,
   patientSystolicBldPress: null,
@@ -50,7 +50,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         dispatchId:data.dispatchId,
         patientName: data.patient.patientName || '',
         patientGender: data.patient.patientGender || '',
-        patientAge: String(data.patient.patientAge) || '',
+        patientAge: data.patient.patientAge,
         patientBloodSugar: data.patient.patientBloodSugar,
         patientDiastolicBldPress: data.patient.patientDiastolicBldPress,
         patientSystolicBldPress: data.patient.patientSystolicBldPress,

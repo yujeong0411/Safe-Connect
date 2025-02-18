@@ -6,7 +6,7 @@ import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 const initialFormData: FormData = {
   userName: '',
   userGender: '',
-  userAge: '',
+  userAge: 0,
   userPhone: '',
   userProtectorPhone: '',
   diseases: '',
@@ -56,30 +56,28 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
     try {
       const response = await patientService.searchByPhone(callerPhone);
       if (response.isSuccess) {
-        if(response.data){
-          const patientInfo = response.data as PatientInfo;
-          set({
-            patientInfo,
-            formData: {
-              ...get().formData,
-              userName: patientInfo.userName || '',
-              userGender: patientInfo.userGender || '',
-              userAge: patientInfo.userAge?.toString() || '',
-              userPhone: patientInfo.userPhone || '',
-              userProtectorPhone: patientInfo.userProtectorPhone || '',
-              diseases: patientInfo.mediInfo
+        const patientInfo = response.data as PatientInfo;
+        set({
+          patientInfo,
+          formData: {
+            ...get().formData,
+            userName: patientInfo.userName || '',
+            userGender: patientInfo.userGender || '',
+            userAge: patientInfo.userAge|| 0,
+            userPhone: patientInfo.userPhone || '',
+            userProtectorPhone: patientInfo.userProtectorPhone || '',
+            diseases: patientInfo.mediInfo
                 ?.find(m => m.categoryName === '기저질환')
                 ?.mediList.map(m => m.mediName)
                 .join(',') || '',
-              medications: patientInfo.mediInfo
+            medications: patientInfo.mediInfo
                 ?.find(m => m.categoryName === '복용약물')
                 ?.mediList.map(m => m.mediName)
                 .join(',') || '',
-              userId: patientInfo.userId
-            }
-          })
-          return response;
-        }
+            userId: patientInfo.userId
+          }
+        })
+        return response;
       }
     } catch (error) {
       console.error("전화번호 조회 실패", error);
@@ -143,7 +141,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
     set({
       patientInfo: null,
       currentCall: null,
-      isDispatched: false,   // 출동 지령 상태 초기화
+        isDispatched: false,   // 출동 지령 상태 초기화
       formData: initialFormData,  // formData 초기화 추가
     });
   },
@@ -158,7 +156,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
         ...state.formData,  // 기존 formData 값들 유지
         userName: '',
         userGender: '',
-        userAge: '',
+        userAge: 0,
         userPhone: '',
         userProtectorPhone: '',
         medications: '',
@@ -166,6 +164,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
       }
     }));
   },
+
   // 보호자 문자 전송
   sendProtectorMessage: async (callerPhone: string) => {
     try {

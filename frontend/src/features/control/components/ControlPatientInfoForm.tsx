@@ -50,7 +50,7 @@ const ControlPatientInfoForm = () => {
       updateFormData({
         userName: patientInfo.userName || '',
         userGender: patientInfo.userGender || '',
-        userAge: patientInfo.userAge?.toString() || '',
+        userAge: patientInfo.userAge,
         userPhone: patientInfo.userPhone ? formatPhoneNumber(patientInfo.userPhone) : '',
         userProtectorPhone: patientInfo.userProtectorPhone
           ? formatPhoneNumber(patientInfo.userProtectorPhone)

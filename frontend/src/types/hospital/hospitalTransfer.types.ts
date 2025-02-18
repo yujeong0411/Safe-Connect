@@ -85,3 +85,20 @@ export interface CombinedTransfer extends TransferData {  // TransferData 상속
     transferArriveAt: string | null;  // 도착 시간
     hospital: Hospital | null;
 }
+
+
+export interface TransferRequestEventData extends BaseResponse {
+    data: {
+        dispatchId: number;
+        patient: TransferPatientData;
+    };
+}
+
+export interface TransferPatientData {
+    patientId: number;
+    patientAge: string;
+    patientGender: string;
+    patientPreKtas: string;
+    patientSympthom: string;
+    reqHospitalCreatedAt: string;
+}
