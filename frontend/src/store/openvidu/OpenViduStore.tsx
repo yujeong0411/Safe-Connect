@@ -5,6 +5,9 @@ import { axiosInstance } from '@utils/axios.ts';
 import { OpenVidu } from 'openvidu-browser';
 import React from 'react';
 import { usePatientStore } from "@/store/control/patientStore.tsx";
+import  useRecorderStore  from '@/store/openvidu/MediaRecorderStore.tsx';
+
+const { startRecording, initializeRecorder} = useRecorderStore.getState();
 
 // 더 강력한 브라우저 체크 우회
 const forceOverrideBrowserCheck = () => {
@@ -135,11 +138,19 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       const session = OV.initSession();
 
 
-      session.on('streamCreated', (event) => {
+      session.on('streamCreated', async (event) => {
         const subscriber = session.subscribe(event.stream, undefined);
         set((state) => ({
           subscribers: [...state.subscribers, subscriber],
         }));
+
+        // 녹음이 아직 시작되지 않았을 때만 초기화 및 시작
+        const recorderStore = useRecorderStore.getState();
+        if (!recorderStore.isRecording) {
+          await initializeRecorder(subscriber);
+          await startRecording();
+        }
+
       });
 
       session.on('streamDestroyed', (event) => {
