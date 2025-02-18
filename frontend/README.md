@@ -12,6 +12,7 @@
 11. shadcn-ui 설치 및 설정 : `npx shadcn-ui@latest init`, `npm install tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react`
 12. kakao SDK 설치 : `npm i react-kakao-maps-sdk`, `npm install kakao.maps.d.ts --save-dev`
 13. data-fns(날짜 포맷팅) 설치 : `npm install date-fns`
+14. Framer Motion 설치 : `npm install framer-motion`
 
 ### Prettier 설정 방법
 - WebStorm에서 Prettier 설정:

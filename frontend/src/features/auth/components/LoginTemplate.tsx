@@ -11,19 +11,47 @@ const LoginTemplate = ({ children }: { children: React.ReactNode }) => {
       <WaveBackground />
       <PublicHeader />
       {/* 로그인 폼 */}
-      <div className="absolute left-[100px] top-[200px] z-20">{children}</div>
+      <div className="  absolute
+        left-1/2
+        top-1/2
+        -translate-x-1/2
+        -translate-y-1/2
+        w-full
+        max-w-[90%]
+        sm:max-w-[430px]
+        md:max-w-[626px]
+        z-20">{children}</div>
 
       {/* 2xl 이상에서만 표시 */}
       <img
         src={loginImg1}
         alt="decorative"
-        className="fixed right-[100px] top-[242px] hidden 2xl:block z-0 transition-transform duration-100"
+        className="f fixed
+          right-[100px]
+          top-[242px]
+          hidden
+          2xl:block
+          z-0
+          transition-transform
+          duration-100
+          w-auto
+          max-h-[400px]"
       />
 
       <img
         src={loginImg2}
         alt="decorative"
-        className="fixed left-1/2 bottom-0 -translate-x-1/2 w-[1000px] h-auto max-w-[90vw] max-h-[500px] md:max-h-[800px] scale-110 z-10"
+        className="  fixed
+          left-1/2
+          bottom-0
+          -translate-x-1/2
+          w-full
+          max-w-[1000px]
+          max-h-[500px]
+          md:max-h-[800px]
+          object-contain
+          scale-110
+          z-10"
       />
     </div>
   );

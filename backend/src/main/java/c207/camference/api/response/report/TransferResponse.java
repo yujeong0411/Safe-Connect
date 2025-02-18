@@ -13,11 +13,13 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class TransferResponse {
+    private Integer dispatchId;
     private LocalDateTime transferAcceptAt;
     private LocalDateTime transferArriveAt;
     private HospitalResponse hospital;
 
     public TransferResponse(Transfer transfer) {
+        this.dispatchId = transfer.getDispatchId();
         this.transferAcceptAt = transfer.getTransferAcceptAt();
         this.transferArriveAt = transfer.getTransferArriveAt();
         this.hospital = new HospitalResponse(transfer.getHospital());

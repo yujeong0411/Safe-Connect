@@ -5,7 +5,7 @@ import {Patient, User, Call} from "@/types/dispatch/dispatchOrderResponse.types.
 export interface FormData {
   userName: string;
   userGender: string;
-  userAge: string;
+  userAge: number;
   userPhone: string;
   userProtectorPhone: string;
   diseases: string;
@@ -21,7 +21,7 @@ export interface CurrentCall {
   callId: number;
   userName?: string;
   userGender?: string;
-  userAge?: string;
+  userAge?: number;
   userPhone?: string;
   userProtectorPhone?: string;
   diseases?: string;
@@ -114,7 +114,7 @@ export interface DispatchSavePatientRequest {
   patientId: number;
   patientName?: string;
   patientGender: string;
-  patientAge?: string;
+  patientAge?: number;
   patientSymptom: string;
   patientPhone?: string;
   patientProtectorPhone?: string;
@@ -201,7 +201,7 @@ export interface DispatchFormData {
   patientId: number;
   patientName: string;
   patientGender: string;
-  patientAge: string;
+  patientAge: number;
   patientBloodSugar: number | null;
   patientDiastolicBldPress: number | null;
   patientSystolicBldPress: number | null;
@@ -227,7 +227,7 @@ export interface DispatchFormData {
 
 
 export interface PreKtasAIRequest {
-  patientAge: string;
+  patientAge: number;
   patientBloodSugar: number | null;
   patientDiastolicBldPress: number | null;
   patientSystolicBldPress: number | null;
