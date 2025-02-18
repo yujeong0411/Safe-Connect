@@ -143,17 +143,12 @@ public class WebRtcController {
             @RequestParam("audioFile") MultipartFile audioFile) throws IOException {
 
         String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
-        String mode = "summary";
+
         String summary = webRtcService.textSummary(text);
-
+        System.out.println("summary : " + summary);
         ResponseEntity<?> response = webRtcService.saveSummary(Integer.parseInt(callId), text, summary);
+        System.out.println("contol/summary - response : " + response);
 
-//        System.out.println("요약전 : " + text); // 테스트용.
-//        System.out.println("요약 후 : " + summary);
-
-//        Map<String, String> response = new HashMap<>();
-//        response.put("callSummary", summary);
-//        response.put("message", "신고내역요약 조회 성공");
 
         return response;
     }
