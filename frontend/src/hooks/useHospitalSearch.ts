@@ -276,27 +276,6 @@ useEffect(() => {
     }
   }, [currentLocation, addressInfo, calculateRoute, requestedHospitals, handleError]);
   // 이송 요청
-  const requestTransfer = useCallback(async (hospitalIds: number[]) => {
-    try {
-      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
-        hospitalIds
-      } as TransferRequestParams);
-
-      if (response.data.isSuccess) {
-        setHospitals(prev =>
-          prev.map(hospital => ({
-            ...hospital,
-            requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
-          }))
-        );
-        return true;
-      }
-      return false;
-    } catch (error) {
-      handleError(error);
-      return false;
-    }
-  }, [handleError]);
 
   const handleSearch = useCallback(async () => {
     if (!currentLocation || !addressInfo) return;
