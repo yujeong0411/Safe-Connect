@@ -55,12 +55,10 @@ const handleDispatchOrder = (event: MessageEvent) => {
     if (response.isSuccess) {
       const callId = response.data.call.callId;
 
-      // useDispatchPatientStore.getState().setPatientFromSSE(response.data);
-      useDispatchPatientStore.getState().setPatientFromSSE({
-        ...response.data,
-        callerLocation: response.data.callerLocation
-      })
+      useDispatchPatientStore.getState().setPatientFromSSE(response.data);
       useDispatchSseStore.getState().setCurrentCallId(callId);
+      console.log("Store after update:", useDispatchPatientStore.getState()); // store 업데이트 확인
+
 
       // sessionId 부분 추가
       const sessionId = response.data.sessionId;
@@ -78,17 +76,6 @@ const handleDispatchOrder = (event: MessageEvent) => {
     console.error("SSE 에러: ", error);
   }
 }
-
-// 병원 이송은 이송 요청 페이지에서 핸들러 등록
-// // 병원 이송
-// const handleTransferRequest = (event: MessageEvent) => {
-//   try {
-//     const response: TransferRequestResponse = JSON.parse(event.data);
-//     console.log("transfer-request", response)
-//   } catch (error) {
-//     console.log("SSE 에러: ", error);
-//   }
-// }
 
 // 병원이 이송 요청 수락
 const handleHospitalResponse = (event: MessageEvent) => {

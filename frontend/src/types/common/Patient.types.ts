@@ -171,6 +171,7 @@ export interface DispatchPatientStore {
     callerLocation?: {
       lat: number;
       lng: number;
+      address: string;
     };
   }) => void;
 
@@ -216,6 +217,11 @@ export interface DispatchFormData {
   callSummary: string;
   patientIsUser: boolean;
   dispatchId: number;
+  callerLocation?: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
 }
 
 
