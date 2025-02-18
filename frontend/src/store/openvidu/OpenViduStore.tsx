@@ -141,11 +141,18 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         }));
 
         // 녹음이 아직 시작되지 않았을 때만 초기화 및 시작
-        const recorderStore = useRecorderStore.getState();
-        if (!recorderStore.isRecording) {
+        //const recorderStore = useRecorderStore.getState();
+    
+        // 구독자의 스트림이 실제로 재생 가능할 때까지 대기
+        await new Promise<void>(resolve => {
+          subscriber.on('streamPlaying', () => {
+            resolve();
+          });
+        });
+
+
           await initializeRecorder(subscriber);
           await startRecording();
-        }
 
       });
 
