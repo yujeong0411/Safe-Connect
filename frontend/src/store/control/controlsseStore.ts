@@ -82,10 +82,8 @@ export const useControlsseStore = create<SSEState>((set, get) => ({
         { withCredentials: true }
       );
 
-      newEventSource.addEventListener('connect', (event) => {
-        console.log("SSE Connected:", event);
+      newEventSource.addEventListener('connect', () => {
         set({ sseConnected: true, retryCount: 0 });
-        // 연결 성공시 재연결 타이머 시작
         get().startReconnectTimer();
       });
 
@@ -103,9 +101,6 @@ export const useControlsseStore = create<SSEState>((set, get) => ({
             const locationStore = useLocationStore.getState();
             locationStore.setLocation(response.data.lat, response.data.lng);
             locationStore.setIsEmergencyCall(true); // 위치 데이터를 받았을 때 신고 상태로 설정
-
-            console.log("Location updated:", response.data); //
-
           }
         } catch (error) {
           console.error("Error parsing SSE message:", error);

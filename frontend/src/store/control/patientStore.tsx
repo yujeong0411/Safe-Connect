@@ -55,30 +55,31 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   searchByPhone: async (callerPhone: string) => {
     try {
       const response = await patientService.searchByPhone(callerPhone);
-      console.log('전화번호 조회 응답', response);
       if (response.isSuccess) {
-        const patientInfo = response.data as PatientInfo;
-        set({
-          patientInfo,
-          formData: {
-            ...get().formData,
-            userName: patientInfo.userName || '',
-            userGender: patientInfo.userGender || '',
-            userAge: patientInfo.userAge?.toString() || '',
-            userPhone: patientInfo.userPhone || '',
-            userProtectorPhone: patientInfo.userProtectorPhone || '',
-            diseases: patientInfo.mediInfo
+        if(response.data){
+          const patientInfo = response.data as PatientInfo;
+          set({
+            patientInfo,
+            formData: {
+              ...get().formData,
+              userName: patientInfo.userName || '',
+              userGender: patientInfo.userGender || '',
+              userAge: patientInfo.userAge?.toString() || '',
+              userPhone: patientInfo.userPhone || '',
+              userProtectorPhone: patientInfo.userProtectorPhone || '',
+              diseases: patientInfo.mediInfo
                 ?.find(m => m.categoryName === '기저질환')
                 ?.mediList.map(m => m.mediName)
                 .join(',') || '',
-            medications: patientInfo.mediInfo
+              medications: patientInfo.mediInfo
                 ?.find(m => m.categoryName === '복용약물')
                 ?.mediList.map(m => m.mediName)
                 .join(',') || '',
-            userId: patientInfo.userId
-          }
-        })
-        return response;
+              userId: patientInfo.userId
+            }
+          })
+          return response;
+        }
       }
     } catch (error) {
       console.error("전화번호 조회 실패", error);
@@ -138,15 +139,35 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
     }
   },
 
+
+
   resetPatientInfo: () => {
     set({
       patientInfo: null,
       currentCall: null,
-      formData: initialFormData,  // formData 초기화 추가
       isDispatched: false,   // 출동 지령 상태 초기화
+      formData: initialFormData,  // formData 초기화 추가
     });
   },
 
+  resetPatientInfo2: () => {
+    set((state) => ({
+      ...state,  // 다른 상태는 유지
+      patientInfo: null,
+      currentCall: null,
+      isDispatched: false,   // 출동 지령 상태 초기화
+      formData: {
+        ...state.formData,  // 기존 formData 값들 유지
+        userName: '',
+        userGender: '',
+        userAge: '',
+        userPhone: '',
+        userProtectorPhone: '',
+        medications: '',
+        userId: 0,
+      }
+    }));
+  },
   // 보호자 문자 전송
   sendProtectorMessage: async (callerPhone: string) => {
     try {

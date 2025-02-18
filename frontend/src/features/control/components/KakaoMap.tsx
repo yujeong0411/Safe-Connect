@@ -24,7 +24,6 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
     setIsLoading,
     setLocation,
     setAddress,
-    controllerLocation,
     isEmergencyCall
   } = useLocationStore();
 

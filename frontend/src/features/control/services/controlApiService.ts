@@ -15,7 +15,6 @@ export const patientService = {
       const response = await axiosInstance.get<PatientResponse>('/control/medi_list', {
         params: { callerPhone: phone },
       });
-      console.log('API 응답:', response);
       return response.data;
     } catch (error: any) {
       // 구체적인 에러 처리
@@ -49,14 +48,7 @@ export const controlService = {
   // 신고 전체 조회
   fetchCallList: async (): Promise<CallListResponse> => {
     try {
-      console.log('API 호출 시작');
       const response = await axiosInstance.get<CallListResponse>('/control/call');
-
-      console.log('API 직접 응답:', {
-        status: response.status,
-        data: response.data,
-      });
-
       return response.data;
     } catch (error: any) {
       console.error('API 호출 중 에러:', {
