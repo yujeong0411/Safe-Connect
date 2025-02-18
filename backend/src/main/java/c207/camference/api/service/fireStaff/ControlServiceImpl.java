@@ -204,6 +204,9 @@ public class ControlServiceImpl implements ControlService {
         Patient patient = patientRepository.findById(controlRequest.getPatientId())
                 .orElse(null);
 
+        patient.setDispatchId(dispatch.getDispatchId());
+        patient = patientRepository.saveAndFlush(patient);
+
         // 위도, 경도로 주소 가져오기
         String address = geocodingService.reverseGeocoding(controlRequest.getLat(), controlRequest.getLng());
         // SSE 구급팀 응답 생성

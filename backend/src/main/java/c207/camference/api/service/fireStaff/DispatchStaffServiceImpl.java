@@ -384,6 +384,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException("일치하는 환자 정보가 없습니다."));
+        System.out.println(request);
+        System.out.println(patient);
 
         System.out.println("요청된 병원 IDs: " + request.getHospitalIds());
         List<Hospital> hospitals = hospitalRepository.findAllByHospitalIdIn(request.getHospitalIds());
@@ -398,6 +400,9 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         List<String> reqHospitalNames = new ArrayList<>();
         for (Hospital hospital : activeHospitals) {
             // reqHospital insert
+            if(reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
+                continue;
+            }
             ReqHospital reqHospital = ReqHospital.builder()
                     .hospitalId(hospital.getHospitalId())
                     .dispatchId(request.getDispatchId())
