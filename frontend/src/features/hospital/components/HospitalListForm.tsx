@@ -114,7 +114,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         .fetchTransferDetail(data.dispatchId, type);
       console.log("상세 데이터:", detailData);
       setSelectedPatient({
-        patientId:detailData.patientId,    // 현재 null로 들어옴.?? 해결??
+        patientId:detailData.patientId,
         name: detailData.patientName ?? null,
         gender: detailData.patientGender ?? null,
         age: detailData.patientAge ?? null,
@@ -140,6 +140,14 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
       console.error('상세 조회 실패:', error);
     }
   };
+
+      // 모달 닫히고 수락한 경우
+      const handleModalClose = async (open:boolean) => {
+        if (!open) {
+        await fetchCombinedTransfers();  // 테이블 데이터 새로고침
+        }
+        setIsModalOpen(false);
+      }
 
   // 컬럼 정의
   const getColumns = (): Column[] => {
@@ -341,7 +349,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
 
         <HospitalDetailDialog
             open={isModalOpen}
-            onOpenChange={setIsModalOpen}
+            onOpenChange={handleModalClose}
             data={selectedPatient}
             buttons="수락"
         />
