@@ -122,8 +122,6 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientPreKtas: formData.patientPreKtas,
         patientIsUser: formData.patientIsUser,
       };
-
-      console.log('저장 요청 데이터:', requestData); // 요청 데이터 확인
       const response = await updateDispatchPatientInfo(requestData);
 
       if (response.isSuccess) {

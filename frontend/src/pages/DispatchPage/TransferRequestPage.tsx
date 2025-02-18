@@ -99,7 +99,6 @@ const TransferRequestPage = () => {
             type: 'default',
           });
         }
-        console.log("transfer-request", response);
       } catch (error) {
         console.error("SSE 데이터 처리 오류", error);
       }

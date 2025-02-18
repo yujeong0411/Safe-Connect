@@ -39,7 +39,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
   const handleEndCall = async () => { 
     if (!callId) {
-      console.log("callId가 없습니다.")
       handleAlertClose({
         title: '신고 없음',
         description: '현재 신고가 없습니다.',
@@ -73,7 +72,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   // URL 재전송
   const handleResendUrl = async () => {
     if (!callId) {
-      console.log("callId가 없습니다.")
       handleAlertClose({
         title: '신고 없음',
         description: '현재 신고가 없습니다.',

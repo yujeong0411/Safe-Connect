@@ -46,9 +46,6 @@ const GuardianNotificationDialog = ({
       // 유저이고 보호자 번호가 있는 경우 메세지 전송
       if (formData.patientIsUser && formData.patientProtectorPhone) {
         const messageResponse = await sendProtectorMessage();
-        if (!messageResponse.isSuccess) {
-          console.log("보호자 알림 전송 실패")
-        }
       }
 
       // 이송 종료 처리 (유저 + 비유저)

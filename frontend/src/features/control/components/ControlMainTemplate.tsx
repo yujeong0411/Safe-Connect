@@ -91,7 +91,6 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
     const handleOnline = () => {
       if (location.pathname.startsWith('/control')) {
-        console.log("Browser is online, reconnecting SSE...");
         if (reconnectTimer) {
           clearTimeout(reconnectTimer);
         }

@@ -72,7 +72,6 @@ const handleDispatchOrder = (event: MessageEvent) => {
         openViduStore.joinSession();
       }
 
-      console.log("dispatch-order response", response);
     }
   } catch (error) {
     console.error("SSE 에러: ", error);
@@ -84,9 +83,7 @@ const handleDispatchOrder = (event: MessageEvent) => {
 // const handleTransferRequest = (event: MessageEvent) => {
 //   try {
 //     const response: TransferRequestResponse = JSON.parse(event.data);
-//     console.log("transfer-request", response)
 //   } catch (error) {
-//     console.log("SSE 에러: ", error);
 //   }
 // }
 
@@ -102,11 +99,10 @@ const handleHospitalResponse = (event: MessageEvent) => {
           latitude: response.data.latitude,
           longitude: response.data.longitude
         }
-        console.log("hospital-response", hospitalData);
         useDispatchSseStore.getState().setAcceptedHospital(hospitalData);
       };
   } catch (error) {
-    console.log("SSE 에러", error);
+    console.error("SSE 에러", error);
   }
 }
 
@@ -167,7 +163,6 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
     const timer = setTimeout(() => {
       const { userName } = useDispatchAuthStore.getState();
       if (userName) {
-        console.log("Scheduled reconnection starting...");
         get().disconnect();
         get().connect(userName);
       }
@@ -186,7 +181,6 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
 
   connect: (clientId: string) => {
     if (get().sseConnected && get().eventSource) {
-      console.log("Already connected");
       return;
     }
 
@@ -212,7 +206,6 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
       });
 
       newEventSource.onopen = () => {
-        console.log("SSE 연결 성공");
         set({ sseConnected: true, retryCount: 0 });
         get().startReconnectTimer();
       };
@@ -223,14 +216,11 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
 
         if (retryCount < maxRetries) {
           const nextRetryDelay = retryDelay * Math.pow(2, retryCount);
-          console.log(`Retrying in ${nextRetryDelay}ms... (${retryCount + 1}/${maxRetries})`);
-
           setTimeout(() => {
             set({ retryCount: retryCount + 1 });
             get().connect(clientId);
           }, nextRetryDelay);
         } else {
-          console.log("Max retries reached, closing connection");
           newEventSource.close();
           set({
             eventSource: null,

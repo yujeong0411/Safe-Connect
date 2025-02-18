@@ -49,8 +49,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
   // 병원 마커 업데이트
   useEffect(() => {
     if (!isKakaoLoaded || !mapRef.current || !hospitals.length) return;
-  
-    // console.log('Hospitals data:', hospitals); // 디버깅용
+
   
     const bounds = new window.kakao.maps.LatLngBounds();
   
@@ -58,8 +57,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
     if (currentLocation) {
       const currentPos = new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng);
       bounds.extend(currentPos);
-      // console.log('Current location added:', currentLocation); // 디버깅용
-    }
+       }
   
     // 기존 마커 제거
     Object.values(markersRef.current).forEach(marker => marker.setMap(null));
@@ -69,11 +67,6 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
   
     hospitals.forEach(hospital => {
       // 위도/경도 로깅
-      console.log('Hospital position:', {
-        name: hospital.hospitalName,
-        lat: hospital.hospitalLat,
-        lng: hospital.hospitalLng
-      });
   
       const position = new window.kakao.maps.LatLng(
         Number(hospital.hospitalLat), // 위도
@@ -122,7 +115,6 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
   
     // bounds가 비어있지 않은 경우에만 적용
     if (!bounds.isEmpty()) {
-      // console.log('Setting map bounds'); // 디버깅용
       mapRef.current.setBounds(bounds, 50);
     }
   }, [isKakaoLoaded, hospitals, currentLocation, onHospitalSelect]);

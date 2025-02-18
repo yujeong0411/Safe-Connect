@@ -130,7 +130,6 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
 
   const connectSSE = () => {
     if (sseConnected && eventSourceRef.current) {
-      console.log("SSE already connected");
       return;
     }
 
@@ -160,15 +159,12 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
       );
 
       newEventSource.addEventListener("transfer-request", (event) => {
-        console.log("event = ", event)
         const response = JSON.parse(event.data);
-        console.log("response = ", response)
         showTransferRequestToast(response.data.patient, response);
         fetchCombinedTransfers();
       });
 
       newEventSource.onopen = () => {
-        console.log("SSE 연결 성공");
         setSseConnected(true);
         setRetryCount(0),
         startReconnectTimer();
@@ -180,21 +176,19 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
 
         if (retryCount < MAX_RETRIES) {
           const nextRetryDelay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
-          console.log(`${nextRetryDelay}ms 후 재시도... (${retryCount + 1}/${MAX_RETRIES})`);
 
           setTimeout(() => {
             setRetryCount(prev => prev + 1);
             connectSSE();
           }, nextRetryDelay);
         } else {
-          console.log("최대 재시도 횟수 도달, 연결 종료");
           disconnect();
         }
       };
 
       eventSourceRef.current = newEventSource;
     } catch (error) {
-      console.log("EventSource 생성 중 에러 발생: ", error);
+      console.error("EventSource 생성 중 에러 발생: ", error);
       setSseConnected(false);
     }
   };
@@ -205,7 +199,6 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
     }
 
     reconnectTimerRef.current = setTimeout(() => {
-      console.log("예약된 재연결 시작");
       disconnect();
       connectSSE();
     }, RECONNECT_INTERVAL);

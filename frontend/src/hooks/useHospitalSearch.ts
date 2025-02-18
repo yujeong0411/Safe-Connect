@@ -54,7 +54,6 @@ export const useHospitalSearch = () => {
     try {
       // 좌표 유효성 검사
       if (!startLat || !startLng || !endLat || !endLng) {
-        console.log('유효하지 않은 좌표:', { startLat, startLng, endLat, endLng });
         return { eta: "알 수 없음", distance: "알 수 없음" };
       }
   
@@ -237,7 +236,6 @@ useEffect(() => {
   // 이송 요청
   const requestTransfer = useCallback(async (hospitalIds: number[]) => {
     try {
-      console.log(hospitalIds)
       const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
         hospitalIds
       } as TransferRequestParams);

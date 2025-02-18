@@ -97,7 +97,6 @@ const ControlPatientInfoForm = () => {
 
       if (name === 'userPhone' || name === 'userProtectorPhone') {
         processedValue = formatPhoneNumber(value);
-        console.log('Processed value:', processedValue); // 포맷된 값 로깅
       }
 
       updateFormData({

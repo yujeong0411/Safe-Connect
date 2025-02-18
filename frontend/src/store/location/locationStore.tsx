@@ -90,7 +90,7 @@ export const useLocationStore = create<LocationState>((set) => ({
       );
       return response.data;
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }));

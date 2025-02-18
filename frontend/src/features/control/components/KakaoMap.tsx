@@ -71,11 +71,6 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log('현재 위치 가져오기 성공:', {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-
             setLocation(position.coords.latitude, position.coords.longitude);
             setIsLoading(false);
           },
@@ -110,8 +105,7 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
       // 출동 지령 후 재 랜더링 되면서 소방서 검색 시도 -> 중심좌표가 초기화되면서 400 에러 발생
       // 좌표 검사 후 기본값 반환
       if (!startLat || !startLng || !endLat || !endLng) {
-        console.log('유효하지 않은 좌표:', { startLat, startLng, endLat, endLng });
-        return { eta: '알 수 없음', distance: '알 수 없음' };
+       return { eta: '알 수 없음', distance: '알 수 없음' };
       }
 
       const response = await axios.post(
@@ -153,10 +147,7 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
 
   // 소방서 검색 후 마커 업데이트
   useEffect(() => {
-    console.log('현재 center 값:', center);  // center 값 확인
-    // -> 출동 지령 후 에러 해결
     if (!map || !center.lat || !center.lng) {
-      console.log('지도 또는 중심 좌표가 없음:', { map, center });
       return;
     }
 

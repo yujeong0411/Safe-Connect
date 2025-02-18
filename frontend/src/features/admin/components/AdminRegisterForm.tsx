@@ -28,10 +28,6 @@ const AdminRegisterForm = ({ userType }: AdminUserTableProps) => {
     setSelectedPatient(null);
   };
 
-  const handleSearch = (keyword: string) => {
-    console.log('keyword:', keyword);
-    // 검색로직 구현
-  };
 
   // 컬럼 정의
   const columns: {
