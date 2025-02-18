@@ -88,9 +88,6 @@ const UserMediPage = () => {
     }
   };
 
-  // 회원탈퇴 핸들러
-  const handleSignout = async () => {};
-
   return (
       <>
     <MainTemplate
@@ -107,7 +104,6 @@ const UserMediPage = () => {
 현재 질환과 복용 약물을 입력해 주세요."
         logoSrc={mediImg}
         primaryButtonOnClick={handleSave}
-        secondaryButtonOnClick={handleSignout}
       >
         <SignupMediForm />
       </UserInfoTemplate>

@@ -20,8 +20,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {fetchCallSummary} = usePatientStore()
   const { callId,leaveSession } = useOpenViduStore();
-  const setIsLoading = useLocationStore((state) => state.setIsLoading);
-  const setLocation = useLocationStore((state) => state.setLocation);
   const { stopRecording } = useRecorderStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -41,7 +39,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
 
   const handleEndCall = async () => { 
     if (!callId) {
-      console.log("callId가 없습니다.")
       handleAlertClose({
         title: '신고 없음',
         description: '현재 신고가 없습니다.',
@@ -54,12 +51,9 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
       await controlService.endCall(callId)
       await leaveSession()
 
-      // 위치정보 초기화 및 로딩 상태 변경
-      setLocation(37.566826, 126.9786567)  // 서울시청 좌표로 초기화
-      setIsLoading(true)
-
-      
-
+      const locationStore = useLocationStore.getState();
+      locationStore.setIsEmergencyCall(false);  // 신고 상태 해제
+      locationStore.fetchUserLocation(); // 새로 추가된 함수 사용
 
       // alert('신고가 종료되었습니다.')
       handleAlertClose({
@@ -78,7 +72,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   // URL 재전송
   const handleResendUrl = async () => {
     if (!callId) {
-      console.log("callId가 없습니다.")
       handleAlertClose({
         title: '신고 없음',
         description: '현재 신고가 없습니다.',
@@ -88,7 +81,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     }
     try {
       await controlService.resendUrl(callId);
-      alert("URL이 재전송되었습니다.");
       handleAlertClose({
         title: 'URL 재전송',
         description: 'URL이 재전송되었습니다.',
@@ -195,35 +187,6 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
               <div className="bg-gray-900 rounded-lg h-96 flex items-center justify-center">
                 <VideoSessionUI />
               </div>
-            </div>
-            {/* 신고 내용 입력 */}
-            <div className="space-y-4 p-6">
-              {/*<div className="flex justify-end space-x-4">*/}
-              {/*  /!*<h3 className="text-lg font-semibold">신고 내용</h3>*!/*/}
-              {/*  <ConfirmDialog*/}
-              {/*      trigger="전화 종료"*/}
-              {/*      title="전화 종료"*/}
-              {/*      description="현재 신고 전화를 종료하시겠습니까?"*/}
-              {/*      confirmText = "종료"*/}
-              {/*      triggerVariant="destructive"*/}
-              {/*      cancelVariant="gray"*/}
-              {/*      confirmVariant="destructive"*/}
-              {/*      onConfirm={handleEndCall}*/}
-              {/*  />*/}
-              {/*  <Button variant="default" size="default" onClick={handleResendUrl}>*/}
-              {/*    URL 재전송*/}
-              {/*  </Button>*/}
-              {/*  <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">*/}
-              {/*    AI 요약*/}
-              {/*  </Button>*/}
-              {/*</div>*/}
-              {/*<Textarea*/}
-              {/*  value={formData.callSummary}*/}
-              {/*  onChange={(e) => updateFormData({ callSummary: e.target.value})}*/}
-              {/*  placeholder="AI요약을 누르면 자동으로 요약됩니다."*/}
-              {/*  readOnly  // 읽기 전용*/}
-              {/*  className="p-4 min-h-[120px] bg-white"*/}
-              {/*/>*/}
             </div>
           </div>
         </div>

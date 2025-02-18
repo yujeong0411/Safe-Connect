@@ -11,7 +11,6 @@ export const callerService= {
         lat : lat,
         lon : lng}
       });
-      console.log('API 응답:', response);
       return response.data;
     } catch (error: any) {
       // 구체적인 에러 처리

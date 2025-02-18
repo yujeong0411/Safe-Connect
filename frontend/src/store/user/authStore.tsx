@@ -19,8 +19,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
     const formData = new URLSearchParams();
     formData.append('userEmail', data.userEmail);
     formData.append('userPassword', data.userPassword);
-    // 문자열로 변환
-    console.log(formData.toString());
 
     // 로그인 공통 로직 사용
     const accessToken = await commonLogin({
@@ -150,4 +148,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
       throw error;
     }
   },
+
+  // 회원탈퇴
 }));

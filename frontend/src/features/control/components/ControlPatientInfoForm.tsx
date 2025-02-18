@@ -6,16 +6,20 @@ import { formatPhoneNumber } from '@features/auth/servies/signupService.ts';
 import { usePatientStore } from '@/store/control/patientStore.tsx';
 import { FormData } from '@/types/common/Patient.types.ts';
 import React, { useState, useEffect, useRef } from 'react';
+import {useNavigate} from "react-router-dom";
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import ConfirmDialog from '@components/organisms/ConfirmDialog/ConfirmDialog.tsx';
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { CircleCheckBig, CircleAlert } from 'lucide-react';
 
 const ControlPatientInfoForm = () => {
-  const { patientInfo, formData, updateFormData, searchByPhone, savePatientInfo } =
-    usePatientStore();
+  const {
+    patientInfo, formData, updateFormData,
+    searchByPhone, savePatientInfo,resetPatientInfo2
+  } =usePatientStore();
   const { callId, callerPhone } = useOpenViduStore();
   const genderOptions = ['M', 'F'];
+  const navigate = useNavigate();
   const searchBarRef = useRef<SearchBarRef>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -35,7 +39,6 @@ const ControlPatientInfoForm = () => {
 
   // 영상통화 생성 시 전화번호 자동 검색
   useEffect(() => {
-    console.log('Caller Phone changed:', callerPhone);
     if (callerPhone) {
       handleSearch(callerPhone);
     }
@@ -72,22 +75,11 @@ const ControlPatientInfoForm = () => {
   const handleSearch = async (phone: string) => {
     try {
       const formattedPhone = formatPhoneNumber(phone);
+      resetPatientInfo2();
       const response = await searchByPhone(formattedPhone);
-
       if (response?.isSuccess) {
-        // 명시적인 오류 메시지 표시
-        handleAlertClose({
-          title: '신고자 조회 성공',
-          description: '회원이 조회되었습니다.',
-          type: 'default',
-        });
         updateFormData({ userPhone: formattedPhone });
       } else {
-        handleAlertClose({
-          title: '미가입자 조회',
-          description: '등록된 회원이 아닙니다.',
-          type: 'info',
-        });
           updateFormData({ userPhone: formattedPhone });
       }
     } catch (error) {
@@ -101,13 +93,10 @@ const ControlPatientInfoForm = () => {
     (name: keyof FormData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { value } = e.target;
-      console.log('Original value:', value); // 입력값 로깅
-
       let processedValue = value;
 
       if (name === 'userPhone' || name === 'userProtectorPhone') {
         processedValue = formatPhoneNumber(value);
-        console.log('Processed value:', processedValue); // 포맷된 값 로깅
       }
 
       updateFormData({
@@ -120,17 +109,29 @@ const ControlPatientInfoForm = () => {
     if (!callId) {
       handleAlertClose({
         title: '신고 없음',
-        description: '현재 신고가 업습니다.',
+        description: '현재 신고가 없습니다.',
         type: 'destructive',
       });
       return;
     }
+    try {
     await savePatientInfo(callId || 0);
     handleAlertClose({
       title: '저장 성공',
       description: '저장되었습니다.',
       type: 'default',
     });
+    // 출동 지령 페이지로 이동
+    setTimeout(() => {
+      navigate('/control/dispatch-order')
+    }, 1000)
+    } catch (error) {
+      handleAlertClose({
+        title: '저장 실패',
+        description: '저장에 실패했습니다.',
+        type: 'destructive',
+      });
+    }
   };
 
   // 초기화

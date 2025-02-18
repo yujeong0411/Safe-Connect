@@ -179,12 +179,12 @@ const SignupInfoForm = () => {
     }
   };
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-left w-full mb-10 font-sans">기본 정보 입력</h1>
-      <div className="flex flex-row gap-10">
+    <div className="w-full px-4 md:px-20">
+      <h1 className="text-2xl md:text-3xl font-bold text-left w-full mb-6 md:mb-10 font-sans">기본 정보 입력</h1>
+      <div className="flex flex-col md:flex-row gap-6 md:gap-10">
         {/*왼쪽*/}
-        <div className="flex-1">
-          <div className="flex flex-col gap-6">
+        <div className="w-full md:flex-1">
+          <div className="flex flex-col gap-4 md:gap-8">
             {/*이메일 + 중복확인*/}
             <SearchBar
               label="이메일"
@@ -221,8 +221,8 @@ const SignupInfoForm = () => {
         </div>
 
         {/*오른쪽*/}
-        <div className="flex-1">
-          <div className="flex flex-col gap-6">
+        <div className="w-full md:flex-1">
+          <div className="flex flex-col gap-4 md:gap-8">
             {/*전화번호*/}
             <SearchBar
               label="전화번호"
@@ -271,22 +271,17 @@ const SignupInfoForm = () => {
       </div>
 
       {showAlert && (
-          <div className="fixed left-2/3 top-[300px] -translate-x-1/2 z-[9999]">
+          <div className="fixed left-1/2 md:left-2/3 top-[300px] -translate-x-1/2 z-[9999]">
             <Alert
                 variant={alertConfig.type}
-                className={`w-[400px] shadow-lg bg-white ${
-                    alertConfig.type === 'default'
-                        ? '[&>svg]:text-blue-600 text-blue-600'
-                        : '[&>svg]:text-red-500 text-red-500'
-                }`}
             >
               {alertConfig.type === 'default' ? (
-                  <CircleCheckBig className="h-6 w-6" />
+                  <CircleCheckBig className="h-5 md:h-6 w-5 md:w-6" />
               ) : (
-                  <CircleAlert className="h-6 w-6" />
+                  <CircleAlert className="h-5 md:h-6 w-5 md:w-6" />
               )}
-              <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-              <AlertDescription className="text-sm m-2">
+              <AlertTitle>{alertConfig.title}</AlertTitle>
+              <AlertDescription>
                 {alertConfig.description}
               </AlertDescription>
             </Alert>

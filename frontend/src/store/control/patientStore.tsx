@@ -22,6 +22,10 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   currentCall: null, // 현재 처리 중인 신고 정보
   formData: initialFormData,
   reportContent:'',
+  isDispatched: false,  // 출동 지령 상태 표시
+
+  // 현재 출동 지령 상태
+  setIsDispatched: (isDispatched: boolean) => set({isDispatched}),
 
 
   // reportContent 업데이트
@@ -51,30 +55,31 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   searchByPhone: async (callerPhone: string) => {
     try {
       const response = await patientService.searchByPhone(callerPhone);
-      console.log('전화번호 조회 응답', response);
       if (response.isSuccess) {
-        const patientInfo = response.data as PatientInfo;
-        set({
-          patientInfo,
-          formData: {
-            ...get().formData,
-            userName: patientInfo.userName || '',
-            userGender: patientInfo.userGender || '',
-            userAge: patientInfo.userAge?.toString() || '',
-            userPhone: patientInfo.userPhone || '',
-            userProtectorPhone: patientInfo.userProtectorPhone || '',
-            diseases: patientInfo.mediInfo
+        if(response.data){
+          const patientInfo = response.data as PatientInfo;
+          set({
+            patientInfo,
+            formData: {
+              ...get().formData,
+              userName: patientInfo.userName || '',
+              userGender: patientInfo.userGender || '',
+              userAge: patientInfo.userAge?.toString() || '',
+              userPhone: patientInfo.userPhone || '',
+              userProtectorPhone: patientInfo.userProtectorPhone || '',
+              diseases: patientInfo.mediInfo
                 ?.find(m => m.categoryName === '기저질환')
                 ?.mediList.map(m => m.mediName)
                 .join(',') || '',
-            medications: patientInfo.mediInfo
+              medications: patientInfo.mediInfo
                 ?.find(m => m.categoryName === '복용약물')
                 ?.mediList.map(m => m.mediName)
                 .join(',') || '',
-            userId: patientInfo.userId
-          }
-        })
-        return response;
+              userId: patientInfo.userId
+            }
+          })
+          return response;
+        }
       }
     } catch (error) {
       console.error("전화번호 조회 실패", error);
@@ -84,7 +89,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   // 신고 내용 저장(수정)
   savePatientInfo: async () => {
     try {
-      const {  formData } = get();  // 내부 상태 가져오기
+      const { formData } = get();  // 내부 상태 가져오기
       const {callId} = useOpenViduStore.getState()
 
       // callId 유효성 체크 추가
@@ -95,7 +100,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
 
       // callSummary와 addSummary 합치기
       const combinedSummary = formData.addSummary
-          ? `${formData.callSummary}\n\n${formData.addSummary}`
+          ? `${formData.callSummary}\n${formData.addSummary}`
           : formData.callSummary;
 
       // 현재 선택된 회원 ID와 신고 ID 추가
@@ -126,22 +131,41 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
           currentCall:updatedCallInfo,  // 저장 성공 시 현재 신고 정보 업데이트
         });
 
-        // 상태 업데이트 확인
-        console.log('상태 업데이트 후:', get().currentCall);
       }
     } catch (error) {
       console.error('정보 저장 실패', error);
     }
   },
 
+
+
   resetPatientInfo: () => {
     set({
       patientInfo: null,
       currentCall: null,
-      formData: initialFormData  // formData 초기화 추가
+      isDispatched: false,   // 출동 지령 상태 초기화
+      formData: initialFormData,  // formData 초기화 추가
     });
   },
 
+  resetPatientInfo2: () => {
+    set((state) => ({
+      ...state,  // 다른 상태는 유지
+      patientInfo: null,
+      currentCall: null,
+      isDispatched: false,   // 출동 지령 상태 초기화
+      formData: {
+        ...state.formData,  // 기존 formData 값들 유지
+        userName: '',
+        userGender: '',
+        userAge: '',
+        userPhone: '',
+        userProtectorPhone: '',
+        medications: '',
+        userId: 0,
+      }
+    }));
+  },
   // 보호자 문자 전송
   sendProtectorMessage: async (callerPhone: string) => {
     try {

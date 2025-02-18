@@ -7,6 +7,7 @@ import c207.camference.api.response.dispatchstaff.ControlDispatchOrderResponse;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
+import c207.camference.api.service.geocoding.GeocodingService;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.db.entity.call.Caller;
@@ -72,6 +73,7 @@ public class ControlServiceImpl implements ControlService {
     private final DispatchRepository dispatchRepository;
     private final SmsService smsService;
     private final PatientRepository patientRepository;
+    private final GeocodingService geocodingService;
 
 
     @Override
@@ -133,11 +135,17 @@ public class ControlServiceImpl implements ControlService {
     }
     @Override
     @Transactional
-    public ResponseEntity<?> getUser(String callerPhone){
-        try{
+    public ResponseEntity<?> getUser(String callerPhone) {
+        try {
             User user = userRepository.findByUserPhone(callerPhone)
-                    .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
-
+                    .orElse(null);
+            if (user == null) {
+                ResponseData<ControlUserResponse> response = ResponseUtil.success(
+                        null,
+                        "조회된 사용자가 없습니다."
+                );
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
             List<MediCategoryDto> mediCategoryDto = null;
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
 
@@ -149,8 +157,8 @@ public class ControlServiceImpl implements ControlService {
             ControlUserResponse controlUserResponse = ControlUserResponse.from(user, mediCategoryDto);
             ResponseData<ControlUserResponse> response = ResponseUtil.success(controlUserResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }catch (Exception e){
-            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
+        } catch (Exception e) {
+            ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -196,13 +204,11 @@ public class ControlServiceImpl implements ControlService {
         Patient patient = patientRepository.findById(controlRequest.getPatientId())
                 .orElse(null);
 
-        // SSE
-        // 구급팀 응답 생성
-        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository, controlRequest.getSessionId());
-
+        // 위도, 경도로 주소 가져오기
+        String address = geocodingService.reverseGeocoding(controlRequest.getLat(), controlRequest.getLng());
+        // SSE 구급팀 응답 생성
+        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository, controlRequest.getSessionId(), controlRequest.getLat(), controlRequest.getLng(), address);
         sseEmitterService.sendDispatchOrder(controlRequest, dispatchGroupOrderResponse);
-
-
 
         return ResponseEntity.ok().body(ResponseUtil.success("출동 지령 전송 성공"));
     }
@@ -240,11 +246,7 @@ public class ControlServiceImpl implements ControlService {
             patient.setPatientIsUser(true);
             patient.setPatientName(user.getUserName());
             patient.setPatientGender(user.getUserGender());
-            int currentYear = LocalDateTime.now().getYear();
-            int birthYear = 1900 + Integer.parseInt(user.getUserBirthday().substring(0, 2));
-            int age = currentYear - birthYear;
-            String ageString = String.valueOf(age / 10);
-            patient.setPatientAge(ageString.substring(0, 1));
+            patient.setPatientAge(ControlUserResponse.calculateAge(user.getUserBirthday()));
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
             if (userMediDetail != null) {
                 List<Medi> medis = getUserActiveMedis(userMediDetail);

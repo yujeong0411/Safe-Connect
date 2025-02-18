@@ -106,7 +106,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     try {
       await createSession(sessionId, callerPhone);
       // 세션 제작 성공
-      console.log("세션제작 성공, ", sessionId);
       set({ sessionId });
       await joinSession();
     } catch (error) {
@@ -129,9 +128,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       
       if (!sessionId) return;
 
-
-
-      console.log('openvidu store - session 생성 시도 전'); // 테스트용
       const session = OV.initSession();
 
 
@@ -154,10 +150,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       // 연결 시도
       const token = await get().createToken(sessionId);
       await session.connect(token, { clientData: userName });
-      console.log("Session connected with token:", token);
-
-
-      
 
       // iOS에 최적화된 설정으로 퍼블리셔 초기화
       const publisher = await OV.initPublisherAsync(undefined, {
@@ -207,7 +199,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
   },
 
   leaveSession: () => {
-    console.log('openviduStore - leaveSession 실행 완료'); //테스트용. 푸시 전 삭제할것
     const { session, publisher } = get();
 
     if (session) {
@@ -249,9 +240,6 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           headers: { 'Content-Type': 'application/json' },
         }
       );
-
-      console.log('Create Session Response:', response.data);
-
       set({
         callId : response.data.data.call.callId,
         callStartedAt: response.data.data.call.callStartedAt,

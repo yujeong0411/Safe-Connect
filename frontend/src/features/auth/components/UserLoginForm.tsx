@@ -3,7 +3,6 @@ import Button from '@components/atoms/Button/Button.tsx';
 import Input from '@components/atoms/Input/Input.tsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/user/authStore.tsx';
-//import { useSignupStore } from '@/store/user/signupStore.tsx';
 
 const UserLoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +33,7 @@ const UserLoginForm = () => {
       // 로그인 성공 시 메인페이지 이동
       navigate('/user/main');
     } catch (error) {
-      setError(error instanceof Error ? error.message : String(error));
+      setError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -55,6 +54,21 @@ const UserLoginForm = () => {
   const handleFindPassword = () => {
     navigate('/user/findpassword');
   };
+
+  // 에러 메세지 매핑
+  const getErrorMessage = (error: any): string => {
+    if(error.response?.status === 401) {
+      return '아이디 또는 비밀번호가 일치하지 않습니다.'
+    }
+    if (error.response?.status === 404) {
+      return '등록되지 않은 사용자입니다.';
+    }
+    if (error.response?.status === 500) {
+      return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    }
+    return '로그인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  };
+
 
   return (
     <div

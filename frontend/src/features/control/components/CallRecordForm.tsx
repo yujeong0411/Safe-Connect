@@ -25,13 +25,8 @@ const CallRecordForm = () => {
     fetchCallList();
   }, []);
 
-  // 디버깅을 위한 useEffect 추가
-  useEffect(() => {
-    console.log('현재 callList:', callList);
-  }, [callList]);
-
   const columns = [
-    {key: 'callId', header: '신고 번호'},
+    // {key: 'callId', header: '신고 번호'},
     {key: 'callStartedAt', header: '신고 일시', render:(data: CallRecord) => format(new Date(data.callStartedAt), 'yyyy-MM-dd HH:mm:ss')},
     {key: 'callFinishedAt', header: '신고 종료 일시',  render: (data: CallRecord) => data.callFinishedAt
           ? format(new Date(data.callFinishedAt), 'yyyy-MM-dd HH:mm:ss')
@@ -111,7 +106,7 @@ const CallRecordForm = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg overflow-hidden">
+            <div className="bg-white rounded-sm overflow-hidden">
               <Table className="w-full">
                 <TableHeader>
                   <TableRow className="bg-gray-200 hover:bg-gray-200">

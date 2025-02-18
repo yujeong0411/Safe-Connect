@@ -32,6 +32,7 @@ export interface CurrentCall {
   patientId: number | null;
 }
 
+
 // 전화번호 조회시 얻는 정보(현재 신고 중인 환자)
 export interface PatientInfo {
   userId: number;
@@ -74,6 +75,9 @@ export interface SavePatientResponse {
 
 // 상황실 환자 스토어
 export interface PatientStore {
+  isDispatched :boolean;  // 현재 출동 지령 상태 표시
+  setIsDispatched(isDispatched: boolean): void;
+
   patientInfo: PatientInfo | null;
   currentCall: CurrentCall | null;
   formData: FormData;
@@ -84,6 +88,7 @@ export interface PatientStore {
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
+  resetPatientInfo2: () => void;
   sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
   fetchCallSummary: (callId: number, audioBlob: Blob) => Promise<void>;
 }
@@ -114,6 +119,7 @@ export interface DispatchSavePatientRequest {
   patientPhone?: string;
   patientProtectorPhone?: string;
   callSummary: string;
+  patientIsUser: boolean;
   // 생체정보 개별 필드로 변경
   patientBloodSugar: number | null;
   patientDiastolicBldPress: number | null;
@@ -163,6 +169,11 @@ export interface DispatchPatientStore {
     patient: Patient;
     user: User | null;
     mediInfo: MedicalCategory[] | null;
+    callerLocation?: {
+      lat: number;
+      lng: number;
+      address: string;
+    };
   }) => void;
 
   // 폼데이터 업데이트
@@ -207,6 +218,11 @@ export interface DispatchFormData {
   callSummary: string;
   patientIsUser: boolean;
   dispatchId: number;
+  callerLocation?: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
 }
 
 

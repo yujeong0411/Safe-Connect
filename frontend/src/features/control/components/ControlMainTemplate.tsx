@@ -11,12 +11,15 @@ import { useControlsseStore } from '@/store/control/controlsseStore.ts';
 import {usePatientStore} from "@/store/control/patientStore.tsx";
 import {Alert, AlertDescription, AlertTitle} from "@components/ui/alert.tsx";
 import {CircleAlert, CircleCheckBig} from "lucide-react";
+import Footer from "@components/organisms/Footer/Footer";
+import useKakaoLoader from '@/hooks/useKakaoLoader.ts';
 
 interface ControlTemplateProps {
   children?: React.ReactNode;
 }
 
 const ControlTemplate = ({ children }: ControlTemplateProps) => {
+  const isKakaoLoaded = useKakaoLoader(); // Kakao Maps API 로드
   const { setIsOpen, isOpen: isDrawerOpen } = useVideoCallStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,7 +28,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { logout } = useControlAuthStore();
   const { connect, disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore();
-  const { patientInfo } = usePatientStore();
+  const { patientInfo, currentCall } = usePatientStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -43,7 +46,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   };
 
   const handleProtectorNotify = () => {
-    if (!patientInfo?.userId || !patientInfo?.userProtectorPhone) {
+    if (!currentCall?.userId || !patientInfo?.userProtectorPhone) {
       // 회원이 아니거나 보호자 번호가 없는 경우 알림 표시
       // alert('등록된 보호자가 없거나 회원이 아닙니다.');
       handleAlertClose({
@@ -88,7 +91,6 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
     const handleOnline = () => {
       if (location.pathname.startsWith('/control')) {
-        console.log("Browser is online, reconnecting SSE...");
         if (reconnectTimer) {
           clearTimeout(reconnectTimer);
         }
@@ -134,29 +136,37 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       label: '보호자 알림',
       path: '#',
       hasModal: true,
-      onModalOpen: handleProtectorNotify,   // 유지이고 보호자번호가 있는 경우만 열림
-      disabled: !patientInfo?.userId || !patientInfo?.userProtectorPhone  // 비활성화
+      onModalOpen: handleProtectorNotify,   // 유저이고 보호자번호가 있는 경우만 열림
+      disabled: !currentCall?.userId || !patientInfo?.userProtectorPhone  // 비활성화
     },
     { label: '신고 내역', path: '/control/main' },
   ];
 
   return (
     <div className="mih-h-screen bg-bg flex flex-col">
-      <div className="-space-y-4">
-        <PublicHeader
-          labels={[
-            {
-              label: '로그아웃',
-              href: '#',
-              onClick: handleLogout,
-            },
-          ]}
-        />
-        <NavBar navItems={navItems} />
-      </div>
-      <div className="flex-1 min-h-[calc(100vh-100px)]">
-        <VideoCallDrawer>{children}</VideoCallDrawer>
-      </div>
+      {isKakaoLoaded ? (
+        <>
+          <div className="-space-y-4">
+            <PublicHeader
+              labels={[
+                {
+                  label: '로그아웃',
+                  href: '#',
+                  onClick: handleLogout,
+                },
+              ]}
+            />
+            <NavBar navItems={navItems} />
+          </div>
+          <div className="flex-1 min-h-[calc(100vh-100px)]">
+            <VideoCallDrawer>{children}</VideoCallDrawer>
+          </div>
+        </>
+      ) : (
+        <div className="flex items-center justify-center h-screen">
+          <p>지도를 불러오는 중입니다...</p>
+        </div>
+      )}
       <VideoCallCreateDialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen} />
       <ProtectorNotifyDialog open={isNotifyModalOpen} onOpenChange={setIsNotifyModalOpen} />
 
@@ -176,6 +186,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
             </Alert>
           </div>
       )}
+      <Footer />
     </div>
   );
 };

@@ -47,5 +47,10 @@ export interface DispatchOrderResponse {
     user: User | null;
     mediInfo: MedicalCategory[] | null;
     sessionId: string;
+    callerLocation: {
+      lat: number;
+      lng: number;
+      address: string;
+    }
   }
 }

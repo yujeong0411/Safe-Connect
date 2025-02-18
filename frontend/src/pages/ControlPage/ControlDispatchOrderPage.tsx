@@ -10,10 +10,12 @@ import { orderDispatch } from '@features/control/services/controlApiService.ts';
 import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import { usePatientStore } from '@/store/control/patientStore';
 import { useNavigate } from 'react-router-dom';
+import {useLocationStore} from "@/store/location/locationStore.tsx";
 
 const ControlDispatchOrderPage = () => {
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
   const { selectedStation, setSelectedStation, dispatchGroups } = useDispatchGroupStore();
+  const { center } = useLocationStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -23,7 +25,7 @@ const ControlDispatchOrderPage = () => {
   })
   const navigate = useNavigate();
   const { callId, sessionId } = useOpenViduStore();
-  const { currentCall } = usePatientStore.getState();
+  const { currentCall, isDispatched, setIsDispatched } = usePatientStore.getState();
 
   const patientId = currentCall?.patientId;
 
@@ -67,11 +69,12 @@ const ControlDispatchOrderPage = () => {
       }
 
       if (callId && patientId) {
-        await orderDispatch(selectedTeam, callId, patientId, sessionId); // dispatchGroupId, callId, patientId
+        await orderDispatch(selectedTeam, callId, patientId, sessionId, center.lat, center.lng); // dispatchGroupId, callId, patientId
+       setIsDispatched(true);   // 출동 지령 상태 변경
       }else{
         handleAlertClose({
           title: '신고가 없습니다.',
-          description: '신고가 없어 출동지령을 못 보냅니다..',
+          description: '신고가 없어 출동지령을 전송할 수 없습니다.',
           type: 'default',
         });
       }
@@ -101,7 +104,7 @@ const ControlDispatchOrderPage = () => {
 
   return (
     <ControlMainTemplate>
-      <div className="relative h-screen">
+      <div className="w-full relative h-screen">
         {showAlert && (
           <div className="fixed left-1/2 top-80 -translate-x-1/2  z-50 ">
             <Alert
@@ -132,18 +135,22 @@ const ControlDispatchOrderPage = () => {
         </div>
 
         {/* 소방서 목록 패널 */}
-        <div className="absolute right-4 top-4 bottom-4 w-96 bg-white/60 rounded-lg overflow-y-auto z-10 hide-scrollbar">
+        <div className="absolute  right-4 top-4 bottom-4 w-96 bg-white/80 rounded-lg overflow-y-auto z-10 hide-scrollbar">
           <div className="sticky top-0 bg-white/60 p-4 border-b">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">인근 소방서 목록</h2>
               <Button
-                variant="red"
                 size="md"
                 width="auto"
-                className="bg-red-500 hover:bg-red-600"
+                className={`${
+                    isDispatched
+                        ? 'bg-gray-400 hover:bg-gray-400'
+                        : 'bg-red-500 hover:bg-red-600'
+                }`}
                 onClick={handleDispatchAlert}
+                disabled={isDispatched}   // 출동 지령 상태에 따른 비활성화
               >
-                출동 지령
+                {isDispatched ? '출동 중' : '출동 지령'}
               </Button>
             </div>
           </div>
@@ -157,7 +164,7 @@ const ControlDispatchOrderPage = () => {
                 <div
                   key={station.place_name}
                   onClick={() => handleMarkerClick(station)}
-                  className="p-4 mb-4 bg-rose-30 rounded-lg border border-rose-200 cursor-pointer"
+                  className="p-4 mb-4 bg-rose-30/60 rounded-lg border border-pink-300 cursor-pointer"
                 >
                   <h3 className="font-semibold">{station.place_name}</h3>
                   <div className="mt-2 text-sm space-y-1">
@@ -175,7 +182,7 @@ const ControlDispatchOrderPage = () => {
                   {selectedStation === station.place_name && (
                     <div className="mt-4 pl-4 border-l-2">
                       {dispatchGroups.length === 0 ? (
-                        <div className="text-sm text-gray-500">가용 가능한 소방팀이 없습니다.</div>
+                        <div className="text-sm text-gray-700">가용 가능한 소방팀이 없습니다.</div>
                       ) : (
                         dispatchGroups.map((group) => (
                           <div
@@ -186,7 +193,7 @@ const ControlDispatchOrderPage = () => {
                             }}
                             className={`text-sm p-2 rounded mb-2 ${
                               selectedTeam === group.dispatchGroupId
-                                ? 'bg-red-200 hover:bg-red-100'
+                                ? 'bg-pink-200 hover:bg-pink-100'
                                 : 'bg-gray-200/60 hover:bg-red-50'
                             }`}
                           >

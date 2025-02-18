@@ -7,6 +7,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
 import { TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
+import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
 
 interface AlertConfig {
   title: string;
@@ -25,8 +26,10 @@ const TransferRequestPage = () => {
     error: searchError,
   } = useHospitalSearch();
 
+
   const [showAlert, setShowAlert] = useState(false);
   const [selectedHospitalId, setSelectedHospitalId] = useState<number | undefined>();
+  const formData = useDispatchPatientStore(state => state.formData);
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
     title: '',
     description: '',
@@ -38,7 +41,7 @@ const TransferRequestPage = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 10000);
+    }, 1000);
   };
 
   const handleSearchStart = () => {
@@ -78,7 +81,6 @@ const TransferRequestPage = () => {
             type: 'default',
           });
         }
-        console.log("transfer-request", response);
       } catch (error) {
         console.error("SSE 데이터 처리 오류", error);
       }
@@ -89,11 +91,11 @@ const TransferRequestPage = () => {
       
       // SSE 연결 오류 처리
       eventSource.onerror = (error) => {
-        handleAlertClose({
-          title: '연결 오류',
-          description: '실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.',
-          type: 'error',
-        });
+        // handleAlertClose({
+        //   title: '연결 오류',
+        //   description: '실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.',
+        //   type: 'error',
+        // });
         console.error("SSE 연결 오류: ", error);
       };
     }
@@ -160,6 +162,7 @@ const TransferRequestPage = () => {
           hospitals={hospitals}
           onHospitalSelect={handleHospitalSelect}
           selectedHospitalId={selectedHospitalId}
+          callerLocation={formData.callerLocation}
         />
 
         <HospitalList

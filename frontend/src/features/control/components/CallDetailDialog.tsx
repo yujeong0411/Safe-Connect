@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { CallRecord } from '@/types/control/ControlRecord.types.ts';
@@ -18,6 +18,8 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
       <DialogContent className="max-w-[700px] w-[90%] max-h-[90vh] overflow-y-auto p-8 bg-dialog_color">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">신고 상세내역</DialogTitle>
+          <DialogDescription>
+          </DialogDescription>
         </DialogHeader>
 
         {/* 시간 정보 */}

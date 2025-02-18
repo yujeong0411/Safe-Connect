@@ -34,9 +34,9 @@ const SignupMediForm = () => {
     }, [diseaseOptions, medicationOptions]);
 
   return (
-    <div className="flex flex-row gap-x-20 w-full min-h-full">
+    <div className="flex flex-col md:flex-row gap-5 md:gap-x-20 w-full min-h-full">
       {/*왼쪽*/}
-      <div className=" w-1/2 h-auto max-w-[50%]">
+      <div className=" w-full md:w-1/2 md:max-w-[50%]">
         <Dropdown
           label="현재 병력"
           options={diseaseOptions}
@@ -53,7 +53,7 @@ const SignupMediForm = () => {
       </div>
 
       {/*오른쪽*/}
-      <div className="w-1/2 h-auto max-w-[50%]">
+      <div className="w-full md:w-1/2 md:max-w-[50%]">
         <Dropdown
           label="복용 약물"
           options={medicationOptions}

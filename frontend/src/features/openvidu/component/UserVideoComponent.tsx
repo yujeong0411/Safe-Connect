@@ -12,18 +12,6 @@ const UserVideoComponent = ({ streamManager }: Props) => {
     if (streamManager && videoRef.current) {
       streamManager.addVideoElement(videoRef.current);
     }
-    
-    console.log('UserVideoComponent - streamManager', streamManager);
-    // // cleanup function
-    // return () => {
-    //   if (streamManager && videoRef.current) {
-    //     try {
-    //       streamManager.removeSrcObject(videoRef.current);
-    //     } catch (error) {
-    //       console.error('Error removing video element:', error);
-    //     }
-    //   }
-    // };
   }, [streamManager]);
 
   return (

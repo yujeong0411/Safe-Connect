@@ -54,7 +54,7 @@ const UserSignupPage3 = () => {
       <>
     <SignupTemplate
       currentStep={3}
-      buttonText="회원가입"
+      buttonText="저장"
       onButtonClick={handleNext}
       isButtonFixed={true}
     >
@@ -66,11 +66,7 @@ const UserSignupPage3 = () => {
       <div className="fixed left-2/3 top-[300px] -translate-x-1/2 z-[9999]">
         <Alert
             variant={alertConfig.type}
-            className={`w-[400px] shadow-lg bg-white ${
-                alertConfig.type === 'default'
-                    ? '[&>svg]:text-blue-600 text-blue-600'
-                    : '[&>svg]:text-red-500 text-red-500'
-            }`}
+            className="w-[400px] shadow-lg bg-white"
         >
           {alertConfig.type === 'default' ? (
               <CircleCheckBig className="h-6 w-6" />

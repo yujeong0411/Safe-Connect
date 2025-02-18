@@ -1,7 +1,7 @@
 export interface ConfirmDialogProps {
     trigger?: React.ReactNode;
     title?: string;
-    description?: string;
+    description?: string | React.ReactNode;
     confirmText?: string;
     cancelText?: string;
     onConfirm?: () => void;

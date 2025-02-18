@@ -4,8 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class DispatchCurrentPositionRequest {
-    private Integer callId;
-    private Integer dispatchGroupId;
-    private Double dispatchGroupLatitude;
-    private Double dispatchGroupLongitude;
+    private String sessionId;
+    private Double lat;
+    private Double lng;
 }

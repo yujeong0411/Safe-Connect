@@ -7,9 +7,10 @@ interface HospitalKakaoMapProps {
   hospitals: Hospital[];
   onHospitalSelect?: (hospitalId: number) => void;
   selectedHospitalId?: number;
+  callerLocation?: { lat: number; lng: number; address: string; } | null;
 }
 
-const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, selectedHospitalId }: HospitalKakaoMapProps) => {
+const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, selectedHospitalId, callerLocation }: HospitalKakaoMapProps) => {
   const isKakaoLoaded = useKakaoLoader();
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<{[key: number]: kakao.maps.Marker}>({});
@@ -49,8 +50,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
   // 병원 마커 업데이트
   useEffect(() => {
     if (!isKakaoLoaded || !mapRef.current || !hospitals.length) return;
-  
-    // console.log('Hospitals data:', hospitals); // 디버깅용
+
   
     const bounds = new window.kakao.maps.LatLngBounds();
   
@@ -58,8 +58,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
     if (currentLocation) {
       const currentPos = new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng);
       bounds.extend(currentPos);
-      // console.log('Current location added:', currentLocation); // 디버깅용
-    }
+       }
   
     // 기존 마커 제거
     Object.values(markersRef.current).forEach(marker => marker.setMap(null));
@@ -69,11 +68,6 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
   
     hospitals.forEach(hospital => {
       // 위도/경도 로깅
-      console.log('Hospital position:', {
-        name: hospital.hospitalName,
-        lat: hospital.hospitalLat,
-        lng: hospital.hospitalLng
-      });
   
       const position = new window.kakao.maps.LatLng(
         Number(hospital.hospitalLat), // 위도
@@ -122,7 +116,6 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
   
     // bounds가 비어있지 않은 경우에만 적용
     if (!bounds.isEmpty()) {
-      // console.log('Setting map bounds'); // 디버깅용
       mapRef.current.setBounds(bounds, 50);
     }
   }, [isKakaoLoaded, hospitals, currentLocation, onHospitalSelect]);
@@ -140,6 +133,67 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
       mapRef.current.panTo(marker.getPosition());
     }
   }, [isKakaoLoaded, selectedHospitalId]);
+
+
+  const callerMarkerRef = useRef<kakao.maps.Marker | null>(null);
+  const callerInfoWindowRef = useRef<kakao.maps.InfoWindow | null>(null);
+
+  // 신고자 위치정보
+  useEffect(() => {
+    if (!isKakaoLoaded || !mapRef.current || !callerLocation) return;
+
+    // 기존 마커와 인포윈도우 제거
+    if (callerMarkerRef.current) {
+      callerMarkerRef.current.setMap(null);
+      callerInfoWindowRef.current?.close();
+    }
+
+    const position = new window.kakao.maps.LatLng(callerLocation.lat, callerLocation.lng);
+
+    // 새로운 마커 생성
+    const callerMarker = new window.kakao.maps.Marker({
+      position,
+      map: mapRef.current,
+      image: new window.kakao.maps.MarkerImage(
+        "/src/assets/image/marker2.png",
+        new window.kakao.maps.Size(35, 35),
+        { offset: new window.kakao.maps.Point(17, 17) }
+      )
+    });
+  
+    callerMarkerRef.current = callerMarker;
+
+    // 신고자 위치 인포윈도우우
+    const callerInfoWindow = new window.kakao.maps.InfoWindow({
+      content: `
+      <div class="p-4 min-w-[200px] bg-white rounded shadow">
+        <h3 class="font-bold text-lg mb-2">신고자 위치</h3>
+        <div class="text-sm text-gray-600">
+          <p>${callerLocation.address}</p>
+        </div>
+      </div>
+    `,
+    removable: true
+    });
+
+    callerInfoWindowRef.current = callerInfoWindow;
+
+    // 마커 클릭시 정보창 표시
+    kakao.maps.event.addListener(callerMarker, "click", () => {
+      callerInfoWindow.open(mapRef.current!, callerMarker);
+    });
+
+    mapRef.current.setCenter(position);
+
+    return () => {
+      if (callerMarkerRef.current) {
+        callerMarker.setMap(null);
+      }
+      if (callerInfoWindowRef.current) {
+        callerInfoWindow.close();
+      }
+    };
+  }, [isKakaoLoaded, callerLocation]);
 
   return (
     <div id="map" style={{ width: '100%', height: '100%' }}>
