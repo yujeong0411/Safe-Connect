@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Subscriber } from 'openvidu-browser';  // 상단에 import 추가
 
 // 상태 인터페이스 정의
 interface RecorderState {
@@ -11,7 +12,7 @@ interface RecorderState {
   onRecordingComplete: ((blob: Blob) => void) | null;
   
   // 메서드들의 타입 정의
-  initializeRecorder: () => Promise<void>;
+  initializeRecorder: (subscriber: Subscriber) => Promise<void>;
   startRecording: () => void;
   stopRecording: () => Promise<Blob>;
   cleanup: () => void;
@@ -29,16 +30,14 @@ const useRecorderStore = create<RecorderState>((set, get) => ({
   onRecordingComplete: null,
   
 
-  initializeRecorder: async () => {
+  initializeRecorder: async (subscriber: Subscriber) => {
     try {
-      if (!navigator.mediaDevices) {
-        throw new Error('미디어 장치가 지원되지 않는 브라우저입니다.');
-      }
-
+      
       if (get().mediaRecorder) {
         return;
       }
 
+      // 기존방식 : 자신의 마이크에 접근하여 녹음
       // const stream: MediaStream = await navigator.mediaDevices.getUserMedia({ 
       //   audio: {
       //     sampleRate: 48000,    // 오디오 샘플링 레이트 설정 (1초당 오디오 샘플 수)
@@ -48,23 +47,7 @@ const useRecorderStore = create<RecorderState>((set, get) => ({
       //   }
       // });
 
-
-      //--------------------시스템 오디오 녹음--------------------
-      // 변경 후 (시스템 오디오)
-      const displayStream = await navigator.mediaDevices.getDisplayMedia({ 
-        video: true,
-        audio: true
-      });
-
-      // 오디오 트랙만 추출
-      const audioTrack = displayStream.getAudioTracks()[0];
-      if (!audioTrack) {
-        throw new Error('오디오 트랙을 찾을 수 없습니다.');
-      }
-      // --------------------------------------------------------
-
-      // 새로운 MediaStream 생성
-      const stream = new MediaStream([audioTrack]);
+      const stream = subscriber.stream.getMediaStream();
 
       // MediaRecorder 옵션 타입 명시
       const recorder: MediaRecorder = new MediaRecorder(stream, {
@@ -105,7 +88,7 @@ const useRecorderStore = create<RecorderState>((set, get) => ({
   },
 
   startRecording: () => {
-    
+    // 테스트용. 제거 필요
     const { mediaRecorder } = get();
     if (mediaRecorder && mediaRecorder.state === 'inactive') {
       mediaRecorder.start();
