@@ -120,6 +120,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientSpo2: formData.patientSpo2,
         patientMental: formData.patientMental,
         patientPreKtas: formData.patientPreKtas,
+        patientIsUser: formData.patientIsUser,
       };
 
       console.log('저장 요청 데이터:', requestData); // 요청 데이터 확인
