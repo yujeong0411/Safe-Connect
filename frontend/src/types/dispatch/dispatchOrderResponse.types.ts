@@ -50,6 +50,7 @@ export interface DispatchOrderResponse {
     callerLocation: {
       lat: number;
       lng: number;
+      address: string;
     }
   }
 }

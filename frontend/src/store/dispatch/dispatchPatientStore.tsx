@@ -33,6 +33,7 @@ const initialFormData: Omit<DispatchFormData, 'patientId' | 'dispatchId'> = {
   patientProtectorPhone: '',
   callSummary: '',
   patientIsUser: false,
+  callerLocation: undefined,
 };
 
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({
@@ -75,6 +76,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
             .join(',') || '',
         callSummary: data.call.callSummary,
         patientIsUser: data.patient.patientIsUser,
+        callerLocation: data.callerLocation,
       },
       dispatchStatus: 'ongoing',    // 출동 지령 받았을 때 출동 중
     }));
