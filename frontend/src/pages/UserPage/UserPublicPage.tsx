@@ -1,5 +1,5 @@
-import Carousel from '@/features/user/components/Carousel.tsx';
 import UserPublicTemplate from '@components/templates/UserPublicTemplate.tsx';
+import PublicCarousel from "@features/user/components/PublicCarousel.tsx";
 
 const UserPublicPage = () => {
   return (
@@ -7,7 +7,7 @@ const UserPublicPage = () => {
       <UserPublicTemplate>
           <div className="w-full flex justify-center items-center">
               <div className="max-w-[1100px] flex items-center justify-center mt-10 transform -translate-x-40">
-                  <Carousel/>
+                  <PublicCarousel/>
               </div>
           </div>
       </UserPublicTemplate>
