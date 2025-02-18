@@ -17,7 +17,6 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
 
   const handleEndCall = async () => {
     if (!formData.dispatchId) {
-      console.log("dispatchId가 없습니다.");
       return;
     }
 

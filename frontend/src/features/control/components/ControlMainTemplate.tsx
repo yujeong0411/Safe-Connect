@@ -12,12 +12,14 @@ import {usePatientStore} from "@/store/control/patientStore.tsx";
 import {Alert, AlertDescription, AlertTitle} from "@components/ui/alert.tsx";
 import {CircleAlert, CircleCheckBig} from "lucide-react";
 import Footer from "@components/organisms/Footer/Footer";
+import useKakaoLoader from '@/hooks/useKakaoLoader.ts';
 
 interface ControlTemplateProps {
   children?: React.ReactNode;
 }
 
 const ControlTemplate = ({ children }: ControlTemplateProps) => {
+  const isKakaoLoaded = useKakaoLoader(); // Kakao Maps API 로드
   const { setIsOpen, isOpen: isDrawerOpen } = useVideoCallStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -89,7 +91,6 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
     const handleOnline = () => {
       if (location.pathname.startsWith('/control')) {
-        console.log("Browser is online, reconnecting SSE...");
         if (reconnectTimer) {
           clearTimeout(reconnectTimer);
         }
@@ -143,21 +144,29 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
   return (
     <div className="mih-h-screen bg-bg flex flex-col">
-      <div className="-space-y-4">
-        <PublicHeader
-          labels={[
-            {
-              label: '로그아웃',
-              href: '#',
-              onClick: handleLogout,
-            },
-          ]}
-        />
-        <NavBar navItems={navItems} />
-      </div>
-      <div className="flex-1 min-h-[calc(100vh-100px)]">
-        <VideoCallDrawer>{children}</VideoCallDrawer>
-      </div>
+      {isKakaoLoaded ? (
+        <>
+          <div className="-space-y-4">
+            <PublicHeader
+              labels={[
+                {
+                  label: '로그아웃',
+                  href: '#',
+                  onClick: handleLogout,
+                },
+              ]}
+            />
+            <NavBar navItems={navItems} />
+          </div>
+          <div className="flex-1 min-h-[calc(100vh-100px)]">
+            <VideoCallDrawer>{children}</VideoCallDrawer>
+          </div>
+        </>
+      ) : (
+        <div className="flex items-center justify-center h-screen">
+          <p>지도를 불러오는 중입니다...</p>
+        </div>
+      )}
       <VideoCallCreateDialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen} />
       <ProtectorNotifyDialog open={isNotifyModalOpen} onOpenChange={setIsNotifyModalOpen} />
 

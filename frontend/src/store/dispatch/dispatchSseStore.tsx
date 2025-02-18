@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { useDispatchAuthStore } from './dispatchAuthStore';
 import { DispatchOrderResponse } from '@/types/dispatch/dispatchOrderResponse.types';
 import { useDispatchPatientStore } from './dispatchPatientStore';
-import { AcceptedHospitalResponse} from '@/types/dispatch/dispatchTransferResponse.types';
+import { AcceptedHospitalResponse } from '@/types/dispatch/dispatchTransferResponse.types';
 import { useOpenViduStore } from '../openvidu/OpenViduStore';
 
 
@@ -55,12 +55,10 @@ const handleDispatchOrder = (event: MessageEvent) => {
     if (response.isSuccess) {
       const callId = response.data.call.callId;
 
-      // useDispatchPatientStore.getState().setPatientFromSSE(response.data);
-      useDispatchPatientStore.getState().setPatientFromSSE({
-        ...response.data,
-        callerLocation: response.data.callerLocation
-      })
+      useDispatchPatientStore.getState().setPatientFromSSE(response.data);
       useDispatchSseStore.getState().setCurrentCallId(callId);
+      console.log("Store after update:", useDispatchPatientStore.getState()); // store 업데이트 확인
+
 
       // sessionId 부분 추가
       const sessionId = response.data.sessionId;
@@ -72,23 +70,11 @@ const handleDispatchOrder = (event: MessageEvent) => {
         openViduStore.joinSession();
       }
 
-      console.log("dispatch-order response", response);
     }
   } catch (error) {
     console.error("SSE 에러: ", error);
   }
 }
-
-// 병원 이송은 이송 요청 페이지에서 핸들러 등록
-// // 병원 이송
-// const handleTransferRequest = (event: MessageEvent) => {
-//   try {
-//     const response: TransferRequestResponse = JSON.parse(event.data);
-//     console.log("transfer-request", response)
-//   } catch (error) {
-//     console.log("SSE 에러: ", error);
-//   }
-// }
 
 // 병원이 이송 요청 수락
 const handleHospitalResponse = (event: MessageEvent) => {
@@ -102,14 +88,12 @@ const handleHospitalResponse = (event: MessageEvent) => {
           latitude: response.data.latitude,
           longitude: response.data.longitude
         }
-        console.log("hospital-response", hospitalData);
         useDispatchSseStore.getState().setAcceptedHospital(hospitalData);
       };
   } catch (error) {
-    console.log("SSE 에러", error);
+    console.error("SSE 에러", error);
   }
 }
-
 
 // 핸들러 등록
 const dispatchSseEventHandlers = {
@@ -117,7 +101,6 @@ const dispatchSseEventHandlers = {
   // "transfer-request": handleTransferRequest,
   "hospital-response": handleHospitalResponse,
 }
-
 
 export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
   eventSource: null,
@@ -167,7 +150,6 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
     const timer = setTimeout(() => {
       const { userName } = useDispatchAuthStore.getState();
       if (userName) {
-        console.log("Scheduled reconnection starting...");
         get().disconnect();
         get().connect(userName);
       }
@@ -186,7 +168,6 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
 
   connect: (clientId: string) => {
     if (get().sseConnected && get().eventSource) {
-      console.log("Already connected");
       return;
     }
 
@@ -212,7 +193,6 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
       });
 
       newEventSource.onopen = () => {
-        console.log("SSE 연결 성공");
         set({ sseConnected: true, retryCount: 0 });
         get().startReconnectTimer();
       };
@@ -223,14 +203,11 @@ export const useDispatchSseStore = create<DispatchSSEState>((set, get) => ({
 
         if (retryCount < maxRetries) {
           const nextRetryDelay = retryDelay * Math.pow(2, retryCount);
-          console.log(`Retrying in ${nextRetryDelay}ms... (${retryCount + 1}/${maxRetries})`);
-
           setTimeout(() => {
             set({ retryCount: retryCount + 1 });
             get().connect(clientId);
           }, nextRetryDelay);
         } else {
-          console.log("Max retries reached, closing connection");
           newEventSource.close();
           set({
             eventSource: null,

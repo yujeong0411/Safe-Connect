@@ -88,6 +88,7 @@ export interface PatientStore {
   searchByPhone: (phone: string) => Promise<PatientResponse | undefined>;
   savePatientInfo: (callId: number) => Promise<void>;
   resetPatientInfo: () => void;
+  resetPatientInfo2: () => void;
   sendProtectorMessage: (callerPhone: string) => Promise<boolean>;
   fetchCallSummary: (callId: number, audioBlob: Blob) => Promise<void>;
 }
@@ -171,6 +172,7 @@ export interface DispatchPatientStore {
     callerLocation?: {
       lat: number;
       lng: number;
+      address: string;
     };
   }) => void;
 
@@ -216,6 +218,11 @@ export interface DispatchFormData {
   callSummary: string;
   patientIsUser: boolean;
   dispatchId: number;
+  callerLocation?: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
 }
 
 

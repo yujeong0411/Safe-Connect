@@ -13,8 +13,10 @@ import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
 import { CircleCheckBig, CircleAlert } from 'lucide-react';
 
 const ControlPatientInfoForm = () => {
-  const { patientInfo, formData, updateFormData, searchByPhone, savePatientInfo } =
-    usePatientStore();
+  const {
+    patientInfo, formData, updateFormData,
+    searchByPhone, savePatientInfo,resetPatientInfo2
+  } =usePatientStore();
   const { callId, callerPhone } = useOpenViduStore();
   const genderOptions = ['M', 'F'];
   const navigate = useNavigate();
@@ -37,7 +39,6 @@ const ControlPatientInfoForm = () => {
 
   // 영상통화 생성 시 전화번호 자동 검색
   useEffect(() => {
-    console.log('Caller Phone changed:', callerPhone);
     if (callerPhone) {
       handleSearch(callerPhone);
     }
@@ -74,13 +75,11 @@ const ControlPatientInfoForm = () => {
   const handleSearch = async (phone: string) => {
     try {
       const formattedPhone = formatPhoneNumber(phone);
+      resetPatientInfo2();
       const response = await searchByPhone(formattedPhone);
-
       if (response?.isSuccess) {
-        console.log("가입자")
         updateFormData({ userPhone: formattedPhone });
       } else {
-        console.log("미가입자")
           updateFormData({ userPhone: formattedPhone });
       }
     } catch (error) {
@@ -94,13 +93,10 @@ const ControlPatientInfoForm = () => {
     (name: keyof FormData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { value } = e.target;
-      console.log('Original value:', value); // 입력값 로깅
-
       let processedValue = value;
 
       if (name === 'userPhone' || name === 'userProtectorPhone') {
         processedValue = formatPhoneNumber(value);
-        console.log('Processed value:', processedValue); // 포맷된 값 로깅
       }
 
       updateFormData({

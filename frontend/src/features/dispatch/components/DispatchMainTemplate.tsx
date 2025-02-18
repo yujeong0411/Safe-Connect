@@ -61,7 +61,6 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
 
       const handleOnline = () => {
         if (location.pathname.startsWith("/dispatch")) {
-          console.log("Browser is online, reconnecting SSE..");
           disconnect();
           connectSSE();
         }

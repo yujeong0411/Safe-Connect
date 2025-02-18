@@ -19,7 +19,7 @@ public class AvailableHospitalResponse {
     private String hospitalPhone;
     private Integer hospitalCapacity;
     private String hospitalAddress;
-    private Double distance;
+    private Double hospitalDistance;
     private double hospitalLat;
     private double hospitalLng;
 

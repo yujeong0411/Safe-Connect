@@ -55,7 +55,6 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   searchByPhone: async (callerPhone: string) => {
     try {
       const response = await patientService.searchByPhone(callerPhone);
-      console.log('전화번호 조회 응답', response);
       if (response.isSuccess) {
         const patientInfo = response.data as PatientInfo;
         set({
@@ -130,21 +129,40 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
           currentCall:updatedCallInfo,  // 저장 성공 시 현재 신고 정보 업데이트
         });
 
-        // 상태 업데이트 확인
-        console.log('상태 업데이트 후:', get().currentCall);
       }
     } catch (error) {
       console.error('정보 저장 실패', error);
     }
   },
 
+
+
   resetPatientInfo: () => {
     set({
       patientInfo: null,
       currentCall: null,
+        isDispatched: false,   // 출동 지령 상태 초기화
       formData: initialFormData,  // formData 초기화 추가
-      isDispatched: false,   // 출동 지령 상태 초기화
     });
+  },
+
+  resetPatientInfo2: () => {
+    set((state) => ({
+      ...state,  // 다른 상태는 유지
+      patientInfo: null,
+      currentCall: null,
+      isDispatched: false,   // 출동 지령 상태 초기화
+      formData: {
+        ...state.formData,  // 기존 formData 값들 유지
+        userName: '',
+        userGender: '',
+        userAge: 0,
+        userPhone: '',
+        userProtectorPhone: '',
+        medications: '',
+        userId: 0,
+      }
+    }));
   },
 
   // 보호자 문자 전송

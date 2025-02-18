@@ -8,6 +8,7 @@ import {
 } from '@features/control/types/kakaoMap.types.ts';
 import userMaker from '@assets/image/marker2.png';
 import dispatchMarker from '@assets/image/119maker.png';
+import controllerMarker from '@assets/image/119center.png';
 import { useLocationStore } from '@/store/location/locationStore.tsx';
 import axios from 'axios';
 
@@ -16,9 +17,15 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
   const [map, setMap] = useState<kakao.maps.Map | null>(null);
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [info, setInfo] = useState<Marker | null>(null);
-  const { center, isLoading, setIsLoading, setLocation, setAddress } = useLocationStore();
   const TMAP_API_KEY = import.meta.env.VITE_TMAP_API_KEY;
-
+  const {
+    center,
+    isLoading,
+    setIsLoading,
+    setLocation,
+    setAddress,
+    isEmergencyCall
+  } = useLocationStore();
 
   // 위도,경도로 주소 변환하는 함수
   const getAddressFromCoords = (lat: number, lng: number): Promise<string> => {
@@ -57,63 +64,34 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
   }, [center.lat, center.lng, setAddress]);
 
 
-  // 위치 초기화 useEffect
+  // 초기 위치 설정을 위한 useEffect
   useEffect(() => {
-    // 신고자 위치가 없을 때 (center가 비어있을 때)
-    if (!center.lat && !center.lng) {
+    // 현재 위치가 default 값(서울시청)일 때만 현재 위치를 가져오도록 수정
+    if (center.lat === 37.566826 && center.lng === 126.9786567) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-              console.log('현재 위치 가져오기 성공:', {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              });
-
-              // 현재 위치를 center로 설정
-              setLocation(position.coords.latitude, position.coords.longitude);
-              setIsLoading(false);
-            },
-            (error) => {
-              console.error('위치 가져오기 실패:', error);
-              // 위치 가져오기 실패 시 서울시청을 기본 위치로 설정
-              setLocation(37.5666805, 126.9784147);
-              setIsLoading(false);
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 5000,
-              maximumAge: 0
-            }
+          (position) => {
+            setLocation(position.coords.latitude, position.coords.longitude);
+            setIsLoading(false);
+          },
+          (error) => {
+            console.error('위치 가져오기 실패:', error);
+            // 위치 가져오기 실패 시에도 로딩 상태 해제
+            setIsLoading(false);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          }
         );
       } else {
-        // 지오로케이션이 지원되지 않는 경우 서울시청을 기본 위치로 설정
-        setLocation(37.5666805, 126.9784147);
+        // 지오로케이션이 지원되지 않는 경우
         setIsLoading(false);
       }
     }
-  }, []);  // 한번만 시행
+  }, []);
 
-
-  // useEffect(() => {
-  //   if (navigator.geolocation && !center.lat && !center.lng) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         console.log('위치 가져오기 성공:', {
-  //           lat: position.coords.latitude,
-  //           lng: position.coords.longitude,
-  //         });
-  //
-  //         useLocationStore
-  //           .getState()
-  //           .setLocation(position.coords.latitude, position.coords.longitude);
-  //       },
-  //       () => {
-  //         // 위치 거부시 현재 저장된 위치 유지 (초기값이나 마지막으로 받은 신고자 위치)
-  //         useLocationStore.getState().setIsLoading(false);
-  //       }
-  //     );
-  //   }
-  // }, [center]);
 
   // Tmap API를 사용하여 예상 도착 시간과 거리 계산
   const calculateRoute = async (
@@ -127,8 +105,7 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
       // 출동 지령 후 재 랜더링 되면서 소방서 검색 시도 -> 중심좌표가 초기화되면서 400 에러 발생
       // 좌표 검사 후 기본값 반환
       if (!startLat || !startLng || !endLat || !endLng) {
-        console.log('유효하지 않은 좌표:', { startLat, startLng, endLat, endLng });
-        return { eta: '알 수 없음', distance: '알 수 없음' };
+       return { eta: '알 수 없음', distance: '알 수 없음' };
       }
 
       const response = await axios.post(
@@ -170,10 +147,7 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
 
   // 소방서 검색 후 마커 업데이트
   useEffect(() => {
-    console.log('현재 center 값:', center);  // center 값 확인
-    // -> 출동 지령 후 에러 해결
     if (!map || !center.lat || !center.lng) {
-      console.log('지도 또는 중심 좌표가 없음:', { map, center });
       return;
     }
 
@@ -258,10 +232,7 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
   return (
     <Map
       id="map"
-      center={
-        // 지도의 중심좌표, 사용자 위치로 변경하기
-        center
-      }
+      center={center}
       style={{
         width: '100%',
         height: '100%',
@@ -269,41 +240,49 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
       level={4}
       onCreate={setMap}
     >
-      {/* 신고자 위치 마커 */}
+      {/* 현재 위치 마커 */}
       {!isLoading && (
-          <>
-            <MapMarker
-                position={center}
-                image={{
-                  src: userMaker,
-                  size: { width: 55, height: 55 },
-                  options: { offset: { x: 27, y: 69 } },
+        <>
+          <MapMarker
+            position={center}
+            image={{
+              src: isEmergencyCall? userMaker:controllerMarker, // 119center.png 이미지 사용
+              size: {
+                width: 40,
+                height: 40,
+              },
+              options: {
+                offset: {
+                  x: 20,
+                  y: 20,
+                },
+              },
+            }}
+            onClick={() => setInfo(null)}
+          />
+          {/* 주소 오버레이 */}
+          {info === null && (
+            <CustomOverlayMap position={center}>
+              <div
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  padding: '8px 15px',
+                  borderRadius: '15px',
+                  border: 'none',
+                  boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.2)',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  maxWidth: '300px',
+                  whiteSpace: 'nowrap',
+                  transform: 'translateY(-95px)',
                 }}
-                onClick={() => setInfo(null)}  // 마커 클릭 시 info 초기화
-            />
-            {/* 주소 정보 오버레이는 별도로 렌더링 */}
-            {info === null && (  // info가 null일 때만 주소 표시
-                <CustomOverlayMap position={center}>
-                  <div
-                      style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        padding: '8px 15px',
-                        borderRadius: '15px',
-                        border: 'none',
-                        boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.2)',
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        maxWidth: '300px',
-                        whiteSpace: 'nowrap',
-                        transform: 'translateY(-95px)',
-                      }}
-                  >
-                    📍 {useLocationStore.getState().address || '주소를 불러오는 중...'}
-                  </div>
-                </CustomOverlayMap>
-            )}
-          </>
-      )}
+              >
+                {isEmergencyCall ? '📍' : '🚑'} {useLocationStore.getState().address || '주소를 불러오는 중...'}
+              </div>
+            </CustomOverlayMap>
+          )}
+        </>
+      )};
 
       {/*소방서 위치*/}
       {markers.map((marker) => (

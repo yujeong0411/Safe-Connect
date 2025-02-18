@@ -7,28 +7,13 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
 import { TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
+import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
 
 interface AlertConfig {
   title: string;
   description: string;
   type: 'default' | 'destructive' | 'success' | 'error';
 }
-
-// SSE 응답 타입 정의
-// interface SSEResponse {
-//   isSuccess: boolean;
-//   code: number;
-//   message: string;
-//   data: {
-//     dispatchId?: number;
-//     hospitalNames?: string[];
-//     patientId?: number;
-//     hospitalId?: number;
-//     hospitalName?: string;
-//     latitude?: number;
-//     longitude?: number;
-//   };
-// }
 
 const TransferRequestPage = () => {
   const {
@@ -42,9 +27,9 @@ const TransferRequestPage = () => {
   } = useHospitalSearch();
 
 
-  // const [showBulkRequestDialog, setShowBulkRequestDialog] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [selectedHospitalId, setSelectedHospitalId] = useState<number | undefined>();
+  const formData = useDispatchPatientStore(state => state.formData);
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
     title: '',
     description: '',
@@ -96,7 +81,6 @@ const TransferRequestPage = () => {
             type: 'default',
           });
         }
-        console.log("transfer-request", response);
       } catch (error) {
         console.error("SSE 데이터 처리 오류", error);
       }
@@ -138,77 +122,6 @@ const TransferRequestPage = () => {
     }
   }, [acceptedHospital]);
 
-
-    // // 이송 요청 결과 수신
-    // eventSource.addEventListener('transfer-request', (event) => {
-    //   try {
-    //     const response = JSON.parse(event.data) as SSEResponse;
-    //     if (response.isSuccess) {
-    //       handleAlertClose({
-    //         title: '환자 이송 요청 전송',
-    //         description: `${searchRadius}km 반경 내 병원들에 이송 요청을 전송했습니다.\n\n요청 병원 목록:\n${response.data.hospitalNames?.map((hospital) => `- ${hospital}`).join('\n')}`,
-    //         type: 'default',
-    //       });
-    //     }
-    //   } catch (error) {
-    //     console.error('이송 요청 메시지 처리 중 오류 발생: ', error);
-    //   }
-    // });
-
-    // 병원 응답 수신
-    // eventSource.addEventListener('hospital-response', (event) => {
-    //   try {
-    //     const response = JSON.parse(event.data) as SSEResponse;
-    //     if (response.isSuccess && response.data) {
-    //       handleAlertClose({
-    //         title: '환자 이송 수락',
-    //         description: `환자 이송이 수락되었습니다.\n이송 병원: ${response.data.hospitalName}`,
-    //         type: 'success',
-    //       });
-
-    //       if (
-    //         response.data.hospitalId &&
-    //         response.data.hospitalName &&
-    //         response.data.latitude != null &&
-    //         response.data.longitude != null
-    //       ) {
-    //         // 수락된 병원 정보 저장
-    //         setAcceptedHospital({
-    //           hospitalId: response.data.hospitalId,
-    //           hospitalName: response.data.hospitalName,
-    //           latitude: response.data.latitude,
-    //           longitude: response.data.longitude,
-    //         });
-
-    //         // 환자 이송 상태 업데이트 (hospital store)
-    //         if (response.data.patientId) {
-    //           updateTransferStatus(response.data.patientId, 'ACCEPTED');
-    //         }
-
-    //         // 검색 중지
-    //         stopSearch();
-    //       }
-    //     }
-    //   } catch (error) {
-    //     console.error('병원 응답 메시지 처리 중 오류 발생: ', error);
-    //   }
-    // });
-
-    // eventSource.onerror = (error) => {
-    //   console.error('SSE 연결 에러: ', error);
-    //   handleAlertClose({
-    //     title: '연결 오류',
-    //     description: '실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.',
-    //     type: 'error',
-    //   });
-    //   eventSource.close();
-    // };
-
-    // return () => {
-    //   eventSource.close();
-    // };
-  // }, [stopSearch, searchRadius, updateTransferStatus]);
-
   return (
     <DispatchMainTemplate>
       <div className="relative h-screen">
@@ -249,6 +162,7 @@ const TransferRequestPage = () => {
           hospitals={hospitals}
           onHospitalSelect={handleHospitalSelect}
           selectedHospitalId={selectedHospitalId}
+          callerLocation={formData.callerLocation}
         />
 
         <HospitalList

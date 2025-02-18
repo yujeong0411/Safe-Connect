@@ -33,6 +33,7 @@ const initialFormData: Omit<DispatchFormData, 'patientId' | 'dispatchId'> = {
   patientProtectorPhone: '',
   callSummary: '',
   patientIsUser: false,
+  callerLocation: undefined,
 };
 
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({
@@ -75,6 +76,7 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
             .join(',') || '',
         callSummary: data.call.callSummary,
         patientIsUser: data.patient.patientIsUser,
+        callerLocation: data.callerLocation,
       },
       dispatchStatus: 'ongoing',    // 출동 지령 받았을 때 출동 중
     }));
@@ -122,8 +124,6 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientPreKtas: formData.patientPreKtas,
         patientIsUser: formData.patientIsUser,
       };
-
-      console.log('저장 요청 데이터:', requestData); // 요청 데이터 확인
       const response = await updateDispatchPatientInfo(requestData);
 
       if (response.isSuccess) {
