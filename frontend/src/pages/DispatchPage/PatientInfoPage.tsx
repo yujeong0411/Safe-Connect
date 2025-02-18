@@ -6,6 +6,7 @@ import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore.t
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {CircleAlert, CircleCheckBig} from "lucide-react";
+import {formatPhoneNumber} from "@features/auth/servies/signupService.ts";
 
 const PatientInfoPage = () => {
   const {
@@ -102,6 +103,13 @@ const PatientInfoPage = () => {
   ) => {
     const { name, value } = e.target;
 
+    // 전화번호 형식 변환
+    if (name === 'patientPhone' || name === 'patientProtectorPhone') {
+      const formattedValue = formatPhoneNumber(value);
+      updateFormData({ [name]: formattedValue });
+      return;
+    }
+
     // 체온 변환
     if (name === 'patientTemperature') {
       // 숫자 추출
@@ -138,6 +146,8 @@ const PatientInfoPage = () => {
     updateFormData({ [name]: value });
   };
 
+
+
   // pre-KTAS AI 예측
   const handlePreKtasAI = async () => {
     try {
@@ -149,7 +159,7 @@ const PatientInfoPage = () => {
 
   return (
     <DispatchMainTemplate>
-      <div className="p-8 max-w-5xl mx-auto">
+      <div className="p-4 sm:p-6 md:p-8 h-[calc(100vh-4rem)] overflow-y-auto">
         <form onSubmit={handleSave} className="space-y-5 bg-white p-6 rounded-lg shadow-sm">
           {/* 기본 정보 섹션 */}
           <div>

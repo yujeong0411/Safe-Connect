@@ -12,7 +12,7 @@ import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
 interface AlertConfig {
   title: string;
   description: string;
-  type: 'default' | 'destructive' | 'success' | 'error';
+  type: 'default' | 'destructive';
 }
 
 const TransferRequestPage = () => {
@@ -114,7 +114,7 @@ const TransferRequestPage = () => {
       handleAlertClose({
         title: "환자 이송 요청 수락",
         description: `이송 병원: ${acceptedHospital.hospitalName}`,
-        type: "success",
+        type: "default",
       });
 
       stopSearch();
@@ -127,22 +127,20 @@ const TransferRequestPage = () => {
       <div className="relative h-screen">
         {/* 시스템 알림 */}
         {showAlert && (
-          <div className="fixed left-1/2 top-20 -translate-x-1/2 z-50">
-            <Alert
-              variant={alertConfig.type === 'success' ? 'default' : 'destructive'}
-              className="w-[400px] shadow-lg bg-white"
-            >
-              {alertConfig.type === 'success' ? (
-                <CircleCheckBig className="h-6 w-6" />
-              ) : (
-                <CircleAlert className="h-6 w-6" />
-              )}
-              <AlertTitle>{alertConfig.title}</AlertTitle>
-              <AlertDescription className="whitespace-pre-line">
-                {alertConfig.description}
-              </AlertDescription>
-            </Alert>
-          </div>
+            <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
+              <Alert
+                  variant={alertConfig.type}
+                  className="w-[400px] shadow-lg bg-white"
+              >
+                {alertConfig.type === 'default' ? (
+                    <CircleCheckBig className="h-6 w-6" />
+                ) : (
+                    <CircleAlert className="h-6 w-6" />
+                )}
+                <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+                <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
+              </Alert>
+            </div>
         )}
 
         {/* 검색 에러 알림 */}
