@@ -175,6 +175,7 @@ public class WebRtcServiceImpl implements WebRtcService {
         @Override
         @Transactional
         public String speechToText (MultipartFile audioFile) throws IOException {
+            System.out.println("speechToText: 실행중");
             // 1. GCS에 파일 업로드
             String bucketName = "camference";
             String blobName = UUID.randomUUID() + ".webm";

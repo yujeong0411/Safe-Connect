@@ -34,12 +34,21 @@ public class GoogleCloudConfig {
     }
 
     @Bean
-    public Storage storage() {
+    public Storage storage() throws IOException {
         // 용량이 큰 녹음 파일을 Google Cloud에 저장을 하기 위해서 사용
 //        StorageOptions storageOptions = StorageOptions.newBuilder()
 //                .setCredentials(GoogleCredentials.fromStream(
 //                        new FileInputStream("path/to/your-service-account.json")))
 //                .build();
-        return StorageOptions.getDefaultInstance().getService();
+
+//      return StorageOptions.getDefaultInstance().getService();
+
+        ByteArrayInputStream credentialsStream = new ByteArrayInputStream(jsonCredentials.getBytes(StandardCharsets.UTF_8));
+        ServiceAccountCredentials credentials = ServiceAccountCredentials.fromStream(credentialsStream);
+
+        return StorageOptions.newBuilder()
+                .setCredentials(credentials)
+                .build()
+                .getService();
     }
 }
