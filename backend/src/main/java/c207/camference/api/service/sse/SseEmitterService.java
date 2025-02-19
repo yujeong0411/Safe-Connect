@@ -18,7 +18,7 @@ public interface SseEmitterService {
 
     void sendDispatchOrder(ControlDispatchOrderRequest controlData, ControlDispatchOrderResponse dispatchGroupData);
     void transferRequest(DispatchGroupPatientTransferResponse dispatchGroupData, HospitalPatientTransferResponse hospitalData);
-    void hospitalResponse(AcceptedHospitalResponse response, boolean accepted);
+    void hospitalResponse(AcceptedHospitalResponse response, boolean accepted,Integer dispatchId);
     void sendDispatchGroupPosition(DispatchCurrentPositionRequest request);
     void shareCallerLocation(ShareLocationRequest request);
 }

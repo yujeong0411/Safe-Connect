@@ -17,4 +17,6 @@ public interface TransferRepository extends JpaRepository<Transfer, Integer> {
     @EntityGraph(attributePaths = {"dispatchGroup", "hospital"})
     Optional<Transfer> findByTransferId(Integer id);
     List<Transfer> findByHospital(Hospital hospital);
+
+    boolean existsByDispatchId(Integer dispatchId);
 }
