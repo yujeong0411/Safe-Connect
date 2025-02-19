@@ -82,8 +82,8 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
         map: mapRef.current,
         image: new window.kakao.maps.MarkerImage(
           emergencyimage,
-          new window.kakao.maps.Size(69, 69),
-          { offset: new window.kakao.maps.Point(27, 69) }
+          new window.kakao.maps.Size(35, 35),
+          { offset: new window.kakao.maps.Point(17, 17) }
         )
       });
 
@@ -159,8 +159,8 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
       map: mapRef.current,
       image: new window.kakao.maps.MarkerImage(
         callerimage,
-        new window.kakao.maps.Size(69, 69),
-        { offset: new window.kakao.maps.Point(27, 69) }
+        new window.kakao.maps.Size(35, 35),
+        { offset: new window.kakao.maps.Point(17, 17) }
       )
     });
   
