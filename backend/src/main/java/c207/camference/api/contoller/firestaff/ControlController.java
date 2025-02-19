@@ -1,10 +1,6 @@
 package c207.camference.api.contoller.firestaff;
 
-import c207.camference.api.request.control.CallEndRequest;
-import c207.camference.api.request.control.CallRoomRequest;
-import c207.camference.api.request.control.CallUpdateRequest;
-import c207.camference.api.request.control.ControlDispatchOrderRequest;
-import c207.camference.api.request.control.ResendRequest;
+import c207.camference.api.request.control.*;
 import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.webrtc.WebRtcService;
@@ -71,9 +67,6 @@ public class ControlController {
         // sessionId 생성, URL 생성 및 메시지 전송
         String sessionId = webRtcService.makeSession(request.getCustomSessionId());
         String url = webRtcService.makeUrl(sessionId);
-
-        System.out.println("sessionId: " + sessionId);
-        System.out.println("url: " + url);
         return controlService.createRoom(request, url);
     }
 

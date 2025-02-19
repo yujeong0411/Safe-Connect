@@ -4,7 +4,7 @@ import c207.camference.db.entity.call.VideoCallUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
 
 @Repository
 public interface VideoCallUserRepository extends JpaRepository<VideoCallUser, Integer> {
@@ -12,4 +12,6 @@ public interface VideoCallUserRepository extends JpaRepository<VideoCallUser, In
     // 아직 나간시간이 기록되지 않은 레코드를 조회하는 메서드.
     List<VideoCallUser> findByVideoCallIdAndVideoCallOutAtIsNullAndVideoCall_Call_CallId(Integer videoCallId, Integer callId);
 
+
+    VideoCallUser findByVideoCallUserCategoryAndVideoCallerIdAndVideoCallId(String videoCallUserCategory, Integer videoCallerId, Integer videoCallId);
 }
