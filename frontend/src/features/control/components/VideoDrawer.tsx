@@ -158,10 +158,10 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
               <h2 className="text-xl font-bold">전화 업무</h2>
               <div className="space-x-4">
                 <ConfirmDialog
-                    trigger="전화 종료"
-                    title="전화 종료"
-                    description="현재 신고 전화를 종료하시겠습니까?"
-                    confirmText = "종료"
+                    trigger="출동 완료"
+                    title="출동 완료"
+                    description="출동을 완료하시겠습니까?"
+                    confirmText = "완료"
                     triggerVariant="destructive"
                     cancelVariant="gray"
                     confirmVariant="destructive"

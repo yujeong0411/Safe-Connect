@@ -145,9 +145,9 @@ const ControlPatientInfoForm = () => {
 
   return (
     <div className="flex w-full items-center justify-center">
-      <div className="flex-1 p-4 max-w-4xl">
+      <div className="flex-1 p-4 max-w-3xl">
         <div className="bg-white rounded-lg p-6">
-          <div className="grid grid-cols-[9fr_1fr] gap-4 mb-4">
+          <div className="grid grid-cols-[9fr_1fr] gap-4 mb-3">
             <SearchBar_ver2
               ref={searchBarRef}
               placeholder="환자 전화번호"
@@ -197,7 +197,7 @@ const ControlPatientInfoForm = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">나이</label>
               <Input
                 className="w-full border-gray-800"
-                value={formData.userAge}
+                value={formData.userAge ?? ''}
                 onChange={handleInputChange('userAge')}
               />
             </div>

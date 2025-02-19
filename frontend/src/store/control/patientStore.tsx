@@ -6,7 +6,7 @@ import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 const initialFormData: FormData = {
   userName: '',
   userGender: '',
-  userAge: 0,
+  userAge: null,
   userPhone: '',
   userProtectorPhone: '',
   diseases: '',
