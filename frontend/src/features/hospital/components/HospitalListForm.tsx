@@ -15,7 +15,9 @@ import { format } from 'date-fns';
 import Pagination from "@components/atoms/Pagination/Pagination.tsx";
 
 export interface HospitalListFormProps {
-  type: 'request' | 'accept'; // 요청 목록인지 수락 목록인지 구분
+  type: 'request' | 'accept';
+  isModalOpen: boolean;  // Add this
+  setIsModalOpen: (open: boolean) => void; // 요청 목록인지 수락 목록인지 구분
 }
 
 interface Column {
@@ -24,9 +26,8 @@ interface Column {
   render?: (data: CombinedTransfer) => string;
 }
 
-const HospitalListForm = ({ type }: HospitalListFormProps) => {
-  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const HospitalListForm = ({ type, isModalOpen, setIsModalOpen  }: HospitalListFormProps) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const {combinedTransfers, fetchCombinedTransfers} = useHospitalTransferStore();
 
   // 타입에 따라 데이터 필터링 및 정렬 필터링
@@ -66,6 +67,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
   };
 
   const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>({
+      dispatchId:0,
       patientId:0,
       name: null,
       gender: null,
@@ -101,18 +103,11 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
   // 테이블 행 클릭 시
   const handleRowClick = async (data: CombinedTransfer) => {
     try {
-      
-      // 이미 다른 병원에서 수락한 경우
-      if (data.dispatchTransferAccepted) {
-        alert('이미 다른 병원에서 수락한 이송 요청입니다.')
-        await  fetchCombinedTransfers();  // 목록 새로고침
-        return
-      }
-
       const detailData = await useHospitalTransferStore
         .getState()
         .fetchTransferDetail(data.dispatchId, type);
       setSelectedPatient({
+        dispatchId: data.dispatchId,
         patientId:detailData.patientId,
         name: detailData.patientName ?? null,
         gender: detailData.patientGender ?? null,
@@ -140,13 +135,13 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
     }
   };
 
-      // 모달 닫히고 수락한 경우
-      const handleModalClose = async (open:boolean) => {
-        if (!open) {
-        await fetchCombinedTransfers();  // 테이블 데이터 새로고침
-        }
-        setIsModalOpen(false);
-      }
+  // 모달 닫히고 수락한 경우
+  const handleModalClose = async (open: boolean) => {
+    if (!open) {
+      await fetchCombinedTransfers();
+    }
+    setIsModalOpen(false);  // Using the prop setter
+  };
 
   // 컬럼 정의
   const getColumns = (): Column[] => {
@@ -347,10 +342,10 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
         </div>
 
         <HospitalDetailDialog
-            open={isModalOpen}
-            onOpenChange={handleModalClose}
-            data={selectedPatient}
-            buttons="수락"
+          open={isModalOpen}
+          onOpenChange={handleModalClose}
+          data={selectedPatient}
+          buttons="수락"
         />
       </div>
   );

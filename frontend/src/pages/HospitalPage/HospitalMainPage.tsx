@@ -17,6 +17,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   const { logout } = useHospitalAuthStore();
   const { combinedTransfers, fetchCombinedTransfers } = useHospitalTransferStore();
   const { toast, dismiss } = useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);  // Single source of truth for modal state
   const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>({
     dispatchId: 0,
     patientId: 0,
@@ -50,34 +51,33 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   const RECONNECT_INTERVAL = 1500000;
 
   const dispatchAccepted = (dispatchId: number) => {
-    if (type === 'request') {
-      // 토스트 제거
-      const toastId = toastIdsMapRef.current.get(dispatchId);
-      if (toastId) {
-        dismiss(toastId);  // 요청 토스트 제거
-        toastIdsMapRef.current.delete(dispatchId);
-      }
+    toastIdsMapRef.current.forEach((toastId, id) => {
+      dismiss(toastId);
+      toastIdsMapRef.current.delete(id);
+    });
 
-      // 모달 처리
-      if (isDetailOpen && dispatchId === selectedPatient.dispatchId) {
-        setIsDetailOpen(false);
-        const newToast = toast({
-          description: "다른 병원에서 이미 수락한 이송 요청입니다.",
-          duration: 1000,
-        });
-        // 1초 후 알림 토스트도 제거
-        setTimeout(() => {
-          dismiss(newToast.id);
-        }, 1000);
-      }
+    // Close both modals
+    setIsModalOpen(false);
+    setIsDetailOpen(false);
 
-      // 목록에서 제거
-      const updatedTransfers = combinedTransfers.filter(
-        transfer => transfer.dispatchId !== dispatchId
-      );
-      useHospitalTransferStore.setState({ combinedTransfers: updatedTransfers });
+    if (isModalOpen || isDetailOpen) {
+      const { id } = toast({
+        description: "다른 병원에서 이미 수락한 이송 요청입니다.",
+        duration: 2000,
+      });
+      setTimeout(() => {
+        dismiss(id);
+      }, 2000);
     }
+
+    const updatedTransfers = combinedTransfers.map(transfer =>
+      transfer.dispatchId === dispatchId
+        ? { ...transfer, dispatchTransferAccepted: true }
+        : transfer
+    );
+    useHospitalTransferStore.setState({ combinedTransfers: updatedTransfers });
   };
+
 
   const showTransferRequestToast = (patientData: any, response: any) => {
     const { id } = toast({
@@ -294,7 +294,11 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
       ]}
       logoutDirect={logout}
     >
-      <HospitalListForm type={type} />
+      <HospitalListForm
+        type={type}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
       <HospitalDetailDialog
         open={isDetailOpen}
         onOpenChange={setIsDetailOpen}
