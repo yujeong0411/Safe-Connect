@@ -52,18 +52,18 @@ export const useHospitalTransferStore = create<TransferStore>((set) => ({
 
     updateTransferStatus: async (patientId: number, status: 'ACCEPTED' | 'REJECTED') => {
         try {
-            const response = await updateTransferStatus(patientId, status);
+            await updateTransferStatus(patientId, status);
 
             // 상태 변경 후 목록 새로고침
             const [transferList, acceptedList] = await Promise.all([
                 fetchTransferRequest(),
                 fetchAcceptedTransfer()
-            ])
+            ]);
 
-            // 통합 데이터 새로 생성
+            // 통합 데이터 새로 생성 (수락/거절된 요청 제외)
             const combined = transferList.data.map(transfer => {
                 const acceptedInfo = acceptedList.data.find(
-                    accepted => accepted.dispatchId === transfer.dispatchId
+                  accepted => accepted.dispatchId === transfer.dispatchId
                 ) as AcceptedTransfer | undefined;
 
                 return {
@@ -71,13 +71,12 @@ export const useHospitalTransferStore = create<TransferStore>((set) => ({
                     transferAcceptAt: acceptedInfo?.transferAcceptAt || null,
                     transferArriveAt: acceptedInfo?.transferArriveAt || null,
                     hospital: acceptedInfo?.hospital || null,
+                    dispatchTransferAccepted: acceptedInfo ? true : transfer.dispatchTransferAccepted,
                 } as CombinedTransfer
             });
 
             // 통합 데이터 업데이트
             set({ combinedTransfers: combined });
-            return response;
-
         } catch (error) {
             console.error("이송상태 변경 실패", error)
             throw error
