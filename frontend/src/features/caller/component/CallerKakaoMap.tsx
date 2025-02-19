@@ -6,6 +6,8 @@ import useKakaoLoader from '@/hooks/useKakaoLoader';
 import { Aed } from '@/types/common/aed.types.ts';
 import { useLocationStore } from '@/store/location/locationStore.tsx';
 import { useAmbulanceLocationStore } from '@/store/caller/ambulanceLocationStore.tsx';
+import aedimage from 'assets/images/aedimage.png';
+
 
 const CallerKakaoMap = () => {
   useKakaoLoader();
@@ -88,7 +90,7 @@ const CallerKakaoMap = () => {
                 <div
                   className="w-10 h-10 rounded-full bg-red-500 border-2 border-white shadow-lg overflow-hidden flex items-center justify-center">
                   <img
-                    src="src/assets/image/aed.jpg"
+                    src= {aedimage}
                     alt="AED"
                     className="w-8 h-8 object-cover rounded-full"
                   />
