@@ -33,7 +33,13 @@ public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
     @Query(value = "SELECT h.hospital_id, h.hospital_name, " +
             "ST_X(h.hospital_location) as longitude, " +
             "ST_Y(h.hospital_location) as latitude, " +
-            "ST_Distance_Sphere(h.hospital_location, POINT(:baseLong, :baseLat)) / 1000 as distance_km, " +
+            "(6371 * acos(" +
+                "cos(radians(:baseLat)) * " +
+                "cos(radians(ST_Y(h.hospital_location))) * " +
+                "cos(radians(ST_X(h.hospital_location)) - radians(:baseLong)) + " +
+                "sin(radians(:baseLat)) * " +
+                "sin(radians(ST_Y(h.hospital_location)))" +
+            ")) as distance_km, " +
             "h.hospital_phone, " +
             "h.hospital_address " +
             "FROM hospital h " +
