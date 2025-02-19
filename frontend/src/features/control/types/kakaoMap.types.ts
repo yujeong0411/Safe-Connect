@@ -5,6 +5,8 @@ export interface Marker {
     };
     content: string;
     distance?:string;
+    placeData?:any
+    eta:any
 }
 
 export interface KakaoMapProps {
@@ -14,9 +16,15 @@ export interface KakaoMapProps {
 export interface FireStation {
     place_name: string;
     distance: string;
+    eta: any
 
     // kakao places API에서 제공하는 다른 필요한 필드들
     id: string;
     x: string;
     y: string;
+}
+
+export interface ExtendedKakaoMapProps extends KakaoMapProps {
+    onMarkerClick?: (station:FireStation) => void;
+    selectedStation?: string | null;
 }

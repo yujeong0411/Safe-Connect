@@ -22,7 +22,7 @@ import java.util.List;
 public class TransferDetailResponse {
     private String patientName;          // 이름
     private Character patientGender;        // 성별
-    private String patientAge;           // 나이
+    private Integer patientAge;           // 나이
     private String patientMental;        // 의식상태
     private Integer patientSystolicBldPress;  // SBP
     private Integer patientDiastolicBldPress; // DBP
@@ -44,7 +44,7 @@ public class TransferDetailResponse {
         this.patientGender = patient.getPatientGender();
         this.patientAge = patient.getPatientAge();
         this.patientMental = patient.getPatientMental();
-        this.patientSymptom = patient.getPatientSympthom();
+        this.patientSymptom = patient.getPatientSymptom();
 
         if (patient.getPatientIsUser()){
             User user = patient.getUser();

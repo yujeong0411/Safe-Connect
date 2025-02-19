@@ -16,19 +16,19 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
     },
     {
       number: 3,
-      title: '의료 정보 입력',
-      description: '사용자의 의료정보를 입력합니다.',
+      title: '회원가입',
+      description: '필수 정보 확인 후 회원가입합니다.',
       isActive: currentStep >= 3,
     },
     {
       number: 4,
-      title: '회원가입',
-      description: '모든 절차를 완료 후 회원가입합니다.',
+      title: '의료 정보 입력',
+      description: '필요시 사용자의 의료정보를 입력합니다.',
       isActive: currentStep >= 4,
     },
   ];
   return (
-    <div className="flex flex-col gap-[39px]">
+    <div className="flex flex-col gap-4 md:gap-[39px]">
       {steps.map((step) => (
         <StepItem key={step.number} {...step} isActive={step.number === currentStep} />
       ))}

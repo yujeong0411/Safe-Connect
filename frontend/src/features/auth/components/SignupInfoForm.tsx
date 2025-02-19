@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useSignupStore } from '@/store/user/signupStore.tsx';
 import Input from '@components/atoms/Input/Input';
 import SearchBar from '@components/molecules/SearchBar/SearchBar.tsx';
@@ -17,6 +17,12 @@ import { validateResidentNumber } from '@utils/validation.ts';
 const SignupInfoForm = () => {
   const { formData, setFormData, validateFields } = useSignupStore();
   const [showAlert, setShowAlert] = useState(false);
+  const [isPhoneSent, setIsPhoneSent] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [authInitiated, setAuthInitiated] = useState<boolean>(false);  // 인증 시작 여부를 추적하는 상태 추가
+  const [verifiedEmail, setVerifiedEmail] = useState<string | "">("");
+  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string | "">("");
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
@@ -28,7 +34,7 @@ const SignupInfoForm = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 3000);
+    }, 1000);
   };
 
 
@@ -43,14 +49,46 @@ const SignupInfoForm = () => {
     const processedValue =
       name === 'userPhone' || name === 'userProtectorPhone' ? formatPhoneNumber(value) : value;
 
-    setFormData({ [name]: processedValue });
+    if (name === 'userEmail' && verifiedEmail && value !== verifiedEmail) {
+      setFormData({
+        [name]: processedValue,
+        isEmailVerified: false // 이메일 인증 상태 초기화
+      });
+      handleShowAlert({
+        title: '이메일 변경',
+        description: '이메일이 변경되었습니다. 다시 중복확인을 해주세요.',
+        type: 'destructive'
+      });
+    }
+    // 전화번호 변경 검사
+    else if (name === 'userPhone' && formData.isPhoneVerified && value !== verifiedPhoneNumber) {
+      setFormData({
+        [name]: processedValue,
+        isPhoneVerified: false,
+        authCode: ''  // 인증번호 초기화
+      });
+      setIsPhoneSent(false);  // 인증번호 전송 상태 초기화
+      setAuthInitiated(false);  // 인증 시작 상태 초기화
+      if (timer) {
+        clearInterval(timer);  // 타이머 정지
+        setTimeLeft(null);
+      }
+      handleShowAlert({
+        title: '전화번호 변경',
+        description: '전화번호가 변경되었습니다. 다시 인증을 받아주세요.',
+        type: 'destructive'
+      });
+    } else {
+      setFormData({ [name]: processedValue });
+    }
   };
 
   const handleEmailVerify = async () => {
     const result = await checkEmailDuplication(formData.userEmail);
     if (result.isSuccess) {
       setFormData({ isEmailVerified: true });
-    handleShowAlert({
+      setVerifiedEmail(formData.userEmail);
+      handleShowAlert({
       title: '이메일 확인',
       description: result.message,
       type: 'default'
@@ -64,10 +102,47 @@ const SignupInfoForm = () => {
     }
   };
 
+
+  // 인증번호 타이머
+  const startTimer = () => {
+    if (timer) clearInterval(timer)  // 이전 타이머가 있다면 제거
+    setTimeLeft(179)  // 3분
+    const newTimer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === null || prev  <= 0) {
+          clearInterval(newTimer);
+          return null
+        }
+        return prev - 1;
+      })
+    }, 1000)
+    setTimer(newTimer)
+  }
+
+  // 컴파운드 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearInterval(timer)
+      }
+    }
+  }, [timer])
+
+  // 타이머 시간 포맷팅
+  const formatTime = (seconds:number | null) => {
+    if (seconds === null) return '';
+    const minutes = Math.floor(seconds/60);
+    const remainingSeconds = seconds % 60
+    return  `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
   const handlePhoneSendVerification = async () => {
     try {
       const isSuccess = await sendPhoneVerification(formData.userPhone);
       if (isSuccess) {
+        setIsPhoneSent(true);  // 전송 성공 시 상태 변경
+        setAuthInitiated(true);  // 인증번호 발송 중
+        startTimer()  // 타이머 시작
         handleShowAlert({
           title: '인증번호 발송',
           description: '인증번호가 발송되었습니다.',
@@ -88,6 +163,7 @@ const SignupInfoForm = () => {
       const isSuccess = await authCode(formData.userPhone, formData.authCode);
       if (isSuccess) {
         setFormData({ isPhoneVerified: true });
+        setVerifiedPhoneNumber(formData.userPhone);
         handleShowAlert({
           title: '인증 완료',
           description: '인증이 완료되었습니다.',
@@ -103,12 +179,12 @@ const SignupInfoForm = () => {
     }
   };
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-left w-full mb-10 font-sans">기본 정보 입력</h1>
-      <div className="flex flex-row gap-10">
+    <div className="w-full px-4 md:px-20">
+      <h1 className="text-2xl md:text-3xl font-bold text-left w-full mb-6 md:mb-10 font-sans">기본 정보 입력</h1>
+      <div className="flex flex-col md:flex-row gap-6 md:gap-10">
         {/*왼쪽*/}
-        <div className="flex-1">
-          <div className="flex flex-col gap-6">
+        <div className="w-full md:flex-1">
+          <div className="flex flex-col gap-4 md:gap-8">
             {/*이메일 + 중복확인*/}
             <SearchBar
               label="이메일"
@@ -145,8 +221,8 @@ const SignupInfoForm = () => {
         </div>
 
         {/*오른쪽*/}
-        <div className="flex-1">
-          <div className="flex flex-col gap-6">
+        <div className="w-full md:flex-1">
+          <div className="flex flex-col gap-4 md:gap-8">
             {/*전화번호*/}
             <SearchBar
               label="전화번호"
@@ -154,17 +230,24 @@ const SignupInfoForm = () => {
               onChange={handleChange('userPhone')}
               onButtonClick={handlePhoneSendVerification}
               placeholder="전화번호를 입력하세요."
-              buttonText="전송"
+              buttonText={isPhoneSent ? "인증번호 재전송" : "인증번호 전송"}
               error={validateFields('userPhone', formData.userPhone)}
               isRequired
             />
             <SearchBar
-              label="전화번호 확인"
+              label="인증번호 확인"
               value={formData.authCode}
               onChange={handleChange('authCode')}
               onButtonClick={handlePhoneVerify}
-              placeholder="문자로 받은 인증번호를 입력하세요."
-              buttonText="인증"
+              placeholder={
+                !authInitiated
+                    ? "인증번호를 입력해주세요."
+                    : timeLeft
+                        ? `남은 시간 ${formatTime(timeLeft)}`
+                        : "인증 시간이 만료되었습니다. 재전송해주세요."
+              }
+              buttonText="인증하기"
+              isDisabled={timeLeft === null}
               isRequired
             />
             <ResidentNumberInput
@@ -188,22 +271,17 @@ const SignupInfoForm = () => {
       </div>
 
       {showAlert && (
-          <div className="fixed left-2/3 top-[300px] -translate-x-1/2 z-[9999]">
+          <div className="fixed left-1/2 md:left-2/3 top-[300px] -translate-x-1/2 z-[9999]">
             <Alert
                 variant={alertConfig.type}
-                className={`w-[400px] shadow-lg bg-white ${
-                    alertConfig.type === 'default'
-                        ? '[&>svg]:text-blue-600 text-blue-600'
-                        : '[&>svg]:text-red-500 text-red-500'
-                }`}
             >
               {alertConfig.type === 'default' ? (
-                  <CircleCheckBig className="h-6 w-6" />
+                  <CircleCheckBig className="h-5 md:h-6 w-5 md:w-6" />
               ) : (
-                  <CircleAlert className="h-6 w-6" />
+                  <CircleAlert className="h-5 md:h-6 w-5 md:w-6" />
               )}
-              <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-              <AlertDescription className="text-sm m-2">
+              <AlertTitle>{alertConfig.title}</AlertTitle>
+              <AlertDescription>
                 {alertConfig.description}
               </AlertDescription>
             </Alert>

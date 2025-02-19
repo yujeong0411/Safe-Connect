@@ -30,7 +30,7 @@ const SignupPerForm = ({ isChecked, setIsChecked }: SignupPerFormProps) => {
             <ul className="text-lg font-bold mb-2">개인정보의 보유 및 이용 기간</ul>
             <li className="text-md">safe connect 서비스 회원 탈퇴 시 개인정보 삭제</li>
           </div>
-          <p className="text-md">
+          <p className="text-md text-blue-500">
             ※ 귀하는 safe connect 서비스에 작성한 개인정보의 수집·이용에 대해 거부하실 수 있으며
             다만 이 경우에는 회원 가입이 거부 될 수 있습니다.
           </p>
@@ -39,8 +39,14 @@ const SignupPerForm = ({ isChecked, setIsChecked }: SignupPerFormProps) => {
             <Checkbox
               isChecked={isChecked}
               onChange={setIsChecked}
-              label="본인은 위의 동의서 내용을 충분히 숙지하였으며, 신속·정확한 응급출동 서비스를 제공받기
-            위해 개인정보를 수집·이용하는 것에 동의합니다."
+              label={
+                <span>
+                  본인은 위의 동의서 내용을 충분히 숙지하였으며, 신속·정확한 응급출동 서비스를
+                  제공받기 위해
+                  <br />
+                  개인정보를 수집·이용하는 것에 동의합니다.
+                </span>
+              }
             />
           </div>
         </div>

@@ -1,6 +1,5 @@
 import React from 'react';
 
-// 모든 속성을 선택적(optional)으로 가져온다.
 export interface SearchBarProps {
   label?: string;
   isRequired?: boolean;
@@ -13,4 +12,9 @@ export interface SearchBarProps {
   onButtonClick?: () => void;
   className?: string;
   formatValue?:(value: string) => string;
+  isDisabled?: boolean;
+}
+
+export interface SearchBarRef {
+  reset: () => void;
 }

@@ -1,6 +1,7 @@
 package c207.camference.db.repository.patient;
 
 import c207.camference.db.entity.patient.Patient;
+import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,8 @@ public interface PatientRepository extends JpaRepository<Patient,Integer> {
     Optional<Patient> findByTransferId(Integer transferId);
 
     List<Patient> findAllByDispatchId(Integer dispatchId);
+
+    List<Patient> findPatientsByDispatchId(Integer dispatchId);
+
+    List<Patient> findPatientsByTransferId(Integer transferId);
 }

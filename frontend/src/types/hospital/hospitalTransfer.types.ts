@@ -54,8 +54,9 @@ export interface PatientDetail {
     patientTemperature: number;
     patientSpo2: number;
     patientBloodSugar: number;
+    patientPreKtas: string;
     userPhone: string;
-    userProtectorPhone: string;
+    userProtectorPhone?: string;
     patientSymptom: string;
     patientMedications: string[];
     patientDiseases: string[];
@@ -83,4 +84,21 @@ export interface CombinedTransfer extends TransferData {  // TransferData 상속
     transferAcceptAt: string | null;  // 수락 시간
     transferArriveAt: string | null;  // 도착 시간
     hospital: Hospital | null;
+}
+
+
+export interface TransferRequestEventData extends BaseResponse {
+    data: {
+        dispatchId: number;
+        patient: TransferPatientData;
+    };
+}
+
+export interface TransferPatientData {
+    patientId: number;
+    patientAge: string;
+    patientGender: string;
+    patientPreKtas: string;
+    patientSympthom: string;
+    reqHospitalCreatedAt: string;
 }

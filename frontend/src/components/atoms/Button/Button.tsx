@@ -8,14 +8,15 @@ const Button = ({
   onClick,
   type,
   className,
+    disabled,
 }: ButtonProps) => {
   // 모든 버튼에 공통으로 적용되는 기본 스타일
   const baseStyle = 'rounded-md transition-colors'; // 둥근 모서리, hover 시 부드러운 색상 전환
 
   // 버튼 종류별 스타일 정의
   const variantStyles = {
-    blue: 'bg-[#545f71] hover:bg-[#697383] text-white', // 파란색 배경
-    gray: 'bg-[#DDDDDD] hover:bg-[#ABABAB] text-gray-800', // 회색 배경
+    blue: 'bg-banner hover:bg-banner_hover text-white', // 파란색 배경
+    gray: 'bg-graybtn hover:bg-gray_hover text-gray-800', // 회색 배경
     red: 'bg-red-500 hover:bg-red-600 text-white',
   };
 
@@ -42,6 +43,7 @@ const Button = ({
       className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${widthStyles[width]} ${className}`}
       onClick={onClick}
       type={type}
+      disabled={disabled}
     >
       {children}
     </button>

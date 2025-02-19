@@ -66,9 +66,6 @@ const UserUpdatePassword = () => {
     }
   };
 
-  // 회원탈퇴 핸들러
-  const handleSignout = async () => {};
-
   return (
       <>
     <MainTemplate
@@ -84,7 +81,6 @@ const UserUpdatePassword = () => {
         content="안전한 서비스 이용을 위해 영문, 숫자, 특수문자를 포함한 8자 이상의 비밀번호를 설정해 주세요. "
         logoSrc={pwImg}
         primaryButtonOnClick={handlePasswordUpdate}
-        secondaryButtonOnClick={handleSignout}
       >
         <UserPwForm />
       </UserInfoTemplate>

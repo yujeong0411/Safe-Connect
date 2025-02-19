@@ -40,8 +40,6 @@ const UserMediPage = () => {
     try {
       const userMediInfo: { categoryName: string; mediList: { mediId: number }[] }[] | null =
         await loadUserInfo();
-      console.log('받아온 사용자 의료 정보:', userMediInfo);
-
       if (userMediInfo) {
         // mediList 내의 ID들을 찾아서 변환
         const diseaseIds =
@@ -54,8 +52,6 @@ const UserMediPage = () => {
             .find((item: { categoryName: string }) => item.categoryName === '복용약물')
             ?.mediList.map((medi: { mediId: number }) => medi.mediId) || [];
 
-        console.log('변환된 ID들:', { diseaseIds, medicationIds });
-
         // 함수형 업데이트가 아닌 객체를 직접 전달
         setFormData({
           ...formData, // 기존 formData 유지
@@ -64,8 +60,7 @@ const UserMediPage = () => {
         });
       }
       // 업데이트 후 상태 확인
-      console.log('업데이트된 formData:', formData);
-    } catch (error) {
+      } catch (error) {
       console.error('사용자 의료 정보 로드 실패:', error);
     }
   };
@@ -93,9 +88,6 @@ const UserMediPage = () => {
     }
   };
 
-  // 회원탈퇴 핸들러
-  const handleSignout = async () => {};
-
   return (
       <>
     <MainTemplate
@@ -112,7 +104,6 @@ const UserMediPage = () => {
 현재 질환과 복용 약물을 입력해 주세요."
         logoSrc={mediImg}
         primaryButtonOnClick={handleSave}
-        secondaryButtonOnClick={handleSignout}
       >
         <SignupMediForm />
       </UserInfoTemplate>

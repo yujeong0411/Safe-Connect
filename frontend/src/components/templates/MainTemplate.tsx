@@ -1,6 +1,7 @@
 import PublicHeader from '@components/organisms/PublicHeader/PublicHeader.tsx';
 import NavBar from '@components/organisms/NavBar/NavBar';
 import React from 'react';
+import Footer from '@components/organisms/Footer/Footer';
 // NavBar props type 변경으로 추가...
 import {NavItem} from "@components/organisms/NavBar/NavBar.types.ts";
 
@@ -23,9 +24,9 @@ const MainTemplate = ({ children, navItems, logoutDirect }: MainTemplateProps) =
   };
 
   return (
-    <div className="h-screen bg-bg flex flex-col">
+    <div className="min-h-screen w-full flex flex-col bg-bg">
       {/* 콘텐츠 영역 */}
-        <div className="-space-y-4">  {/* 음수 마진으로 간격을 줄임 */}
+        <div className="-space-y-2">  {/* 음수 마진으로 간격을 줄임 */}
       <PublicHeader
         labels={[
           {
@@ -38,7 +39,8 @@ const MainTemplate = ({ children, navItems, logoutDirect }: MainTemplateProps) =
       <NavBar navItems={navItems} />
         </div>
       {/* 자식 요소 */}
-      <div className="flex-1">{children}</div>
+      <div className="flex items-center justify-center mb-auto">{children}</div>
+        <Footer />
     </div>
   );
 };

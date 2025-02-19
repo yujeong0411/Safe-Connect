@@ -19,7 +19,8 @@ public class AvailableHospitalResponse {
     private String hospitalPhone;
     private Integer hospitalCapacity;
     private String hospitalAddress;
+    private Double hospitalDistance;
+    private double hospitalLat;
+    private double hospitalLng;
 
-    @JsonSerialize(using = PointSerializer.class)
-    private Point hospitalLocation;
 }

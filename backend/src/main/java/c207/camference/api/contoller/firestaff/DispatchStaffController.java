@@ -9,24 +9,21 @@ import c207.camference.api.request.patient.PatientCallRequest;
 import c207.camference.api.request.patient.PatientInfoRequest;
 import c207.camference.api.service.fireStaff.DispatchStaffService;
 import c207.camference.api.service.sms.SmsService;
-import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.util.response.ResponseUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/dispatch_staff")
 public class DispatchStaffController {
     private final SmsService smsService;
-    private final SseEmitterService sseEmitterService;
-    DispatchStaffService dispatchStaffService;
+    private final SseEmitterServiceImpl sseEmitterService;
+    private final DispatchStaffService dispatchStaffService;
 
-    public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService, SseEmitterService sseEmitterService) {
+    public DispatchStaffController(DispatchStaffService dispatchStaffService, SmsService smsService, SseEmitterServiceImpl sseEmitterService) {
         this.dispatchStaffService = dispatchStaffService;
         this.smsService = smsService;
         this.sseEmitterService = sseEmitterService;
@@ -37,11 +34,18 @@ public class DispatchStaffController {
         return dispatchStaffService.getReports();
     }
 
+    @GetMapping("/report/detail")
+    public ResponseEntity<?> getReportDetail(@RequestParam int dispatchId){
+        return dispatchStaffService.getReportDetail(dispatchId);
+    }
+
     @GetMapping("/emergency_room")
     // 신고자의 위치 정보(시도, 시군구)를 바탕으로 응급실 실시간 가용병상정보 조회
-    public ResponseEntity<?> getAvailableEmergencyRooms(@RequestParam String siDo,
-                                                        @RequestParam String siGunGu) {
-        return dispatchStaffService.getAvailableHospital(siDo, siGunGu);
+    public ResponseEntity<?> getAvailableEmergencyRooms(
+                                                        @RequestParam Double longitude,
+                                                        @RequestParam Double latitude,
+                                                        @RequestParam Double range) {
+        return dispatchStaffService.getAvailableHospital(longitude, latitude, range);
     }
 
     @GetMapping("/dispatch/detail")
@@ -89,7 +93,7 @@ public class DispatchStaffController {
         return dispatchStaffService.updateDepartTime(request);
     }
 
-    @PutMapping("/departure")
+    @PutMapping("/arrive_time")
     public ResponseEntity<?> derpature(@RequestBody DispatchRequest request) {
         return dispatchStaffService.updateDispatchArriveAt(request);
     }

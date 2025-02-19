@@ -9,10 +9,11 @@ import org.springframework.http.ResponseEntity;
 
 public interface DispatchStaffService {
     ResponseEntity<?> getReports();
-    ResponseEntity<?> getAvailableHospital(String siDo, String siGunGu);
+    ResponseEntity<?> getAvailableHospital(Double longitude, Double latitude, Double range);
     ResponseEntity<?> dispatchDetail(int DispatchId);
     ResponseEntity<?> transferDetail(int transferId);
     ResponseEntity<?> getReqHospital(int dispatchId);
+    ResponseEntity<?> getReportDetail(int dispatchId);
     ResponseEntity<?> transferRequest(PatientTransferRequest request);
     ResponseEntity<?> transferUpdate(TransferUpdateRequest request);
     ResponseEntity<?> updatePatientInfo(PatientInfoRequest request);

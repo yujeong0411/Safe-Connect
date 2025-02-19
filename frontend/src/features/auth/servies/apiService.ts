@@ -2,15 +2,14 @@ import { AxiosError } from 'axios';
 import { axiosInstance } from '@utils/axios.ts';
 import { FormData } from '@features/auth/types/SignupForm.types';
 import { MedicalCategory, MedicalItem } from '@/types/common/medical.types.ts';
+import {useAuthStore} from "@/store/user/authStore.tsx";
 
 // 이메일 중복 확인 API 호출
 export const checkEmailDuplication = async (email: string) => {
   try {
-    console.log('Sending email verification request:', email);
     const response = await axiosInstance.get(`/user/valid/email`, {
       params: { userEmail: email }, // URL 쿼리 파라미터로 전송
     });
-    console.log('Email verification response:', response.data);
     if (response.data.isSuccess) {
       return {
         isSuccess: true,
@@ -41,11 +40,9 @@ export const checkEmailDuplication = async (email: string) => {
 // 휴대폰 인증번호 요청 API 호출
 export const sendPhoneVerification = async (phoneNumber: string) => {
   try {
-    console.log('Sending phone verification for:', phoneNumber);
     const response = await axiosInstance.post('/user/valid/phone', {
       userPhone: phoneNumber.replace(/-/g, ''), // json 형식 전송
     });
-    console.log('Phone verification response:', response.data);
     return response.data.isSuccess === true;
   } catch (error: unknown) {
     console.error('Phone verification send error', error);
@@ -56,12 +53,10 @@ export const sendPhoneVerification = async (phoneNumber: string) => {
 // 휴대폰 인증번호 확인 API 호출
 export const authCode = async (phoneNumber: string, verificationCode: string) => {
   try {
-    console.log('Verifying phone code for:', phoneNumber, 'Code:', verificationCode);
     const response = await axiosInstance.post('/user/valid/phone/check', {
       userPhone: phoneNumber.replace(/-/g, ''),
       authCode: verificationCode,
     });
-    console.log('Phone code verification response:', response.data);
     return response.data.isSuccess === true;
   } catch (error) {
     console.error('Phone verification check error', error);
@@ -72,16 +67,14 @@ export const authCode = async (phoneNumber: string, verificationCode: string) =>
 // 회원가입 로직
 export const handleSignUp = async (
   formData: FormData,
-  navigate: (path: string) => void,
-  resetFormData: () => void
+  resetFormData: () => void,
+  // navigate?: (path: string) => void  // 네비게이션 함수 옵셔널
 ): Promise<void> => {
   try {
     const response = await axiosInstance.post('/user/signup', formData);
-    console.log('Signup response:', response.data); // 응답 데이터 확인
+
     if (response.data.isSuccess === true) {
       resetFormData(); // store 초기화 (안하면 입력창에 자동입력됨.)
-      // 성공 시 메인페이지 이동
-      navigate('/user/login'); // 회원가입 후 바로 로그인이 안되는 건가??
     } else {
       console.error('Signup failed:', response.data.message); // 실패 메시지 기록
       alert(response.data.message);
@@ -96,19 +89,14 @@ export const handleSignUp = async (
 // 회원탈퇴 로직
 export const signOut = async (navigate: (path: string) => void) => {
   try {
-    const confirmed = window.confirm('정말 회원 탈퇴하시겠습니까?');
-    if (confirmed) {
-      const response = await axiosInstance.delete('/user/signout');
-      if (response.data.isSuccess) {
-        alert('회원 탈퇴가 완료되었습니다.');
-        navigate('/user/login');
-        return true;
-      }
-    }
-    return false;
+  await axiosInstance.delete('/user');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('userName');
+  document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  await useAuthStore.getState().logout();
+  navigate('/user/login');
   } catch (error) {
-    alert('회원 탈퇴에 실패하였습니다.');
-    throw error;
+    console.error('탈퇴 실패', error);
   }
 };
 
@@ -120,7 +108,6 @@ export const findEmail = async (userName: string, userPhone: string) => {
     });
 
     // 전체 응답 데이터 로깅
-    console.log('전체 응답 데이터:', response.data);
 
     if (response.data.isSuccess === true) {
       return {
@@ -151,7 +138,7 @@ export const findEmail = async (userName: string, userPhone: string) => {
 /*export const findPassword = async (userEmail: string) => {
   try {
     const response = await axiosInstance.put('/user/find/password', { userEmail: userEmail });
-    console.log('find Password response', response.data);
+
     if (response.data.isSuccess === true) {
       return {
         isSuccess: true,
@@ -172,8 +159,6 @@ export const findEmail = async (userName: string, userPhone: string) => {
 export const fetchMedicalData = async () => {
   try {
     const response = await axiosInstance.get('/user/medi/list');
-    console.log('API 응답:', response.data); // 전체 응답 데이터 확인
-
     const medicationOptions =
       response.data.data
         .find((category: MedicalCategory) => category.categoryName === '복용약물')
@@ -190,7 +175,6 @@ export const fetchMedicalData = async () => {
           label: item.mediName,
         })) || [];
 
-    console.log('변환된 옵션:', { medicationOptions, diseaseOptions });
     return { medicationOptions, diseaseOptions };
   } catch (error) {
     console.error('fetchMedicalData failed:', error);

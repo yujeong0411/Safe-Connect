@@ -112,14 +112,13 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
       const detailData = await useHospitalTransferStore
         .getState()
         .fetchTransferDetail(data.dispatchId, type);
-      console.log("상세 데이터:", detailData);
       setSelectedPatient({
-        patientId:detailData.patientId,    // 현재 null로 들어옴.?? 해결??
+        patientId:detailData.patientId,
         name: detailData.patientName ?? null,
         gender: detailData.patientGender ?? null,
         age: detailData.patientAge ?? null,
         mental: detailData.patientMental,
-        preKTAS: data.patients[0].patientPreKtas,  // 벡엔드 추가 안됨.
+        preKTAS: detailData.patientPreKtas,  // 벡엔드 추가 완료
         sbp: detailData.patientSystolicBldPress,
         dbp: detailData.patientDiastolicBldPress,
         pr: detailData.patientPulseRate,
@@ -140,6 +139,14 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
       console.error('상세 조회 실패:', error);
     }
   };
+
+      // 모달 닫히고 수락한 경우
+      const handleModalClose = async (open:boolean) => {
+        if (!open) {
+        await fetchCombinedTransfers();  // 테이블 데이터 새로고침
+        }
+        setIsModalOpen(false);
+      }
 
   // 컬럼 정의
   const getColumns = (): Column[] => {
@@ -250,36 +257,38 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
 
 
   return (
-      <div className="w-full p-10 ">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">
+      <div className="w-full p-10 flex flex-col h-screen ">
+        <h1 className="text-xl font-bold mb-2 text-gray-800">
           {type === 'request' ? '실시간 이송 요청' : '이송 수락 목록'}
         </h1>
 
-        {/* 필터 영역 */}
-        <div className="flex gap-4 items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
+        {/* 필터 영역 : 수락 목록에만 보이게 수정*/}
+        {type === 'accept' && (
+        <div className="flex gap-2 items-center p-2 rounded-lg">
           <input
               type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
-              className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 p-2 w-34 h-9 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
           <span className="text-gray-500">~</span>
           <input
               type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
-              className="border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border border-gray-300 p-2 w-34 h-9 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-          <button onClick={handleSearch} className="px-4 py-2 rounded-md bg-banner text-white">
+          <button onClick={handleSearch} className="px-4 py-1 rounded-md bg-banner text-white">
             조회
           </button>
           <button
               onClick={handleReset}
-              className="px-4 py-2 rounded-md border bg-graybtn text-black"
+              className="px-4 py-1 rounded-md border bg-graybtn text-black"
           >
             초기화
           </button>
         </div>
+        )}
 
         {/* 테이블 */}
         <div className="bg-white rounded-lg overflow-hidden">
@@ -339,7 +348,7 @@ const HospitalListForm = ({ type }: HospitalListFormProps) => {
 
         <HospitalDetailDialog
             open={isModalOpen}
-            onOpenChange={setIsModalOpen}
+            onOpenChange={handleModalClose}
             data={selectedPatient}
             buttons="수락"
         />

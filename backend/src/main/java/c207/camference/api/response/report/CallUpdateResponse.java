@@ -23,4 +23,6 @@ public class CallUpdateResponse {
     private String callSummary;
     private String callText;
 
+    private Integer patientId;
+
 }

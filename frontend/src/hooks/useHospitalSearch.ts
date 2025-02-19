@@ -1,170 +1,338 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Hospital } from '@/features/dispatch/types/hospital.types';
+import axios from 'axios';
+import {axiosInstance} from '@/utils/axios';
+import { Hospital, HospitalResponse } from '@/features/dispatch/types/hospital.types';
+import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
+
+interface AddressInfo {
+  siDo: string;
+  siGunGu: string;
+}
+
+interface RouteInfo {
+  eta: number | "알 수 없음";
+  distance: number | "알 수 없음";
+}
 
 export const useHospitalSearch = () => {
+  // formData를 최상단에 추가
+  const formData = useDispatchPatientStore((state) => state.formData);
+
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [searchRadius, setSearchRadius] = useState(500);
+  const [searchRadius, setSearchRadius] = useState(1.0);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [requestedHospitals, setRequestedHospitals] = useState<Set<string>>(new Set());
-  const [isKakaoLoaded, setIsKakaoLoaded] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [requestedHospitals, setRequestedHospitals] = useState<Set<number>>(new Set());
+  const [addressInfo, setAddressInfo] = useState<AddressInfo | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [lastSearchedRadius, setLastSearchedRadius] = useState(0);
 
-  // Kakao Maps API 로드 체크
-  useEffect(() => {
-    const checkKakaoMap = () => {
-      if (window.kakao && window.kakao.maps) {
-        setIsKakaoLoaded(true);
-      }
-    };
 
-    if (document.readyState === 'complete') {
-      checkKakaoMap();
-    } else {
-      window.addEventListener('load', checkKakaoMap);
+  // 에러 메시지 설정 함수
+  const handleError = useCallback((error: unknown) => {
+    let errorMessage = '알 수 없는 오류가 발생했습니다.';
+    
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
+    
+    setError(errorMessage);
+    console.error('오류 발생:', errorMessage);
+    setTimeout(() => setError(null), 3000);
+  }, []);
 
-    return () => window.removeEventListener('load', checkKakaoMap);
+  // TMAP API를 사용한 경로 계산
+  const calculateRoute = useCallback(async (
+    startLat: number, 
+    startLng: number, 
+    endLat: number, 
+    endLng: number
+  ): Promise<RouteInfo> => {
+    const TMAP_API_KEY = import.meta.env.VITE_TMAP_API_KEY;
+  
+    try {
+      // 좌표 유효성 검사
+      if (!startLat || !startLng || !endLat || !endLng) {
+        return { eta: "알 수 없음", distance: "알 수 없음" };
+      }
+  
+      const response = await axios.post(
+        "https://apis.openapi.sk.com/tmap/routes",
+        {
+          "version": 1,
+          "format": "json",
+          "startName": "출발지",
+          "endName": "도착지",
+          "startX": startLng,
+          "startY": startLat,
+          "endX": endLng,
+          "endY": endLat,
+          "reqCoordType": "WGS84GEO",
+          "resCoordType": "WGS84GEO",
+          "searchOption": "0",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "appKey": TMAP_API_KEY,
+          },
+        }
+      );
+  
+      if (response.data.features?.[0]?.properties) {
+        const { totalTime, totalDistance } = response.data.features[0].properties;
+        return {
+          eta: Math.round(totalTime / 60),  // 초를 분으로 변환
+          distance: Math.round(totalDistance / 100) / 10  // 미터를 km로 변환
+        };
+      }
+      return { eta: "알 수 없음", distance: "알 수 없음" };
+    } catch (error) {
+      console.error("Tmap API 호출 실패:", error);
+      return { eta: "알 수 없음", distance: "알 수 없음" };
+    }
+  }, []);
+
+  // 좌표로 주소 정보 가져오기
+  const getAddressInfo = useCallback(async (lat: number, lng: number): Promise<AddressInfo> => {
+    return new Promise((resolve) => {
+      if (!window.kakao?.maps?.services) {
+        const defaultAddress = {
+          siDo: "서울특별시",
+          siGunGu: "중구"
+        };
+        setAddressInfo(defaultAddress);
+        resolve(defaultAddress);
+        return;
+      }
+
+      const geocoder = new kakao.maps.services.Geocoder();
+      geocoder.coord2RegionCode(lng, lat, (result, status) => {
+        if (status === kakao.maps.services.Status.OK && result && result[0]) {
+          const address = {
+            siDo: result[0].region_1depth_name,
+            siGunGu: result[0].region_2depth_name
+          };
+          setAddressInfo(address);
+          resolve(address);
+        } else {
+          const defaultAddress = {
+            siDo: "서울특별시",
+            siGunGu: "중구"
+          };
+          setAddressInfo(defaultAddress);
+          resolve(defaultAddress);
+        }
+      });
+    });
   }, []);
 
   // 현재 위치 가져오기
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error('위치 정보를 가져올 수 없습니다:', error);
-          setCurrentLocation({
-            lat: 37.5665,
-            lng: 126.978,
-          });
-        }
-      );
-    }
-  }, []);
-
-  const searchHospitals = useCallback(async (radius: number) => {
-    if (!currentLocation || !isKakaoLoaded) {
-      console.log('❌ 검색 불가:', { currentLocation, isKakaoLoaded });
-      return [];
-    }
-
-    return new Promise<Hospital[]>((resolve) => {
-      try {
-        const places = new kakao.maps.services.Places();
-
-        const searchCallback = (data: any[], status: any) => {
-          console.log(`📍 ${radius}m 반경 검색 결과:`, {
-            status,
-            totalResults: data?.length || 0
-          });
-
-          if (status === kakao.maps.services.Status.OK) {
-            const filteredHospitals = data
-              .filter(place => place.category_group_code === 'HP8')
-              .map(place => ({
-                id: place.id,
-                place_name: place.place_name,
-                distance: (parseInt(place.distance) / 1000).toFixed(1),
-                x: place.x,
-                y: place.y,
-                requested: requestedHospitals.has(place.id)
-              }));
-
-            console.log('🏥 필터링된 병원:', {
-              전체: data.length,
-              병원수: filteredHospitals.length
-            });
-
-            resolve(filteredHospitals);
-          } else {
-            console.log('⚠️ 검색 결과 없음:', status);
-            resolve([]);
-          }
+  // 현재 위치 가져오기
+useEffect(() => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
         };
-
-        places.keywordSearch('병원', searchCallback, {
-          location: new kakao.maps.LatLng(currentLocation.lat, currentLocation.lng),
-          radius,
-          sort: kakao.maps.services.SortBy.DISTANCE
-        });
-      } catch (error) {
-        console.error('🚨 검색 중 오류:', error);
-        resolve([]);
+        try {
+          // 먼저 주소 정보를 가져옴
+          const address = await getAddressInfo(location.lat, location.lng);
+          // 주소 정보가 성공적으로 얻어진 후에 위치 설정
+          setAddressInfo(address);
+          setCurrentLocation(location);
+        } catch (error) {
+          handleError(error);
+          // 에러 발생 시 서울역 좌표로 설정
+          const defaultLocation = {
+            lat: 37.5546788,  // 서울역 위도
+            lng: 126.9706069, // 서울역 경도
+          };
+          const defaultAddress = {
+            siDo: "서울특별시",
+            siGunGu: "중구"
+          };
+          setAddressInfo(defaultAddress);
+          setCurrentLocation(defaultLocation);
+        }
+      },
+      (error) => {
+        handleError(error);
+        // 위치 권한 거부 시에도 서울역 좌표로 설정
+        const defaultLocation = {
+          lat: 37.5546788,
+          lng: 126.9706069,
+        };
+        const defaultAddress = {
+          siDo: "서울특별시",
+          siGunGu: "중구"
+        };
+        setAddressInfo(defaultAddress);
+        setCurrentLocation(defaultLocation);
       }
-    });
-  }, [currentLocation, isKakaoLoaded, requestedHospitals]);
+    );
+  }
+}, [getAddressInfo, handleError]);
 
-  // 검색 실행
-  const handleSearch = useCallback(async () => {
-    if (!isKakaoLoaded || !currentLocation) return;
-
-    setIsSearching(true);
-    console.log('🔄 검색 시작:', { searchRadius });
-
+  const requestTransfer = useCallback(async (hospitalIds: number[]) => {
     try {
-      const currentResults = await searchHospitals(searchRadius);
+      if (!formData?.dispatchId || !formData?.patientId) {
+        handleError(new Error('출동 정보가 없습니다. 출동 지령을 먼저 받아주세요.'));
+        return false;
+      }
 
-      setHospitals(prev => {
-        const existingIds = new Set(prev.map(h => h.id));
-        const uniqueNewHospitals = currentResults.filter(h => !existingIds.has(h.id));
-
-        console.log('📊 검색 결과 통계:', {
-          기존병원: prev.length,
-          새로검색: currentResults.length,
-          중복제외: uniqueNewHospitals.length,
-          최종병원수: prev.length + uniqueNewHospitals.length,
-          현재반경: searchRadius
-        });
-
-        return [...prev, ...uniqueNewHospitals];
+      console.log('Sending transfer request:', {
+        dispatchId: formData.dispatchId,
+        hospitalIds,
+        patientId: formData.patientId
       });
 
-      if (searchRadius < 5000) {
-        const nextRadius = searchRadius + 500;
-        console.log(`⏰ 30초 후 ${nextRadius}m 반경으로 재검색 예정`);
+      // 직접 객체를 만들어서 전송
+      const response = await axiosInstance.post('/dispatch_staff/emergency_rooms/request', {
+        dispatchId: formData.dispatchId,
+        hospitalIds,
+        patientId: formData.patientId
+      });
 
-        setTimeout(() => {
-          setSearchRadius(nextRadius); // 반경 증가
-        }, 30000);
-      } else {
-        console.log('🏁 최대 검색 반경(5km) 도달. 검색 종료');
-        setIsSearching(false);
+      if (response.data.isSuccess) {
+        setRequestedHospitals(prev => {
+          const newSet = new Set(prev);
+          hospitalIds.forEach(id => newSet.add(id));
+          return newSet;
+        });
+
+        setHospitals(prev =>
+          prev.map(hospital => ({
+            ...hospital,
+            requested: hospital.requested || hospitalIds.includes(hospital.hospitalId)
+          }))
+        );
+        return true;
       }
+      return false;
     } catch (error) {
-      console.error('🚨 검색 처리 중 오류:', error);
+      handleError(error);
+      return false;
+    }
+  }, [formData, handleError]);
+
+  // 병원 검색
+  const searchHospitals = useCallback(async (radius: number) => {
+    if (!currentLocation) return [];
+
+    try {
+      const response = await axiosInstance.get<HospitalResponse>(
+        '/dispatch_staff/emergency_room',
+        {
+          params: {
+            siDo: addressInfo?.siDo,
+            siGunGu: addressInfo?.siGunGu,
+            longitude: currentLocation.lng,
+            latitude: currentLocation.lat,
+            range: radius
+          }
+        }
+      );
+
+      if (response.data.isSuccess) {
+        const hospitalPromises = response.data.data.map(async (hospital) => {
+          const routeInfo = await calculateRoute(
+            currentLocation.lat,
+            currentLocation.lng,
+            hospital.hospitalLat,
+            hospital.hospitalLng
+          );
+
+          return {
+            ...hospital,
+            requested: requestedHospitals.has(hospital.hospitalId),
+            eta: routeInfo.eta === "알 수 없음" ? Math.round(hospital.distance * 2) : routeInfo.eta,
+            distance: routeInfo.distance === "알 수 없음" ? hospital.distance : routeInfo.distance
+          } as Hospital;
+        });
+
+        const newHospitals = await Promise.all(hospitalPromises);
+        const sortedHospitals = newHospitals.sort((a, b) => a.distance - b.distance);
+
+        // 중복 제거 및 상태 업데이트
+        setHospitals(prev => {
+          const existingIds = new Set(prev.map(h => h.hospitalId));
+          const uniqueHospitals = sortedHospitals.filter(h => !existingIds.has(h.hospitalId));
+          const updatedHospitals = [...prev, ...uniqueHospitals];
+          return updatedHospitals.sort((a, b) => a.distance - b.distance);
+        });
+
+        setLastSearchedRadius(radius);
+        return sortedHospitals;
+      }
+      return [];
+    } catch (error) {
+      handleError(error);
+      return [];
+    }
+  }, [currentLocation, addressInfo, calculateRoute, requestedHospitals, handleError]);
+  // 이송 요청
+
+  const handleSearch = useCallback(async () => {
+    if (!currentLocation || !addressInfo) return;
+
+    setIsSearching(true);
+    const foundHospitals = await searchHospitals(searchRadius);
+
+    // 새로 찾은 병원들 중 아직 요청하지 않은 병원들의 ID 추출
+    const newHospitalIds = foundHospitals
+      .filter(hospital => !hospital.requested)
+      .map(hospital => hospital.hospitalId);
+
+    // 이송 요청할 병원이 있으면 요청 보내기
+    if (newHospitalIds.length > 0) {
+      console.log(`${searchRadius}km 반경 병원 이송 요청:`, newHospitalIds);
+      await requestTransfer(newHospitalIds);
+    }
+
+    if (searchRadius < 10) {
+      setTimeout(() => {
+        setSearchRadius(prev => prev + 1);
+      }, 10000);
+    } else {
       setIsSearching(false);
     }
-  }, [searchHospitals, isKakaoLoaded, currentLocation, searchRadius]);
+  }, [searchRadius, currentLocation, addressInfo, searchHospitals, requestTransfer]);
 
-  // 반경이 변경될 때마다 자동으로 검색 실행
+  // 검색 시작 시 자동으로 실행
   useEffect(() => {
-    if (searchRadius > 500) {
+    if (currentLocation && addressInfo && isSearching && searchRadius <= 10) {
       handleSearch();
     }
-  }, [searchRadius]); // searchRadius 변경 감지
+  }, [searchRadius, currentLocation, addressInfo, isSearching, handleSearch]);
 
-  const markHospitalsAsRequested = useCallback((hospitalIds: string[]) => {
-    setRequestedHospitals(prev => new Set([...prev, ...hospitalIds]));
-    setHospitals(prev =>
-      prev.map(hospital => ({
-        ...hospital,
-        requested: requestedHospitals.has(hospital.id) || hospitalIds.includes(hospital.id)
-      }))
-    );
-  }, [requestedHospitals]);
+  const stopSearch = useCallback(() => {
+    setIsSearching(false);
+    setSearchRadius(1.0);
+    setLastSearchedRadius(0);
+  }, []);
+
+  // 검색 시작 시 자동으로 실행
+  useEffect(() => {
+    if (currentLocation && addressInfo && isSearching && searchRadius <= 10) {
+      handleSearch();
+    }
+  }, [searchRadius, currentLocation, addressInfo, isSearching, handleSearch]);
 
   return {
     hospitals,
     searchRadius,
     handleSearch,
-    markHospitalsAsRequested,
+    stopSearch,
+    requestTransfer,
     currentLocation,
-    isReady: isKakaoLoaded && currentLocation !== null,
-    isSearching
+    isSearching,
+    addressInfo,
+    error,
+    lastSearchedRadius
   };
 };

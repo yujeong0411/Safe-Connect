@@ -1,20 +1,22 @@
 package c207.camference.api.service.hospital;
 
-import c207.camference.api.response.dispatchstaff.TransferStatusRequest;
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.dispatchstaff.TransferStatusRequest;
 import c207.camference.api.response.hospital.AcceptTransferResponse;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.TransferRequestResponse;
 import c207.camference.api.response.patient.PatientDetailResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.response.report.TransferResponse;
-import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.patient.Patient;
+import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.db.repository.hospital.ReqHospitalRepository;
 import c207.camference.db.repository.patient.PatientRepository;
+import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.db.repository.report.TransferRepository;
 import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.util.response.ResponseUtil;
@@ -35,12 +37,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HospitalServiceImpl implements HospitalService {
 
-    private final SseEmitterService sseEmitterService;
+    private final SseEmitterServiceImpl sseEmitterService;
     private final ReqHospitalRepository reqHospitalRepository;
     private final TransferRepository transferRepository;
     private final HospitalRepository hospitalRepository;
     private final PatientRepository patientRepository;
     private final UserMediDetailRepository userMediDetailRepository;
+    private final DispatchRepository dispatchRepository;
 
     @Override
     @Transactional
@@ -99,36 +102,45 @@ public class HospitalServiceImpl implements HospitalService {
     public ResponseEntity<?> respondToTransfer(TransferStatusRequest request) {
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + request.getPatientId()));
+        Dispatch dispatch = dispatchRepository.findById(patient.getDispatchId())
+                .orElseThrow(() -> new EntityNotFoundException("Dispatch not found with id: " + patient.getDispatchId()));
+
 
         if (request.getStatus().equals(TransferStatus.ACCEPTED.name())) {
-            Transfer transfer = transferRepository.findById(patient.getTransferId())
-                    .orElseThrow(() -> new EntityNotFoundException("Transfer not found with id: " + patient.getTransferId()));
-
             LocalDateTime now = LocalDateTime.now();
+
+            // transfer insert
+            Transfer transfer = new Transfer();
+            transfer.setDispatchGroupId(dispatch.getDispatchGroupId());
+            transfer.setDispatchId(dispatch.getDispatchId());
             transfer.setTransferAcceptAt(now);
-            transferRepository.save(transfer);
 
             // 구급팀 알림 전송
             String hospitalLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
             Hospital hospital = hospitalRepository.findByHospitalLoginId(hospitalLoginId)
                     .orElseThrow(() -> new RuntimeException("일치하는 병원이 없습니다."));
 
+            dispatch.setDispatchTransferAccepted(true);
+            dispatchRepository.save(dispatch);
+
+            transfer.setHospitalId(hospital.getHospitalId());
+            Transfer savedTransfer = transferRepository.saveAndFlush(transfer);
+
+            patient.setTransferId(transfer.getTransferId());
+            patientRepository.save(patient);
+
             AcceptedHospitalResponse data = AcceptedHospitalResponse.builder()
+                    .transferId(savedTransfer.getTransferId())
                     .hospitalId(hospital.getHospitalId())
                     .hospitalName(hospital.getHospitalName())
+                    .latitude(hospital.getHospitalLocation().getY())
+                    .longitude(hospital.getHospitalLocation().getX())
                     .build();
+
             sseEmitterService.hospitalResponse(data, true);
-
             // HTTP 응답
-            AcceptTransferResponse response = new AcceptTransferResponse(request.getPatientId(), now);
+            AcceptTransferResponse response = new AcceptTransferResponse(request.getPatientId(), hospital.getHospitalId(), savedTransfer.getTransferId(), now);
             return ResponseEntity.ok().body(ResponseUtil.success(response, "환자 이송을 수락했습니다."));
-        }
-
-        if (request.getStatus().equals(TransferStatus.REJECTED.name())) {
-
-            // 구급팀 알림 전송
-//            sseEmitterService.hospitalResponse(patient.getDispatchGroup().getDispatchGroupId(), false);
-            return ResponseEntity.ok().body(ResponseUtil.success("환자 이송을 거절했습니다."));
         }
 
         return ResponseEntity.badRequest().body(request.getStatus() + " is invalid status. " +

@@ -3,11 +3,13 @@ package c207.camference.api.service.fireStaff;
 import c207.camference.api.dto.medi.MediCategoryDto;
 import c207.camference.api.request.control.*;
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.dispatchstaff.ControlDispatchOrderResponse;
 import c207.camference.api.response.dispatchstaff.DispatchGroupResponse;
 import c207.camference.api.response.report.CallUpdateResponse;
 import c207.camference.api.response.user.ControlUserResponse;
+import c207.camference.api.service.geocoding.GeocodingService;
 import c207.camference.api.service.sms.SmsService;
-import c207.camference.api.service.sse.SseEmitterService;
+import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.db.entity.call.Caller;
 import c207.camference.db.entity.call.VideoCall;
 import c207.camference.db.entity.call.VideoCallUser;
@@ -67,10 +69,11 @@ public class ControlServiceImpl implements ControlService {
     private final CallerRepository callerRepository;
     private final VideoCallUserRepository videoCallUserRepository;
     private final VideoCallRepository videoCallRepository;
-    private final SseEmitterService sseEmitterService;
+    private final SseEmitterServiceImpl sseEmitterService;
     private final DispatchRepository dispatchRepository;
     private final SmsService smsService;
     private final PatientRepository patientRepository;
+    private final GeocodingService geocodingService;
 
 
     @Override
@@ -107,6 +110,7 @@ public class ControlServiceImpl implements ControlService {
             int fireStaffId = fireStaff.getFireStaffId();
             List<Call> calls = callRepository.findCallsByFireStaff_FireStaffId(fireStaffId);
 
+
             //비밀번호 암호화
             ResponseData<List> response = ResponseUtil.success(calls, "전체 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -131,11 +135,17 @@ public class ControlServiceImpl implements ControlService {
     }
     @Override
     @Transactional
-    public ResponseEntity<?> getUser(String callerPhone){
-        try{
+    public ResponseEntity<?> getUser(String callerPhone) {
+        try {
             User user = userRepository.findByUserPhone(callerPhone)
-                    .orElseThrow(() -> new EntityNotFoundException("일치하는 번호가 없습니다."));
-
+                    .orElse(null);
+            if (user == null) {
+                ResponseData<ControlUserResponse> response = ResponseUtil.success(
+                        null,
+                        "조회된 사용자가 없습니다."
+                );
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            }
             List<MediCategoryDto> mediCategoryDto = null;
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
 
@@ -147,8 +157,8 @@ public class ControlServiceImpl implements ControlService {
             ControlUserResponse controlUserResponse = ControlUserResponse.from(user, mediCategoryDto);
             ResponseData<ControlUserResponse> response = ResponseUtil.success(controlUserResponse, "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }catch (Exception e){
-            ResponseData<Void> response = ResponseUtil.fail(500,"서버 오류가 발생");
+        } catch (Exception e) {
+            ResponseData<Void> response = ResponseUtil.fail(500, "서버 오류가 발생");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -169,23 +179,42 @@ public class ControlServiceImpl implements ControlService {
 
     @Override
     @Transactional
-    public ResponseEntity<?> dispatchOrder(DispatchOrderRequest request) {
-        DispatchGroup dispatchGroup = dispatchGroupRepository.findById(request.getDispatchGroupId())
+    public ResponseEntity<?> dispatchOrder(ControlDispatchOrderRequest controlRequest) {
+        DispatchGroup dispatchGroup = dispatchGroupRepository.findById(controlRequest.getDispatchGroupId())
                 .orElseThrow(() -> new RuntimeException("일치하는 구급팀이 존재하지 않습니다."));
         if (!dispatchGroup.getDispatchGroupIsReady()) {
             throw new RuntimeException("현재 출동 불가능한 구급팀입니다.");
         }
+        // Call 엔티티를 먼저 조회
+        Call call = callRepository.findById(controlRequest.getCallId())
+                .orElseThrow(() -> new RuntimeException("일치하는 신고가 존재하지 않습니다."));
+
+        call.setCallIsDispatched(true);
+        call = callRepository.saveAndFlush(call);
 
         // dispatch insert
         Dispatch dispatch = Dispatch.builder()
-                .callId(request.getCallId())
-                .dispatchGroupId(request.getDispatchGroupId())
-                .dispatchCreateAt(LocalDateTime.now())
+                .callId(controlRequest.getCallId())
+                .dispatchGroupId(controlRequest.getDispatchGroupId())
                 .build();
-        dispatchRepository.save(dispatch);
+        dispatch = dispatchRepository.saveAndFlush(dispatch);
 
-        // SSE
-        sseEmitterService.sendDispatchOrder(request);
+        VideoCall videoCall = videoCallRepository.findByCallId(call.getCallId());
+        videoCall.setDispatchId(dispatch.getDispatchId());
+        videoCallRepository.save(videoCall);
+        // 영속성 컨텍스트에서 리프레시하여 관계를 로드
+
+        Patient patient = patientRepository.findById(controlRequest.getPatientId())
+                .orElse(null);
+
+        patient.setDispatchId(dispatch.getDispatchId());
+        patient = patientRepository.saveAndFlush(patient);
+
+        // 위도, 경도로 주소 가져오기
+        String address = geocodingService.reverseGeocoding(controlRequest.getLat(), controlRequest.getLng());
+        // SSE 구급팀 응답 생성
+        ControlDispatchOrderResponse dispatchGroupOrderResponse = new ControlDispatchOrderResponse(dispatch,call, patient, userMediDetailRepository, controlRequest.getSessionId(), controlRequest.getLat(), controlRequest.getLng(), address);
+        sseEmitterService.sendDispatchOrder(controlRequest, dispatchGroupOrderResponse);
 
         return ResponseEntity.ok().body(ResponseUtil.success("출동 지령 전송 성공"));
     }
@@ -197,12 +226,9 @@ public class ControlServiceImpl implements ControlService {
         // Call 엔티티 업데이트
         Call call = callRepository.findCallByCallId(request.getCallId());
         call.setCallSummary(request.getCallSummary());
-        call.setCallText(request.getCallText());
-        if(!request.getCallSummary().isEmpty() || !request.getCallText().isEmpty()){
+        if(request.getCallSummary()!=null){
             call.setCallTextCreatedAt(LocalDateTime.now());
         }
-
-
         User user = null;
         List<MediCategoryDto> mediCategoryDto = null;
 
@@ -221,19 +247,12 @@ public class ControlServiceImpl implements ControlService {
         // 환자가 가입자
         if (request.getUserId() != null) {
             user = userRepository.findById(request.getUserId()).orElse(null);
-
             patient.setUserId(request.getUserId());
             patient.setPatientIsUser(true);
             patient.setPatientName(user.getUserName());
             patient.setPatientGender(user.getUserGender());
-
-            int currentYear = LocalDateTime.now().getYear();
-            int birthYear = 1900 + Integer.parseInt(user.getUserBirthday().substring(0, 2));
-            int age = currentYear - birthYear;
-            patient.setPatientAge(String.valueOf(age / 10));
-
+            patient.setPatientAge(ControlUserResponse.calculateAge(user.getUserBirthday()));
             UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
-
             if (userMediDetail != null) {
                 List<Medi> medis = getUserActiveMedis(userMediDetail);
                 mediCategoryDto = MediUtil.createMediCategoryResponse(medis);
@@ -243,6 +262,7 @@ public class ControlServiceImpl implements ControlService {
 
         // 응답 생성
         CallUpdateResponse response = CallUpdateResponse.builder()
+                .patientId(patient.getPatientId())  // 저장된 환자 ID 추가
                 .userName(user != null ? user.getUserName() : null)
                 .userGender(user != null ? user.getUserGender() : null)
                 .userAge(user != null ? ControlUserResponse.calculateAge(user.getUserBirthday()) : null)
@@ -251,7 +271,7 @@ public class ControlServiceImpl implements ControlService {
                 .mediInfo(mediCategoryDto)
                 .symptom(request.getSymptom())
                 .callSummary(request.getCallSummary())
-                .callText(request.getCallText())
+                .patientId(patient.getPatientId()!=null?patient.getPatientId():null)
                 .build();
 
         return ResponseEntity.ok().body(ResponseUtil.success(response, "신고 수정 성공"));
@@ -265,7 +285,6 @@ public class ControlServiceImpl implements ControlService {
     public ResponseEntity<?> createRoom(CallRoomRequest request, String url) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("fireStaffLoginId: " + fireStaffLoginId);
         Optional<FireStaff> fireStaffOpt = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId);
 
         Integer fireStaffId = null;
@@ -277,9 +296,13 @@ public class ControlServiceImpl implements ControlService {
         // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
 
+        smsService.sendMessage(callerPhone, url);
+
+
         // 신고자(caller)에 insert
         Caller caller = new Caller();
         caller.setCallerPhone(callerPhone);
+        caller.setCallerSessionId(request.getCustomSessionId());
 
         // 신고자가 회원인지 조회
         User user = userRepository.findUserByUserPhone(callerPhone);
@@ -295,11 +318,6 @@ public class ControlServiceImpl implements ControlService {
 
         caller = callerRepository.saveAndFlush(caller);
 
-
-        System.out.println("callerId: " + caller.getCallerId());
-        // ---
-        // 신고(call) 생성
-
         Call call = new Call();
         call.setCallIsDispatched(false);
         call.setFireStaff(fireStaffOpt.get());
@@ -307,20 +325,14 @@ public class ControlServiceImpl implements ControlService {
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
         call = callRepository.saveAndFlush(call);
 
-//        VideoCall videoCall = VideoCall.builder()
-//                .videoCallIsActivate(true)
-//                .videoCallId().
-//                .build();
-
-        // ---
         // 영상통화(video_call) 생성
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
+        videoCall.setVideoCallSessionId(request.getCustomSessionId());
         videoCall.setVideoCallUrl(url);
         videoCall = videoCallRepository.saveAndFlush(videoCall);
 
 
-        // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallId(videoCall.getVideoCallId());
@@ -329,11 +341,6 @@ public class ControlServiceImpl implements ControlService {
 
         videoCallUserRepository.save(videoCallUser);
 
-        // ---
-        // URL을 신고자에게 전송
-        smsService.sendMessage(callerPhone, url);
-
-        // customSessionId를
 
         Map<String, Object> response = new HashMap<>();
         response.put("videoCallUser", videoCallUser);
@@ -408,8 +415,7 @@ public class ControlServiceImpl implements ControlService {
         String url = videoCall.getVideoCallUrl();
 
         ResponseEntity<?> response = smsService.sendMessage(userPhone, url);
-
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     // 활성화된 의약품/질환 목록 조회

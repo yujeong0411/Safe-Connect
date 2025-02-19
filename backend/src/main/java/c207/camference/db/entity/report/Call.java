@@ -33,11 +33,6 @@ public class Call {
     @Lob
     private String callSummary;
 
-    @Column(name = "call_text", length = 64)
-    @Comment(value="신고 내용")
-    @Lob
-    private String callText;
-
     @OneToOne
     @JoinColumn(name = "caller_id", nullable = false)
     private Caller caller;

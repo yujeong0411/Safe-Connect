@@ -12,43 +12,61 @@ import {formatPhoneNumber} from "@features/auth/servies/signupService.ts";
 const VideoCallCreateDialog = ({ open, onOpenChange }: DialogProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const {
-    // sessionId,
+    sessionId,
     handleChangeSessionId,
     handleChangeUserName,
-    createAndJoinSession
+    createAndJoinSession,
+    setSessionId
   } = useOpenViduStore();
 
   const navigate = useNavigate();
   const { setIsOpen } = useVideoCallStore();
-
   const {userName} = useControlAuthStore();
 
+  //const { startRecording, initializeRecorder, cleanup } = useRecorderStore();
+
+  useEffect(() => {
+
+
+    // return () => {
+    //   // 컴포넌트가 종료될때 녹음기 정리
+    //   cleanup();
+    // };
+  }, []);
 
   useEffect(() => {
     // 세션 ID 자동 생성 (타임스탬프 + UUID)
-    const timestamp = new Date().getTime();
-    const sessionId = `${timestamp}-${userName}`;
-
+    if(!sessionId){
+      const timestamp = new Date().getTime();
+      const newSessionId = `${timestamp}-${userName}`;
     // 세션 ID 설정
-    handleChangeSessionId({
-      target: { value: sessionId }
-    } as React.ChangeEvent<HTMLInputElement>);
-
+    setSessionId(newSessionId);
+    }
     // 호스트 이름 설정
     handleChangeUserName({
       target: { value: `userName` }
     } as React.ChangeEvent<HTMLInputElement>);
-  }, [handleChangeSessionId, handleChangeUserName]);
+
+    
+  }, [handleChangeSessionId, handleChangeUserName, sessionId, userName]);
+
 
   const handleCreateSession = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createAndJoinSession(e,phoneNumber);
+      await createAndJoinSession(e,phoneNumber); //반드시 커밋전, 주석 풀것
+      // 녹음기 초기화 및 시작
+      //await initializeRecorder();
+      //startRecording(); 
+
       // const inviteUrl = `/caller/join/${sessionId}?direct=true`;
       // await navigator.clipboard.writeText(window.location.origin + inviteUrl);
       onOpenChange(false)
       setIsOpen(true);
+
       navigate('/Control/patient-info')
+
+      
 
     } catch (error) {
       console.error('세션 생성 실패:', error);
