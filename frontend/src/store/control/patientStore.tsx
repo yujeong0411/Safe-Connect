@@ -180,16 +180,20 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   fetchCallSummary: async (callId:number, audioBlob: Blob) => {
     try {
       const response= await controlService.callSummary(Number(callId), audioBlob);
+      console.log("response", response);
       if (response) {
         set(state => ({
           ...state,
           formData: {
             ...state.formData,
-            callSummary: response.callSummary,
+            callSummary: response.data.callSummary,
+            
             addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화
+            // addSummary : '',
           }
+          
         }))
-      }
+      }console.log("폼데이터", get().formData.callSummary);
     } catch (error) {
       console.error("신고내용 요약 실패", error)
       throw error;
