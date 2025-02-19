@@ -20,6 +20,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   const { combinedTransfers, fetchCombinedTransfers } = useHospitalTransferStore();
   const { toast } = useToast();
   const [selectedPatient, setSelectedPatient] = useState<PatientDetailProps['data']>({
+    dispatchId:0,
     patientId: 0,
     name: null,
     gender: null,
@@ -48,6 +49,35 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   const MAX_RETRIES = 5;
   const INITIAL_RETRY_DELAY = 1000;
   const RECONNECT_INTERVAL = 1500000;
+
+  const dispatchAccepted = (dispatchId:number)=>{
+    // type이 request일 때만 처리
+    if (type === 'request') {
+      // const toastId = toastIdsMap.get(dispatchId);
+      // if (toastId) {
+      //   toast.dismiss(toastId);
+      //   toastIdsMap.delete(dispatchId);
+      // }
+
+      // 모달이 열려있고, 해당 dispatch가 수락된 경우
+      if (isDetailOpen && dispatchId === Number(selectedPatient.dispatchId)) {
+        setIsDetailOpen(false); // 모달 닫기
+        toast({
+          description: "다른 병원에서 이미 수락한 이송 요청입니다.",
+          duration: 1000,
+        });
+      }
+
+      // 전체 목록에서 해당 dispatch 제거
+      const updatedTransfers = combinedTransfers.filter(
+        transfer => transfer.dispatchId !== dispatchId
+      );
+      // Store 업데이트
+      useHospitalTransferStore.setState({ combinedTransfers: updatedTransfers });
+    }
+  }
+
+
 
   const showTransferRequestToast = (patientData: any, response: any) => {
     toast({
@@ -89,6 +119,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
                       .fetchTransferDetail(response.data.dispatchId, 'request');
 
                   setSelectedPatient({
+                    dispatchId : response.dispatchId,
                     patientId: detailData.patientId,
                     name: detailData.patientName ?? null,
                     gender: detailData.patientGender ?? null,
@@ -107,10 +138,6 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
                     diseases: detailData.patientDiseases?.join(', ') ?? undefined,
                     medications: detailData.patientMedications?.join(', ') ?? undefined,
                     requestTransferAt: '0',
-                    //   requestTransferAt: format(
-                    //   new Date(patientData.reqHospitalCreatedAt),
-                    //   'yyyy-MM-dd HH:mm:ss'
-                    // ),
                   });
                   setIsDetailOpen(true);
                 } catch (error) {
@@ -163,6 +190,11 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
         showTransferRequestToast(response.data.patient, response);
         fetchCombinedTransfers();
       });
+
+      newEventSource.addEventListener("transfer-accepted", (event) => {
+        const response = JSON.parse((event as MessageEvent).data);
+        dispatchAccepted(response.data.dispatchId);
+      })
 
       newEventSource.onopen = () => {
         setSseConnected(true);
