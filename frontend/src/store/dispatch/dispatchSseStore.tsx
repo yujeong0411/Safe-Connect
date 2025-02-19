@@ -88,6 +88,12 @@ const handleHospitalResponse = (event: MessageEvent) => {
           latitude: response.data.latitude,
           longitude: response.data.longitude
         }
+      // dispatch 환자 스토어에 병원 이름 설정
+      useDispatchPatientStore.getState().updateFormData({
+        hospitalName: response.data.hospitalName
+      });
+
+
         useDispatchSseStore.getState().setAcceptedHospital(hospitalData);
       };
   } catch (error) {
