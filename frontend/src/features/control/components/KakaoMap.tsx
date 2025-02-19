@@ -21,8 +21,6 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
   const {
     center,
     isLoading,
-    setIsLoading,
-    setLocation,
     setAddress,
     isEmergencyCall
   } = useLocationStore();
@@ -66,29 +64,12 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
 
   // 초기 위치 설정을 위한 useEffect
   useEffect(() => {
-    // 현재 위치가 default 값(서울시청)일 때만 현재 위치를 가져오도록 수정
-    if (center.lat === 37.566826 && center.lng === 126.9786567) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setLocation(position.coords.latitude, position.coords.longitude);
-            setIsLoading(false);
-          },
-          (error) => {
-            console.error('위치 가져오기 실패:', error);
-            // 위치 가져오기 실패 시에도 로딩 상태 해제
-            setIsLoading(false);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          }
-        );
-      } else {
-        // 지오로케이션이 지원되지 않는 경우
-        setIsLoading(false);
-      }
+    const isDefaultLocation =
+      Math.abs(center.lat - 37.566826) < 0.0001 &&
+      Math.abs(center.lng - 126.9786567) < 0.0001;
+
+    if (isDefaultLocation) {
+      useLocationStore.getState().fetchUserLocation();
     }
   }, []);
 
