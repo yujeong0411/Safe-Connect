@@ -143,7 +143,7 @@ const GuardianNotificationDialog = ({
               </p>
               <div className="space-y-2 text-lg text-black">
                 {/*추후 수정!!*/}
-                <p>▪️ 이송 병원: {formData.patientName}</p>
+                <p>▪️ 이송 병원: {formData.hospitalName}</p>
                 <p>▪️ 이송 상태: 이송 완료</p>
               </div>
               <div className="mt-4 space-y-2 text-gray-600">

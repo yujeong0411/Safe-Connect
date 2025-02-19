@@ -386,7 +386,7 @@ const PatientInfoPage = () => {
                 width="auto"
                 onClick={handleCompleteDispatch}
               >
-                출동 종료
+                현장 조치 완료
               </Button>
             )}
             <Button variant="blue" type="submit" width="auto">

@@ -91,22 +91,22 @@ const CallRecordForm = () => {
   };
 
   return (
-      <div className={`w-full ${isOpen ? 'p-4' : 'p-10'}`}>
-        <div className={`space-y-${isOpen ? '4' : '6'}`}>
-          <div className="rounded-lg min-h-[42rem]">
-            <div className="flex justify-end items-center mb-4">
+      <div className={`w-full p-2 sm:px-20 ${isOpen ? 'px-1 sm:px-2' : ''}`}>
+        <div className="space-y-2">
+          <div className="rounded-lg min-h-[20rem] md:min-h-[35rem]">
+            <div className="flex justify-end items-center mb-2">
               <div className="flex items-center">
-                <span className="text-md text-gray-900">24시간 이내</span>
+                <span className="text-sm md:text-md text-gray-900">24시간 이내</span>
                 <input
                     type="checkbox"
                     checked={is24HourFilter}
                     onChange={() => setIs24HourFilter(!is24HourFilter)}
-                    className="ml-2 w-4 h-4"
+                    className="ml-2 w-3 h-3 md:w-4 md:h-4"
                 />
               </div>
             </div>
 
-            <div className="bg-white rounded-sm overflow-hidden">
+            <div className="bg-white rounded-sm overflow-x-auto">
               <Table className="w-full">
                 <TableHeader>
                   <TableRow className="bg-gray-200 hover:bg-gray-200">
@@ -115,7 +115,7 @@ const CallRecordForm = () => {
                             key={column.key}
                             className={`
                       text-gray-700 font-semibold text-center 
-                      ${isOpen ? 'px-2 py-2 text-sm' : 'px-6 py-3 text-base'}
+                      ${isOpen ? 'px-1 py-1 text-xs md:px-1 md:py-1 md:text-sm' : 'px-2 py-2 text-sm md:px-6 md:py-2 md:text-base'}
                       uppercase tracking-wider
                     `}
                         >
@@ -137,7 +137,7 @@ const CallRecordForm = () => {
                                     key={column.key}
                                     className={`
                       text-gray-700 text-center 
-                      ${isOpen ? 'px-3 py-3 text-sm' : 'px-6 py-3 text-base'}
+                      ${isOpen ? 'px-3 py-2 text-sm' : 'px-4 py-3 text-md'}
                       uppercase tracking-wider
                     `}
                                 >
@@ -154,7 +154,7 @@ const CallRecordForm = () => {
                       ))
                   ) : (
                       <TableRow>
-                        <TableCell colSpan={columns.length} className="text-center text-gray-500 py-4">
+                        <TableCell colSpan={columns.length} className="text-center text-gray-500 py-2">
                           데이터가 없습니다.
                         </TableCell>
                       </TableRow>
