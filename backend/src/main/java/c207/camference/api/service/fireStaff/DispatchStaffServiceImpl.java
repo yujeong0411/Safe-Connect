@@ -255,7 +255,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     @Override
     public ResponseEntity<?> getAvailableHospital(Double longitude, Double latitude, Double range) {
         List<AvailableHospitalResponse> responses = new ArrayList<>();
-        ArrayList<String> hospitals;
+        // ArrayList<String> hospitals;
+        Map<String, Integer> hospitalInfo;
         List<Object[]> results = hospitalRepository.findHospitalsWithinRadius(longitude, latitude, range);
         try {
 
@@ -282,10 +283,10 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 String siGunGu = addressParts[1];  // 두 번째 부분 (시/군/구)
 
                 // 자른 시도, 구군을 바탕으로 해당 행정구역안의 남는 침상이 있는 응급실 조회 
-                hospitals = checkEmergencyRooms(siDo, siGunGu);
+                hospitalInfo = checkEmergencyRooms(siDo, siGunGu);
 
                 // 만일 범위안의 병원의 남는 침상이 있다면 응답에 추가
-                if (hospitals.contains(hospitalName)) {
+                if (hospitalInfo.containsKey(hospitalName)) {
                     Hospital hospital = hospitalRepository.findByHospitalName(hospitalName)
                             .orElse(null);
 
@@ -298,6 +299,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                                 .hospitalLng(hospital.getHospitalLocation().getX())
                                 .hospitalLat(hospital.getHospitalLocation().getY())
                                 .hospitalDistance(distance)
+                                .hospitalCapacity(hospitalInfo.get(hospitalName))
                                 .build();
 
                         responses.add(response);
@@ -312,8 +314,9 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         }
     }
 
-    private ArrayList<String> checkEmergencyRooms(String siDo, String siGunGu) throws Exception {
-        ArrayList<String> hospitalNames = new ArrayList<>();
+    private Map<String, Integer> checkEmergencyRooms(String siDo, String siGunGu) throws Exception {
+        //ArrayList<String> hospitalNames = new ArrayList<>();
+        Map<String, Integer> hospitalInfo = new HashMap<>();
         String urlStr = availableHospitalUrl +
                 "?ServiceKey=" + serviceKey +
                 "&STAGE1=" + URLEncoder.encode(siDo, StandardCharsets.UTF_8) +
@@ -331,18 +334,20 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         if (itemNode.isObject()) {
             System.out.println();
             System.out.println(itemNode);
-            hospitalNames.add(itemNode.get("dutyName").asText());
-
+            //hospitalNames.add(itemNode.get("dutyName").asText());
+            hospitalInfo.put(itemNode.get("dutyName").asText(), itemNode.get("hvec").asInt());
         }
         // item이 배열인 경우
         else if (itemNode.isArray()) {
             for (JsonNode item : itemNode) {
                 System.out.println();
                 System.out.println(item);
-                hospitalNames.add(item.get("dutyName").asText());
+                //hospitalNames.add(item.get("dutyName").asText());
+                hospitalInfo.put(item.get("dutyName").asText(), item.get("hvec").asInt());
+
             }
         }
-        return hospitalNames;
+        return hospitalInfo;
     }
 
     // 이건 이제 더이상 안쓰니까 민재형 컨펌 끝나면 지워도 될듯?(김성준. 25.02.18)
