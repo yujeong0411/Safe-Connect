@@ -87,7 +87,6 @@ public class WebRtcController {
                 .build();
 
         Session session = openvidu.createSession(properties);
-        System.out.println(session.getSessionId()); // 테스트용
 
         // 만들어진 URL을 문자로 전송
         // 상황실 컨트롤러에서 전송? 여기서 전송?
