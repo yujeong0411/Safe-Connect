@@ -60,6 +60,19 @@ const CallerTemplate = () => {
       }
     };
 
+    // beforeunload 이벤트 핸들러 추가
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (session) {
+        leaveSession();
+        // 브라우저 종료 확인 메시지 (옵션)
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    // 이벤트 리스너 등록
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     initSession();
 
     return () => {
@@ -67,6 +80,7 @@ const CallerTemplate = () => {
       if (session) {
         leaveSession();
       }
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [session, sessionId, joinSession, leaveSession, navigate]);
 
