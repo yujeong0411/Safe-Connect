@@ -99,6 +99,6 @@ export interface TransferPatientData {
     patientAge: string;
     patientGender: string;
     patientPreKtas: string;
-    patientSympthom: string;
+    patientSymptoms: string;
     reqHospitalCreatedAt: string;
 }

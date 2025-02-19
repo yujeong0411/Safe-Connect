@@ -9,8 +9,13 @@ import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.hospital.Hospital;
+import c207.camference.db.entity.hospital.ReqHospital;
+import c207.camference.db.entity.report.Dispatch;
+import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.firestaff.DispatchStaffRepository;
 import c207.camference.db.repository.hospital.HospitalRepository;
+import c207.camference.db.repository.hospital.ReqHospitalRepository;
+import c207.camference.db.repository.report.DispatchRepository;
 import c207.camference.util.response.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,12 +50,16 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     private final HospitalRepository hospitalRepository;
     private final ScheduledExecutorService heartbeatExecutor;
     private final DispatchStaffRepository dispatchStaffRepository;
+    private final ReqHospitalRepository reqHospitalRepository;
+    private final DispatchRepository dispatchRepository;
 
     @Autowired
-    public SseEmitterServiceImpl(HospitalRepository hospitalRepository, DispatchStaffRepository dispatchStaffRepository) {
+    public SseEmitterServiceImpl(HospitalRepository hospitalRepository, DispatchStaffRepository dispatchStaffRepository, ReqHospitalRepository reqHospitalRepository, DispatchRepository dispatchRepository) {
         this.hospitalRepository = hospitalRepository;
         this.dispatchStaffRepository = dispatchStaffRepository;
         this.heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
+        this.reqHospitalRepository = reqHospitalRepository;
+        this.dispatchRepository = dispatchRepository;
     }
 
     @PostConstruct
@@ -183,10 +192,8 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         } catch (IOException e) {
             hospitalEmitters.remove(clientId);
         }
-
         emitter.onCompletion(() -> hospitalEmitters.remove(clientId));
         emitter.onTimeout(() -> hospitalEmitters.remove(clientId));
-
         return emitter;
     }
 
@@ -194,7 +201,6 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     public SseEmitter createCallerEmitter(String clientId) {
         SseEmitter emitter = new SseEmitter(TIMEOUT);
         callerEmitters.put(clientId, emitter);
-
         try {
             emitter.send(SseEmitter.event()
                     .name("connect")
@@ -275,7 +281,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
 
     @Override
     // 환자 이송요청 수락/거절 알림 => 현재는 수락시에만 알림이 가도록 함
-    public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted) {
+    public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted,Integer dispatchId) {
         String answer = accepted ? "환자 이송 요청이 승인되었습니다." : "환자 이송 요청 거절되었습니다.";
 
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
@@ -288,6 +294,32 @@ public class SseEmitterServiceImpl implements SseEmitterService {
             }
         });
         deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
+
+
+        // 다른 병원에 일괄 수락여부 전송
+        List<ReqHospital> reqHospitals = reqHospitalRepository.findReqHospitalsByDispatchId(dispatchId);
+
+        // 전송할 병원 필터링
+        List<Integer> hospitalIds = new ArrayList<>();
+        for (ReqHospital reqHospital : reqHospitals) {
+            if (reqHospital.getHospitalId().equals(response.getHospitalId())) {
+                continue;
+            }
+            hospitalIds.add(hospitalRepository.findByHospitalId(reqHospital.getHospitalId()).getHospitalId());
+        }
+
+        List<Integer> deadHospitalEmitters = new ArrayList<>();
+        hospitalEmitters.forEach((clientId, emitter) -> {
+            if (hospitalIds.contains(clientId)) {
+                try{
+                    emitter.send(SseEmitter.event().name("transfer-accepted")
+                            .data(ResponseUtil.success(dispatchId,"수락 완료")));
+                }catch (IOException e) {
+                    deadHospitalEmitters.add(clientId);
+                }
+            }
+        });
+        deadHospitalEmitters.forEach(hospitalEmitters::remove);
     }
 
     @Override

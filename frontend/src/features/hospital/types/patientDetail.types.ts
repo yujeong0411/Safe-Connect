@@ -3,6 +3,7 @@ export interface PatientDetailProps {
   onOpenChange: (open: boolean) => void;
   buttons?: string;
   data: {
+    dispatchId : number
     patientId: number
     name?: string | null;
     gender?: string | null;
