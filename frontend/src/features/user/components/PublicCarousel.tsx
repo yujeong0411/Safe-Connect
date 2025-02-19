@@ -27,7 +27,7 @@ const PublicCarousel = () => {
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
-        className="relativ pt-40 md:pt-30 lg:pt-40"
+        className="relativ pt-10 md:pt-10 lg:pt-20"
       >
         <div className="relative flex flex-col-reverse md:flex-row items-center justify-center gap-16 md:gap-0">
           <div className="relative w-full md:w-auto">
@@ -70,7 +70,7 @@ const PublicCarousel = () => {
             <motion.img
               src={mascot}
               alt="mastcot"
-              className="w-[350px] sm:w-[400px] md:w-[600px] lg:w-[800px] h-auto mx-auto"
+              className="w-[350px] sm:w-[400px] md:w-[600px] lg:w-[800px] h-auto mx-auto -mt-15 md:-mt-16 lg:-mt-20"
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
             />

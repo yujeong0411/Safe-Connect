@@ -133,6 +133,7 @@ const PatientInfoPage = () => {
         'patientPulseRate',
         'patientSpo2',
         'patientBloodSugar',
+          'patientAge',
       ].includes(name)
     ) {
       const numbers = value.replace(/[^\d]/g, '');
@@ -196,7 +197,7 @@ const PatientInfoPage = () => {
                 <Input
                   label="나이"
                   name="patientAge"
-                  value={formData.patientAge}
+                  value={formData.patientAge ?? ''}
                   onChange={handleInputChange}
                   width="full"
                   className="border-gray-800"
