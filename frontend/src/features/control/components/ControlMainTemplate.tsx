@@ -13,6 +13,7 @@ import {Alert, AlertDescription, AlertTitle} from "@components/ui/alert.tsx";
 import {CircleAlert, CircleCheckBig} from "lucide-react";
 import Footer from "@components/organisms/Footer/Footer";
 import useKakaoLoader from '@/hooks/useKakaoLoader.ts';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore';
 
 interface ControlTemplateProps {
   children?: React.ReactNode;
@@ -29,12 +30,21 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { connect, disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore();
   const { patientInfo, currentCall } = usePatientStore();
+  const { isActive, sessionId } = useOpenViduStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
     type: 'default' as 'default' | 'destructive',
   });
+
+  const handleCallerConnection = (): void => {
+    if (!isActive) {
+      setIsVideoModalOpen(true);
+    } else {
+      setIsOpen(!isDrawerOpen);
+    }
+  };
 
   // 알림창 표시 핸들러
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -74,6 +84,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
     let reconnectTimer: NodeJS.Timeout | null = null;
 
     const connectSSE = () => {
+      console.log(sessionStorage)
       const userName = sessionStorage.getItem("userName");
       if (userName && isAuthenticated && location.pathname.startsWith('/control')) {
         connect(userName);
@@ -124,12 +135,18 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
 
   const navItems = [
     {
-      label: '영상통화 생성',
-      path: '#',
+      label: "신고자 연결",
+      path: "#",
       hasModal: true,
-      onModalOpen: () => setIsVideoModalOpen(true),
+      onModalOpen: handleCallerConnection,
     },
-    { label: '전화 업무', path: '#', hasModal: true, onModalOpen: () => setIsOpen(!isDrawerOpen) },
+    // {
+    //   label: '영상통화 생성',
+    //   path: '#',
+    //   hasModal: true,
+    //   onModalOpen: () => setIsVideoModalOpen(true),
+    // },
+    // { label: '전화 업무', path: '#', hasModal: true, onModalOpen: () => setIsOpen(!isDrawerOpen) },
     { label: '신고 업무', path: '/control/patient-info' },
     { label: '출동 지령', path: '/control/dispatch-order' },
     {
