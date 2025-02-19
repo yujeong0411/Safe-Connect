@@ -12,16 +12,14 @@ import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
-import c207.camference.api.response.report.TransferResponse;
-import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.api.service.sse.SseEmitterServiceImpl;
+import c207.camference.api.service.webrtc.WebRtcService;
 import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.firestaff.FireStaff;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.hospital.ReqHospital;
 import c207.camference.db.entity.patient.Patient;
-import c207.camference.db.entity.report.Call;
 import c207.camference.db.entity.report.Dispatch;
 import c207.camference.db.entity.report.Transfer;
 import c207.camference.db.repository.firestaff.DispatchGroupRepository;
@@ -51,11 +49,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -447,10 +447,11 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration().setSkipNullEnabled(true);
 
+            patient.setPatientInfoCreatedAt(LocalDateTime.now());
             // 요청 객체에서 null이 아닌 필드만 user 객체에 업데이트
             modelMapper.map(request, patient);
 
-            patientRepository.saveAndFlush(patient);
+            patient = patientRepository.saveAndFlush(patient);
 
 
             Map<String, Integer> data = new HashMap<>();
