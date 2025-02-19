@@ -1,7 +1,7 @@
 package c207.camference.api.service.hospital;
 
-import c207.camference.api.response.dispatchstaff.TransferStatusRequest;
 import c207.camference.api.response.common.ResponseData;
+import c207.camference.api.response.dispatchstaff.TransferStatusRequest;
 import c207.camference.api.response.hospital.AcceptTransferResponse;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.TransferRequestResponse;
@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -121,8 +120,14 @@ public class HospitalServiceImpl implements HospitalService {
             Hospital hospital = hospitalRepository.findByHospitalLoginId(hospitalLoginId)
                     .orElseThrow(() -> new RuntimeException("일치하는 병원이 없습니다."));
 
+            dispatch.setDispatchTransferAccepted(true);
+            dispatchRepository.save(dispatch);
+
             transfer.setHospitalId(hospital.getHospitalId());
-            Transfer savedTransfer = transferRepository.save(transfer);
+            Transfer savedTransfer = transferRepository.saveAndFlush(transfer);
+
+            patient.setTransferId(transfer.getTransferId());
+            patientRepository.save(patient);
 
             AcceptedHospitalResponse data = AcceptedHospitalResponse.builder()
                     .transferId(savedTransfer.getTransferId())
@@ -133,17 +138,9 @@ public class HospitalServiceImpl implements HospitalService {
                     .build();
 
             sseEmitterService.hospitalResponse(data, true);
-
             // HTTP 응답
             AcceptTransferResponse response = new AcceptTransferResponse(request.getPatientId(), hospital.getHospitalId(), savedTransfer.getTransferId(), now);
             return ResponseEntity.ok().body(ResponseUtil.success(response, "환자 이송을 수락했습니다."));
-        }
-
-        if (request.getStatus().equals(TransferStatus.REJECTED.name())) {
-
-            // 구급팀 알림 전송
-//            sseEmitterService.hospitalResponse(patient.getDispatchGroup().getDispatchGroupId(), false);
-            return ResponseEntity.ok().body(ResponseUtil.success("환자 이송을 거절했습니다."));
         }
 
         return ResponseEntity.badRequest().body(request.getStatus() + " is invalid status. " +

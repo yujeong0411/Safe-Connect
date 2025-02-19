@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface FireStaffRepository extends JpaRepository<FireStaff, Integer> {
     Optional<FireStaff> findByFireStaffLoginId(String fireStaffLoginId);
+
+    FireStaff findFireStaffByFireStaffLoginId(String fireStaffLoginId);
 }

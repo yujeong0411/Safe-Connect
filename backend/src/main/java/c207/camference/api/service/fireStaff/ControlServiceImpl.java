@@ -199,6 +199,9 @@ public class ControlServiceImpl implements ControlService {
                 .build();
         dispatch = dispatchRepository.saveAndFlush(dispatch);
 
+        VideoCall videoCall = videoCallRepository.findByCallId(call.getCallId());
+        videoCall.setDispatchId(dispatch.getDispatchId());
+        videoCallRepository.save(videoCall);
         // 영속성 컨텍스트에서 리프레시하여 관계를 로드
 
         Patient patient = patientRepository.findById(controlRequest.getPatientId())
@@ -223,8 +226,7 @@ public class ControlServiceImpl implements ControlService {
         // Call 엔티티 업데이트
         Call call = callRepository.findCallByCallId(request.getCallId());
         call.setCallSummary(request.getCallSummary());
-        call.setCallText(request.getCallText());
-        if(request.getCallSummary()!=null || request.getCallText()!=null){
+        if(request.getCallSummary()!=null){
             call.setCallTextCreatedAt(LocalDateTime.now());
         }
         User user = null;
@@ -269,7 +271,6 @@ public class ControlServiceImpl implements ControlService {
                 .mediInfo(mediCategoryDto)
                 .symptom(request.getSymptom())
                 .callSummary(request.getCallSummary())
-                .callText(request.getCallText())
                 .patientId(patient.getPatientId()!=null?patient.getPatientId():null)
                 .build();
 
@@ -284,7 +285,6 @@ public class ControlServiceImpl implements ControlService {
     public ResponseEntity<?> createRoom(CallRoomRequest request, String url) {
         // 상황실 직원 아이디
         String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("fireStaffLoginId: " + fireStaffLoginId);
         Optional<FireStaff> fireStaffOpt = fireStaffRepository.findByFireStaffLoginId(fireStaffLoginId);
 
         Integer fireStaffId = null;
@@ -299,6 +299,7 @@ public class ControlServiceImpl implements ControlService {
         // 신고자(caller)에 insert
         Caller caller = new Caller();
         caller.setCallerPhone(callerPhone);
+        caller.setCallerSessionId(request.getCustomSessionId());
 
         // 신고자가 회원인지 조회
         User user = userRepository.findUserByUserPhone(callerPhone);
@@ -326,20 +327,14 @@ public class ControlServiceImpl implements ControlService {
         System.out.println("fireStaffId" + fireStaffOpt.get().getFireStaffId());
         call = callRepository.saveAndFlush(call);
 
-//        VideoCall videoCall = VideoCall.builder()
-//                .videoCallIsActivate(true)
-//                .videoCallId().
-//                .build();
-
-        // ---
         // 영상통화(video_call) 생성
         VideoCall videoCall = new VideoCall();
         videoCall.setCallId(call.getCallId());
+        videoCall.setVideoCallSessionId(request.getCustomSessionId());
         videoCall.setVideoCallUrl(url);
         videoCall = videoCallRepository.saveAndFlush(videoCall);
 
 
-        // ---
         // 영상통화 참여(video_call_user)레코드 생성
         VideoCallUser videoCallUser = new VideoCallUser();
         videoCallUser.setVideoCallId(videoCall.getVideoCallId());
@@ -348,11 +343,6 @@ public class ControlServiceImpl implements ControlService {
 
         videoCallUserRepository.save(videoCallUser);
 
-        // ---
-        // URL을 신고자에게 전송
-//        smsService.sendMessage(callerPhone, url);
-
-        // customSessionId를
 
         Map<String, Object> response = new HashMap<>();
         response.put("videoCallUser", videoCallUser);

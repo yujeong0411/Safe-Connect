@@ -230,6 +230,13 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           }
           session.unpublish(publisher);
         }
+
+        try {
+          axiosInstance.post(`/api/sessions/${session.sessionId}/disconnect`);
+        } catch (error) {
+          console.error('Error notifying server about disconnection:', error);
+        }
+
         session.disconnect();
       } catch (err) {
         console.error('Error leaving session:', err);
