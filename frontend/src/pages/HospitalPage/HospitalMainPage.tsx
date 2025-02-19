@@ -105,7 +105,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
             </span>
           </p>
           <p>
-            <span className="text-base font-sans">증상 : {patientData.patientSympthom}</span>
+            <span className="text-base font-sans">증상 : {patientData.patientSymptom}</span>
           </p>
         </div>
       ),
