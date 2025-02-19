@@ -34,6 +34,10 @@ public class Caller {
     @Column(name = "caller_phone", nullable = false, length = 13)
     @Comment(value = "전화번호")
     private String callerPhone;
+    
+    @Column(name="caller_sessionId",nullable = false,length = 40)
+    @Comment(value = "caller 세션Id")
+    private String callerSessionId;
 
     @Column(name = "caller_is_location_accept", nullable = false)
     @Comment(value = "위치정보 동의 여부")

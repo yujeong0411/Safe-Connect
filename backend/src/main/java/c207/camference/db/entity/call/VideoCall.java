@@ -1,7 +1,7 @@
 package c207.camference.db.entity.call;
 
-import c207.camference.db.entity.firestaff.DispatchGroup;
 import c207.camference.db.entity.report.Call;
+import c207.camference.db.entity.report.Dispatch;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +39,10 @@ public class VideoCall {
     @Comment(value = "URL")
     private String videoCallUrl;
 
+    @Column(name="video_call_sessionId",nullable = false,length = 40)
+    @Comment(value = "세션Id")
+    private String videoCallSessionId;
+
     @Column(name = "video_call_is_activate")
     @Comment(value = "활성화여부")
     private Boolean videoCallIsActivate = true;
@@ -58,5 +62,6 @@ public class VideoCall {
 
     @ManyToOne
     @JoinColumn(name = "dispatch_id", insertable = false, updatable = false)
-    private DispatchGroup dispatchGroup;
+    private Dispatch dispatch;
+
 }

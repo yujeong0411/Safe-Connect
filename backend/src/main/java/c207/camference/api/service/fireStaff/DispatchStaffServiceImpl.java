@@ -384,12 +384,12 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException("일치하는 환자 정보가 없습니다."));
-        System.out.println(request);
-        System.out.println(patient);
 
-        System.out.println("요청된 병원 IDs: " + request.getHospitalIds());
+        dispatch.setDispatchIsTransfer(true);
+        dispatch.setDispatchTransferAccepted(false);
+        dispatchRepository.save(dispatch);
+
         List<Hospital> hospitals = hospitalRepository.findAllByHospitalIdIn(request.getHospitalIds());
-        System.out.println("찾은 병원 목록: " + hospitals);
         List<Hospital> activeHospitals = hospitals.stream()
                 .filter(Hospital::getHospitalIsActive)
                 .collect(Collectors.toList());
@@ -399,7 +399,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         List<String> reqHospitalNames = new ArrayList<>();
         for (Hospital hospital : activeHospitals) {
-            // reqHospital insert
             if(reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
                 continue;
             }
@@ -426,6 +425,10 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         Transfer transfer = transferRepository.findByTransferId(request.getTransferId())
                 .orElseThrow(() -> new RuntimeException("일치하는 이송 내역이 없습니다."));
 
+        DispatchGroup dispatch = transfer.getDispatchGroup();
+        dispatch.setDispatchGroupIsReady(true);
+        dispatchGroupRepository.save(dispatch);
+
         transfer.setTransferIsComplete(true);
         transfer.setTransferArriveAt(LocalDateTime.now());
         transferRepository.save(transfer);
@@ -438,11 +441,9 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
     @Override
     @Transactional
     public ResponseEntity<?> updatePatientInfo(PatientInfoRequest request) {
-
         try {
             Patient patient = patientRepository.findById(request.getPatientId())
                     .orElseThrow(() -> new EntityNotFoundException("환자 정보가 없습니다."));
-
 
             ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration().setSkipNullEnabled(true);
@@ -452,7 +453,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             modelMapper.map(request, patient);
 
             patient = patientRepository.saveAndFlush(patient);
-
 
             Map<String, Integer> data = new HashMap<>();
             data.put("patientId", patient.getPatientId());
@@ -486,7 +486,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                 .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
 
         dispatch.setDispatchDepartAt(LocalDateTime.now());
-        System.out.println(dispatch.getDispatchDepartAt());
         dispatchRepository.save(dispatch);
 
 
@@ -526,8 +525,13 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         Dispatch dispatch = dispatchRepository.findById(request.getDispatchId())
                 .orElseThrow(() -> new RuntimeException("일치하는 출동 정보가 없습니다."));
 
-        dispatch.getDispatchGroup().setDispatchGroupIsReady(true);
-        dispatch.setDispatchArriveAt(LocalDateTime.now());
+        //dispatchGroup 출동 준비 완료
+        DispatchGroup dispatchGroup = dispatch.getDispatchGroup();
+        dispatchGroup.setDispatchGroupIsReady(true);
+        dispatchGroupRepository.save(dispatchGroup);
+        
+        dispatch.setDispatchIsTransfer(false);
+        dispatch = dispatchRepository.saveAndFlush(dispatch);
 
         FinishDispatchResponse response = new FinishDispatchResponse(dispatch, dispatch.getDispatchGroup());
         return ResponseEntity.ok().body(ResponseUtil.success(response, "현장에서 상황 종료"));

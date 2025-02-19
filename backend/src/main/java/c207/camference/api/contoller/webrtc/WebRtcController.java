@@ -1,47 +1,31 @@
 package c207.camference.api.contoller.webrtc;
 
 
+import c207.camference.api.service.fireStaff.ControlService;
 import c207.camference.api.service.sms.SmsService;
 import c207.camference.api.service.webrtc.WebRtcService;
-import c207.camference.api.service.webrtc.WebRtcServiceImpl;
-
-import c207.camference.api.service.fireStaff.ControlService;
-import c207.camference.api.service.webrtc.WebRtcService;
+import c207.camference.db.entity.call.Caller;
+import c207.camference.db.entity.call.VideoCall;
+import c207.camference.db.entity.call.VideoCallUser;
+import c207.camference.db.entity.firestaff.FireStaff;
+import c207.camference.db.repository.call.CallerRepository;
 import c207.camference.db.repository.call.VideoCallRepository;
+import c207.camference.db.repository.call.VideoCallUserRepository;
+import c207.camference.db.repository.firestaff.FireStaffRepository;
 import io.openvidu.java.client.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
-import java.util.*;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.openvidu.java.client.Connection;
-import io.openvidu.java.client.ConnectionProperties;
-import io.openvidu.java.client.OpenVidu;
-import io.openvidu.java.client.OpenViduHttpException;
-import io.openvidu.java.client.OpenViduJavaClientException;
-import io.openvidu.java.client.Session;
-import io.openvidu.java.client.SessionProperties;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.stream.Collectors;
 
 //@CrossOrigin(origins = "*")
@@ -50,6 +34,9 @@ import java.util.stream.Collectors;
 public class WebRtcController {
     private final SmsService smsService;
     private final VideoCallRepository videoCallRepository;
+    private final CallerRepository callerRepository;
+    private final VideoCallUserRepository videoCallUserRepository;
+    private final FireStaffRepository fireStaffRepository;
     @Value("${OPENVIDU_URL}")
     private String OPENVIDU_URL;
 
@@ -59,15 +46,18 @@ public class WebRtcController {
     private OpenVidu openvidu;
 
     private WebRtcService webRtcService;
-    private ControlService controlService;
+    private final ControlService controlService;
 
     public WebRtcController(WebRtcService webRtcService,
-                            ControlService controlService, SmsService smsService, VideoCallRepository videoCallRepository) {
+                            ControlService controlService, SmsService smsService, VideoCallRepository videoCallRepository, CallerRepository callerRepository, VideoCallUserRepository videoCallUserRepository, FireStaffRepository fireStaffRepository) {
 
         this.webRtcService = webRtcService;
         this.controlService = controlService;
         this.smsService = smsService;
         this.videoCallRepository = videoCallRepository;
+        this.callerRepository = callerRepository;
+        this.videoCallUserRepository = videoCallUserRepository;
+        this.fireStaffRepository = fireStaffRepository;
     }
 
     @PostConstruct
@@ -111,6 +101,23 @@ public class WebRtcController {
     public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
                                                    @RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
+
+        String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        VideoCall videoCall = videoCallRepository.findByVideoCallSessionId(sessionId);
+        VideoCallUser videoCallUser = new VideoCallUser();
+        if (fireStaffLoginId == null|| fireStaffLoginId.equals("anonymousUser")) {
+            Caller caller = callerRepository.findByCallerSessionId(sessionId);
+            videoCallUser.setVideoCallId(videoCall.getVideoCallId());
+            videoCallUser.setVideoCallUserCategory("G");
+            videoCallUser.setVideoCallerId(caller.getCallerId()); // 상황실 직원의 아이디가 들어가야 한다.
+            videoCallUserRepository.save(videoCallUser);
+        }else if(fireStaffLoginId.startsWith("E")){
+            FireStaff fireStaff = fireStaffRepository.findFireStaffByFireStaffLoginId(fireStaffLoginId);
+            videoCallUser.setVideoCallId(videoCall.getVideoCallId());
+            videoCallUser.setVideoCallUserCategory("E");
+            videoCallUser.setVideoCallerId(fireStaff.getFireStaffId()); // 상황실 직원의 아이디가 들어가야 한다.
+            videoCallUserRepository.save(videoCallUser);
+        }
         Session session = openvidu.getActiveSession(sessionId);
         if (session == null) {
             session = openvidu.createSession(
@@ -126,9 +133,6 @@ public class WebRtcController {
                 .build();
 
         Connection connection = session.createConnection(properties);
-        System.out.println(connection.getToken());
-
-        System.out.println(connection.getConnectionId());
 
 
         return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
@@ -154,18 +158,24 @@ public class WebRtcController {
     }
 
 
-
     @PostMapping("/api/sessions/{sessionId}/disconnect")
     public ResponseEntity<String> disconnectSession(@PathVariable("sessionId") String sessionId)
-            throws OpenViduJavaClientException, OpenViduHttpException {
+           {
 
-        Session session = openvidu.getActiveSession(sessionId);
-
-        if (session != null) {
-            // 세션의 모든 연결 종료
-            session.close();
-
-            return ResponseEntity.ok("Session closed successfully");
+        String fireStaffLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        VideoCall videoCall = videoCallRepository.findByVideoCallSessionId(sessionId);
+        if (fireStaffLoginId == null|| fireStaffLoginId.equals("anonymousUser")) {
+            Caller caller = callerRepository.findByCallerSessionId(sessionId);
+            VideoCallUser videoCallUser = videoCallUserRepository.
+                    findByVideoCallUserCategoryAndVideoCallerIdAndVideoCallId("G",caller.getCallerId(),videoCall.getVideoCallId());
+            videoCallUser.setVideoCallOutAt(LocalDateTime.now());
+            videoCallUserRepository.save(videoCallUser);
+        }else {
+            FireStaff fireStaff = fireStaffRepository.findFireStaffByFireStaffLoginId(fireStaffLoginId);
+            VideoCallUser videoCallUser = videoCallUserRepository.
+                    findByVideoCallUserCategoryAndVideoCallerIdAndVideoCallId(String.valueOf(fireStaff.getFireStaffCategory()),fireStaff.getFireStaffId(),videoCall.getVideoCallId());
+            videoCallUser.setVideoCallOutAt(LocalDateTime.now());
+            videoCallUserRepository.save(videoCallUser);
         }
 
         return ResponseEntity.notFound().build();
