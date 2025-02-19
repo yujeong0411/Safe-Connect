@@ -272,6 +272,9 @@ const ControlPatientInfoForm = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
                 className="w-full h-32 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                
+
+                //   // // callSummary 부분을 제외한 나머지를 addSummary로 설정
                 value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n' : ''}${formData.addSummary}`}
                 onChange={(e) => {
                   const totalValue = e.target.value;
@@ -286,6 +289,7 @@ const ControlPatientInfoForm = () => {
                     updateFormData({ addSummary: totalValue });
                   }
                 }}
+
                 placeholder="추가 내용을 입력하세요."
               />
             </div>
