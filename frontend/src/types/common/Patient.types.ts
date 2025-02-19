@@ -117,7 +117,7 @@ export interface DispatchSavePatientRequest {
   patientId: number;
   patientName?: string;
   patientGender: string;
-  patientAge?: number;
+  patientAge: number | null;
   patientSymptom: string;
   patientPhone?: string;
   patientProtectorPhone?: string;
@@ -204,7 +204,7 @@ export interface DispatchFormData {
   patientId: number;
   patientName: string;
   patientGender: string;
-  patientAge: number;
+  patientAge: number | null;
   patientBloodSugar: number | null;
   patientDiastolicBldPress: number | null;
   patientSystolicBldPress: number | null;
@@ -230,7 +230,7 @@ export interface DispatchFormData {
 
 
 export interface PreKtasAIRequest {
-  patientAge: number;
+  patientAge: number | null;
   patientBloodSugar: number | null;
   patientDiastolicBldPress: number | null;
   patientSystolicBldPress: number | null;

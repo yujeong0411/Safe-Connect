@@ -1,4 +1,5 @@
 import axios from 'axios';
+// import {isValidPath, getLoginPath, decodeToken, getBasePath, PATH_ROLE_MAP} from "@utils/tokenUtil.ts";
 
 export const axiosInstance = axios.create({
   baseURL
@@ -17,9 +18,36 @@ export const axiosInstance = axios.create({
 
 // 요청 인터셉터  (요청 보내기 전에 실행)
 axiosInstance.interceptors.request.use(   
-  (config) => {    // 토큰이 있다면 헤더에 추가
-    const token = sessionStorage.getItem('token');
+  (config) => {// 토큰이 있다면 헤더에 추가
+      // // 로그인, 토큰 갱신 요청은 검증 제외
+      // if (
+      //     config.url?.startsWith('/user/login') ||
+      //     config.url?.startsWith('/dispatch') ||
+      //     config.url?.startsWith('/control') ||
+      //     config.url?.startsWith('/hospital') ||
+      //     config.url?.startsWith('/admin') ||
+      //     config.url?.includes('/reissue')
+      // ) {
+      //     return config;
+      // }
+
+      const token = sessionStorage.getItem('token');
     if (token) {
+        // const decoded = decodeToken(token);
+        // console.log('Decoded token:', decoded);
+        // console.log('Current path:', window.location.pathname);
+        // console.log('Expected role:', PATH_ROLE_MAP[getBasePath(window.location.pathname) as keyof typeof PATH_ROLE_MAP]);
+        // // 경로 검증
+        // if (!isValidPath(token)) {
+        //     // 권한이 없는 경우 로그아웃
+        //     sessionStorage.removeItem('token');
+        //     sessionStorage.removeItem('userName');
+        //     delete axiosInstance.defaults.headers.common['Authorization'];
+        //     // 유저별 로그인 페이지로 리다이렉트
+        //     window.location.href = getLoginPath();
+        //     return Promise.reject(new Error('이 페이지에 접근 권한이 없습니다.'));
+        // }
+
       config.headers.Authorization = `Bearer ${token}`; // JWT 토큰 헤더에 추가
     }
     return config;

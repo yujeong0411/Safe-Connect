@@ -17,7 +17,7 @@ import {
 const initialFormData: Omit<DispatchFormData, 'patientId' | 'dispatchId'> = {
   patientName: '',
   patientGender: '',
-  patientAge: 0,
+  patientAge: null,
   patientBloodSugar: null,
   patientDiastolicBldPress: null,
   patientSystolicBldPress: null,
@@ -222,6 +222,12 @@ export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) =
         patientMental: formData.patientMental,
         patientSymptom: formData.patientSymptom,
       };
+
+      // 각 필드의 값과 타입을 자세히 출력
+      console.log('PreKtasAI Request Data Details:');
+      Object.entries(requestData).forEach(([key, value]) => {
+        console.log(`${key}: ${value} (${typeof value})`);
+      });
 
       const response = await preKtasAI(requestData);
       if (response.patientPreKtas) {
