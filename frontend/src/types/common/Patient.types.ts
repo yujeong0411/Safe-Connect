@@ -105,7 +105,10 @@ export interface CallSummaryResponse {
   isSuccess: boolean;
   code: number;
   message: string;
-  callSummary: string;
+  data : {
+    callSummary: string;
+  }
+  
 
 }
 
