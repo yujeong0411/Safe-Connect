@@ -5,6 +5,8 @@ import HospitalRoutes from '@/routes/HospitalRoutes.tsx';
 import AdminRoutes from '@/routes/AdminRoutes.tsx';
 import ControlRoutes from '@/routes/ControlRoutes.tsx';
 import CallerRoutes from '@/routes/CallerRoutes.tsx';
+import TermsPage from "@pages/FooterPage/TermsPage.tsx";
+import PrivacyPage from "@pages/FooterPage/PrivacyPage.tsx";
 
 const Router = () => {
   return (
@@ -28,10 +30,11 @@ const Router = () => {
         {/*관리자*/}
         <Route path="/admin/*" element={<AdminRoutes />} />
 
-
         {/*  Caller*/}
         <Route path="/caller/*" element={<CallerRoutes/>} />
 
+        <Route path="/terms" element={<TermsPage logoutDirect={async () => {}}/>} />
+        <Route path="/privacy" element={<PrivacyPage logoutDirect={async () => {}}/>} />
       </Routes>
     </BrowserRouter>
   );
