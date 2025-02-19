@@ -296,6 +296,9 @@ public class ControlServiceImpl implements ControlService {
         // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
 
+        smsService.sendMessage(callerPhone, url);
+
+
         // 신고자(caller)에 insert
         Caller caller = new Caller();
         caller.setCallerPhone(callerPhone);
@@ -314,11 +317,6 @@ public class ControlServiceImpl implements ControlService {
         caller.setCallerAcceptedAt(LocalDateTime.now());
 
         caller = callerRepository.saveAndFlush(caller);
-
-
-        System.out.println("callerId: " + caller.getCallerId());
-        // ---
-        // 신고(call) 생성
 
         Call call = new Call();
         call.setCallIsDispatched(false);
