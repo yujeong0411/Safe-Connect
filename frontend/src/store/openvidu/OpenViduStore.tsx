@@ -7,6 +7,7 @@ import React from 'react';
 import { usePatientStore } from "@/store/control/patientStore.tsx";
 import  useRecorderStore  from '@/store/openvidu/MediaRecorderStore.tsx';
 
+
 const { startRecording, initializeRecorder} = useRecorderStore.getState();
 
 // 더 강력한 브라우저 체크 우회
@@ -55,6 +56,7 @@ const initialState: OpenViduState = {
   callStartedAt: '',   // 신고시각
   callerPhone: '',
   fireStaffId: undefined,
+  recordingInterval: null as NodeJS.Timeout | null,
 
 };
 
@@ -154,6 +156,19 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           await initializeRecorder(subscriber);
           await startRecording();
 
+          // 30초 사이클로 녹음 중지 -> 서버로 전송 -> 다시 녹음 시작
+          const interval = setInterval(async () => {
+            const blob = await useRecorderStore.getState().stopRecording();
+            console.log('Recording stopped:', blob);
+
+            // 녹음 파일 전송
+            await usePatientStore.getState().fetchCallSummary(Number(get().callId), blob);
+
+            //await initializeRecorder(subscriber);
+            await startRecording();
+          }, 60000);
+
+          set({recordingInterval: interval });
       });
 
       session.on('streamDestroyed', (event) => {
@@ -162,6 +177,14 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
             sub => sub !== event.stream.streamManager
           ),
         }));
+
+        // interval 종료
+        const { recordingInterval } = get();
+        if (recordingInterval) {
+          clearInterval(recordingInterval);
+          set({ recordingInterval: null });
+          console.log('Recording interval 종료');
+        }
       });
 
      
@@ -303,4 +326,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       throw error;
     }
   },
+
+  
+  
 }));

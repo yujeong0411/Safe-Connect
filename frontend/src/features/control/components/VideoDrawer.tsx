@@ -20,7 +20,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {fetchCallSummary} = usePatientStore()
   const { callId,leaveSession } = useOpenViduStore();
-  const { stopRecording } = useRecorderStore();
+  const { stopRecording, cleanup } = useRecorderStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -101,6 +101,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     console.log("handleCallSummary 실행");
     try {
       const audioBlob:Blob = await stopRecording();
+      await cleanup();
 
     if (!callId) {
       handleAlertClose({
