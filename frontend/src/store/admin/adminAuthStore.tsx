@@ -3,8 +3,8 @@ import { AdminAuthStore, AdminLoginRequest } from '@/types/admin/adminAuth.types
 import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
 
 export const useAdminAuthStore = create<AdminAuthStore>((set) => ({
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: sessionStorage.getItem('token'),
+  isAuthenticated: !!sessionStorage.getItem('token'),
 
   // 타입 변환 함수 추가
   login: async (data: AdminLoginRequest) => {
@@ -12,8 +12,6 @@ export const useAdminAuthStore = create<AdminAuthStore>((set) => ({
     const formData = new URLSearchParams();
     formData.append('adminLoginId', data.adminLoginId);
     formData.append('adminPassword', data.adminPassword);
-    // 문자열로 변환
-    console.log(formData.toString());
     // 로그인 공통 로직 사용
     const accessToken = await commonLogin({
       loginPath: '/admin/login',

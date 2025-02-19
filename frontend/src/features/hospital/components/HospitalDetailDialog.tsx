@@ -5,24 +5,24 @@ import { PatientDetailProps } from '@features/hospital/types/patientDetail.types
 import {useHospitalTransferStore} from "@/store/hospital/hospitalTransferStore.tsx";
 
 const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) => {
+  const { updateTransferStatus} = useHospitalTransferStore();
+
   // 이송 신청 답변
   const handleTransferStatus = async (status:'ACCEPTED' | 'REJECTED') => {
-    console.log('handleTransferStatus 호출됨', {
-      patientId: data.patientId,
-      status,
-      fullData: data
-    });
-
     if (!data?.patientId) {
-        console.error('환자 ID가 없습니다');
-        return
-      }
+      console.error('환자 ID가 없습니다');
+      return
+    }
 
     try {
       // 스토어 함수 호출
-      await useHospitalTransferStore.getState().updateTransferStatus(data.patientId, status);   // 벡엔드 추가 후 수정
+      await updateTransferStatus(data.patientId, status);
+
+      // 데이터 새로고침
+      await useHospitalTransferStore.getState().fetchCombinedTransfers();
+
       onOpenChange(false);  // 답변 후 모달 닫기
-    }catch(error) {
+    } catch(error) {
       console.error("모달 응답 실패", error);
     }
   }

@@ -62,7 +62,7 @@ public class UserMediServiceImpl implements UserMediService {
         // userMediDetail 조회 | 생성
         UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
         if (userMediDetail==null){
-            createUserMediDetail(user);
+            userMediDetail=createUserMediDetail(user);
         }
         List<Medi> medis = mediRepository.findAllById(mediIds);
         userMediDetail.createMediMappings(medis);
@@ -83,7 +83,7 @@ public class UserMediServiceImpl implements UserMediService {
         // userMediDetail 조회 | 생성
         UserMediDetail userMediDetail = userMediDetailRepository.findByUser(user);
         if (userMediDetail==null){
-            createUserMediDetail(user);
+            userMediDetail=createUserMediDetail(user);
         }
 
         List<Medi> medis = mediRepository.findAllById(mediIds);
@@ -113,7 +113,7 @@ public class UserMediServiceImpl implements UserMediService {
     // UserMediDetail 생성
     private UserMediDetail createUserMediDetail(User user) {
         UserMediDetail userMediDetail = new UserMediDetail(user);
-        return userMediDetailRepository.save(userMediDetail);
+        return userMediDetailRepository.saveAndFlush(userMediDetail);
     }
 
     // UserMediMapping에서 Medi 리스트 가져오기

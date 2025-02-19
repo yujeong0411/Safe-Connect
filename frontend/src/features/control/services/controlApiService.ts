@@ -1,22 +1,20 @@
 import { axiosInstance } from '@utils/axios.ts';
 import {
   PatientResponse,
-  CallInfo,
+  CallInfoRequest,
   ProtectorMessageResponse, CallSummaryResponse,
 } from '@/types/common/Patient.types.ts';
 import { CallListResponse } from '@/types/control/ControlRecord.types.ts';
 import {DispatchGroupResponse} from "@/types/dispatch/dispatchGroup.types.ts";
-// import { BaseResponseGeneric, DispatchOrderData } from '@/types/sse/sse.types';
+import {SavePatientResponse} from "@/types/common/Patient.types.ts";
 
 export const patientService = {
   // 신고자 전화번호 검색
   searchByPhone: async (phone: string): Promise<PatientResponse> => {
     try {
-      console.log('API 호출 전화번호:', phone);
       const response = await axiosInstance.get<PatientResponse>('/control/medi_list', {
         params: { callerPhone: phone },
       });
-      console.log('API 응답:', response);
       return response.data;
     } catch (error: any) {
       // 구체적인 에러 처리
@@ -30,11 +28,9 @@ export const patientService = {
   },
 
   // 환자 정보 저장
-  savePatientInfo: async (info: CallInfo): Promise<PatientResponse> => {
+  savePatientInfo: async (info: CallInfoRequest): Promise<SavePatientResponse> => {
     try {
-      console.log('저장할 정보:', info);
-      const response = await axiosInstance.put<PatientResponse>('/control/call', info);
-      console.log('저장 응답:', response);
+      const response = await axiosInstance.put<SavePatientResponse>('/control/call', info);
       return response.data;
     } catch (error: any) {
       console.error('savePatientInfo 에러:', error);
@@ -50,14 +46,7 @@ export const controlService = {
   // 신고 전체 조회
   fetchCallList: async (): Promise<CallListResponse> => {
     try {
-      console.log('API 호출 시작');
       const response = await axiosInstance.get<CallListResponse>('/control/call');
-
-      console.log('API 직접 응답:', {
-        status: response.status,
-        data: response.data,
-      });
-
       return response.data;
     } catch (error: any) {
       console.error('API 호출 중 에러:', {
@@ -77,7 +66,6 @@ export const controlService = {
       });
       return response.data;
     } catch (error: any) {
-      console.log('신고 상세 조회 실패', error.message);
       throw error;
     }
   },
@@ -86,7 +74,6 @@ export const controlService = {
   endCall : async (callId:number): Promise<CallListResponse> => {
     try {
       const response = await axiosInstance.put<CallListResponse>('/control/call_end', {callId})
-      console.log("상황실 신고 종료", response);
       return response.data
     } catch (error: any) {
       console.error("신고 종료 실패", error);
@@ -98,7 +85,6 @@ export const controlService = {
   resendUrl: async (callId:number): Promise<CallListResponse> => {
     try {
       const response = await axiosInstance.post<CallListResponse>('/control/resend', {callId});
-      console.log("url 재전송", response)
       return response.data
     } catch (error: any) {
       console.error("url 재전송 실패", error)
@@ -107,10 +93,19 @@ export const controlService = {
   },
 
   // 신고내용 요약
-  callSummary: async (callId:number): Promise<CallSummaryResponse> => {
+  callSummary: async (callId:number, audioBlob: Blob): Promise<CallSummaryResponse> => {
     try {
-      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', {params:{callId}})
-      console.log("신고내용 요약", response.data)
+      // formData 생성
+      const formData = new FormData();
+      formData.append('audioFile', audioBlob);
+      formData.append('callId', callId.toString());
+      
+      const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data' 
+        }
+      });
+      console.log("response : ", response.data);
       return response.data
     } catch (error: any) {
       console.error("신고내용 요약 실패", error)
@@ -138,7 +133,6 @@ export const protectorService = {
 export const fetchDispatchGroups = async () => {
   try{
     const response = await axiosInstance.get<DispatchGroupResponse>('/control/dispatch_group')
-    console.log("소방팀 조회", response.data);
     return response.data;
   } catch (error: any) {
     console.error('소방팀 조회 실패', error)
@@ -147,13 +141,18 @@ export const fetchDispatchGroups = async () => {
 }
 
 // 출동 지령
-export const orderDispatch = async (dispatchGroupId:number, callId?:number) => {
+export const orderDispatch = async (
+  dispatchGroupId:number, 
+  callId:number, 
+  patientId:number,
+  sessionId:string,
+ lat: number,
+  lng:number,
+) => {
     try {
-      // 테스트용 임시 데이터
-      const mockCallId = 1; // 실제 callId가 없을 때 사용할 임시 ID
-
-      const response = await axiosInstance.post<DispatchGroupResponse>('/control/dispatch_group_order', {dispatchGroupId, callId: callId || mockCallId})
-      console.log("출동 지령 성공", response.data);
+      const response = await axiosInstance.post<DispatchGroupResponse>(
+        '/control/dispatch_group_order',
+        {dispatchGroupId, callId, patientId,sessionId, lat, lng})
       return response.data;
     } catch (error: any) {
       console.error('출동 지령 실패', error)

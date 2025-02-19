@@ -7,6 +7,8 @@ const VideoSessionUI = () => {
   const { publisher, subscribers, localUser } = useOpenViduStore();
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([]);
 
+ 
+
   useEffect(() => {
     // 자신의 스트림을 제외한 subscribers만 필터링
     const filterSubscribers = () => {

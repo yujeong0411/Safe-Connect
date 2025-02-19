@@ -2,54 +2,37 @@ import { useState } from 'react';
 import ControlMainTemplate from '@features/control/components/ControlMainTemplate.tsx';
 import Button from '@/components/atoms/Button/Button';
 import KakaoMap from '@features/control/components/KakaoMap.tsx';
-import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert.tsx';
-import {CircleAlert, CircleCheckBig} from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@components/ui/alert.tsx';
+import { CircleAlert, CircleCheckBig } from 'lucide-react';
 import { FireStation } from '@features/control/types/kakaoMap.types.ts';
 import { useDispatchGroupStore } from '@/store/dispatch/dispatchGroupStore.tsx';
-//import {usePatientStore} from "@/store/control/patientStore.tsx";
-import {orderDispatch} from "@features/control/services/controlApiService.ts";
-//import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
+import { orderDispatch } from '@features/control/services/controlApiService.ts';
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import { usePatientStore } from '@/store/control/patientStore';
+import { useNavigate } from 'react-router-dom';
+import {useLocationStore} from "@/store/location/locationStore.tsx";
 
 const ControlDispatchOrderPage = () => {
-  // const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
-  //const {currentCall} = usePatientStore();
   const { selectedStation, setSelectedStation, dispatchGroups } = useDispatchGroupStore();
+  const { center } = useLocationStore();
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null); // 단일 소방팀 선택
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
-    type: 'default' as 'default' |'destructive',
-  });
-  //const {callId} = useOpenViduStore()
+    type: 'default' as 'default' | 'destructive',
+  })
+  const navigate = useNavigate();
+  const { callId, sessionId } = useOpenViduStore();
+  const { currentCall, isDispatched, setIsDispatched } = usePatientStore.getState();
 
+  const patientId = currentCall?.patientId;
 
-  // SSE 훅 추가
-  // useSSE<DispatchOrderData>({
-  //   subscribeUrl: "http://localhost:8080/control/subscribe",
-  //   clientId: 1, // 실제 로그인 한 사용자의 pk
-  //   onMessage: (response) => {
-  //     console.log("SSE 메시지 수신:", response);
-  //     if (response.isSuccess) {
-  //       handleDispatchResponse(response); // store에 응답 저장
-  //       handleAlertClose({
-  //         title: "출동 지령 응답",
-  //         description: response.message,
-  //         type: "default",
-  //       });
-  //     }
-  //   },
-  //   onError: (error) => {
-  //     console.error("SSE 연결 오류: ", error);
-  //     handleAlertClose({
-  //       title:" 연결 오류",
-  //       description: "서버와의 연결이 끊어졌습니다. 재연결을 시도합니다.",
-  //       type: "destructive",
-  //     });
-  //   }
-  // });
-
+  // 마커 클릭 시
+  const handleMarkerClick = (station: FireStation) => {
+    setSelectedStation(selectedStation === station.place_name ? null : station.place_name);
+  };
 
   // 3초 후 사라지는 로직
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -71,41 +54,47 @@ const ControlDispatchOrderPage = () => {
       return;
     }
 
-    // 테스트 동안 제거
-    // if (!callId) {
-    //   handleAlertClose({
-    //     title:"신고 정보 없음",
-    //     description: "현재 처리 중인 신고가 없습니다.",
-    //     type: 'destructive',
-    //   })
-    //   return
-    // }
-
     try {
-      // currentCall.callId 대신 undefined 전달 - orderDispatch 함수에서 mockCallId 사용
-      await orderDispatch(selectedTeam);
-      // await orderDispatch(selectedTeam, callId);
+      // 출동 지령 HTTP 요청 전송
+      if (!patientId){
+        handleAlertClose({
+          title: '환자 정보가 없습니다.',
+          description: '환자 정보를 저장해주세요.',
+          type: 'default',
+        });
+        setTimeout(() => {
+          navigate('/control/patient-info');
+        }, 1500);
+        return;
+      }
+
+      if (callId && patientId) {
+        await orderDispatch(selectedTeam, callId, patientId, sessionId, center.lat, center.lng); // dispatchGroupId, callId, patientId
+       setIsDispatched(true);   // 출동 지령 상태 변경
+      }else{
+        handleAlertClose({
+          title: '신고가 없습니다.',
+          description: '신고가 없어 출동지령을 전송할 수 없습니다.',
+          type: 'default',
+        });
+      }
+
       handleAlertClose({
         title: '출동 지령 전송',
         description: '출동 지령이 전송되었습니다.',
         type: 'default',
       });
+
+      // 성공 후 상태 초기화
       setSelectedTeam(null);
       setSelectedStation(null);
     } catch (error) {
       handleAlertClose({
-        title: '출동 지령 실패',
+        title: '출동 지령 전송 실패',
         description: '출동 지령 전송에 실패했습니다.',
         type: 'destructive',
       });
     }
-  };
-
-  // 예상 시간 계산 (카카오 제공 안함.)
-  const calculatedEstimatedTime = (distanceInMeters: string) => {
-    const distance = parseInt(distanceInMeters);
-    const speedInMetersPerMinute = (60 * 1000) / 60; // 60km/h로 가정, m/min 변환
-    return Math.round(distance / speedInMetersPerMinute);
   };
 
   // 소방팀 선택 처리
@@ -115,52 +104,53 @@ const ControlDispatchOrderPage = () => {
 
   return (
     <ControlMainTemplate>
-      <div className="relative h-screen">
+      <div className="w-full relative h-screen">
         {showAlert && (
-            <div className="fixed left-1/2 top-80 -translate-x-1/2  z-50 ">
-              <Alert
-                  variant={alertConfig.type}  // 조건문 제거, 직접 type 사용
-                  className={`w-[400px] shadow-lg bg-white ${
-                      alertConfig.type === 'default'
-                          ? '[&>svg]:text-blue-600 text-blue-600'
-                          : '[&>svg]:text-red-500 text-red-500'
-                  }`}
-              >
-                {alertConfig.type === 'default' ? (
-                    <CircleCheckBig className="h-6 w-6 " />
-                ) : (
-                    <CircleAlert className="h-6 w-6" />
-                )}
-                <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-                <AlertDescription className="text-sm m-2">
-                  {alertConfig.description}
-                </AlertDescription>
-              </Alert>
-            </div>
+          <div className="fixed left-1/2 top-80 -translate-x-1/2  z-50 ">
+            <Alert
+              variant={alertConfig.type} // 조건문 제거, 직접 type 사용
+              className={`w-[400px] shadow-lg bg-white ${
+                alertConfig.type === 'default'
+                  ? '[&>svg]:text-blue-600 text-blue-600'
+                  : '[&>svg]:text-red-500 text-red-500'
+              }`}
+            >
+              {alertConfig.type === 'default' ? (
+                <CircleCheckBig className="h-6 w-6 " />
+              ) : (
+                <CircleAlert className="h-6 w-6" />
+              )}
+              <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+              <AlertDescription className="text-sm m-2">{alertConfig.description}</AlertDescription>
+            </Alert>
+          </div>
         )}
 
         <div className="absolute inset-0">
-          <KakaoMap FindFireStations={setFireStations} />
-        </div>
-
-        {/* Map Section - Full Width */}
-        <div className="absolute inset-0">
-          <KakaoMap FindFireStations={setFireStations} />
+          <KakaoMap
+            FindFireStations={setFireStations}
+            onMarkerClick={handleMarkerClick}
+            selectedStation={selectedStation}
+          />
         </div>
 
         {/* 소방서 목록 패널 */}
-        <div className="absolute right-4 top-4 bottom-4 w-96 bg-white/60 rounded-lg overflow-y-auto z-10 hide-scrollbar">
+        <div className="absolute  right-4 top-4 bottom-4 w-96 bg-white/80 rounded-lg overflow-y-auto z-10 hide-scrollbar">
           <div className="sticky top-0 bg-white/60 p-4 border-b">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">인근 소방서 목록</h2>
               <Button
-                variant="red"
                 size="md"
                 width="auto"
-                className="bg-red-500 hover:bg-red-600"
+                className={`${
+                    isDispatched
+                        ? 'bg-gray-400 hover:bg-gray-400'
+                        : 'bg-red-500 hover:bg-red-600'
+                }`}
                 onClick={handleDispatchAlert}
+                disabled={isDispatched}   // 출동 지령 상태에 따른 비활성화
               >
-                출동 지령
+                {isDispatched ? '출동 중' : '출동 지령'}
               </Button>
             </div>
           </div>
@@ -173,24 +163,18 @@ const ControlDispatchOrderPage = () => {
               .map((station) => (
                 <div
                   key={station.place_name}
-                  onClick={() =>
-                    setSelectedStation(
-                      selectedStation === station.place_name ? null : station.place_name
-                    )
-                  }
-                  className="p-4 mb-4 bg-rose-30 rounded-lg border border-rose-200 cursor-pointer"
+                  onClick={() => handleMarkerClick(station)}
+                  className="p-4 mb-4 bg-rose-30/60 rounded-lg border border-pink-300 cursor-pointer"
                 >
                   <h3 className="font-semibold">{station.place_name}</h3>
                   <div className="mt-2 text-sm space-y-1">
                     <div className="flex justify-between">
                       <span>거리</span>
-                      <span className="font-medium">{station.distance}m</span>
+                      <span className="font-medium">{station.distance}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>도착 예상 시간</span>
-                      <span className="font-medium">
-                        {calculatedEstimatedTime(station.distance)}분
-                      </span>
+                      <span className="font-medium">{station.eta}</span>
                     </div>
                   </div>
 
@@ -198,7 +182,7 @@ const ControlDispatchOrderPage = () => {
                   {selectedStation === station.place_name && (
                     <div className="mt-4 pl-4 border-l-2">
                       {dispatchGroups.length === 0 ? (
-                        <div className="text-sm text-gray-500">가용 가능한 소방팀이 없습니다.</div>
+                        <div className="text-sm text-gray-700">가용 가능한 소방팀이 없습니다.</div>
                       ) : (
                         dispatchGroups.map((group) => (
                           <div
@@ -209,7 +193,7 @@ const ControlDispatchOrderPage = () => {
                             }}
                             className={`text-sm p-2 rounded mb-2 ${
                               selectedTeam === group.dispatchGroupId
-                                ? 'bg-red-200 hover:bg-red-100'
+                                ? 'bg-pink-200 hover:bg-pink-100'
                                 : 'bg-gray-200/60 hover:bg-red-50'
                             }`}
                           >
@@ -224,7 +208,7 @@ const ControlDispatchOrderPage = () => {
           </div>
         </div>
       </div>
-      {/*selectedTeam={selectedTeam} 추가하기 */}
+      {/*삭제 */}
       {/*<DispatchOrderDialog open={isDispatchDialogOpen} onOpenChange={setIsDispatchDialogOpen} />*/}
     </ControlMainTemplate>
   );

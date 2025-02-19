@@ -18,7 +18,7 @@ public class PatientDetailResponse {
     private Integer patientId;
     private String patientName;          // 이름
     private Character patientGender;        // 성별
-    private String patientAge;           // 나이
+    private Integer patientAge;           // 나이
     private String patientMental;        // 의식상태
     private String patientPreKtas;       // preKtas
     private Integer patientSystolicBldPress;  // SBP
@@ -43,7 +43,7 @@ public class PatientDetailResponse {
         this.patientAge = patient.getPatientAge();
         this.patientMental = patient.getPatientMental();
         this.patientPreKtas = patient.getPatientPreKtas();
-        this.patientSymptom = patient.getPatientSympthom();
+        this.patientSymptom = patient.getPatientSymptom();
 
         if (patient.getPatientIsUser()){
             User user = patient.getUser();

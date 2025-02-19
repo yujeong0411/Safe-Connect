@@ -4,9 +4,9 @@ import { commonLogin, commonLogout } from '@utils/loginCommon.ts';
 import {LOGIN_PATH} from "@/routes/LogoutPathRoutes.ts";
 
 export const useControlAuthStore = create<FireAuthStore>((set) => ({
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
-  userName:localStorage.getItem('username'),
+  token: sessionStorage.getItem('token'),
+  isAuthenticated: !!sessionStorage.getItem('token'),
+  userName:sessionStorage.getItem('userName'),
 
   // 타입 변환 함수 추가
   login: async (data: FireLoginRequest) => {
@@ -14,8 +14,6 @@ export const useControlAuthStore = create<FireAuthStore>((set) => ({
     const formData = new URLSearchParams();
     formData.append('fireStaffLoginId', data.fireStaffLoginId);
     formData.append('fireStaffPassword', data.fireStaffPassword);
-    // 문자열로 변환
-    console.log(formData.toString());
     // 로그인 공통 로직 사용
     const accessToken = await commonLogin({
       loginPath: '/control/login',
@@ -24,7 +22,7 @@ export const useControlAuthStore = create<FireAuthStore>((set) => ({
 
     // userName이 계속 필요하다면
     const userName = data.fireStaffLoginId
-    localStorage.setItem('userName', userName);
+    sessionStorage.setItem('userName', userName);
 
     // 상태 변경
     set({
@@ -37,7 +35,7 @@ export const useControlAuthStore = create<FireAuthStore>((set) => ({
   // 로그아웃 시 토큰 제거 및 상태 초기화
   logout: async () => {
     await commonLogout('/control/logout');
-    localStorage.removeItem('userName');
+    sessionStorage.removeItem('userName');
 
     // 상태 변경
     set({

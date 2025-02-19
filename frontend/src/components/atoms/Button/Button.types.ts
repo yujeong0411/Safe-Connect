@@ -7,4 +7,5 @@ export interface ButtonProps {
   className?: string;
   children?: React.ReactNode; // 버튼 내부 콘텐츠
   onClick?: () => void; // 클릭 이벤트 핸들러
+  disabled?: boolean;
 }

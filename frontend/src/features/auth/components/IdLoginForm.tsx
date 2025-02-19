@@ -34,21 +34,17 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
   const setAuthenticated = useAuthStore(state => state.setAuthenticated);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    console.log('1. handleSubmit 시작'); // 디버깅 로그
+    // 디버깅 로그
     event.preventDefault();
-    console.log('2. preventDefault 실행 후');
-
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log('3. login 호출 전');
       // 타입 안전성을 높이기 위해 직접 키 사용
       await loginStore.login({
         [fields.UserId]: formData.UserId,
         [fields.UserPassword]: formData.UserPassword,
       });
-      console.log('4. login 완료');
 
 
       // 로그인 성공 시 폼 초기화
@@ -60,9 +56,7 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
 
       onSuccess?.();
     } catch (error) {
-      setError(error instanceof Error ? error.message : String(error));
-    } finally {
-      setIsLoading(false);
+      setError(getErrorMessage(error));
     }
   };
 
@@ -72,6 +66,21 @@ const IdLoginForm = ({ fields, loginStore, onSuccess }: IdLoginFormProps) => {
       [fieldName]: event.target.value,
     }));
   };
+
+  // 에러 메세지 매핑
+  const getErrorMessage = (error: any): string => {
+    if(error.response?.status === 401) {
+      return '아이디 또는 비밀번호가 일치하지 않습니다.'
+    }
+    if (error.response?.status === 404) {
+      return '등록되지 않은 사용자입니다.';
+    }
+    if (error.response?.status === 500) {
+      return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    }
+    return '로그인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  };
+
 
   return (
     <div

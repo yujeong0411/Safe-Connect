@@ -12,7 +12,7 @@ const CallerTemplate = () => {
   const [isMapModalOpen, setIsMapModalOpen] = React.useState(false);
   const navigate = useNavigate();
   const { session, sessionId, joinSession, leaveSession } = useOpenViduStore();
-  const { setLocation } = useLocationStore();
+  const { setLocation,sendUserLocation } = useLocationStore();
 
   // 위치 정보 가져오기
   const getLocationPermission = async () => {
@@ -23,6 +23,8 @@ const CallerTemplate = () => {
         });
 
         setLocation(position.coords.latitude, position.coords.longitude);
+        await sendUserLocation(position.coords.latitude, position.coords.longitude,sessionId);
+
         return true;
       } catch (error) {
         console.error('위치 정보 획득 실패:', error);
@@ -58,6 +60,19 @@ const CallerTemplate = () => {
       }
     };
 
+    // beforeunload 이벤트 핸들러 추가
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (session) {
+        leaveSession();
+        // 브라우저 종료 확인 메시지 (옵션)
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    // 이벤트 리스너 등록
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     initSession();
 
     return () => {
@@ -65,6 +80,7 @@ const CallerTemplate = () => {
       if (session) {
         leaveSession();
       }
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [session, sessionId, joinSession, leaveSession, navigate]);
 

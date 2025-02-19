@@ -2,19 +2,19 @@ import { create } from 'zustand';
 import { PatientInfo, PatientStore, FormData, CurrentCall } from '@/types/common/Patient.types.ts';
 import {controlService, patientService, protectorService} from '@features/control/services/controlApiService.ts';
 import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
-// callId 삭제 : openvidu에서만 관리 -> 영상통화 종료 시 자동으로 초기화됨.
+
 const initialFormData: FormData = {
   userName: '',
   userGender: '',
-  userAge: '',
+  userAge: 0,
   userPhone: '',
   userProtectorPhone: '',
   diseases: '',
   medications: '',
-  callText:'',
   callSummary: '',
+  addSummary:'',
   symptom: '',
-  userId: 0
+  userId: 0,
 }
 
 export const usePatientStore = create<PatientStore>((set, get) => ({
@@ -22,6 +22,10 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   currentCall: null, // 현재 처리 중인 신고 정보
   formData: initialFormData,
   reportContent:'',
+  isDispatched: false,  // 출동 지령 상태 표시
+
+  // 현재 출동 지령 상태
+  setIsDispatched: (isDispatched: boolean) => set({isDispatched}),
 
 
   // reportContent 업데이트
@@ -51,7 +55,6 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   searchByPhone: async (callerPhone: string) => {
     try {
       const response = await patientService.searchByPhone(callerPhone);
-      console.log('전화번호 조회 응답', response);
       if (response.isSuccess) {
         const patientInfo = response.data as PatientInfo;
         set({
@@ -60,7 +63,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
             ...get().formData,
             userName: patientInfo.userName || '',
             userGender: patientInfo.userGender || '',
-            userAge: patientInfo.userAge?.toString() || '',
+            userAge: patientInfo.userAge|| 0,
             userPhone: patientInfo.userPhone || '',
             userProtectorPhone: patientInfo.userProtectorPhone || '',
             diseases: patientInfo.mediInfo
@@ -84,7 +87,7 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   // 신고 내용 저장(수정)
   savePatientInfo: async () => {
     try {
-      const {  formData } = get();  // 내부 상태 가져오기
+      const { formData } = get();  // 내부 상태 가져오기
       const {callId} = useOpenViduStore.getState()
 
       // callId 유효성 체크 추가
@@ -93,12 +96,17 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
         return;
       }
 
+      // callSummary와 addSummary 합치기
+      const combinedSummary = formData.addSummary
+          ? `${formData.callSummary}\n${formData.addSummary}`
+          : formData.callSummary;
+
       // 현재 선택된 회원 ID와 신고 ID 추가
       const callInfo = {
         userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
         symptom: formData.symptom,
-        callSummary: formData.callSummary,
-        callText:formData.callText,
+        callSummary: combinedSummary,   // 합쳐진 summary 저장
+        // patientId: formData.patientId,
       };
 
       // api 호출 시 callId 필요
@@ -108,22 +116,53 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
       });
 
       if (response.isSuccess) {
+        const updatedCallInfo = {
+          callId,
+          userId: formData.userId || null,  // 검색된 회원의 ID, 회원이 아니라면 null
+          symptom: formData.symptom,
+          callSummary: combinedSummary,
+          patientId: response.data.patientId
+        }
+
         set({
           patientInfo: response.data as PatientInfo,
-          currentCall:callInfo,  // 저장 성공 시 현재 신고 정보 업데이트
+          currentCall:updatedCallInfo,  // 저장 성공 시 현재 신고 정보 업데이트
         });
+
       }
     } catch (error) {
       console.error('정보 저장 실패', error);
     }
   },
 
+
+
   resetPatientInfo: () => {
     set({
       patientInfo: null,
       currentCall: null,
-      formData: initialFormData  // formData 초기화 추가
+        isDispatched: false,   // 출동 지령 상태 초기화
+      formData: initialFormData,  // formData 초기화 추가
     });
+  },
+
+  resetPatientInfo2: () => {
+    set((state) => ({
+      ...state,  // 다른 상태는 유지
+      patientInfo: null,
+      currentCall: null,
+      isDispatched: false,   // 출동 지령 상태 초기화
+      formData: {
+        ...state.formData,  // 기존 formData 값들 유지
+        userName: '',
+        userGender: '',
+        userAge: 0,
+        userPhone: '',
+        userProtectorPhone: '',
+        medications: '',
+        userId: 0,
+      }
+    }));
   },
 
   // 보호자 문자 전송
@@ -138,20 +177,26 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   },
 
   // 신고내용 요약
-  fetchCallSummary: async (callId:number) => {
+  fetchCallSummary: async (callId:number, audioBlob: Blob) => {
     try {
-      const response= await controlService.callSummary(callId)
+      const response= await controlService.callSummary(Number(callId), audioBlob);
+      console.log("response", response);
       if (response) {
         set(state => ({
           ...state,
           formData: {
             ...state.formData,
-            callSummary: response.data.callSummary
+            callSummary: response.data.callSummary,
+            
+            addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화
+            // addSummary : '',
           }
+          
         }))
-      }
+      }console.log("폼데이터", get().formData.callSummary);
     } catch (error) {
       console.error("신고내용 요약 실패", error)
+      throw error;
     }
   }
 }))

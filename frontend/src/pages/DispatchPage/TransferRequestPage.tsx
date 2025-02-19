@@ -1,31 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import HospitalKakaoMap from '@/features/dispatch/components/Hospitalkakaomap';
 import HospitalList from '@/features/dispatch/components/HospitalList';
-import BulkTransferRequestDialog from '@/features/dispatch/components/BulkTransferRequestDialog';
 import { useHospitalSearch } from '@/hooks/useHospitalSearch';
-import { transferService } from '@/features/dispatch/sevices/transferservices';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
+import { TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
+import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
+import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
 
 interface AlertConfig {
   title: string;
   description: string;
-  type: 'default' | 'destructive' | 'success' | 'error';
+  type: 'default' | 'destructive';
 }
 
 const TransferRequestPage = () => {
   const {
     hospitals,
-    searchRadius,
+    searchRadius, // lastSearchedRadius 대신 사용
     handleSearch,
-    markHospitalsAsRequested,
+    stopSearch,
     currentLocation,
-    isSearching
+    isSearching,
+    error: searchError,
   } = useHospitalSearch();
 
-  const [showBulkRequestDialog, setShowBulkRequestDialog] = useState(false);
+
   const [showAlert, setShowAlert] = useState(false);
+  const [selectedHospitalId, setSelectedHospitalId] = useState<number | undefined>();
+  const formData = useDispatchPatientStore(state => state.formData);
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
     title: '',
     description: '',
@@ -37,83 +41,135 @@ const TransferRequestPage = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
-    }, 3000);
+    }, 1000);
   };
 
-  const handleBulkRequest = () => {
-    const availableHospitals = hospitals.filter((h) => !h.requested);
-    if (availableHospitals.length === 0) {
+  const handleSearchStart = () => {
+    if (isSearching) {
+      stopSearch();
       handleAlertClose({
-        title: '요청 불가',
-        description: '요청 가능한 병원이 없습니다.',
-        type: 'error',
+        title: '검색 종료',
+        description: '병원 검색이 종료되었습니다.',
+        type: 'default',
       });
-      return;
-    }
-    setShowBulkRequestDialog(true);
-  };
-
-  const handleTransferRequest = async () => {
-    try {
-      const availableHospitals = hospitals.filter((h) => !h.requested);
-      const hospitalIds = availableHospitals.map((h) => h.id);
-
-      await transferService.requestTransfer(hospitalIds);
-      markHospitalsAsRequested(hospitalIds);
-
+    } else {
+      handleSearch();
       handleAlertClose({
-        title: '이송 요청 전송',
-        description: `${availableHospitals.length}개 병원에 이송 요청이 전송되었습니다.`,
-        type: 'success',
-      });
-
-      setShowBulkRequestDialog(false);
-    } catch (error) {
-      handleAlertClose({
-        title: '이송 요청 실패',
-        description: '이송 요청 전송에 실패했습니다.',
-        type: 'error',
+        title: '검색 시작',
+        description: `주변 병원 자동 검색을 시작합니다.`,
+        type: 'default',
       });
     }
   };
+
+  const handleHospitalSelect = (hospitalId: number) => {
+    setSelectedHospitalId(hospitalId);
+  };
+
+  const eventSource = useDispatchSseStore((state) => state.eventSource);
+  const acceptedHospital = useDispatchSseStore((state) => state.acceptedHospital);
+
+  // 환자 이송 요청 (핸들러 등록을 여기서)
+  useEffect(() => {
+    const handleTransferRequest = (event: MessageEvent) => {
+      try {
+        const response: TransferRequestResponse = JSON.parse(event.data);
+        if (response.isSuccess) {
+          handleAlertClose({
+            title: '환자 이송 요청 전송',
+            description: `${searchRadius}km 반경 내 병원들에 이송 요청을 전송했습니다.\n\n요청 병원 목록:\n${response.data.hospitalNames?.map((hospital) => `- ${hospital}`).join('\n')}`,
+            type: 'default',
+          });
+        }
+      } catch (error) {
+        console.error("SSE 데이터 처리 오류", error);
+      }
+    };
+
+    if (eventSource) {
+      eventSource.addEventListener("transfer-request", handleTransferRequest);
+      
+      // SSE 연결 오류 처리
+      eventSource.onerror = (error) => {
+        // handleAlertClose({
+        //   title: '연결 오류',
+        //   description: '실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.',
+        //   type: 'error',
+        // });
+        console.error("SSE 연결 오류: ", error);
+      };
+    }
+
+    return () => {
+      // 페이지 벗어나면 리스너 제거
+      if (eventSource) {
+        eventSource.removeEventListener("transfer-request", handleTransferRequest);
+      }
+    };
+  }, [eventSource, searchRadius]);
+
+  // 이송 수락 응답 처리
+  useEffect(() => {
+    if (acceptedHospital) {
+      handleAlertClose({
+        title: "환자 이송 요청 수락",
+        description: `이송 병원: ${acceptedHospital.hospitalName}`,
+        type: "default",
+      });
+
+      stopSearch();
+      useDispatchSseStore.getState().setAcceptedHospital(null); // 수락 병원 데이터 초기화
+    }
+  }, [acceptedHospital]);
 
   return (
-    <DispatchMainTemplate logoutDirect={() => Promise.resolve()}>
+    <DispatchMainTemplate>
       <div className="relative h-screen">
+        {/* 시스템 알림 */}
         {showAlert && (
-          <div className="fixed left-1/2 top-20 -translate-x-1/2 z-50">
-            <Alert
-              variant={alertConfig.type === 'success' ? 'default' : 'destructive'}
-              className="w-[400px] shadow-lg bg-white"
-            >
-              {alertConfig.type === 'success' ? (
-                <CircleCheckBig className="h-6 w-6" />
-              ) : (
-                <CircleAlert className="h-6 w-6" />
-              )}
-              <AlertTitle>{alertConfig.title}</AlertTitle>
-              <AlertDescription>{alertConfig.description}</AlertDescription>
+            <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
+              <Alert
+                  variant={alertConfig.type}
+                  className="w-[400px] shadow-lg bg-white"
+              >
+                {alertConfig.type === 'default' ? (
+                    <CircleCheckBig className="h-6 w-6" />
+                ) : (
+                    <CircleAlert className="h-6 w-6" />
+                )}
+                <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+                <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
+              </Alert>
+            </div>
+        )}
+
+        {/* 검색 에러 알림 */}
+        {searchError && (
+          <div className="fixed right-4 top-20 z-50">
+            <Alert variant="destructive" className="w-[400px] shadow-lg">
+              <CircleAlert className="h-6 w-6" />
+              <AlertTitle>검색 오류</AlertTitle>
+              <AlertDescription>{searchError}</AlertDescription>
             </Alert>
           </div>
         )}
 
-<div className="absolute inset-0">
-          <HospitalKakaoMap currentLocation={currentLocation} hospitals={hospitals} />
-        </div>
+        {/* 지도 */}
+        <HospitalKakaoMap
+          currentLocation={currentLocation}
+          hospitals={hospitals}
+          onHospitalSelect={handleHospitalSelect}
+          selectedHospitalId={selectedHospitalId}
+          callerLocation={formData.callerLocation}
+        />
 
         <HospitalList
           hospitals={hospitals}
           searchRadius={searchRadius}
-          onSearch={handleSearch}
-          onBulkRequest={handleBulkRequest}
+          onSearch={handleSearchStart}
           isSearching={isSearching}
-        />
-
-        <BulkTransferRequestDialog
-          open={showBulkRequestDialog}
-          onClose={() => setShowBulkRequestDialog(false)}
-          onConfirm={handleTransferRequest}
-          hospitalNames={hospitals.filter((h) => !h.requested).map((h) => h.place_name)}
+          selectedHospitalId={selectedHospitalId}
+          onHospitalSelect={handleHospitalSelect}
         />
       </div>
     </DispatchMainTemplate>

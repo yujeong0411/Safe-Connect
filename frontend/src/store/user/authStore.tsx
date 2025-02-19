@@ -8,8 +8,8 @@ import {AxiosError} from "axios";
 
 export const useAuthStore = create<AuthStore>((set) => ({
   // 초기상태
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'), // 토큰 존재 여부로 인증 상태 초기화
+  token: sessionStorage.getItem('token'),
+  isAuthenticated: !!sessionStorage.getItem('token'), // 토큰 존재 여부로 인증 상태 초기화
   userEmail: '',
 
   setAuthenticated: (value: boolean) => set({ isAuthenticated: value }),
@@ -19,8 +19,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
     const formData = new URLSearchParams();
     formData.append('userEmail', data.userEmail);
     formData.append('userPassword', data.userPassword);
-    // 문자열로 변환
-    console.log(formData.toString());
 
     // 로그인 공통 로직 사용
     const accessToken = await commonLogin({
@@ -62,7 +60,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
   updateUserInfo: async (updateData) => {
     try {
       const response = await axiosInstance.put('/user', updateData);
-      console.log('정보 변경 확인:', response.data);
       return response.data.data;
     } catch (error) {
       console.error('회원 정보 수정 실패', error);
@@ -74,7 +71,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
   fetchMediInfo: async () => {
     try {
       const response = await axiosInstance.get('/user/medi');
-      console.log(response.data);
       return response.data.data;
     } catch (error) {
       // 500에러면서 의료정보가 없는 경우
@@ -152,4 +148,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
       throw error;
     }
   },
+
+  // 회원탈퇴
 }));

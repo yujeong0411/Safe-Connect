@@ -9,6 +9,5 @@ public class CallUpdateRequest {
     private Integer callId;
     private String symptom;
     private String callSummary;
-    private String callText;
 
 }
