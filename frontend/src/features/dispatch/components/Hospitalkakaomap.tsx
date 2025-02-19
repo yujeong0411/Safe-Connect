@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import useKakaoLoader from '@/hooks/useKakaoLoader';
 import { Hospital } from '../types/hospital.types';
-
+import ambulanceimage from '@assets/image/119maker.png'
+import emergencyimage from '@assets/image/emergency.png'
 interface HospitalKakaoMapProps {
   currentLocation: { lat: number; lng: number } | null;
   hospitals: Hospital[];
@@ -36,7 +37,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
       position: new window.kakao.maps.LatLng(currentLocation.lat, currentLocation.lng),
       map: map,
       image: new window.kakao.maps.MarkerImage(
-        '/src/assets/image/ambulance.png',
+        ambulanceimage,
         new window.kakao.maps.Size(35, 35),
         { offset: new window.kakao.maps.Point(17, 17) }
       )
@@ -73,17 +74,17 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
         Number(hospital.hospitalLat), // 위도
         Number(hospital.hospitalLng)  // 경도
       );
-  
+
       const marker = new window.kakao.maps.Marker({
         position: position,
         map: mapRef.current,
         image: new window.kakao.maps.MarkerImage(
-          '/src/assets/image/emergency.png',
+          emergencyimage,
           new window.kakao.maps.Size(35, 35),
           { offset: new window.kakao.maps.Point(17, 17) }
         )
       });
-  
+
       const infoWindow = new window.kakao.maps.InfoWindow({
         content: `
           <div class="p-4 min-w-[200px] bg-white rounded shadow">
