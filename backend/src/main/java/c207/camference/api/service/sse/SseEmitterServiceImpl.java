@@ -278,8 +278,6 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted) {
         String answer = accepted ? "환자 이송 요청이 승인되었습니다." : "환자 이송 요청 거절되었습니다.";
 
-        // to 구급팀
-//        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             try {
