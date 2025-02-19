@@ -476,6 +476,7 @@ public class WebRtcServiceImpl implements WebRtcService {
                         MediaType.parse("application/json")
                 );
 
+
                 // OpenAI API 엔드포인트로 요청 생성
                 Request request = new Request.Builder()
                         .url("https://api.openai.com/v1/chat/completions")
