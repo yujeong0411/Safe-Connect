@@ -3,6 +3,8 @@ import useKakaoLoader from '@/hooks/useKakaoLoader';
 import { Hospital } from '../types/hospital.types';
 import ambulanceimage from '@assets/image/119maker.png'
 import emergencyimage from '@assets/image/emergency.png'
+import callerimage from '@assets/image/marker2.png'
+
 interface HospitalKakaoMapProps {
   currentLocation: { lat: number; lng: number } | null;
   hospitals: Hospital[];
@@ -38,8 +40,8 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
       map: map,
       image: new window.kakao.maps.MarkerImage(
         ambulanceimage,
-        new window.kakao.maps.Size(35, 35),
-        { offset: new window.kakao.maps.Point(17, 17) }
+        new window.kakao.maps.Size(69, 69),
+        { offset: new window.kakao.maps.Point(27,69)}
       )
     });
 
@@ -156,7 +158,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
       position,
       map: mapRef.current,
       image: new window.kakao.maps.MarkerImage(
-        "/src/assets/image/marker2.png",
+        callerimage,
         new window.kakao.maps.Size(35, 35),
         { offset: new window.kakao.maps.Point(17, 17) }
       )
