@@ -17,7 +17,7 @@ const Button = ({
   const variantStyles = {
     blue: 'bg-banner hover:bg-banner_hover text-white', // 파란색 배경
     gray: 'bg-graybtn hover:bg-gray_hover text-gray-800', // 회색 배경
-    red: 'bg-red-500 hover:bg-red-600 text-white',
+    red: '[&]:bg-[#EF4444] hover:[&]:bg-[#DC2626] text-white', //붉은 배경
   };
 
   // 버튼 크기별 스타일 정의 (padding과 글자 크기)

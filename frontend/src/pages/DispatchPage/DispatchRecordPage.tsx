@@ -15,7 +15,6 @@ import Pagination from '@/components/atoms/Pagination/Pagination';
 import { DispatchRecord } from '@/types/dispatch/dispatchRecord.types';
 import { useTransferListStore } from '@/store/dispatch/transferListStore';
 import DispatchDetailDialog from '@features/dispatch/components/TransferDialog/DispatchDetailDialog.tsx';
-import { Button } from '@components/ui/button.tsx';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -168,14 +167,10 @@ const DispatchRecordPage = () => {
               onChange={(e) => setHospitalSearch(e.target.value)}
               className="w-48 bg-white"
             />
-            <Button
-              onClick={resetFilter}
-              variant="red"     // red 변형 사용
-              size="default"     // 기본 크기 사용
-              className="h-13"
-            >
+
+            <button onClick={resetFilter} className="h-12 px-4 py-1 rounded-md border bg-red-600 text-white">
               초기화
-            </Button>
+            </button>
           </div>
         </div>
 

@@ -14,7 +14,6 @@ import {useCallListStore} from '@/store/control/callListStore.tsx';
 import {CallRecord} from '@/types/control/ControlRecord.types.ts';
 import {format} from 'date-fns';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
-import { Button } from '@components/ui/button.tsx';
 
 const CallRecordForm = () => {
   const [isCallDetailOpen, setIsCallDetailOpen] = React.useState(false);
@@ -175,14 +174,10 @@ const CallRecordForm = () => {
                 className="w-48 bg-white"
                 maxLength={13}
               />
-              <Button
-                onClick={resetFilter}
-                variant="red"     // red 변형 사용
-                size="default"     // 기본 크기 사용
-                className="h-13"
-              >
+
+              <button onClick={resetFilter} className="px-4 py-1 rounded-md border bg-red-600 text-white">
                 초기화
-              </Button>
+              </button>
             </div>
           </div>
 
