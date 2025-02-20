@@ -8,5 +8,6 @@ export interface HospitalAuthStore {
   isAuthenticated: boolean;
   login: (data: HospitalLoginRequest) => Promise<void>; // 타입 변경
   logout: () => void;
+  userName? : string | null;
 }
 

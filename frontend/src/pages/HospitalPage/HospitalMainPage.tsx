@@ -8,6 +8,7 @@ import { ToastAction } from '@components/ui/toast.tsx';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
 import { EventSourcePolyfill } from "event-source-polyfill";
+import { useAuth } from '@/hooks/useAuth';
 
 interface HospitalMainPageProps {
   type: 'request' | 'accept';
@@ -15,6 +16,7 @@ interface HospitalMainPageProps {
 
 const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   const { logout } = useHospitalAuthStore();
+  const { loginId } = useAuth();
   const { combinedTransfers, fetchCombinedTransfers } = useHospitalTransferStore();
   const { toast, dismiss } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);  // Single source of truth for modal state
@@ -42,7 +44,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   // SSE 관련 상태
   const [sseConnected, setSseConnected] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const eventSourceRef = useRef<EventSourcePolyfill | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const toastIdsMapRef = useRef(new Map<number, string>());
 
@@ -168,35 +170,34 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
       eventSourceRef.current.close();
     }
 
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      console.error("토큰을 찾을 수 없습니다.");
-      return;
-    }
+    // const token = sessionStorage.getItem("token");
+    // if (!token) {
+    //   console.error("토큰을 찾을 수 없습니다.");
+    //   return;
+    // }
 
     let subscribeUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
     if (subscribeUrl !== "http://localhost:8080") {
       subscribeUrl += "/api"
     }
 
+    const clientId = sessionStorage.getItem("userName");
+    // const clientId = loginId;
+    console.log("sessionStorage = ", sessionStorage)
+
     try {
-      const newEventSource = new EventSourcePolyfill(
-        `${subscribeUrl}/hospital/subscribe`,
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-          withCredentials: true
-        }
+      const newEventSource = new EventSource(
+        `${subscribeUrl}/hospital/subscribe?clientId=${clientId}`,
+        { withCredentials: true }
       );
 
       newEventSource.addEventListener("transfer-request", (event) => {
-        const response = JSON.parse((event as MessageEvent).data);
+        const response = JSON.parse(event.data);
         showTransferRequestToast(response.data.patient, response);
       });
 
       newEventSource.addEventListener("transfer-accepted", (event) => {
-        const response = JSON.parse((event as MessageEvent).data);
+        const response = JSON.parse(event.data);
         dispatchAccepted(response.data.dispatchId);
       });
 
