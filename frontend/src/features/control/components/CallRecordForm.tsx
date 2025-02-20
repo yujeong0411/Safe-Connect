@@ -14,6 +14,7 @@ import {useCallListStore} from '@/store/control/callListStore.tsx';
 import {CallRecord} from '@/types/control/ControlRecord.types.ts';
 import {format} from 'date-fns';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
+import { Button } from '@components/ui/button.tsx';
 
 const CallRecordForm = () => {
   const [isCallDetailOpen, setIsCallDetailOpen] = React.useState(false);
@@ -144,6 +145,13 @@ const CallRecordForm = () => {
     setCurrentPage(pageNumber);
   };
 
+  const resetFilter = ()=>{
+    setIs24HourFilter(false);
+    setDispatchFilter(null);
+    setPhoneSearch("")
+    setCurrentPage(1);
+  }
+
   // 필터나 검색어 변경시 첫 페이지로 이동
   useEffect(() => {
     setCurrentPage(1);
@@ -175,6 +183,15 @@ const CallRecordForm = () => {
                 className="w-48 bg-white"
                 maxLength={13}
               />
+              <Button
+                onClick={resetFilter}
+                variant="red"     // red 변형 사용
+                size="default"     // 기본 크기 사용
+                className="h-13"
+              >
+                초기화
+              </Button>
+
             </div>
             <div className="flex items-center">
               <span className="text-sm md:text-md text-gray-900">24시간 이내</span>
