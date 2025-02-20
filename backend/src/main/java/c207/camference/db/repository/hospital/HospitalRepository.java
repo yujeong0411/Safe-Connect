@@ -52,4 +52,8 @@ public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
     );
 
     Hospital findByHospitalId(Integer hospitalId);
+
+    List<Hospital> findByHospitalNameIn(List<String> hospitalNames);
+
+    List<Hospital> findByHospitalIdIn(List<Integer> hospitalIds);
 }
