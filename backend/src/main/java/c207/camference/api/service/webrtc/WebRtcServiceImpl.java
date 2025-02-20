@@ -197,8 +197,8 @@ public class WebRtcServiceImpl implements WebRtcService {
             // 오디오 객체 생성
             ByteString audioData = ByteString.copyFrom(audioBytes);
             RecognitionAudio recognitionAudio = RecognitionAudio.newBuilder()
-                    .setContent(audioData) // 인라인 방식(1분 이하)
-//                    .setUri(gcsUri) // 구글 스토리지 방식(1분 이상)
+//                    .setContent(audioData) // 인라인 방식(1분 이하)
+                    .setUri(gcsUri) // 구글 스토리지 방식(1분 이상)
                     .build();
 
             // 설정 객체 생성

@@ -7,6 +7,7 @@ import React from 'react';
 import { usePatientStore } from "@/store/control/patientStore.tsx";
 import  useRecorderStore  from '@/store/openvidu/MediaRecorderStore.tsx';
 
+
 const { startRecording, initializeRecorder} = useRecorderStore.getState();
 
 // 더 강력한 브라우저 체크 우회
@@ -55,6 +56,7 @@ const initialState: OpenViduState = {
   callStartedAt: '',   // 신고시각
   callerPhone: '',
   fireStaffId: undefined,
+  recordingInterval: null as NodeJS.Timeout | null,
 
 };
 
@@ -154,14 +156,38 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           await initializeRecorder(subscriber);
           await startRecording();
 
+          // 60초 사이클로 녹음 중지 -> 서버로 전송 -> 다시 녹음 시작
+          const interval = setInterval(async () => {
+            const blob = await useRecorderStore.getState().stopRecording();
+            console.log('Recording stopped:', blob);
+
+            // 녹음 파일 전송
+            await usePatientStore.getState().fetchCallSummary(Number(get().callId), blob);
+
+            //await initializeRecorder(subscriber);
+            await startRecording();
+          }, 60000);
+
+          set({recordingInterval: interval });
       });
 
-      session.on('streamDestroyed', (event) => {
+      session.on('streamDestroyed', async (event) => {
         set((state) => ({
           subscribers: state.subscribers.filter(
             sub => sub !== event.stream.streamManager
           ),
         }));
+
+        // interval 종료
+        const { recordingInterval } = get();
+        if (recordingInterval) {
+          clearInterval(recordingInterval);
+          set({ recordingInterval: null });
+
+          console.log('Recording interval 종료');
+
+          await useRecorderStore.getState().stopRecording(); // 녹음도 더이상 안되게 종료.
+        }
       });
 
      
@@ -216,7 +242,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     }
   },
 
-  leaveSession: () => {
+  leaveSession: async() => {
     const { session, publisher } = get();
 
     if (session) {
@@ -241,6 +267,18 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       } catch (err) {
         console.error('Error leaving session:', err);
       }
+
+      // interval 종료
+      const { recordingInterval } = get();
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        set({ recordingInterval: null });
+
+        console.log('Recording interval 종료');
+
+        await useRecorderStore.getState().stopRecording(); // 녹음도 더이상 안되게 종료.
+      }
+
     }
 
     // patientStore에서 데이터 초기화 메서드 호출 : 통화 종료 시 환자 데이터 초기화
@@ -303,4 +341,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       throw error;
     }
   },
+
+  
+  
 }));
