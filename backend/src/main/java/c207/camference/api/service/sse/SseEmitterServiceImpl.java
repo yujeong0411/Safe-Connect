@@ -319,6 +319,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
                 .map(dispatchStaff -> dispatchStaff.getFireStaff().getFireStaffLoginId())
                 .collect(Collectors.toList());
 
+        // to 구급대원 현재 구급대원에게 정보 전달
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             if (targetDispatchStaffLoginIds.contains(clientId)) {

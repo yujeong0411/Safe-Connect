@@ -31,6 +31,8 @@ export interface openViduStore {
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => void;
   joinSession: () => Promise<void>;
   leaveSession: () => void;
+  dispatchLeaveSession:()=>void;
+  dispatchJoinSession:()=>Promise<void>;
   setSessionActive: (active: boolean) => void;
   // switchCamera: () => void;
   // handleMainVideoStream: (stream: StreamManager) => void;

@@ -5,7 +5,6 @@ import HospitalList from '@/features/dispatch/components/HospitalList';
 import { useHospitalSearch } from '@/hooks/useHospitalSearch';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleAlert, CircleCheckBig } from 'lucide-react';
-import { TransferRequestResponse } from '@/types/dispatch/dispatchTransferResponse.types';
 import { useDispatchSseStore } from '@/store/dispatch/dispatchSseStore';
 import { useDispatchPatientStore } from '@/store/dispatch/dispatchPatientStore';
 
@@ -25,9 +24,7 @@ const TransferRequestPage = () => {
     isSearching,
     error: searchError,
   } = useHospitalSearch();
-
-
-  const [showAlert, setShowAlert] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
   const [selectedHospitalId, setSelectedHospitalId] = useState<number | undefined>();
   const formData = useDispatchPatientStore(state => state.formData);
   const [alertConfig, setAlertConfig] = useState<AlertConfig>({
@@ -73,14 +70,7 @@ const TransferRequestPage = () => {
   useEffect(() => {
     const handleTransferRequest = (event: MessageEvent) => {
       try {
-        const response: TransferRequestResponse = JSON.parse(event.data);
-        if (response.isSuccess) {
-          handleAlertClose({
-            title: '환자 이송 요청 전송',
-            description: `${searchRadius}km 반경 내 병원들에 이송 요청을 전송했습니다.\n\n요청 병원 목록:\n${response.data.hospitalNames?.map((hospital) => `- ${hospital}`).join('\n')}`,
-            type: 'default',
-          });
-        }
+        JSON.parse(event.data);
       } catch (error) {
         console.error("SSE 데이터 처리 오류", error);
       }
@@ -91,11 +81,6 @@ const TransferRequestPage = () => {
       
       // SSE 연결 오류 처리
       eventSource.onerror = (error) => {
-        // handleAlertClose({
-        //   title: '연결 오류',
-        //   description: '실시간 알림 연결에 실패했습니다. 페이지를 새로고침해주세요.',
-        //   type: 'error',
-        // });
         console.error("SSE 연결 오류: ", error);
       };
     }

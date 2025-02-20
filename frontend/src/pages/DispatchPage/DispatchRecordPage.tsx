@@ -1,5 +1,5 @@
 // DispatchRecordPage.tsx
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import Pagination from '@/components/atoms/Pagination/Pagination';
 import { DispatchRecord } from '@/types/dispatch/dispatchRecord.types';
 import { useTransferListStore } from '@/store/dispatch/transferListStore';
 import DispatchDetailDialog from '@features/dispatch/components/TransferDialog/DispatchDetailDialog.tsx';
+import { Button } from '@components/ui/button.tsx';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,7 +34,6 @@ const DispatchRecordPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [is24HourFilter, setIs24HourFilter] = useState(false);
   const [phoneSearch, setPhoneSearch] = useState('');
   const [hospitalSearch, setHospitalSearch] = useState('');
 
@@ -92,21 +92,11 @@ const DispatchRecordPage = () => {
   const filteredRecords = useMemo(() => {
     let processedList = [...records];
 
-    if (is24HourFilter) {
-      const twentyFourHoursAgo = new Date();
-      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-
-      processedList = processedList.filter(record => {
-        const dispatchTime = new Date(record.dispatchCreatedAt);
-        return dispatchTime >= twentyFourHoursAgo;
-      });
-    }
-
     // 전화번호 검색
     if (phoneSearch) {
       const cleanedSearch = phoneSearch.replace(/\D/g, '');
       processedList = processedList.filter(record =>
-        record.call?.caller?.callerPhone?.replace(/\D/g, '')?.includes(cleanedSearch)
+        record.callerPhone?.replace(/\D/g, '')?.includes(cleanedSearch)
       );
     }
 
@@ -122,7 +112,7 @@ const DispatchRecordPage = () => {
     return processedList.sort((a, b) =>
       new Date(b.dispatchCreatedAt).getTime() - new Date(a.dispatchCreatedAt).getTime()
     );
-  }, [records, is24HourFilter, phoneSearch, hospitalSearch]);
+  }, [records, phoneSearch, hospitalSearch]);
 
   const currentPageData = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -136,7 +126,7 @@ const DispatchRecordPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [is24HourFilter, phoneSearch, hospitalSearch]);
+  }, [phoneSearch, hospitalSearch]);
 
   if (isLoading) {
     return (
@@ -148,6 +138,11 @@ const DispatchRecordPage = () => {
     );
   }
 
+  const resetFilter = ()=>{
+    setPhoneSearch("");
+    setCurrentPage(1);
+    setHospitalSearch("");
+  }
   return (
     <DispatchMainTemplate>
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -157,14 +152,13 @@ const DispatchRecordPage = () => {
               총 {filteredRecords.length}건의 출동 기록이 있습니다.
             </p>
           </div>
-
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <Input
               type="text"
               placeholder="전화번호 검색"
               value={phoneSearch}
               onChange={handlePhoneSearch}
-              className="w-48"
+              className="w-48 bg-white"
               maxLength={13}
             />
             <Input
@@ -172,17 +166,16 @@ const DispatchRecordPage = () => {
               placeholder="병원명 검색"
               value={hospitalSearch}
               onChange={(e) => setHospitalSearch(e.target.value)}
-              className="w-48"
+              className="w-48 bg-white"
             />
-            <label className="flex items-center cursor-pointer">
-              <span className="text-md text-gray-900 mr-2">24시간 이내</span>
-              <input
-                type="checkbox"
-                checked={is24HourFilter}
-                onChange={() => setIs24HourFilter(!is24HourFilter)}
-                className="ml-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-              />
-            </label>
+            <Button
+              onClick={resetFilter}
+              variant="red"     // red 변형 사용
+              size="default"     // 기본 크기 사용
+              className="h-13"
+            >
+              초기화
+            </Button>
           </div>
         </div>
 
