@@ -110,7 +110,7 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
           </div>
 
           {/* 세번째 줄 */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* <div className="grid grid-cols-2 gap-4"> */}
             <div className="space-y-4">
               <div>
                 <Label className="text-sm mb-1">증상</Label>
@@ -129,14 +129,14 @@ const HospitalDetailDialog = ({ open, onOpenChange, data }: PatientDetailProps) 
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <Label className="text-sm mb-1">첨부 사진</Label>
               <div
                   className="bg-dialog_content h-[222px] rounded-md shadow-sm flex items-center justify-center text-gray-400">
                 이미지 사진
               </div>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
           {/* 하단 시간 정보와 버튼 */}
           <div className="flex justify-between">

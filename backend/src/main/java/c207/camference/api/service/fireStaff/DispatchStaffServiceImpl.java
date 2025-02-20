@@ -11,6 +11,7 @@ import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
 import c207.camference.api.response.hospital.ReqHospitalResponse;
 import c207.camference.api.response.report.DispatchDetailResponse;
 import c207.camference.api.response.report.DispatchResponse;
+import c207.camference.api.response.report.TransferDResponse;
 import c207.camference.api.response.report.TransferDetailResponse;
 import c207.camference.api.service.sse.SseEmitterServiceImpl;
 import c207.camference.api.service.webrtc.WebRtcService;
@@ -38,6 +39,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.json.XML;
 import org.locationtech.jts.geom.Point;
@@ -60,6 +62,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final FireStaffRepository fireStaffRepository;
     private final DispatchStaffRepository dispatchStaffRepository;
@@ -171,12 +174,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
         try {
             Transfer transfer = transferRepository.findByTransferId(transferId)
                     .orElseThrow(() -> new EntityNotFoundException("일치하는 이송내역이 없습니다."));
-            Patient patient = patientRepository.findByTransferId(transfer.getTransferId())
-                    .orElseThrow(() -> new EntityNotFoundException("일치하는 환자가 없습니다."));
 
-            TransferDetailResponse transferResponse = new TransferDetailResponse(transfer, patient, userMediDetailRepository);
-
-            ResponseData<TransferDetailResponse> response = ResponseUtil.success(transferResponse, "상세 조회 완료");
+            ResponseData<TransferDResponse> response = ResponseUtil.success(new TransferDResponse(transfer), "상세 조회 완료");
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
         } catch (EntityNotFoundException e) {
@@ -263,15 +262,6 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
             System.out.println("병원 리스트 : ");
             for (Object[] result : results) {
 
-                /**
-                 * result[0],  // hospital_id
-                 * result[1],  // hospital_name
-                 * result[2],  // longitude
-                 * result[3],  // latitude
-                 * result[4],   // distance_km
-                 * result[5],  // phone_number
-                 * result[6]   // address
-                 */
                 String hospitalName = (String) result[1];
                 Double distance = (Double) result[4];
 
@@ -404,7 +394,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         List<String> reqHospitalNames = new ArrayList<>();
         for (Hospital hospital : activeHospitals) {
-            if(reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
+            if (reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
                 continue;
             }
             ReqHospital reqHospital = ReqHospital.builder()
@@ -414,10 +404,12 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                     .build();
             reqHospitalRepository.save(reqHospital);
             reqHospitalNames.add(hospital.getHospitalName());
-
         }
+
         DispatchGroupPatientTransferResponse sseDispatchGroupResponse = new DispatchGroupPatientTransferResponse(dispatch, reqHospitalNames, patient);
         HospitalPatientTransferResponse sseHospitalResponse = new HospitalPatientTransferResponse(dispatch, patient, userMediDetailRepository);
+        log.info("sseDispatchGroupResponse: " + sseDispatchGroupResponse);
+        log.info("sseHospitalResponse: " + sseHospitalResponse);
 
         // SSE
         sseEmitterService.transferRequest(sseDispatchGroupResponse, sseHospitalResponse);

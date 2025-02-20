@@ -4,6 +4,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { CircleCheckBig, CircleAlert } from 'lucide-react';
 import { useState } from "react";
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
+import { useNavigate } from 'react-router-dom';
 
 interface GuardianNotificationDialogProps {
   open: boolean;
@@ -21,6 +22,8 @@ const GuardianNotificationDialog = ({
     description: '',
     type: 'default' as 'default' | 'destructive',
   });
+  const {resetPatientInfo} = useDispatchPatientStore()
+  const navigate = useNavigate();
 
   // 알림창 표시 핸들러
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -43,10 +46,6 @@ const GuardianNotificationDialog = ({
     }
 
     try {
-      if (formData.patientIsUser && formData.patientProtectorPhone) {
-        await sendProtectorMessage();
-      }
-
       // 이송 종료 처리 (유저 + 비유저)
       const transferResponse = await completeTransfer(currentTransfer.transferId)
       if (transferResponse.isSuccess) {
@@ -58,6 +57,12 @@ const GuardianNotificationDialog = ({
           type: 'default',
         });
     }
+    if (formData.patientIsUser && formData.patientProtectorPhone) {
+      await sendProtectorMessage();
+      navigate('/dispatch/main')
+      resetPatientInfo()
+    }
+
  } catch (error) {
     handleAlertClose({
       title: '처리 실패',
@@ -69,62 +74,6 @@ const GuardianNotificationDialog = ({
     console.error("이송 종료 처리 실패", error)
     }
   }
-
-
-  // // 이송 중이 아니거나 이송 정보가 없는 경우는 메세지 전송 불가
-  // if (!currentTransfer || dispatchStatus !== 'transferred') {
-  //   return (
-  //       <Dialog open={open} onOpenChange={onClose}>
-  //         <DialogContent className="max-w-[600px]">
-  //           <DialogHeader>
-  //             <DialogTitle className="text-2xl">메세지 전송 불가</DialogTitle>
-  //           </DialogHeader>
-  //           <div className="p-3 ">
-  //             <div className="bg-dialog_content p-5 rounded-lg text-red-600">
-  //               {!currentTransfer && (
-  //                   <p>이송 정보가 없습니다.</p>
-  //               )}
-  //               {dispatchStatus !== 'transferred' && (
-  //                   <p>이송이 완료되지 않아 알림을 전송할 수 없습니다.</p>
-  //               )}
-  //             </div>
-  //             <div className="flex justify-end mt-4">
-  //               <Button variant="gray" onClick={onClose}>
-  //                 닫기
-  //               </Button>
-  //             </div>
-  //           </div>
-  //         </DialogContent>
-  //       </Dialog>
-  //   );
-  // }
-
-  // const handleSendProtectorMessage = async () => {
-  //   try {
-  //     const transferId = 1;  // 아직 벡엔드 추가 안함. mockId
-  //     const response = await sendProtectorMessage(transferId);
-  //     if (response.isSuccess) {
-  //       handleAlertClose({
-  //         title: '메세지 전송 완료',
-  //         description: '메세지가 전송되었습니다.',
-  //         type: 'default',
-  //       });
-  //       setTimeout(() => {
-  //         onClose();
-  //       }, 1000);
-  //     }
-  //   } catch (error) {
-  //     handleAlertClose({
-  //       title: '메세지 전송 실패',
-  //       description: '등록된 보호자가 없습니다.',
-  //       type: 'destructive',
-  //     });
-  //     setTimeout(() => {
-  //       onClose();
-  //     }, 1000);
-  //     console.error("보호자 메세지 실패", error);
-  //   }
-  // };
 
 
   return (
@@ -143,7 +92,7 @@ const GuardianNotificationDialog = ({
               </p>
               <div className="space-y-2 text-lg text-black">
                 {/*추후 수정!!*/}
-                <p>▪️ 이송 병원: {formData.patientName}</p>
+                <p>▪️ 이송 병원: {formData.hospitalName}</p>
                 <p>▪️ 이송 상태: 이송 완료</p>
               </div>
               <div className="mt-4 space-y-2 text-gray-600">

@@ -57,9 +57,6 @@ const handleDispatchOrder = (event: MessageEvent) => {
 
       useDispatchPatientStore.getState().setPatientFromSSE(response.data);
       useDispatchSseStore.getState().setCurrentCallId(callId);
-      console.log("Store after update:", useDispatchPatientStore.getState()); // store 업데이트 확인
-
-
       // sessionId 부분 추가
       const sessionId = response.data.sessionId;
       if (sessionId) {
@@ -67,9 +64,8 @@ const handleDispatchOrder = (event: MessageEvent) => {
         openViduStore.handleChangeSessionId({
           target: { value: sessionId }
         } as React.ChangeEvent<HTMLInputElement>);
-        openViduStore.joinSession();
+        openViduStore.dispatchJoinSession();
       }
-
     }
   } catch (error) {
     console.error("SSE 에러: ", error);
@@ -88,6 +84,10 @@ const handleHospitalResponse = (event: MessageEvent) => {
           latitude: response.data.latitude,
           longitude: response.data.longitude
         }
+      // dispatch 환자 스토어에 병원 이름 설정
+      useDispatchPatientStore.getState().updateFormData({
+        hospitalName: response.data.hospitalName
+      });
         useDispatchSseStore.getState().setAcceptedHospital(hospitalData);
       };
   } catch (error) {
@@ -98,7 +98,6 @@ const handleHospitalResponse = (event: MessageEvent) => {
 // 핸들러 등록
 const dispatchSseEventHandlers = {
   "dispatch-order": handleDispatchOrder,
-  // "transfer-request": handleTransferRequest,
   "hospital-response": handleHospitalResponse,
 }
 

@@ -55,6 +55,8 @@ public class TransferDetailResponse {
             this.patientMedications = mediInfoDto.getMedications();
             this.patientDiseases = mediInfoDto.getDiseases();
 
+        } else {
+            this.userPhone = patient.getCall().getCaller().getCallerPhone();
         }
 
         this.patientSystolicBldPress = patient.getPatientSystolicBldPress();

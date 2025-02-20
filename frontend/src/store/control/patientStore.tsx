@@ -6,7 +6,7 @@ import {useOpenViduStore} from "@/store/openvidu/OpenViduStore.tsx";
 const initialFormData: FormData = {
   userName: '',
   userGender: '',
-  userAge: 0,
+  userAge: null,
   userPhone: '',
   userProtectorPhone: '',
   diseases: '',
@@ -179,17 +179,30 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   // 신고내용 요약
   fetchCallSummary: async (callId:number, audioBlob: Blob) => {
     try {
-      const response= await controlService.callSummary(Number(callId), audioBlob);
+
+      if (!callId || isNaN(callId)) {
+        callId = 100;  // 임시로 callId 지정
+      }
+
+      const addSummary = get().formData.addSummary || ''; 
+      const response= await controlService.callSummary(Number(callId), audioBlob, addSummary);
       console.log("response", response);
       if (response) {
         set(state => ({
           ...state,
           formData: {
             ...state.formData,
-            callSummary: response.data.callSummary,
+            // 기존 방식
+            // callSummary: response.data.callSummary,
             
-            addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화
+            // addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화
             // addSummary : '',
+
+            // 새로운 방식
+            // 기존 addSummary에 새로운 callSummary 추가
+            addSummary: state.formData.addSummary
+            ? `${state.formData.addSummary}\n${response.data.callSummary}`
+            : response.data.callSummary
           }
           
         }))

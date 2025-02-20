@@ -5,7 +5,7 @@ import {Patient, User, Call} from "@/types/dispatch/dispatchOrderResponse.types.
 export interface FormData {
   userName: string;
   userGender: string;
-  userAge: number;
+  userAge: number | null;
   userPhone: string;
   userProtectorPhone: string;
   diseases: string;
@@ -226,6 +226,7 @@ export interface DispatchFormData {
     lng: number;
     address: string;
   };
+  hospitalName?: string;
 }
 
 

@@ -1,10 +1,11 @@
 import {axiosInstance} from "@/utils/axios.ts";
 import {
+    CurrentTransferInfo,
     DispatchSavePatientRequest,
     DispatchSavePatientResponse,
     PreKtasAIRequest,
-    PreKtasAIResponse
-} from "@/types/common/Patient.types.ts";
+    PreKtasAIResponse,
+} from '@/types/common/Patient.types.ts';
 import { DispatchResponse, PatientDetailResponse } from '@/types/dispatch/dispatchRecord.types.ts';
 
 export const updateDispatchPatientInfo = async (patientInfo: DispatchSavePatientRequest):Promise<DispatchSavePatientResponse> => {
@@ -41,6 +42,7 @@ export const sendProtectorMessage = async (patientId: number, transferId:number)
 export const getDispatchReport = async ():Promise<DispatchResponse> => {
     try {
         const response = await axiosInstance.get('/dispatch_staff/report')
+        console.log(response.data)
         return response.data
     } catch (error) {
         console.error("report 조회 실패", error)
@@ -133,6 +135,20 @@ export const dispatchLocation = async (sessionId:string,lat:number,lng:number):P
         return response.data;
     } catch (error) {
         console.error("위치 정보 전송 실패", error);
+        throw error;
+    }
+}
+
+export const transferDetail = async (transferId:number):Promise<CurrentTransferInfo> => {
+    try{
+        const response = await axiosInstance.get<{ isSuccess: boolean, message: string,data:CurrentTransferInfo }>
+        (
+          '/dispatch_staff/transfer/detail',
+          {params:{transferId}}
+        );
+        return response.data.data;
+    }catch (error){
+        console.error("이송 조회 실패",error);
         throw error;
     }
 }

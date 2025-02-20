@@ -4,6 +4,7 @@ import { useLocationStore } from "@/store/location/locationStore";
 import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
 import {useDispatchPatientStore} from "@/store/dispatch/dispatchPatientStore.tsx";
 import {completeVideo} from "@features/dispatch/sevices/dispatchServiece.ts";
+import { useNavigate } from 'react-router-dom';
 
 interface VideoCallDrawerProps {
   isOpen: boolean;
@@ -11,24 +12,25 @@ interface VideoCallDrawerProps {
 }
 
 const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
-  const { leaveSession } = useOpenViduStore();
+  const { dispatchLeaveSession } = useOpenViduStore();
   const setIsLoading = useLocationStore((state) => state.setIsLoading);
   const {formData} = useDispatchPatientStore()
+  const navigate = useNavigate();
 
   const handleEndCall = async () => {
     if (!formData.dispatchId) {
       return;
     }
 
-    if (!window.confirm('정말로 전화를 종료하시겠습니까?')) {
+    if (!window.confirm('정말로 현장에 도착하셨습니까?')) {
       return;
     }
 
     try {
       await completeVideo(formData.dispatchId);
-      await leaveSession();
+      await dispatchLeaveSession();
       setIsLoading(true);
-      alert('통화가 종료되었습니다.');
+      navigate('/dispatch/patient-info')
       onClose();  // drawer 닫기
     } catch (error) {
       console.error("통화 종료 실패", error);
@@ -52,7 +54,7 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
             <h2 className="text-xl font-bold">전화 업무</h2>
             <div className="space-x-4">
               <Button variant="destructive" size="default" onClick={handleEndCall}>
-                전화 종료
+                현장 도착
               </Button>
               <Button variant="outline" size="default" onClick={onClose}>
                 닫기
@@ -61,7 +63,7 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
           </div>
         </div>
 
-        <div className="flex flex-col h-[calc(100%-80px)]">
+        <div className="flex flex-col h-[calc(100%-100px)]">
           {/* 영상통화 화면 */}
           <div className="p-6 pb-2">
             <div className="bg-gray-900 rounded-lg h-96 flex items-center justify-center">

@@ -20,6 +20,9 @@ export const useTransferListStore = create<DispatchListStore>((set) => ({
       console.error('신고내역 조회 중 오류:', error);
     }
   },
+  resetDispatchDetail: () => {
+    set({ dispatchDetail: null });
+  },
 
   fetchDispatchDetail: async (dispatchId: number) => {
     try {

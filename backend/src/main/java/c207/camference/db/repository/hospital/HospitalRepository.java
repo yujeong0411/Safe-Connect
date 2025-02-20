@@ -50,4 +50,10 @@ public interface HospitalRepository extends JpaRepository<Hospital, Integer> {
             @Param("baseLat") double baseLatitude,
             @Param("radiusKm") double radiusInKilometers
     );
+
+    Hospital findByHospitalId(Integer hospitalId);
+
+    List<Hospital> findByHospitalNameIn(List<String> hospitalNames);
+
+    List<Hospital> findByHospitalIdIn(List<Integer> hospitalIds);
 }

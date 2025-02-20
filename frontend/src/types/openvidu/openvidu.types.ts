@@ -22,6 +22,7 @@ export interface openViduStore {
   callStartedAt:string
   callerPhone:string
   fireStaffId:number | undefined;
+  recordingInterval: NodeJS.Timeout | null;
 
   // Actions
   setSessionId:(newSessionId:string) => void;
@@ -30,6 +31,8 @@ export interface openViduStore {
   handleChangeUserName: (e: React.ChangeEvent<HTMLInputElement>) => void;
   joinSession: () => Promise<void>;
   leaveSession: () => void;
+  dispatchLeaveSession:()=>void;
+  dispatchJoinSession:()=>Promise<void>;
   setSessionActive: (active: boolean) => void;
   // switchCamera: () => void;
   // handleMainVideoStream: (stream: StreamManager) => void;
@@ -52,5 +55,6 @@ export interface OpenViduState {
   callStartedAt: string,   // 신고시각
   callerPhone: string,
   fireStaffId: number | undefined,
+  recordingInterval: NodeJS.Timeout | null
 }
 

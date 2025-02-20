@@ -93,12 +93,15 @@ export const controlService = {
   },
 
   // 신고내용 요약
-  callSummary: async (callId:number, audioBlob: Blob): Promise<CallSummaryResponse> => {
+  callSummary: async (callId:number, audioBlob: Blob,addSummary:string): Promise<CallSummaryResponse> => {
     try {
       // formData 생성
       const formData = new FormData();
       formData.append('audioFile', audioBlob);
       formData.append('callId', callId.toString());
+      formData.append('addSummary', addSummary);
+      
+      console.log("formData / addSummary : ", addSummary);
       
       const response = await axiosInstance.post<CallSummaryResponse>('/control/summary', formData, {
         headers: { 

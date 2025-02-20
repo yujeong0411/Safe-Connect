@@ -22,6 +22,7 @@ import c207.camference.db.repository.users.UserMediDetailRepository;
 import c207.camference.util.response.ResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HospitalServiceImpl implements HospitalService {
 
     private final SseEmitterServiceImpl sseEmitterService;
@@ -137,7 +139,7 @@ public class HospitalServiceImpl implements HospitalService {
                     .longitude(hospital.getHospitalLocation().getX())
                     .build();
 
-            sseEmitterService.hospitalResponse(data, true);
+            sseEmitterService.hospitalResponse(data, true,dispatch.getDispatchId());
             // HTTP 응답
             AcceptTransferResponse response = new AcceptTransferResponse(request.getPatientId(), hospital.getHospitalId(), savedTransfer.getTransferId(), now);
             return ResponseEntity.ok().body(ResponseUtil.success(response, "환자 이송을 수락했습니다."));
@@ -181,9 +183,12 @@ public class HospitalServiceImpl implements HospitalService {
         try{
             List<Patient> patients = patientRepository.findAllByDispatchId(dispatchId);
 
-            List<PatientDetailResponse> responses = patients.stream().map(patient -> new PatientDetailResponse(patient,userMediDetailRepository))
-                    .collect(Collectors.toList());
-
+            List<PatientDetailResponse> responses = patients.stream().map(
+                    patient -> new PatientDetailResponse(patient,userMediDetailRepository)
+                    ).collect(Collectors.toList());
+//            if (transferRepository.existsByDispatchId(dispatchId)){
+//                ResponseEntity.status(HttpStatus.OK).body("accepted");
+//            }
             return ResponseEntity.status(HttpStatus.OK).body(responses);
 
         }catch (EntityNotFoundException e) {

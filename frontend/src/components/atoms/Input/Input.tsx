@@ -63,7 +63,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <p className="text-red-500 text-sm mt-1">{error}</p>
         )}
         {helperText && (
-          <p className={`mt-1 text-sm ${variant === 'error' ? 'text-red-500' : 'text-gray-500'}`}>
+          <p className={`mt-1 text-sm ${variant === 'error' ? 'text-red-500' : 'text-red-500'}`}>
             {helperText}
           </p>
         )}
