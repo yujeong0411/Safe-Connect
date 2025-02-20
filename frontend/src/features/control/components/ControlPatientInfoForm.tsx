@@ -125,6 +125,7 @@ const ControlPatientInfoForm = () => {
     setTimeout(() => {
       navigate('/control/dispatch-order')
     }, 1000)
+
     } catch (error) {
       handleAlertClose({
         title: '저장 실패',

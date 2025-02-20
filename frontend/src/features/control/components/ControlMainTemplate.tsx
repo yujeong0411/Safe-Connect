@@ -55,6 +55,12 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
     }, 1000);
   };
 
+  useEffect(() => {
+    if (location.pathname === '/control/dispatch-order') {
+      setIsOpen(false);
+    }
+  }, [location.pathname]);
+
   const handleProtectorNotify = () => {
     if (!currentCall?.userId || !patientInfo?.userProtectorPhone) {
       // 회원이 아니거나 보호자 번호가 없는 경우 알림 표시
