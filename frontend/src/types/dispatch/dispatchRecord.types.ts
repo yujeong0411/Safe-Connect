@@ -82,5 +82,6 @@ export interface DispatchListStore {
   dispatchList: DispatchRecord[];
   dispatchDetail: PatientDetail[] | null;
   fetchDispatchList: () => Promise<void>;
+  resetDispatchDetail:()=>void;
   fetchDispatchDetail: (dispatchId: number) => Promise<void>;
 }
