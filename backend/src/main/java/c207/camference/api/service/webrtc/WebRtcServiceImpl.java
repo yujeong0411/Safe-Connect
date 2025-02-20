@@ -308,7 +308,7 @@ public class WebRtcServiceImpl implements WebRtcService {
                             "예상 결과:\n" +
                             "기존의 입력: \"%s\"\n" +
                             "새로운 입력: \"%s\"",
-                    speechToText, addSummary
+                    addSummary, speechToText
             );
 
             return makeRequest(prompt);
