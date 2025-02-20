@@ -146,9 +146,9 @@ const ControlPatientInfoForm = () => {
 
   return (
     <div className="flex w-full items-center justify-center">
-      <div className="flex-1 p-4 max-w-3xl">
-        <div className="bg-white rounded-lg p-6">
-          <div className="grid grid-cols-[9fr_1fr] gap-4 mb-3">
+      <div className="flex-1 p-2 max-w-3xl">
+        <div className="bg-white rounded-lg p-3">
+          <div className="grid grid-cols-[9fr_1fr] gap-4 mb-2">
             <SearchBar_ver2
               ref={searchBarRef}
               placeholder="환자 전화번호"
@@ -204,7 +204,7 @@ const ControlPatientInfoForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="grid grid-cols-2 gap-4 mt-3">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
               <Input
@@ -225,16 +225,16 @@ const ControlPatientInfoForm = () => {
             </div>
           </div>
 
-          <div className="col-span-1 mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">증상</label>
-            <Input
-              className="w-full border-gray-800"
-              value={formData.symptom}
-              onChange={handleInputChange('symptom')}
-            />
-          </div>
+          {/*<div className="col-span-1 mt-3">*/}
+          {/*  <label className="block text-sm font-medium text-gray-700 mb-1">증상</label>*/}
+          {/*  <Input*/}
+          {/*    className="w-full border-gray-800"*/}
+          {/*    value={formData.symptom}*/}
+          {/*    onChange={handleInputChange('symptom')}*/}
+          {/*  />*/}
+          {/*</div>*/}
 
-          <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="grid grid-cols-2 gap-4 mt-3">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-800 mb-1">현재 병력</label>
               <textarea
@@ -268,11 +268,11 @@ const ControlPatientInfoForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 mt-6">
+          <div className="grid grid-cols-1 mt-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full h-45 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
                 
 
                 //   // // callSummary 부분을 제외한 나머지를 addSummary로 설정
@@ -296,7 +296,7 @@ const ControlPatientInfoForm = () => {
             </div>
           </div>
 
-          <div className="flex justify-end mt-3">
+          <div className="flex justify-end mt-2">
             <Button type="button" variant="blue" width="sm" onClick={handleSubmit}>
               저장
             </Button>

@@ -218,8 +218,8 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
       id="map"
       center={center}
       style={{
-        width: 'calc(100% - 200px)',
-        height: 'calc(100vh - 180px)',
+        width: '100%',
+        height: '100%',
       }}
       level={4}
       onCreate={setMap}

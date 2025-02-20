@@ -139,7 +139,7 @@ const ControlDispatchOrderPage = () => {
         </div>
 
         {/* 소방서 목록 패널 */}
-        <div className="absolute  right-4 top-4 bottom-4 w-96 bg-white/80 rounded-lg overflow-y-auto z-10 hide-scrollbar">
+        <div className="absolute  right-4 top-4  w-96 bg-white/80 rounded-lg z-10 hide-scrollbar">
           <div className="sticky top-0 bg-white/60 p-4 border-b">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">인근 소방서 목록</h2>
