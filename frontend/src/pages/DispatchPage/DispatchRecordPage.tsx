@@ -38,6 +38,7 @@ const DispatchRecordPage = () => {
 
   const dispatchDetail = useTransferListStore((state) => state.dispatchDetail);
   const fetchDispatchDetail = useTransferListStore((state) => state.fetchDispatchDetail);
+  const { resetDispatchDetail} = useTransferListStore();
 
   const formatPhoneNumber = (value: string): string => {
     const cleaned = value.replace(/\D/g, '');
@@ -81,6 +82,7 @@ const DispatchRecordPage = () => {
   }, [dispatchDetail]);
 
   const handleCloseDetail = () => {
+    resetDispatchDetail();
     setIsDetailOpen(false);
   };
 
