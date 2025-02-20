@@ -20,35 +20,38 @@ const DispatchRecordRow: React.FC<DispatchRecordRowProps> = ({
     const cellClassName = "text-gray-600 text-center px-3 py-3 text-sm whitespace-nowrap";
 
     return (
-        <TableRow
-            className="hover:bg-pink-100 cursor-pointer transition-colors"
-            onClick={() => onDetailClick(record)}
-        >
-            <TableCell className={cellClassName}>
-                {formatDateTime(record.dispatchCreatedAt)}
-            </TableCell>
-            <TableCell className={cellClassName}>
-                {formatDateTime(record.dispatchArriveAt)}
-            </TableCell>
-            <TableCell className={cellClassName}>
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            record.dispatchIsTransfer
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
-        }`}>
-          {record.dispatchIsTransfer ? '이송' : '현장조치 완료'}
-        </span>
-            </TableCell>
-            <TableCell className={cellClassName}>
-                {record.transfer ? record.transfer.hospital.hospitalName : '-'}
-            </TableCell>
-            <TableCell className={cellClassName}>
-                {record.transfer ? formatDateTime(record.transfer.transferAcceptAt) : '-'}
-            </TableCell>
-            <TableCell className={cellClassName}>
-                {record.transfer ? formatDateTime(record.transfer.transferArriveAt) : '-'}
-            </TableCell>
-        </TableRow>
+      <TableRow
+        className="hover:bg-pink-100 cursor-pointer transition-colors"
+        onClick={() => onDetailClick(record)}
+      >
+          <TableCell className={cellClassName}>
+              {formatDateTime(record.dispatchCreatedAt)}
+          </TableCell>
+          <TableCell className={cellClassName}>
+              {formatDateTime(record.dispatchArriveAt)}
+          </TableCell>
+          <TableCell className={cellClassName}>
+            {record.patient?.patientContact || '-'}
+          </TableCell>
+          <TableCell className={cellClassName}>
+                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  record.dispatchIsTransfer
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                    {record.dispatchIsTransfer ? '이송' : '현장조치 완료'}
+                </span>
+          </TableCell>
+          <TableCell className={cellClassName}>
+              {record.transfer ? record.transfer.hospital.hospitalName : '-'}
+          </TableCell>
+          <TableCell className={cellClassName}>
+              {record.transfer ? formatDateTime(record.transfer.transferAcceptAt) : '-'}
+          </TableCell>
+          <TableCell className={cellClassName}>
+              {record.transfer ? formatDateTime(record.transfer.transferArriveAt) : '-'}
+          </TableCell>
+      </TableRow>
     );
 };
 

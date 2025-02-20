@@ -1,14 +1,18 @@
 // 상황실 신고 내역 조회
 export interface DispatchRecord {
-  dispatchId: number;
-  dispatchIsTransfer: boolean;
+  dispatchId: string;
   dispatchCreatedAt: string;
-  dispatchDepartAt: string | null;
-  dispatchArriveAt: string | null;
+  dispatchArriveAt: string;
+  dispatchIsTransfer: boolean;
   transfer?: {
+    hospital: {
+      hospitalName: string;
+    };
     transferAcceptAt: string;
-    transferArriveAt: string | null;
-    hospital: HospitalInfo;
+    transferArriveAt: string;
+  };
+  patient: {
+    patientContact: string;
   };
 }
 
