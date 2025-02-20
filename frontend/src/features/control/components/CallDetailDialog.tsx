@@ -40,7 +40,7 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
           <div>
             <Label className="text-sm mb-1">신고자 연락처</Label>
             <div className="p-4 bg-dialog_content rounded-lg">
-              {formatPhoneNumber(data.callerPhone)}
+              {formatPhoneNumber(data.caller.callerPhone)}
             </div>
           </div>
           <div>
@@ -55,10 +55,6 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
         <div>
           <Label className="text-sm mb-1">요약본</Label>
           <div className="min-h-[100px] p-4 bg-dialog_content rounded-lg">{data.callSummary}</div>
-        </div>
-        <div>
-          <Label className="text-sm mb-1">신고 내용</Label>
-          <div className="min-h-[100px] p-4 bg-dialog_content rounded-lg">{data.callText}</div>
         </div>
 
         {/* 닫기 버튼 */}
