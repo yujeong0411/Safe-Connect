@@ -8,8 +8,8 @@ export default {
         sans: ['Pretendard', 'sans-serif'],
       },
       colors: {
-        red: '#EF4444',  // 기본 빨간색
-        red_hover: '#DC2626',     // hover 시 더 진한 빨간색
+        // red: '#EF4444',  // 기본 빨간색
+        // red_hover: '#DC2626',     // hover 시 더 진한 빨간색
         bg: '#F3F5F9',
         banner: '#545F71',
         banner_hover: '#697383',

@@ -43,7 +43,7 @@ const DispatchRecordRow: React.FC<DispatchRecordRowProps> = ({
         {formatDateTime(record.dispatchArriveAt)}
       </TableCell>
       <TableCell className={cellClassName}>
-        {formatPhoneNumber(record.call?.caller?.callerPhone)}
+        {formatPhoneNumber(record.callerPhone)}
       </TableCell>
       <TableCell className={cellClassName}>
                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${

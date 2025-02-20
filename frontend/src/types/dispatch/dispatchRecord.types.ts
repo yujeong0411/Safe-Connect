@@ -3,13 +3,10 @@ export interface Caller {
   callerPhone: string;
 }
 
-export interface Call {
-  caller: Caller;
-}
 
 export interface DispatchRecord {
   dispatchId: number;
-  call: Call;
+  callerPhone: string;
   dispatchIsTransfer: boolean;
   dispatchCreatedAt: string;
   dispatchDepartAt: string;

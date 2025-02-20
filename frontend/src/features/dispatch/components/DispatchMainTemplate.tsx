@@ -104,6 +104,7 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
     if(formData.dispatchId){
       dispatchDepartAt(formData.dispatchId)
     }
+    navigate('/dispatch/patient-info');
     setVideoDrawerOpen(true);
     setShowDispatchDialog(false);
   };
@@ -127,30 +128,30 @@ const DispatchMainTemplate = ({ children }: DispatchMainTemplateProps) => {
 
   const navItems = [
     {
-      label: '전화 업무',
+      label: '영상 통화',
       path: '#',
       hasModal: true,
       disabled: !sessionId,
       onModalOpen: () => sessionId && setVideoDrawerOpen(!isVideoDrawerOpen)  // 세션 아이디가 있어야 열림
     },
     {
-      label: '출동 업무',
+      label: '환자 정보 작성',
       path: '/dispatch/patient-info',
       active: location.pathname === '/dispatch/patient-info'
     },
     {
-      label: '이송 업무',
+      label: '이송 요청',
       path: '/dispatch/transfer-request',
       active: location.pathname === '/dispatch/transfer-request'
     },
     {
-      label: '알림 / 이송 종료',
+      label: '상황 종료',
       path: '#',
       hasModal: true,
       onModalOpen: () => setShowNotificationModal(true)
     },
     {
-      label: '출동 현황',
+      label: '출동 내역',
       path: '/dispatch/main',
       active: location.pathname === '/dispatch/main'
     },

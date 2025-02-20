@@ -41,6 +41,7 @@ export const sendProtectorMessage = async (patientId: number, transferId:number)
 export const getDispatchReport = async ():Promise<DispatchResponse> => {
     try {
         const response = await axiosInstance.get('/dispatch_staff/report')
+        console.log(response.data)
         return response.data
     } catch (error) {
         console.error("report 조회 실패", error)

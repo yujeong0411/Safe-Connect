@@ -296,7 +296,7 @@ public class ControlServiceImpl implements ControlService {
         // request(전화번호)로 신고자 조회
         String callerPhone = request.getCallerPhone();
 
-        smsService.sendMessage(callerPhone, url);
+//        smsService.sendMessage(callerPhone, url);
 
 
         // 신고자(caller)에 insert

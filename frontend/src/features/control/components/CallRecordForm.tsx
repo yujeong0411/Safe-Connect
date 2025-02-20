@@ -14,13 +14,11 @@ import {useCallListStore} from '@/store/control/callListStore.tsx';
 import {CallRecord} from '@/types/control/ControlRecord.types.ts';
 import {format} from 'date-fns';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
-import { Button } from '@components/ui/button.tsx';
 
 const CallRecordForm = () => {
   const [isCallDetailOpen, setIsCallDetailOpen] = React.useState(false);
   const {callList, callDetail, fetchCallList, fetchCallDetail} = useCallListStore();
   const [currentPage, setCurrentPage] = useState(1);
-  const [is24HourFilter, setIs24HourFilter] = useState(false);
   const [phoneSearch, setPhoneSearch] = useState('');
   const {isOpen} = useVideoCallStore();
   const [dispatchFilter, setDispatchFilter] = useState<string | null>(null);  // null은 전체 선택을 의미
@@ -88,17 +86,6 @@ const CallRecordForm = () => {
   const filteredCallList = useMemo(() => {
     let processedList = [...callList];
 
-    // 24시간 필터
-    if (is24HourFilter) {
-      const twentyFourHoursAgo = new Date();
-      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-
-      processedList = processedList.filter(call => {
-        const callTime = new Date(call.callStartedAt)
-        return callTime >= twentyFourHoursAgo;
-      });
-    }
-
     // 전화번호 검색
     if (phoneSearch) {
       const cleanedSearch = phoneSearch.replace(/\D/g, '');
@@ -118,7 +105,7 @@ const CallRecordForm = () => {
     return processedList.sort((a, b) =>
       new Date(b.callStartedAt).getTime() - new Date(a.callStartedAt).getTime()
     );
-  }, [callList, is24HourFilter, phoneSearch, dispatchFilter]);
+  }, [callList, phoneSearch, dispatchFilter]);
 
   // 행 클릭 핸들러
   const handleRowClick = async (data: CallRecord) => {
@@ -146,7 +133,6 @@ const CallRecordForm = () => {
   };
 
   const resetFilter = ()=>{
-    setIs24HourFilter(false);
     setDispatchFilter(null);
     setPhoneSearch("")
     setCurrentPage(1);
@@ -155,13 +141,18 @@ const CallRecordForm = () => {
   // 필터나 검색어 변경시 첫 페이지로 이동
   useEffect(() => {
     setCurrentPage(1);
-  }, [is24HourFilter, phoneSearch, dispatchFilter]);
+  }, [ phoneSearch, dispatchFilter]);
 
   return (
     <div className={`w-full p-2 sm:px-20 ${isOpen ? 'px-1 sm:px-2' : ''}`}>
       <div className="space-y-2">
         <div className="rounded-lg min-h-[20rem] md:min-h-[35rem]">
           <div className="flex justify-between items-center mb-2">
+            <div>
+              <p className="mt-1 text-sm text-gray-500">
+                총 {filteredCallList.length}건의 신고 기록이 있습니다.
+              </p>
+            </div>
             <div className="flex gap-2">
               <select
                 value={dispatchFilter ?? ''}
@@ -183,24 +174,10 @@ const CallRecordForm = () => {
                 className="w-48 bg-white"
                 maxLength={13}
               />
-              <Button
-                onClick={resetFilter}
-                variant="red"     // red 변형 사용
-                size="default"     // 기본 크기 사용
-                className="h-13"
-              >
-                초기화
-              </Button>
 
-            </div>
-            <div className="flex items-center">
-              <span className="text-sm md:text-md text-gray-900">24시간 이내</span>
-              <input
-                type="checkbox"
-                checked={is24HourFilter}
-                onChange={() => setIs24HourFilter(!is24HourFilter)}
-                className="ml-2 w-3 h-3 md:w-4 md:h-4"
-              />
+              <button onClick={resetFilter} className="px-4 py-1 rounded-md border bg-red-600 text-white">
+                초기화
+              </button>
             </div>
           </div>
 
