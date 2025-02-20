@@ -406,7 +406,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         List<String> reqHospitalNames = new ArrayList<>();
         for (Hospital hospital : activeHospitals) {
-            if (!reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
+            if (reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
                 continue;
             }
             ReqHospital reqHospital = ReqHospital.builder()
