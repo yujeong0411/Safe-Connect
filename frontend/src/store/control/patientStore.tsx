@@ -179,14 +179,20 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
   // 신고내용 요약
   fetchCallSummary: async (callId:number, audioBlob: Blob) => {
     try {
-      const response= await controlService.callSummary(Number(callId), audioBlob);
+
+      if (!callId || isNaN(callId)) {
+        callId = 100;  // 임시로 callId 지정
+      }
+
+      const addSummary = get().formData.addSummary || ''; 
+      const response= await controlService.callSummary(Number(callId), audioBlob, addSummary);
       console.log("response", response);
       if (response) {
         set(state => ({
           ...state,
           formData: {
             ...state.formData,
-            // 기존 방식식
+            // 기존 방식
             // callSummary: response.data.callSummary,
             
             // addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화

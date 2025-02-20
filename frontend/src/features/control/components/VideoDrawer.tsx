@@ -20,7 +20,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {fetchCallSummary} = usePatientStore()
   const { callId,leaveSession, recordingInterval } = useOpenViduStore();
-  const { stopRecording, cleanup } = useRecorderStore();
+  const { stopRecording, startRecording } = useRecorderStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -144,6 +144,9 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
         description: 'AI 요약에 성공하였습니다.',
         type: 'default',
       });
+
+    await startRecording();
+    
     } catch (error) {
       console.error("신고내용 요약 실패", error);
       // alert('AI 요약 중 오류가 발생했습니다.');
