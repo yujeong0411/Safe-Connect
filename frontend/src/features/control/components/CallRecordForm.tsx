@@ -22,11 +22,12 @@ const CallRecordForm = () => {
   const [is24HourFilter, setIs24HourFilter] = useState(false);
   const [phoneSearch, setPhoneSearch] = useState('');
   const {isOpen} = useVideoCallStore();
+  const [dispatchFilter, setDispatchFilter] = useState<string | null>(null);  // null은 전체 선택을 의미
+
 
   // 전화번호 포맷팅 함수
   const formatPhoneNumber = (value: string): string => {
-    if (!value) return '-';
-    const cleaned = value.replace(/\D/g, '');
+    const cleaned = value.replace(/\D/g, '');  // 숫자만 추출
 
     if (cleaned.length <= 3) {
       return cleaned;
@@ -57,7 +58,7 @@ const CallRecordForm = () => {
       key: 'callerPhone',
       header: '신고자 연락처',
       render: (data: CallRecord) => {
-        return data.callerPhone ? formatPhoneNumber(data.callerPhone) : '-';
+        return data.caller.callerPhone ? formatPhoneNumber(data.caller.callerPhone) : '-';
       }
     },
     {
@@ -101,7 +102,14 @@ const CallRecordForm = () => {
     if (phoneSearch) {
       const cleanedSearch = phoneSearch.replace(/\D/g, '');
       processedList = processedList.filter(call =>
-        call.callerPhone ? call.callerPhone.replace(/\D/g, '').includes(cleanedSearch) : false
+        call.caller.callerPhone ? call.caller.callerPhone.replace(/\D/g, '').includes(cleanedSearch) : false
+      );
+    }
+
+    // 출동 여부 필터 추가
+    if (dispatchFilter !== null) {
+      processedList = processedList.filter(call =>
+        dispatchFilter === 'true' ? call.callIsDispatched : !call.callIsDispatched
       );
     }
 
@@ -109,7 +117,7 @@ const CallRecordForm = () => {
     return processedList.sort((a, b) =>
       new Date(b.callStartedAt).getTime() - new Date(a.callStartedAt).getTime()
     );
-  }, [callList, is24HourFilter, phoneSearch]);
+  }, [callList, is24HourFilter, phoneSearch, dispatchFilter]);
 
   // 행 클릭 핸들러
   const handleRowClick = async (data: CallRecord) => {
@@ -139,21 +147,35 @@ const CallRecordForm = () => {
   // 필터나 검색어 변경시 첫 페이지로 이동
   useEffect(() => {
     setCurrentPage(1);
-  }, [is24HourFilter, phoneSearch]);
+  }, [is24HourFilter, phoneSearch, dispatchFilter]);
 
   return (
     <div className={`w-full p-2 sm:px-20 ${isOpen ? 'px-1 sm:px-2' : ''}`}>
       <div className="space-y-2">
         <div className="rounded-lg min-h-[20rem] md:min-h-[35rem]">
           <div className="flex justify-between items-center mb-2">
-            <Input
-              type="text"
-              placeholder="전화번호 검색"
-              value={phoneSearch}
-              onChange={handlePhoneSearch}
-              className="w-48"
-              maxLength={13}
-            />
+            <div className="flex gap-2">
+              <select
+                value={dispatchFilter ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setDispatchFilter(value === '' ? null : value);
+                }}
+                className="w-32 px-3 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">전체</option>
+                <option value="true">출동</option>
+                <option value="false">미출동</option>
+              </select>
+              <Input
+                type="text"
+                placeholder="전화번호 검색"
+                value={phoneSearch}
+                onChange={handlePhoneSearch}
+                className="w-48 bg-white"
+                maxLength={13}
+              />
+            </div>
             <div className="flex items-center">
               <span className="text-sm md:text-md text-gray-900">24시간 이내</span>
               <input
@@ -200,13 +222,15 @@ const CallRecordForm = () => {
                             uppercase tracking-wider
                           `}
                         >
-                          {column.render
-                            ? column.render(data)
-                            : column.key === 'callIsDispatched'
-                              ? data[column.key]
-                                ? '출동'
-                                : '미출동'
-                              : data[column.key as keyof CallRecord]}
+                          {(() => {
+                            if (column.render) {
+                              return column.render(data);
+                            }
+                            if (column.key === 'callIsDispatched') {
+                              return data[column.key] ? '출동' : '미출동';
+                            }
+                            return String(data[column.key as keyof CallRecord] ?? '-');
+                          })()}
                         </TableCell>
                       ))}
                     </TableRow>

@@ -30,7 +30,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { connect, disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore();
   const { patientInfo, currentCall } = usePatientStore();
-  const { isActive, sessionId } = useOpenViduStore();
+  const { isActive } = useOpenViduStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -84,7 +84,6 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
     let reconnectTimer: NodeJS.Timeout | null = null;
 
     const connectSSE = () => {
-      console.log(sessionStorage)
       const userName = sessionStorage.getItem("userName");
       if (userName && isAuthenticated && location.pathname.startsWith('/control')) {
         connect(userName);
