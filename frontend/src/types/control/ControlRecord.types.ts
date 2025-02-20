@@ -6,10 +6,16 @@ export interface CallRecord {
   callText: string;
   callStartedAt: string;
   callFinishedAt: string;
-
-  // 보호자 문자 전송
   patientId?: number;
   userName?: string;
+  caller:Caller;
+
+}
+
+export interface Caller{
+  callerId:string;
+  callerPhone:string;
+  callerName:string;
 }
 
 export interface CallListResponse {

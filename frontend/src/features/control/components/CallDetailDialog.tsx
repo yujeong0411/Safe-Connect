@@ -2,7 +2,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { CallRecord } from '@/types/control/ControlRecord.types.ts';
-import { format } from 'date-fns'; // 날짜 포맷팅용 라이브러리
+import { format } from 'date-fns';
+import { formatPhoneNumber } from '@features/auth/servies/signupService.ts'; // 날짜 포맷팅용 라이브러리
 
 interface CallDetailDialogProps {
   open: boolean;
@@ -34,6 +35,12 @@ const CallDetailDialog = ({ open, onOpenChange, data }: CallDetailDialogProps) =
             <Label className="text-sm mb-1">신고 종료 일시</Label>
             <div className="p-4 bg-dialog_content rounded-lg">
               {format(new Date(data.callFinishedAt), 'yyyy-MM-dd HH:mm:ss')}
+            </div>
+          </div>
+          <div>
+            <Label className="text-sm mb-1">신고자 연락처</Label>
+            <div className="p-4 bg-dialog_content rounded-lg">
+              {formatPhoneNumber(data.callerPhone)}
             </div>
           </div>
           <div>

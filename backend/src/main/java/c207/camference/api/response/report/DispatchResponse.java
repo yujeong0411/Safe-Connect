@@ -14,6 +14,7 @@ public class DispatchResponse {
     private Boolean dispatchIsTransfer;
     private LocalDateTime dispatchCreatedAt;
     private LocalDateTime dispatchDepartAt;
+    private String callerPhone;
     private LocalDateTime dispatchArriveAt;// transfer 정보 추가
 
     // Transfer 정보 (optional)
@@ -21,6 +22,7 @@ public class DispatchResponse {
 
     public DispatchResponse(Dispatch dispatch, Transfer transfer) {
         // Dispatch 정보 설정
+        this.callerPhone = dispatch.getCall().getCaller().getCallerPhone();
         this.dispatchId = dispatch.getDispatchId();
         this.dispatchIsTransfer = dispatch.getDispatchIsTransfer();
         this.dispatchCreatedAt = dispatch.getDispatchCreateAt();

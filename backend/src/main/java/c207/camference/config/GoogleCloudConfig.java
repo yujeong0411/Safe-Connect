@@ -44,7 +44,6 @@ public class GoogleCloudConfig {
 
 //      return StorageOptions.getDefaultInstance().getService();
         String normalizedJson = jsonCredentials.replace("\\\\n", "\\n"); //
-
         ByteArrayInputStream credentialsStream = new ByteArrayInputStream(normalizedJson.getBytes(StandardCharsets.UTF_8));
         ServiceAccountCredentials credentials = ServiceAccountCredentials.fromStream(credentialsStream);
 
