@@ -7,7 +7,6 @@ import c207.camference.api.response.dispatchstaff.ControlDispatchOrderResponse;
 import c207.camference.api.response.dispatchstaff.DispatchGroupPatientTransferResponse;
 import c207.camference.api.response.hospital.AcceptedHospitalResponse;
 import c207.camference.api.response.hospital.HospitalPatientTransferResponse;
-import c207.camference.db.entity.firestaff.DispatchStaff;
 import c207.camference.db.entity.hospital.Hospital;
 import c207.camference.db.entity.hospital.ReqHospital;
 import c207.camference.db.entity.report.Dispatch;
@@ -16,6 +15,7 @@ import c207.camference.db.repository.firestaff.DispatchStaffRepository;
 import c207.camference.db.repository.hospital.HospitalRepository;
 import c207.camference.db.repository.hospital.ReqHospitalRepository;
 import c207.camference.db.repository.report.DispatchRepository;
+import c207.camference.db.repository.report.TransferRepository;
 import c207.camference.util.response.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +38,8 @@ import java.util.stream.Collectors;
 @Service
 public class SseEmitterServiceImpl implements SseEmitterService {
 
-
     private static final long TIMEOUT = 30 * 60 * 1000L; // 30분
     private static final long HEARTBEAT_DELAY = 25000L;  // 25초
-
 
     private final Map<String, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
@@ -52,14 +50,16 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     private final DispatchStaffRepository dispatchStaffRepository;
     private final ReqHospitalRepository reqHospitalRepository;
     private final DispatchRepository dispatchRepository;
+    private final TransferRepository transferRepository;
 
     @Autowired
-    public SseEmitterServiceImpl(HospitalRepository hospitalRepository, DispatchStaffRepository dispatchStaffRepository, ReqHospitalRepository reqHospitalRepository, DispatchRepository dispatchRepository) {
+    public SseEmitterServiceImpl(HospitalRepository hospitalRepository, DispatchStaffRepository dispatchStaffRepository, ReqHospitalRepository reqHospitalRepository, DispatchRepository dispatchRepository, TransferRepository transferRepository) {
         this.hospitalRepository = hospitalRepository;
-        this.dispatchStaffRepository = dispatchStaffRepository;
         this.heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
+        this.dispatchStaffRepository = dispatchStaffRepository;
         this.reqHospitalRepository = reqHospitalRepository;
         this.dispatchRepository = dispatchRepository;
+        this.transferRepository = transferRepository;
     }
 
     @PostConstruct
@@ -225,7 +225,6 @@ public class SseEmitterServiceImpl implements SseEmitterService {
                 .collect(Collectors.toList());
 
         // 구급팀에 응답 전송
-//        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
             if (targetDispatchStaffLoginIds.contains(clientId)) {
@@ -266,14 +265,21 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         deadHospitalEmitters.forEach(hospitalEmitters::remove);
 
         // 구급팀에 응답 전송
-//        List<Integer> deadDispatchGroupEmitters = new ArrayList<>();
+        Dispatch dispatch = dispatchRepository.findById(dispatchGroupData.getDispatchId())
+                .orElseThrow(() -> new RuntimeException("해당 출동내역을 찾을 수 없습니다."));
+        List<String> targetDispatchStaffLoginIds = dispatchStaffRepository.findByDispatchGroupId(dispatch.getDispatchGroupId()).stream()
+                .map(dispatchStaff -> dispatchStaff.getFireStaff().getFireStaffLoginId())
+                .collect(Collectors.toList());
+
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event().name("transfer-request")
-                        .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 접수되었습니다.")));
-            } catch (IOException e) {
-                deadDispatchGroupEmitters.add(clientId);
+            if (targetDispatchStaffLoginIds.contains(clientId)) {
+                try {
+                    emitter.send(SseEmitter.event().name("transfer-request")
+                            .data(ResponseUtil.success(dispatchGroupData, "환자 이송 요청이 접수되었습니다.")));
+                } catch (IOException e) {
+                    deadDispatchGroupEmitters.add(clientId);
+                }
             }
         });
         deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
@@ -284,17 +290,25 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     public void hospitalResponse(AcceptedHospitalResponse response, boolean accepted,Integer dispatchId) {
         String answer = accepted ? "환자 이송 요청이 승인되었습니다." : "환자 이송 요청 거절되었습니다.";
 
+        // to 구급팀 (해당 dispatchGroup에 속한 dispatchStaff 에게만)
+        Transfer transfer = transferRepository.findById(response.getTransferId())
+                .orElseThrow(() -> new RuntimeException("해당 이송내역을 찾을 수 없습니다."));
+        List<String> targetDispatchStaffLoginIds = dispatchStaffRepository.findByDispatchGroupId(transfer.getDispatchGroupId()).stream()
+                .map(dispatchStaff -> dispatchStaff.getFireStaff().getFireStaffLoginId())
+                .collect(Collectors.toList());
+
         List<String> deadDispatchGroupEmitters = new ArrayList<>();
         dispatchGroupEmitters.forEach((clientId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event().name("hospital-response")
-                        .data(ResponseUtil.success(response, answer)));
-            } catch (IOException e) {
-                deadDispatchGroupEmitters.add(clientId);
+            if (targetDispatchStaffLoginIds.contains(clientId)) {
+                try {
+                    emitter.send(SseEmitter.event().name("hospital-response")
+                            .data(ResponseUtil.success(response, answer)));
+                } catch (IOException e) {
+                    deadDispatchGroupEmitters.add(clientId);
+                }
             }
         });
         deadDispatchGroupEmitters.forEach(dispatchGroupEmitters::remove);
-
 
         // 다른 병원에 일괄 수락여부 전송
         List<ReqHospital> reqHospitals = reqHospitalRepository.findReqHospitalsByDispatchId(dispatchId);
@@ -343,11 +357,10 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     @Override
     // 상황실에 신고자 위치 공유
     public void shareCallerLocation(ShareLocationRequest request) {
-        // 상황실에 응답 전송
         // 아이디 분리
         String clientId = request.getSessionId().split("-")[1];
-
         System.out.println(clientId);
+
         List<String> deadControlEmitters = new ArrayList<>();
         controlEmitters.forEach((emitterId, emitter) -> {
             if (emitterId.equals(clientId)) {
@@ -362,5 +375,4 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         });
         deadControlEmitters.forEach(controlEmitters::remove);
     }
-
 }
