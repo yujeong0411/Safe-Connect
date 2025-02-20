@@ -11,6 +11,7 @@ import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import { usePatientStore } from '@/store/control/patientStore';
 import { useNavigate } from 'react-router-dom';
 import {useLocationStore} from "@/store/location/locationStore.tsx";
+import VideoEndDialog from '@features/control/components/VideoEndDialog.tsx';
 
 const ControlDispatchOrderPage = () => {
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
@@ -26,6 +27,7 @@ const ControlDispatchOrderPage = () => {
   const navigate = useNavigate();
   const { callId, sessionId } = useOpenViduStore();
   const { currentCall, isDispatched, setIsDispatched } = usePatientStore.getState();
+  const [isVideoEndDialogOpen, setIsVideoEndDialogOpen] = useState(false);
 
   const patientId = currentCall?.patientId;
 
@@ -85,6 +87,8 @@ const ControlDispatchOrderPage = () => {
         type: 'default',
       });
 
+      //종료 다이얼로그 활성화
+      setIsVideoEndDialogOpen(true);
       // 성공 후 상태 초기화
       setSelectedTeam(null);
       setSelectedStation(null);
@@ -208,8 +212,12 @@ const ControlDispatchOrderPage = () => {
           </div>
         </div>
       </div>
-      {/*삭제 */}
-      {/*<DispatchOrderDialog open={isDispatchDialogOpen} onOpenChange={setIsDispatchDialogOpen} />*/}
+
+      <VideoEndDialog
+        open={isVideoEndDialogOpen}
+        onOpenChange={setIsVideoEndDialogOpen}
+      />
+
     </ControlMainTemplate>
   );
 };
