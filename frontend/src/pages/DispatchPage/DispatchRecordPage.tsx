@@ -1,3 +1,4 @@
+// DispatchRecordPage.tsx
 import { useState, useEffect, useMemo } from 'react';
 import {
   Table,
@@ -7,6 +8,7 @@ import {
   TableRow,
   TableCell
 } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 import DispatchMainTemplate from '@/features/dispatch/components/DispatchMainTemplate';
 import DispatchRecordRow from '@/features/dispatch/components/DispatchRecordRow/DispatchRecordRow';
 import Pagination from '@/components/atoms/Pagination/Pagination';
@@ -19,7 +21,7 @@ const ITEMS_PER_PAGE = 10;
 const TABLE_HEADERS = [
   { key: 'dispatchCreatedAt', label: '출동 시작 시간' },
   { key: 'dispatchArriveAt', label: '현장 도착 시간' },
-  { key: 'patientContact', label: '환자 연락처' },
+  { key: 'callerPhone', label: '신고자 연락처' },
   { key: 'dispatchIsTransfer', label: '병원 이송 여부' },
   { key: 'hospitalName', label: '이송 병원' },
   { key: 'transferAcceptAt', label: '이송 수락 시간' },
@@ -32,10 +34,28 @@ const DispatchRecordPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [is24HourFilter, setIs24HourFilter] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [phoneSearch, setPhoneSearch] = useState('');
+  const [hospitalSearch, setHospitalSearch] = useState('');
 
   const dispatchDetail = useTransferListStore((state) => state.dispatchDetail);
   const fetchDispatchDetail = useTransferListStore((state) => state.fetchDispatchDetail);
+
+  const formatPhoneNumber = (value: string): string => {
+    const cleaned = value.replace(/\D/g, '');
+
+    if (cleaned.length <= 3) {
+      return cleaned;
+    } else if (cleaned.length <= 7) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+    } else {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
+    }
+  };
+
+  const handlePhoneSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedNumber = formatPhoneNumber(e.target.value);
+    setPhoneSearch(formattedNumber);
+  };
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -69,7 +89,6 @@ const DispatchRecordPage = () => {
     fetchDispatchDetail(record.dispatchId);
   };
 
-  // 검색과 필터링된 레코드
   const filteredRecords = useMemo(() => {
     let processedList = [...records];
 
@@ -83,34 +102,41 @@ const DispatchRecordPage = () => {
       });
     }
 
-    if (searchQuery) {
+    // 전화번호 검색
+    if (phoneSearch) {
+      const cleanedSearch = phoneSearch.replace(/\D/g, '');
       processedList = processedList.filter(record =>
-        record.patient?.patientContact?.includes(searchQuery) ||
-        record.transfer?.hospital?.hospitalName?.includes(searchQuery)
+        record.call?.caller?.callerPhone?.replace(/\D/g, '')?.includes(cleanedSearch)
+      );
+    }
+
+    // 병원명 검색
+    if (hospitalSearch) {
+      processedList = processedList.filter(record =>
+        record.transfer?.hospital?.hospitalName
+          ?.toLowerCase()
+          .includes(hospitalSearch.toLowerCase())
       );
     }
 
     return processedList.sort((a, b) =>
       new Date(b.dispatchCreatedAt).getTime() - new Date(a.dispatchCreatedAt).getTime()
     );
-  }, [records, is24HourFilter, searchQuery]);
+  }, [records, is24HourFilter, phoneSearch, hospitalSearch]);
 
-  // 현재 페이지의 데이터
   const currentPageData = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredRecords.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredRecords, currentPage]);
 
-  // 전체 페이지 수
   const totalPages = useMemo(() =>
       Math.ceil(filteredRecords.length / ITEMS_PER_PAGE),
     [filteredRecords]
   );
 
-  // 필터 또는 검색어 변경시 첫 페이지로 이동
   useEffect(() => {
     setCurrentPage(1);
-  }, [is24HourFilter, searchQuery]);
+  }, [is24HourFilter, phoneSearch, hospitalSearch]);
 
   if (isLoading) {
     return (
@@ -133,16 +159,21 @@ const DispatchRecordPage = () => {
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="전화번호 또는 병원명 검색"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
+            <Input
+              type="text"
+              placeholder="전화번호 검색"
+              value={phoneSearch}
+              onChange={handlePhoneSearch}
+              className="w-48"
+              maxLength={13}
+            />
+            <Input
+              type="text"
+              placeholder="병원명 검색"
+              value={hospitalSearch}
+              onChange={(e) => setHospitalSearch(e.target.value)}
+              className="w-48"
+            />
             <label className="flex items-center cursor-pointer">
               <span className="text-md text-gray-900 mr-2">24시간 이내</span>
               <input

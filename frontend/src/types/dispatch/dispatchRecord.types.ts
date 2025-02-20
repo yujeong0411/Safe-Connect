@@ -1,18 +1,25 @@
 // 상황실 신고 내역 조회
+export interface Caller {
+  callerPhone: string;
+}
+
+export interface Call {
+  caller: Caller;
+}
+
 export interface DispatchRecord {
-  dispatchId: string;
-  dispatchCreatedAt: string;
-  dispatchArriveAt: string;
+  dispatchId: number;
+  call: Call;
   dispatchIsTransfer: boolean;
+  dispatchCreatedAt: string;
+  dispatchDepartAt: string;
+  dispatchArriveAt: string;
   transfer?: {
     hospital: {
       hospitalName: string;
     };
     transferAcceptAt: string;
     transferArriveAt: string;
-  };
-  patient: {
-    patientContact: string;
   };
 }
 
