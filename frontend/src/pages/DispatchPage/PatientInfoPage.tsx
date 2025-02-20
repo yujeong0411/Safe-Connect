@@ -160,7 +160,7 @@ const PatientInfoPage = () => {
 
   return (
     <DispatchMainTemplate>
-      <div className="p-4 sm:p-6 md:p-8 h-[calc(100vh-4rem)] overflow-y-auto">
+      <div className="p-4 sm:p-6 md:p-8 ">
         <form onSubmit={handleSave} className="space-y-5 bg-white p-6 rounded-lg shadow-sm">
           {/* 기본 정보 섹션 */}
           <div>

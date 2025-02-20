@@ -61,7 +61,7 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
           </div>
         </div>
 
-        <div className="flex flex-col h-[calc(100%-80px)]">
+        <div className="flex flex-col h-[calc(100%-100px)]">
           {/* 영상통화 화면 */}
           <div className="p-6 pb-2">
             <div className="bg-gray-900 rounded-lg h-96 flex items-center justify-center">
