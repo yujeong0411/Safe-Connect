@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Button } from '@/components/ui/button';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
 import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
@@ -19,7 +19,7 @@ interface VideoProps {
 const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {fetchCallSummary} = usePatientStore()
-  const { callId,leaveSession } = useOpenViduStore();
+  const { callId,leaveSession, recordingInterval } = useOpenViduStore();
   const { stopRecording, cleanup } = useRecorderStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
@@ -27,6 +27,20 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     description: '',
     type: 'default' as 'default' | 'destructive' | 'info' | 'warning' | 'success',
   });
+
+  // 컴포넌트가 언마운트될때 interval 정리
+  useEffect(() => {
+    return () => {
+      // interval 종료
+      const recordingInterval = useOpenViduStore.getState().recordingInterval;
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        useOpenViduStore.setState({ recordingInterval: null });
+
+        console.log('Recording interval 종료');
+      }
+    };
+  }, []);
 
   // 알림창 표시 핸들러
   const handleAlertClose = (config: typeof alertConfig) => {

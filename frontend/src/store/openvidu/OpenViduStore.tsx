@@ -156,7 +156,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           await initializeRecorder(subscriber);
           await startRecording();
 
-          // 30초 사이클로 녹음 중지 -> 서버로 전송 -> 다시 녹음 시작
+          // 60초 사이클로 녹음 중지 -> 서버로 전송 -> 다시 녹음 시작
           const interval = setInterval(async () => {
             const blob = await useRecorderStore.getState().stopRecording();
             console.log('Recording stopped:', blob);
@@ -171,7 +171,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           set({recordingInterval: interval });
       });
 
-      session.on('streamDestroyed', (event) => {
+      session.on('streamDestroyed', async (event) => {
         set((state) => ({
           subscribers: state.subscribers.filter(
             sub => sub !== event.stream.streamManager
@@ -183,7 +183,10 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
         if (recordingInterval) {
           clearInterval(recordingInterval);
           set({ recordingInterval: null });
+
           console.log('Recording interval 종료');
+
+          await useRecorderStore.getState().stopRecording(); // 녹음도 더이상 안되게 종료.
         }
       });
 
@@ -239,7 +242,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     }
   },
 
-  leaveSession: () => {
+  leaveSession: async() => {
     const { session, publisher } = get();
 
     if (session) {
@@ -264,6 +267,18 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       } catch (err) {
         console.error('Error leaving session:', err);
       }
+
+      // interval 종료
+      const { recordingInterval } = get();
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        set({ recordingInterval: null });
+
+        console.log('Recording interval 종료');
+
+        await useRecorderStore.getState().stopRecording(); // 녹음도 더이상 안되게 종료.
+      }
+
     }
 
     // patientStore에서 데이터 초기화 메서드 호출 : 통화 종료 시 환자 데이터 초기화
