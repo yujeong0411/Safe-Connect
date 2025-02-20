@@ -20,7 +20,7 @@ const HospitalList = ({
   onHospitalSelect
 }: HospitalListProps) => {
   return (
-    <div className="absolute right-4 top-4 bottom-4 w-96 bg-white/70 rounded-lg overflow-hidden shadow-xl z-10">
+    <div className="absolute h-[700px] right-4 top-4 bottom-4 w-96 bg-white/70 rounded-lg shadow-xl z-10">
       {/* 헤더 섹션 */}
       <div className="sticky top-0 bg-white/70 shadow-sm p-4 border-b border-gray-200">
         <div className="flex justify-between items-center mb-3">
@@ -45,7 +45,7 @@ const HospitalList = ({
       </div>
 
       {/* 목록 섹션 */}
-      <div className="p-4 overflow-y-auto max-h-[calc(100%-130px)] bg-gray-50/50">
+      <div className="p-4 max-h-[500px] overflow-y-auto bg-gray-50/50">
         {isSearching && hospitals.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-gray-600">
             <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600 mb-3"></div>

@@ -159,7 +159,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   }
 
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex">
       {/* 왼쪽 패널 - top 위치를 헤더 높이만큼 내림 */}
       <div
         className={`
