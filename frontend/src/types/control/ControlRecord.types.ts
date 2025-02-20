@@ -6,8 +6,7 @@ export interface CallRecord {
   callText: string;
   callStartedAt: string;
   callFinishedAt: string;
-
-  // 보호자 문자 전송
+  callerPhone?: string;  // 옵셔널 필드로 추가
   patientId?: number;
   userName?: string;
 }
