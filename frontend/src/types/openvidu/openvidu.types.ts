@@ -22,6 +22,7 @@ export interface openViduStore {
   callStartedAt:string
   callerPhone:string
   fireStaffId:number | undefined;
+  recordingInterval: NodeJS.Timeout | null;
 
   // Actions
   setSessionId:(newSessionId:string) => void;
@@ -52,5 +53,6 @@ export interface OpenViduState {
   callStartedAt: string,   // 신고시각
   callerPhone: string,
   fireStaffId: number | undefined,
+  recordingInterval: NodeJS.Timeout | null
 }
 

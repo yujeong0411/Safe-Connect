@@ -273,22 +273,33 @@ const ControlPatientInfoForm = () => {
               <textarea
                 className="w-full h-32 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
                 
+                // 기존 방식
 
-                //   // // callSummary 부분을 제외한 나머지를 addSummary로 설정
-                value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n' : ''}${formData.addSummary}`}
+                  // // callSummary 부분을 제외한 나머지를 addSummary로 설정
+                value={`${formData.addSummary}${formData.addSummary  && formData.callSummary  ? '\n' : ''}${formData.callSummary}`}
                 onChange={(e) => {
-                  const totalValue = e.target.value;
-                  // callSummary 부분을 제외한 나머지를 addSummary로 설정
-                  if (formData.callSummary) {
-                    // 줄바꿈을 포함한 AI 요약본 부분을 찾아서 제거
-                    const summaryPart = formData.callSummary + (formData.addSummary ? '\n' : '');
-                    const newAddSummary = totalValue.replace(summaryPart, '');
-                    updateFormData({ addSummary: newAddSummary });
-                  } else {
-                    // AI 요약본이 없는 경우 전체를 추가 요약본으로 설정
-                    updateFormData({ addSummary: totalValue });
-                  }
+                  // 기존 방식
+                  // const totalValue = e.target.value;
+                  // // callSummary 부분을 제외한 나머지를 addSummary로 설정
+                  // if (formData.callSummary) {
+                  //   // 줄바꿈을 포함한 AI 요약본 부분을 찾아서 제거
+                  //   //const summaryPart = formData.callSummary + (formData.addSummary ? '\n' : '');
+                  //   const summaryPart = formData.addSummary + (formData.callSummary ? '\n' : '') + formData.callSummary;
+                  //   const newAddSummary = totalValue.replace(summaryPart, '');
+                  //   updateFormData({ addSummary: newAddSummary });
+                  // } else {
+                  //   // AI 요약본이 없는 경우 전체를 추가 요약본으로 설정
+                  //   updateFormData({ addSummary: totalValue });
+                  // }
+
+                  // 수정 방식 : 새로운 요약이 들어오면 addSummary에 추가 (기존 요약은 그대로)
+                  // 만약 사용자가 새로운 내용을 추가한다면, 한글자씩 타이핑을 할때마다 addSummary에 덮어씌운다.
+                  // 사용자 입력을 그대로 addSummary에 저장
+                  updateFormData({ addSummary: e.target.value });
+                  
                 }}
+
+                
 
                 placeholder="추가 내용을 입력하세요."
               />

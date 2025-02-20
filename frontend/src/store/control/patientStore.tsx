@@ -186,10 +186,17 @@ export const usePatientStore = create<PatientStore>((set, get) => ({
           ...state,
           formData: {
             ...state.formData,
-            callSummary: response.data.callSummary,
+            // 기존 방식식
+            // callSummary: response.data.callSummary,
             
-            addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화
+            // addSummary: state.formData.addSummary, // 새로운 AI요약본 받아올때 최소화
             // addSummary : '',
+
+            // 새로운 방식
+            // 기존 addSummary에 새로운 callSummary 추가
+            addSummary: state.formData.addSummary
+            ? `${state.formData.addSummary}\n${response.data.callSummary}`
+            : response.data.callSummary
           }
           
         }))
