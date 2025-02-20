@@ -288,7 +288,7 @@ const HospitalListForm = ({ type, isModalOpen, setIsModalOpen }: HospitalListFor
         <button onClick={handleSearch} className="px-4 py-1 rounded-md bg-banner text-white">
           조회
         </button>
-        <button onClick={handleReset} className="px-4 py-1 rounded-md border bg-graybtn text-black">
+        <button onClick={handleReset} className="px-4 py-1 rounded-md border bg-red-600 text-white">
           초기화
         </button>
       </div>
