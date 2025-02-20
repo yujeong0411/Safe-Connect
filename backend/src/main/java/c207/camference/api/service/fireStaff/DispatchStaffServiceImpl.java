@@ -408,6 +408,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         DispatchGroupPatientTransferResponse sseDispatchGroupResponse = new DispatchGroupPatientTransferResponse(dispatch, reqHospitalNames, patient);
         HospitalPatientTransferResponse sseHospitalResponse = new HospitalPatientTransferResponse(dispatch, patient, userMediDetailRepository);
+        log.info("sseDispatchGroupResponse: " + sseDispatchGroupResponse);
+        log.info("sseHospitalResponse: " + sseHospitalResponse);
 
         // SSE
         sseEmitterService.transferRequest(sseDispatchGroupResponse, sseHospitalResponse);

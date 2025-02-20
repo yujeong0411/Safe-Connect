@@ -46,10 +46,6 @@ const GuardianNotificationDialog = ({
     }
 
     try {
-      if (formData.patientIsUser && formData.patientProtectorPhone) {
-        await sendProtectorMessage();
-      }
-
       // 이송 종료 처리 (유저 + 비유저)
       const transferResponse = await completeTransfer(currentTransfer.transferId)
       if (transferResponse.isSuccess) {
@@ -60,9 +56,13 @@ const GuardianNotificationDialog = ({
               : '이송이 종료되었습니다.',
           type: 'default',
         });
-        resetPatientInfo()
-        navigate('/dispatch/main')
     }
+    if (formData.patientIsUser && formData.patientProtectorPhone) {
+      await sendProtectorMessage();
+      navigate('/dispatch/main')
+      resetPatientInfo()
+    }
+
  } catch (error) {
     handleAlertClose({
       title: '처리 실패',
