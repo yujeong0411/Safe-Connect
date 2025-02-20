@@ -155,12 +155,12 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
           {/* 상단 헤더 - 고정 */}
           <div className="p-6 pb-4 border-b">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">전화 업무</h2>
+              <h2 className="text-xl font-bold">영상 통화</h2>
               <div className="space-x-4">
                 <ConfirmDialog
-                    trigger="출동 완료"
-                    title="출동 완료"
-                    description="출동을 완료하시겠습니까?"
+                    trigger="상황 종료"
+                    title="상황 종료"
+                    description="신고가 종료됐습니까?"
                     confirmText = "완료"
                     triggerVariant="destructive"
                     cancelVariant="gray"

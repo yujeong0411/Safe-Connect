@@ -30,7 +30,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { connect, disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore();
   const { patientInfo, currentCall } = usePatientStore();
-  const { isActive, sessionId } = useOpenViduStore();
+  const { isActive } = useOpenViduStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
@@ -84,11 +84,9 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
     let reconnectTimer: NodeJS.Timeout | null = null;
 
     const connectSSE = () => {
-      console.log(sessionStorage)
       const userName = sessionStorage.getItem("userName");
       if (userName && isAuthenticated && location.pathname.startsWith('/control')) {
         connect(userName);
-
         // 25분 후 자동 재연결 설정
         reconnectTimer = setTimeout(() => {
           disconnect();
@@ -140,14 +138,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       hasModal: true,
       onModalOpen: handleCallerConnection,
     },
-    // {
-    //   label: '영상통화 생성',
-    //   path: '#',
-    //   hasModal: true,
-    //   onModalOpen: () => setIsVideoModalOpen(true),
-    // },
-    // { label: '전화 업무', path: '#', hasModal: true, onModalOpen: () => setIsOpen(!isDrawerOpen) },
-    { label: '신고 업무', path: '/control/patient-info' },
+    { label: '접수 등록', path: '/control/patient-info' },
     { label: '출동 지령', path: '/control/dispatch-order' },
     {
       label: '보호자 알림',
