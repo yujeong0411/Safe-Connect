@@ -7,8 +7,6 @@ import { useToast } from '@/hooks/use-toast.ts';
 import { ToastAction } from '@components/ui/toast.tsx';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
-import { EventSourcePolyfill } from "event-source-polyfill";
-import { useAuth } from '@/hooks/useAuth';
 
 interface HospitalMainPageProps {
   type: 'request' | 'accept';
@@ -16,7 +14,6 @@ interface HospitalMainPageProps {
 
 const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
   const { logout } = useHospitalAuthStore();
-  const { loginId } = useAuth();
   const { combinedTransfers, fetchCombinedTransfers } = useHospitalTransferStore();
   const { toast, dismiss } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);  // Single source of truth for modal state

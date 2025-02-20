@@ -11,7 +11,7 @@ interface VideoCallDrawerProps {
 }
 
 const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
-  const { leaveSession } = useOpenViduStore();
+  const { dispatchLeaveSession } = useOpenViduStore();
   const setIsLoading = useLocationStore((state) => state.setIsLoading);
   const {formData} = useDispatchPatientStore()
 
@@ -26,9 +26,9 @@ const VideoCallDrawer = ({ isOpen, onClose }: VideoCallDrawerProps) => {
 
     try {
       await completeVideo(formData.dispatchId);
-      await leaveSession();
+      await dispatchLeaveSession();
       setIsLoading(true);
-      alert('통화가 종료되었습니다.');
+      alert('현장에 도착하였습니다.');
       onClose();  // drawer 닫기
     } catch (error) {
       console.error("통화 종료 실패", error);

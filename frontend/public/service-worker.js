@@ -25,3 +25,4 @@ self.addEventListener('message', (event) => {
     // Background location tracking logic here
   }
 });
+

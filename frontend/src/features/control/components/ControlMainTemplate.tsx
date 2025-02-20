@@ -144,7 +144,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       hasModal: true,
       onModalOpen: handleCallerConnection,
     },
-    { label: '접수 등록', path: '/control/patient-info' },
+    { label: '신고 접수', path: '/control/patient-info' },
     { label: '출동 지령', path: '/control/dispatch-order' },
     {
       label: '보호자 알림',

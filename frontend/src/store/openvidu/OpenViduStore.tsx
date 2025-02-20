@@ -280,15 +280,126 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       }
 
     }
-
     // patientStore에서 데이터 초기화 메서드 호출 : 통화 종료 시 환자 데이터 초기화
     usePatientStore.getState().resetPatientInfo()
-
     set({
       ...initialState
     });
+  },
+
+  dispatchJoinSession: async () => {
+    try {
+      // OpenVidu 초기화 전에 브라우저 체크 우회
+      forceOverrideBrowserCheck();
+
+      const OV = new OpenVidu();
+      OV.enableProdMode();  // 프로덕션 모드 활성화
+      set({ OV });
+
+      const { sessionId, userName } = get();
+
+      if (!sessionId) return;
+
+      const session = OV.initSession();
 
 
+      session.on('streamCreated', async (event) => {
+        const subscriber = session.subscribe(event.stream, undefined);
+        set((state) => ({
+          subscribers: [...state.subscribers, subscriber],
+        }));
+      });
+
+      session.on('streamDestroyed', async (event) => {
+        set((state) => ({
+          subscribers: state.subscribers.filter(
+            sub => sub !== event.stream.streamManager
+          ),
+        }));
+      });
+      // 연결 시도
+      const token = await get().createToken(sessionId);
+      await session.connect(token, { clientData: userName });
+
+      // iOS에 최적화된 설정으로 퍼블리셔 초기화
+      const publisher = await OV.initPublisherAsync(undefined, {
+        audioSource: undefined,
+        videoSource: undefined,
+        publishAudio: true,
+        publishVideo: true,
+        resolution: '320x240',    // 낮은 해상도
+        frameRate: 15,            // 낮은 프레임레이트
+        insertMode: 'APPEND',
+        mirror: false,
+      });
+
+
+      await session.publish(publisher);
+
+      const localUser = {
+        connectionId: session.connection.connectionId,
+        streamManager: publisher,
+        userName: userName,
+      };
+
+      set({
+        session,
+        mainStreamManager: publisher,
+        publisher,
+        localUser: localUser,
+        isActive: true
+      });
+
+    } catch (error) {
+      console.error('Session join failed:', error);
+      set({
+        session: undefined,
+        mainStreamManager: undefined,
+        publisher: undefined,
+        subscribers: [],
+        localUser: {
+          connectionId: undefined,
+          streamManager: undefined,
+          userName: undefined,
+        },
+        isActive: false
+      });
+      throw error;
+    }
+  },
+
+  dispatchLeaveSession: async() => {
+    const { session, publisher } = get();
+    // 환자 정보 초기화 필요 x
+
+    if (session) {
+      try {
+        if (publisher) {
+          const mediaStream = publisher.stream.getMediaStream();
+          if (mediaStream) {
+            mediaStream.getTracks().forEach(track => {
+              track.stop();
+            });
+          }
+          session.unpublish(publisher);
+        }
+
+        try {
+          axiosInstance.post(`/api/sessions/${session.sessionId}/disconnect`);
+        } catch (error) {
+          console.error('Error notifying server about disconnection:', error);
+        }
+
+        session.disconnect();
+      } catch (err) {
+        console.error('Error leaving session:', err);
+      }
+
+    }
+    // 확인 필요
+    set({
+      ...initialState
+    });
   },
 
   createSession: async (sessionId: string, callerPhone: string) => {
