@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast.ts';
 import { ToastAction } from '@components/ui/toast.tsx';
 import HospitalDetailDialog from '@features/hospital/components/HospitalDetailDialog.tsx';
 import { PatientDetailProps } from '@features/hospital/types/patientDetail.types.ts';
+import { CombinedTransfer } from '@/types/hospital/hospitalTransfer.types';
 
 interface HospitalMainPageProps {
   type: 'request' | 'accept';
@@ -37,6 +38,8 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
     requestTransferAt: '',
   });
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [transferRequests, setTransferRequests] = useState<CombinedTransfer[]>([]);
+
 
   // SSE 관련 상태
   const [sseConnected, setSseConnected] = useState(false);
@@ -131,7 +134,7 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
                 bt: detailData.patientTemperature,
                 spo2: detailData.patientSpo2,
                 bst: detailData.patientBloodSugar,
-                phone: detailData.userPhone,
+                phone: detailData.patientPhone,
                 protectorPhone: detailData.userProtectorPhone ?? null,
                 symptoms: detailData.patientSymptom,
                 diseases: detailData.patientDiseases?.join(', ') ?? undefined,
@@ -190,7 +193,20 @@ const HospitalMainPage = ({ type }: HospitalMainPageProps) => {
 
       newEventSource.addEventListener("transfer-request", (event) => {
         const response = JSON.parse(event.data);
+
+        // response.data를 직접 수정
+        response.data.patients = [{
+          patientId: response.data.patient.patientId,
+          patientPreKtas: response.data.patient.patientPreKtas,
+          patientGender: response.data.patient.patientGender,
+          patientAge: response.data.patient.patientAge,
+          patientSymptom: response.data.patient.patientSymptom,
+          patientPhone: response.data.patient.patientPhone
+        }];
+
         showTransferRequestToast(response.data.patient, response);
+        setTransferRequests(prev => [...prev, response.data]);
+
       });
 
       newEventSource.addEventListener("transfer-accepted", (event) => {

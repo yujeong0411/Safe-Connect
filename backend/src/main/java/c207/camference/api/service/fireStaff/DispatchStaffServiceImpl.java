@@ -406,7 +406,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         List<String> reqHospitalNames = new ArrayList<>();
         for (Hospital hospital : activeHospitals) {
-            if (reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
+            if (!reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
                 continue;
             }
             ReqHospital reqHospital = ReqHospital.builder()
@@ -420,6 +420,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         DispatchGroupPatientTransferResponse sseDispatchGroupResponse = new DispatchGroupPatientTransferResponse(dispatch, reqHospitalNames, patient);
         HospitalPatientTransferResponse sseHospitalResponse = new HospitalPatientTransferResponse(dispatch, patient, userMediDetailRepository);
+        log.info("sseDispatchGroupResponse: " + sseDispatchGroupResponse);
+        log.info("sseHospitalResponse: " + sseHospitalResponse);
 
         // SSE
         sseEmitterService.transferRequest(sseDispatchGroupResponse, sseHospitalResponse);

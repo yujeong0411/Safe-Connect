@@ -36,6 +36,9 @@ public class TransferRequestResponse {
                         .patientAge(patient.getPatientAge())
                         .patientSymptom(patient.getPatientSymptom())
                         .patientId(patient.getPatientId())
+                        .patientPhone(patient.getPatientIsUser()
+                                ? patient.getUser().getUserPhone()  // user인 경우
+                                : patient.getCall().getCaller().getCallerPhone())  // user가 아닌 경우                        .build())
                         .build())
                 .collect(Collectors.toList());
     }

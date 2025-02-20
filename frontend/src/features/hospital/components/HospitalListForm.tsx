@@ -164,13 +164,17 @@ const HospitalListForm = ({ type, isModalOpen, setIsModalOpen }: HospitalListFor
       {
         key: 'reqHospitalCreatedAt',
         header: '이송요청 일시',
-        render: (data: CombinedTransfer) =>
-          format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
+        render: (data: CombinedTransfer) => {
+          console.log("data = ", data)
+          console.log("Full data structure:", JSON.stringify(data, null, 2));
+
+        }
+          // format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
       },
       {
         key: 'patientGender_Age',
         header: '성별/나이',
-        render: (data: CombinedTransfer) =>
+        render: (data: CombinedTransfer) => 
           data.patients?.[0]
             ? `${data.patients[0].patientGender}/${data.patients[0].patientAge}`
             : '-',
