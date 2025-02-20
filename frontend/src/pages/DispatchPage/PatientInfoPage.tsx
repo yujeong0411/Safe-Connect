@@ -102,6 +102,7 @@ const PatientInfoPage = () => {
         });
       }
       await completeVideo(formData.dispatchId)
+      setVideoDrawerOpen(false);
       navigate('/dispatch/transfer-request');
     } catch (error) {
       console.error('환자 저장 실패(페이지)', error);
