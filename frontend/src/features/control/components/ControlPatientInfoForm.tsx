@@ -125,6 +125,7 @@ const ControlPatientInfoForm = () => {
     setTimeout(() => {
       navigate('/control/dispatch-order')
     }, 1000)
+
     } catch (error) {
       handleAlertClose({
         title: '저장 실패',
@@ -145,8 +146,8 @@ const ControlPatientInfoForm = () => {
 
   return (
     <div className="flex w-full items-center justify-center">
-      <div className="flex-1 p-4 max-w-4xl">
-        <div className="bg-white rounded-lg p-6">
+      <div className="flex-1 mt-5 p-2 max-w-3xl">
+        <div className="bg-white rounded-lg p-5">
           <div className="grid grid-cols-[9fr_1fr] gap-4 mb-4">
             <SearchBar_ver2
               ref={searchBarRef}
@@ -197,13 +198,13 @@ const ControlPatientInfoForm = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">나이</label>
               <Input
                 className="w-full border-gray-800"
-                value={formData.userAge}
+                value={formData.userAge ?? ''}
                 onChange={handleInputChange('userAge')}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="grid grid-cols-2 gap-4 mt-3">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
               <Input
@@ -224,16 +225,16 @@ const ControlPatientInfoForm = () => {
             </div>
           </div>
 
-          <div className="col-span-1 mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">증상</label>
-            <Input
-              className="w-full border-gray-800"
-              value={formData.symptom}
-              onChange={handleInputChange('symptom')}
-            />
-          </div>
+          {/*<div className="col-span-1 mt-3">*/}
+          {/*  <label className="block text-sm font-medium text-gray-700 mb-1">증상</label>*/}
+          {/*  <Input*/}
+          {/*    className="w-full border-gray-800"*/}
+          {/*    value={formData.symptom}*/}
+          {/*    onChange={handleInputChange('symptom')}*/}
+          {/*  />*/}
+          {/*</div>*/}
 
-          <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="grid grid-cols-2 gap-4 mt-3">
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-800 mb-1">현재 병력</label>
               <textarea
@@ -267,28 +268,39 @@ const ControlPatientInfoForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 mt-6">
+          <div className="grid grid-cols-1 mt-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">요약본</label>
               <textarea
-                className="w-full h-32 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full h-45 p-3 border border-gray-800 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
                 
+                // 기존 방식
 
-                //   // // callSummary 부분을 제외한 나머지를 addSummary로 설정
-                value={`${formData.callSummary}${formData.callSummary && formData.addSummary ? '\n' : ''}${formData.addSummary}`}
+                  // // callSummary 부분을 제외한 나머지를 addSummary로 설정
+                value={`${formData.addSummary}${formData.addSummary  && formData.callSummary  ? '\n' : ''}${formData.callSummary}`}
                 onChange={(e) => {
-                  const totalValue = e.target.value;
-                  // callSummary 부분을 제외한 나머지를 addSummary로 설정
-                  if (formData.callSummary) {
-                    // 줄바꿈을 포함한 AI 요약본 부분을 찾아서 제거
-                    const summaryPart = formData.callSummary + (formData.addSummary ? '\n' : '');
-                    const newAddSummary = totalValue.replace(summaryPart, '');
-                    updateFormData({ addSummary: newAddSummary });
-                  } else {
-                    // AI 요약본이 없는 경우 전체를 추가 요약본으로 설정
-                    updateFormData({ addSummary: totalValue });
-                  }
+                  // 기존 방식
+                  // const totalValue = e.target.value;
+                  // // callSummary 부분을 제외한 나머지를 addSummary로 설정
+                  // if (formData.callSummary) {
+                  //   // 줄바꿈을 포함한 AI 요약본 부분을 찾아서 제거
+                  //   //const summaryPart = formData.callSummary + (formData.addSummary ? '\n' : '');
+                  //   const summaryPart = formData.addSummary + (formData.callSummary ? '\n' : '') + formData.callSummary;
+                  //   const newAddSummary = totalValue.replace(summaryPart, '');
+                  //   updateFormData({ addSummary: newAddSummary });
+                  // } else {
+                  //   // AI 요약본이 없는 경우 전체를 추가 요약본으로 설정
+                  //   updateFormData({ addSummary: totalValue });
+                  // }
+
+                  // 수정 방식 : 새로운 요약이 들어오면 addSummary에 추가 (기존 요약은 그대로)
+                  // 만약 사용자가 새로운 내용을 추가한다면, 한글자씩 타이핑을 할때마다 addSummary에 덮어씌운다.
+                  // 사용자 입력을 그대로 addSummary에 저장
+                  updateFormData({ addSummary: e.target.value });
+                  
                 }}
+
+                
 
                 placeholder="추가 내용을 입력하세요."
               />

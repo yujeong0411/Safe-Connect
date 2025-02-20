@@ -13,12 +13,13 @@ public interface SseEmitterService {
 
     SseEmitter createControlEmitter(String clientId);
     SseEmitter createDispatchGroupEmitter(String clientId);
-    SseEmitter createHospitalEmitter(Integer clientId);
+//    SseEmitter createHospitalEmitter(Integer clientId);
+    SseEmitter createHospitalEmitter(String clientId);
     SseEmitter createCallerEmitter(String clientId);
 
     void sendDispatchOrder(ControlDispatchOrderRequest controlData, ControlDispatchOrderResponse dispatchGroupData);
     void transferRequest(DispatchGroupPatientTransferResponse dispatchGroupData, HospitalPatientTransferResponse hospitalData);
-    void hospitalResponse(AcceptedHospitalResponse response, boolean accepted);
+    void hospitalResponse(AcceptedHospitalResponse response, boolean accepted,Integer dispatchId);
     void sendDispatchGroupPosition(DispatchCurrentPositionRequest request);
     void shareCallerLocation(ShareLocationRequest request);
 }

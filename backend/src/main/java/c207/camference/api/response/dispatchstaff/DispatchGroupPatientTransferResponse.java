@@ -17,4 +17,14 @@ public class DispatchGroupPatientTransferResponse {
         this.hospitalNames = hospitalNames;
         this.patientId = patient.getPatientId();
     }
+
+
+    @Override
+    public String toString() {
+        return "DispatchGroupPatientTransferResponse{" +
+                "dispatchId=" + dispatchId +
+                ", hospitalNames=" + hospitalNames +
+                ", patientId=" + patientId +
+                '}';
+    }
 }

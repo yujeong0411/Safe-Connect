@@ -34,6 +34,7 @@ const initialFormData: Omit<DispatchFormData, 'patientId' | 'dispatchId'> = {
   callSummary: '',
   patientIsUser: false,
   callerLocation: undefined,
+  hospitalName: undefined,
 };
 
 export const useDispatchPatientStore = create<DispatchPatientStore>((set, get) => ({

@@ -144,6 +144,8 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
                 !place.place_name.includes('안전센터') && !place.place_name.includes('구조대')
             );
 
+            bounds.extend(new kakao.maps.LatLng(center.lat, center.lng));
+
             const newMarkers = await Promise.all(
               filteredData.map(async (place) => {
                 const position = {
@@ -182,7 +184,8 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
               }));
               FindFireStations(stationsWithRouteInfo);
             }
-            map.setBounds(bounds);
+            // 패딩을 더 크게 설정하여 현재 위치와 소방서 모두가 잘 보이도록 조정
+            map.setBounds(bounds, 100);
           }
         },
         {
@@ -263,7 +266,7 @@ const KakaoMaps = ({ FindFireStations, onMarkerClick, selectedStation }: Extende
             </CustomOverlayMap>
           )}
         </>
-      )};
+      )}
 
       {/*소방서 위치*/}
       {markers.map((marker) => (

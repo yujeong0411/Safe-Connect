@@ -7,6 +7,7 @@ import React from 'react';
 import { usePatientStore } from "@/store/control/patientStore.tsx";
 import  useRecorderStore  from '@/store/openvidu/MediaRecorderStore.tsx';
 
+
 const { startRecording, initializeRecorder} = useRecorderStore.getState();
 
 // 더 강력한 브라우저 체크 우회
@@ -55,6 +56,7 @@ const initialState: OpenViduState = {
   callStartedAt: '',   // 신고시각
   callerPhone: '',
   fireStaffId: undefined,
+  recordingInterval: null as NodeJS.Timeout | null,
 
 };
 
@@ -154,14 +156,38 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
           await initializeRecorder(subscriber);
           await startRecording();
 
+          // 60초 사이클로 녹음 중지 -> 서버로 전송 -> 다시 녹음 시작
+          const interval = setInterval(async () => {
+            const blob = await useRecorderStore.getState().stopRecording();
+            console.log('Recording stopped:', blob);
+
+            // 녹음 파일 전송
+            await usePatientStore.getState().fetchCallSummary(Number(get().callId), blob);
+
+            //await initializeRecorder(subscriber);
+            await startRecording();
+          }, 60000);
+
+          set({recordingInterval: interval });
       });
 
-      session.on('streamDestroyed', (event) => {
+      session.on('streamDestroyed', async (event) => {
         set((state) => ({
           subscribers: state.subscribers.filter(
             sub => sub !== event.stream.streamManager
           ),
         }));
+
+        // interval 종료
+        const { recordingInterval } = get();
+        if (recordingInterval) {
+          clearInterval(recordingInterval);
+          set({ recordingInterval: null });
+
+          console.log('Recording interval 종료');
+
+          await useRecorderStore.getState().stopRecording(); // 녹음도 더이상 안되게 종료.
+        }
       });
 
      
@@ -216,7 +242,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
     }
   },
 
-  leaveSession: () => {
+  leaveSession: async() => {
     const { session, publisher } = get();
 
     if (session) {
@@ -241,16 +267,139 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       } catch (err) {
         console.error('Error leaving session:', err);
       }
-    }
 
+      // interval 종료
+      const { recordingInterval } = get();
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        set({ recordingInterval: null });
+
+        console.log('Recording interval 종료');
+
+        await useRecorderStore.getState().stopRecording(); // 녹음도 더이상 안되게 종료.
+      }
+
+    }
     // patientStore에서 데이터 초기화 메서드 호출 : 통화 종료 시 환자 데이터 초기화
     usePatientStore.getState().resetPatientInfo()
-
     set({
       ...initialState
     });
+  },
+
+  dispatchJoinSession: async () => {
+    try {
+      // OpenVidu 초기화 전에 브라우저 체크 우회
+      forceOverrideBrowserCheck();
+
+      const OV = new OpenVidu();
+      OV.enableProdMode();  // 프로덕션 모드 활성화
+      set({ OV });
+
+      const { sessionId, userName } = get();
+
+      if (!sessionId) return;
+
+      const session = OV.initSession();
 
 
+      session.on('streamCreated', async (event) => {
+        const subscriber = session.subscribe(event.stream, undefined);
+        set((state) => ({
+          subscribers: [...state.subscribers, subscriber],
+        }));
+      });
+
+      session.on('streamDestroyed', async (event) => {
+        set((state) => ({
+          subscribers: state.subscribers.filter(
+            sub => sub !== event.stream.streamManager
+          ),
+        }));
+      });
+      // 연결 시도
+      const token = await get().createToken(sessionId);
+      await session.connect(token, { clientData: userName });
+
+      // iOS에 최적화된 설정으로 퍼블리셔 초기화
+      const publisher = await OV.initPublisherAsync(undefined, {
+        audioSource: undefined,
+        videoSource: undefined,
+        publishAudio: true,
+        publishVideo: true,
+        resolution: '320x240',    // 낮은 해상도
+        frameRate: 15,            // 낮은 프레임레이트
+        insertMode: 'APPEND',
+        mirror: false,
+      });
+
+
+      await session.publish(publisher);
+
+      const localUser = {
+        connectionId: session.connection.connectionId,
+        streamManager: publisher,
+        userName: userName,
+      };
+
+      set({
+        session,
+        mainStreamManager: publisher,
+        publisher,
+        localUser: localUser,
+        isActive: true
+      });
+
+    } catch (error) {
+      console.error('Session join failed:', error);
+      set({
+        session: undefined,
+        mainStreamManager: undefined,
+        publisher: undefined,
+        subscribers: [],
+        localUser: {
+          connectionId: undefined,
+          streamManager: undefined,
+          userName: undefined,
+        },
+        isActive: false
+      });
+      throw error;
+    }
+  },
+
+  dispatchLeaveSession: async() => {
+    const { session, publisher } = get();
+    // 환자 정보 초기화 필요 x
+
+    if (session) {
+      try {
+        if (publisher) {
+          const mediaStream = publisher.stream.getMediaStream();
+          if (mediaStream) {
+            mediaStream.getTracks().forEach(track => {
+              track.stop();
+            });
+          }
+          session.unpublish(publisher);
+        }
+
+        try {
+          axiosInstance.post(`/api/sessions/${session.sessionId}/disconnect`);
+        } catch (error) {
+          console.error('Error notifying server about disconnection:', error);
+        }
+
+        session.disconnect();
+      } catch (err) {
+        console.error('Error leaving session:', err);
+      }
+
+    }
+    // 확인 필요
+    set({
+      ...initialState
+    });
   },
 
   createSession: async (sessionId: string, callerPhone: string) => {
@@ -303,4 +452,7 @@ export const useOpenViduStore = create<openViduStore>((set, get) => ({
       throw error;
     }
   },
+
+  
+  
 }));

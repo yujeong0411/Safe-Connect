@@ -18,7 +18,7 @@ export interface AcceptedTransferResponse extends BaseResponse {
 // 이송 신청 내역 조회
 export interface TransferData {
     dispatchId: number
-    fireDeptName:string // 관할 소방서
+    fireDeptName: string // 관할 소방서
     reqHospitalCreatedAt: string  // 요청 시간
     dispatchIsTransfer: boolean // 이송 여부
     patients: patients[]
@@ -27,11 +27,12 @@ export interface TransferData {
 
 // 전체 이송 조회 시 환자 정보
 export interface patients {
-    patientId: number  // 벡엔드 추가 완료
-    patientPreKtas:string
-    patientGender:string
-    patientAge:string
-    patientSymptom:string
+    patientId: number
+    patientPreKtas: string
+    patientGender: string
+    patientAge: string
+    patientSymptom: string
+    patientPhone: string // 환자 연락처 추가
 }
 
 export interface TransferStore {
@@ -43,7 +44,7 @@ export interface TransferStore {
 
 // 이송 신청 상세 조회
 export interface PatientDetail {
-    patientId: number   // 벡엔드 추가 완료
+    patientId: number
     patientName: string;
     patientGender: string;
     patientAge: string;
@@ -55,7 +56,7 @@ export interface PatientDetail {
     patientSpo2: number;
     patientBloodSugar: number;
     patientPreKtas: string;
-    userPhone: string;
+    patientPhone: string;
     userProtectorPhone?: string;
     patientSymptom: string;
     patientMedications: string[];
@@ -66,10 +67,9 @@ export interface PatientDetail {
 export interface AcceptedTransfer {
     transferAcceptAt: string;
     transferArriveAt: string;
-    dispatchId: number;  // id로 연결
+    dispatchId: number;
     hospital: Hospital;
 }
-
 
 // 병원 정보
 export interface Hospital {
@@ -77,15 +77,12 @@ export interface Hospital {
     locationPoint: string;
 }
 
-
-
-// 전체 이송신청 목록 + 수락 목록  -> 연결하기 위해
-export interface CombinedTransfer extends TransferData {  // TransferData 상속
-    transferAcceptAt: string | null;  // 수락 시간
-    transferArriveAt: string | null;  // 도착 시간
+// 전체 이송신청 목록 + 수락 목록
+export interface CombinedTransfer extends TransferData {
+    transferAcceptAt: string | null;
+    transferArriveAt: string | null;
     hospital: Hospital | null;
 }
-
 
 export interface TransferRequestEventData extends BaseResponse {
     data: {
@@ -99,6 +96,7 @@ export interface TransferPatientData {
     patientAge: string;
     patientGender: string;
     patientPreKtas: string;
-    patientSympthom: string;
+    patientSymptoms: string;
+    patientPhone: string; // 환자 연락처 추가
     reqHospitalCreatedAt: string;
 }
