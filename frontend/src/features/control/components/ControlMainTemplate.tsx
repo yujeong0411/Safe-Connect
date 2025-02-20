@@ -27,8 +27,8 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   const { connect, disconnect } = useControlsseStore();
   const { isAuthenticated } = useControlAuthStore();
   const { isActive } = useOpenViduStore();
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertConfig, setAlertConfig] = useState({
+  const [showAlert, _setShowAlert] = useState(false);
+  const [alertConfig, _setAlertConfig] = useState({
     title: '',
     description: '',
     type: 'default' as 'default' | 'destructive',
@@ -117,7 +117,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
   ];
 
   return (
-    <div className="mih-h-screen bg-bg flex flex-col">
+    <div className="h-screen bg-bg flex flex-col">
       {isKakaoLoaded ? (
         <>
           <div className="-space-y-4">
@@ -132,7 +132,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
             />
             <NavBar navItems={navItems} />
           </div>
-          <div className="flex-1 min-h-[calc(100vh-100px)]">
+          <div className="flex-1 h-[calc(100vh-100px)]">
             <VideoCallDrawer>{children}</VideoCallDrawer>
           </div>
         </>
