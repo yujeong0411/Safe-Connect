@@ -7,6 +7,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {CircleAlert, CircleCheckBig} from "lucide-react";
 import {formatPhoneNumber} from "@features/auth/servies/signupService.ts";
+import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
+import { useVideoDrawerStore } from '@/store/dispatch/dispatchVideoStore.tsx';
+import { completeVideo } from '@features/dispatch/sevices/dispatchServiece.ts';
 
 const PatientInfoPage = () => {
   const {
@@ -17,8 +20,10 @@ const PatientInfoPage = () => {
     completeDispatch,
     currentTransfer,
     dispatchStatus,
-      resetPatientInfo,
+    resetPatientInfo,
   } = useDispatchPatientStore();
+  const {setVideoDrawerOpen} = useVideoDrawerStore();
+  const {dispatchLeaveSession,sessionId} = useOpenViduStore();
   const ktasOptions = ['1', '2', '3', '4', '5'];
   const mentalOptions = ['A', 'V', 'P', 'U'];
   const genderOptions = ['M', 'F'];
@@ -57,19 +62,19 @@ const PatientInfoPage = () => {
 
       try {
         await completeDispatch();
-
+        dispatchLeaveSession();
         showAlertWithTimeout({
           title: '출동 종료',
           description: '출동이 종료되었습니다.',
           type: 'default',
         });
 
-        navigate('/dispatch/main');  // 메인 페이지로 먼저 이동 후  리셋
+        setVideoDrawerOpen(false);
+        navigate('/dispatch/main'); // 메인 페이지로 먼저 이동 후  리셋
         setShowAlert(true);
         setTimeout(() => {
-        resetPatientInfo()  // 종료 후 모든 정보 초기화
-        }, 1000)
-
+          resetPatientInfo(); // 종료 후 모든 정보 초기화
+        }, 1000);
       } catch (error) {
         showAlertWithTimeout({
           title: '처리 실패',
@@ -84,6 +89,9 @@ const PatientInfoPage = () => {
   // 환자 정보 저장
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(sessionId){
+      dispatchLeaveSession();
+    }
     try {
       const response = await savePatientInfo();
       if (response) {
@@ -93,6 +101,8 @@ const PatientInfoPage = () => {
           type: 'default',
         });
       }
+      await completeVideo(formData.dispatchId)
+      navigate('/dispatch/transfer-request');
     } catch (error) {
       console.error('환자 저장 실패(페이지)', error);
     }
