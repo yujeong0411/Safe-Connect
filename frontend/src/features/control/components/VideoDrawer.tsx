@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Button } from '@/components/ui/button';
 import { useVideoCallStore } from '@/store/control/videoCallStore';
 import VideoSessionUI from '@features/openvidu/component/VideoSessionUI.tsx';
@@ -19,14 +19,28 @@ interface VideoProps {
 const VideoCallDrawer = ({ children }: VideoProps) => {
   const { isOpen, setIsOpen } = useVideoCallStore();
   const {fetchCallSummary} = usePatientStore()
-  const { callId,leaveSession } = useOpenViduStore();
-  const { stopRecording } = useRecorderStore();
+  const { callId,leaveSession, recordingInterval } = useOpenViduStore();
+  const { stopRecording, cleanup } = useRecorderStore();
   const [showAlert, setShowAlert] = useState(false);
   const [alertConfig, setAlertConfig] = useState({
     title: '',
     description: '',
     type: 'default' as 'default' | 'destructive' | 'info' | 'warning' | 'success',
   });
+
+  // 컴포넌트가 언마운트될때 interval 정리
+  useEffect(() => {
+    return () => {
+      // interval 종료
+      const recordingInterval = useOpenViduStore.getState().recordingInterval;
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        useOpenViduStore.setState({ recordingInterval: null });
+
+        console.log('Recording interval 종료');
+      }
+    };
+  }, []);
 
   // 알림창 표시 핸들러
   const handleAlertClose = (config: typeof alertConfig) => {
@@ -101,6 +115,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     console.log("handleCallSummary 실행");
     try {
       const audioBlob:Blob = await stopRecording();
+      //await cleanup();
 
     if (!callId) {
       handleAlertClose({
@@ -141,13 +156,13 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
   }
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-screen">
       {/* 왼쪽 패널 - top 위치를 헤더 높이만큼 내림 */}
       <div
         className={`
-          left-0 h-full bg-bg overflow-y-auto z-50
+          left-0 bg-bg overflow-y-auto z-50
           transform transition-all duration-300 ease-in-out
-          top-50
+          top-12
           ${isOpen ? 'w-1/2' : 'w-0'}
         `}
       >
@@ -155,36 +170,38 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
           {/* 상단 헤더 - 고정 */}
           <div className="p-6 pb-4 border-b">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">전화 업무</h2>
+              <h2 className="text-xl font-bold">영상 통화</h2>
               <div className="space-x-4">
                 <ConfirmDialog
-                    trigger="출동 완료"
-                    title="출동 완료"
-                    description="출동을 완료하시겠습니까?"
-                    confirmText = "완료"
-                    triggerVariant="destructive"
-                    cancelVariant="gray"
-                    confirmVariant="destructive"
-                    onConfirm={handleEndCall}
+                  trigger="상황 종료"
+                  title="상황 종료"
+                  description="신고가 종료됐습니까?"
+                  confirmText="완료"
+                  triggerVariant="destructive"
+                  cancelVariant="gray"
+                  confirmVariant="destructive"
+                  onConfirm={handleEndCall}
                 />
                 <Button variant="default" size="default" onClick={handleResendUrl}>
                   URL 재전송
                 </Button>
-                <Button onClick={handleCallSummary} variant="default" size="default" className="bg-banner hover:bg-[#404b5c]">
+                <Button
+                  onClick={handleCallSummary}
+                  variant="default"
+                  size="default"
+                  className="bg-banner hover:bg-[#404b5c]"
+                >
                   AI 요약
                 </Button>
-              <Button variant="outline" size="default" onClick={() => setIsOpen(false)}>
-                닫기
-              </Button>
-            </div>
+                <Button variant="outline" size="default" onClick={() => setIsOpen(false)}>
+                  닫기
+                </Button>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col h-[calc(100%-80px)]">
-            {' '}
-            {/* 헤더 높이를 제외한 나머지 */}
-            {/* 영상통화 화면 - 고정 */}
-            <div className="p-6 pb-2">
+          <div className="flex-1">
+            <div className="p-6">
               <div className="bg-gray-900 rounded-lg h-96 flex items-center justify-center">
                 <VideoSessionUI />
               </div>
@@ -200,25 +217,21 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
           ${isOpen ? 'w-1/2' : 'w-full'}
         `}
       >
-        <div className="w-full h-full overflow-y-auto">{children}</div>
+        <div className="w-full overflow-y-auto">{children}</div>
       </div>
 
-
       {showAlert && (
-          <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
-            <Alert
-                variant={alertConfig.type}
-                className="w-[400px] shadow-lg bg-white"
-            >
-              {alertConfig.type === 'default' ? (
-                  <CircleCheckBig className="h-6 w-6" />
-              ) : (
-                  <CircleAlert className="h-6 w-6" />
-              )}
-              <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
-              <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
-            </Alert>
-          </div>
+        <div className="fixed left-1/2 top-80 -translate-x-1/2 z-[999]">
+          <Alert variant={alertConfig.type} className="w-[400px] shadow-lg bg-white">
+            {alertConfig.type === 'default' ? (
+              <CircleCheckBig className="h-6 w-6" />
+            ) : (
+              <CircleAlert className="h-6 w-6" />
+            )}
+            <AlertTitle className="text-lg ml-2">{alertConfig.title}</AlertTitle>
+            <AlertDescription className="text-base m-2">{alertConfig.description}</AlertDescription>
+          </Alert>
+        </div>
       )}
     </div>
   );

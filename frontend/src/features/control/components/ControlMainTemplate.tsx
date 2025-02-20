@@ -55,6 +55,12 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
     }, 1000);
   };
 
+  useEffect(() => {
+    if (location.pathname === '/control/dispatch-order') {
+      setIsOpen(false);
+    }
+  }, [location.pathname]);
+
   const handleProtectorNotify = () => {
     if (!currentCall?.userId || !patientInfo?.userProtectorPhone) {
       // 회원이 아니거나 보호자 번호가 없는 경우 알림 표시
@@ -87,7 +93,6 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       const userName = sessionStorage.getItem("userName");
       if (userName && isAuthenticated && location.pathname.startsWith('/control')) {
         connect(userName);
-
         // 25분 후 자동 재연결 설정
         reconnectTimer = setTimeout(() => {
           disconnect();
@@ -139,14 +144,7 @@ const ControlTemplate = ({ children }: ControlTemplateProps) => {
       hasModal: true,
       onModalOpen: handleCallerConnection,
     },
-    // {
-    //   label: '영상통화 생성',
-    //   path: '#',
-    //   hasModal: true,
-    //   onModalOpen: () => setIsVideoModalOpen(true),
-    // },
-    // { label: '전화 업무', path: '#', hasModal: true, onModalOpen: () => setIsOpen(!isDrawerOpen) },
-    { label: '신고 업무', path: '/control/patient-info' },
+    { label: '접수 등록', path: '/control/patient-info' },
     { label: '출동 지령', path: '/control/dispatch-order' },
     {
       label: '보호자 알림',

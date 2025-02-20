@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.json.XML;
 import org.locationtech.jts.geom.Point;
@@ -60,6 +61,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DispatchStaffServiceImpl implements DispatchStaffService {
     private final FireStaffRepository fireStaffRepository;
     private final DispatchStaffRepository dispatchStaffRepository;
@@ -404,7 +406,7 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
 
         List<String> reqHospitalNames = new ArrayList<>();
         for (Hospital hospital : activeHospitals) {
-            if(reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
+            if (reqHospitalRepository.existsByHospitalIdAndDispatchId(hospital.getHospitalId(),request.getDispatchId())){
                 continue;
             }
             ReqHospital reqHospital = ReqHospital.builder()
@@ -414,8 +416,8 @@ public class DispatchStaffServiceImpl implements DispatchStaffService {
                     .build();
             reqHospitalRepository.save(reqHospital);
             reqHospitalNames.add(hospital.getHospitalName());
-
         }
+
         DispatchGroupPatientTransferResponse sseDispatchGroupResponse = new DispatchGroupPatientTransferResponse(dispatch, reqHospitalNames, patient);
         HospitalPatientTransferResponse sseHospitalResponse = new HospitalPatientTransferResponse(dispatch, patient, userMediDetailRepository);
 
