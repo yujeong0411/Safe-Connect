@@ -115,7 +115,7 @@ const VideoCallDrawer = ({ children }: VideoProps) => {
     console.log("handleCallSummary 실행");
     try {
       const audioBlob:Blob = await stopRecording();
-      await cleanup();
+      //await cleanup();
 
     if (!callId) {
       handleAlertClose({
