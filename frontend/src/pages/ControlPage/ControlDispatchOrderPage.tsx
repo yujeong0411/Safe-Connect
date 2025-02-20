@@ -108,7 +108,7 @@ const ControlDispatchOrderPage = () => {
 
   return (
     <ControlMainTemplate>
-      <div className="w-full relative h-screen">
+      <div className="w-full relative h-[calc(100vh-180px)]">
         {showAlert && (
           <div className="fixed left-1/2 top-80 -translate-x-1/2  z-50 ">
             <Alert
@@ -139,7 +139,7 @@ const ControlDispatchOrderPage = () => {
         </div>
 
         {/* 소방서 목록 패널 */}
-        <div className="absolute  right-4 top-4  w-96 bg-white/80 rounded-lg z-10 hide-scrollbar">
+        <div className="absolute  right-4 top-4  w-96 bg-white/80 rounded-lg z-10">
           <div className="sticky top-0 bg-white/60 p-4 border-b">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">인근 소방서 목록</h2>
@@ -160,7 +160,7 @@ const ControlDispatchOrderPage = () => {
           </div>
 
           {/* 소방서 목록 */}
-          <div className="p-4">
+          <div className="p-4 max-h-[600px] overflow-y-auto">
             {[...fireStations]
               // 거리순으로 정렬
               .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))

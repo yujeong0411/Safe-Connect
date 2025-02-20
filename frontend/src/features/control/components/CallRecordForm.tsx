@@ -144,7 +144,7 @@ const CallRecordForm = () => {
   }, [ phoneSearch, dispatchFilter]);
 
   return (
-    <div className={`w-full p-2 sm:px-20 ${isOpen ? 'px-1 sm:px-2' : ''}`}>
+    <div className={`w-full p-5 sm:px-20 ${isOpen ? 'px-1 sm:px-2' : ''}`}>
       <div className="space-y-2">
         <div className="rounded-lg min-h-[20rem] md:min-h-[35rem]">
           <div className="flex justify-between items-center mb-2">
@@ -160,7 +160,7 @@ const CallRecordForm = () => {
                   const value = e.target.value;
                   setDispatchFilter(value === '' ? null : value);
                 }}
-                className="w-32 px-3 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-28 px-3 py-3 border border-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">전체</option>
                 <option value="true">출동</option>
@@ -190,7 +190,7 @@ const CallRecordForm = () => {
                       key={column.key}
                       className={`
                         text-gray-700 font-semibold text-center 
-                        ${isOpen ? 'px-1 py-1 text-xs md:px-1 md:py-1 md:text-sm' : 'px-2 py-2 text-sm md:px-6 md:py-2 md:text-base'}
+                        ${isOpen ? 'px-1 py-1 text-xs md:px-2 md:py-2 md:text-sm' : 'px-2 py-2 text-sm md:px-6 md:py-2 md:text-base'}
                         uppercase tracking-wider
                       `}
                     >
@@ -212,7 +212,7 @@ const CallRecordForm = () => {
                           key={column.key}
                           className={`
                             text-gray-700 text-center 
-                            ${isOpen ? 'px-3 py-2 text-sm' : 'px-4 py-3 text-md'}
+                            ${isOpen ? 'px-3 py-3 text-sm' : 'px-4 py-4 text-md'}
                             uppercase tracking-wider
                           `}
                         >

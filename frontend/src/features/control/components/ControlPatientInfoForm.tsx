@@ -146,9 +146,9 @@ const ControlPatientInfoForm = () => {
 
   return (
     <div className="flex w-full items-center justify-center">
-      <div className="flex-1 p-2 max-w-3xl">
-        <div className="bg-white rounded-lg p-3">
-          <div className="grid grid-cols-[9fr_1fr] gap-4 mb-2">
+      <div className="flex-1 mt-5 p-2 max-w-3xl">
+        <div className="bg-white rounded-lg p-5">
+          <div className="grid grid-cols-[9fr_1fr] gap-4 mb-4">
             <SearchBar_ver2
               ref={searchBarRef}
               placeholder="환자 전화번호"
@@ -307,7 +307,7 @@ const ControlPatientInfoForm = () => {
             </div>
           </div>
 
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-end mt-3">
             <Button type="button" variant="blue" width="sm" onClick={handleSubmit}>
               저장
             </Button>

@@ -11,9 +11,10 @@ interface HospitalKakaoMapProps {
   onHospitalSelect?: (hospitalId: number) => void;
   selectedHospitalId?: number;
   callerLocation?: { lat: number; lng: number; address: string; } | null;
+  emphasize: boolean;
 }
 
-const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, selectedHospitalId, callerLocation }: HospitalKakaoMapProps) => {
+const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, selectedHospitalId, callerLocation,emphasize }: HospitalKakaoMapProps) => {
   const isKakaoLoaded = useKakaoLoader();
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<{[key: number]: kakao.maps.Marker}>({});
@@ -80,12 +81,19 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
       const marker = new window.kakao.maps.Marker({
         position: position,
         map: mapRef.current,
-        image: new window.kakao.maps.MarkerImage(
-          emergencyimage,
-          new window.kakao.maps.Size(35, 35),
-          { offset: new window.kakao.maps.Point(17, 17) }
-        )
+        image: emphasize ?
+          new window.kakao.maps.MarkerImage(
+            emergencyimage,  // 강조된 마커 이미지
+            new window.kakao.maps.Size(50, 50),  // 더 크게 표시
+            { offset: new window.kakao.maps.Point(25, 25) }
+          ) :
+          new window.kakao.maps.MarkerImage(
+            emergencyimage,  // 기본 마커 이미지
+            new window.kakao.maps.Size(35, 35),
+            { offset: new window.kakao.maps.Point(17, 17) }
+          )
       });
+
 
       const infoWindow = new window.kakao.maps.InfoWindow({
         content: `
@@ -166,7 +174,7 @@ const HospitalKakaoMap = ({ currentLocation, hospitals, onHospitalSelect, select
   
     callerMarkerRef.current = callerMarker;
 
-    // 신고자 위치 인포윈도우우
+    // 신고자 위치 인포윈도우
     const callerInfoWindow = new window.kakao.maps.InfoWindow({
       content: `
       <div class="p-4 min-w-[200px] bg-white rounded shadow">

@@ -143,11 +143,12 @@ public class WebRtcController {
     @PostMapping("/control/summary")
     public ResponseEntity<?> sendUrl(
             @RequestParam("callId") String callId,
-            @RequestParam("audioFile") MultipartFile audioFile) throws IOException {
+            @RequestParam("audioFile") MultipartFile audioFile,
+            @RequestParam("addSummary") String addSummary) throws IOException {
         System.out.println("callId : " + callId);
         String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
         System.out.println("text: " + text);
-        String summary = webRtcService.textSummary(text);
+        String summary = webRtcService.textSummary(text,addSummary);
         System.out.println("summary : " + summary);
         ResponseEntity<?> response = webRtcService.saveSummary(Integer.parseInt(callId), text, summary);
         System.out.println("contol/summary - response : " + response);
