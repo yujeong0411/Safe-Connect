@@ -131,7 +131,7 @@ const HospitalListForm = ({ type, isModalOpen, setIsModalOpen }: HospitalListFor
         bt: detailData.patientTemperature,
         spo2: detailData.patientSpo2,
         bst: detailData.patientBloodSugar,
-        phone: detailData.userPhone,
+        phone: detailData.patientPhone,
         protectorPhone: detailData.userProtectorPhone ?? null,
         symptoms: detailData.patientSymptom,
         diseases: detailData.patientDiseases?.join(', '),
@@ -164,12 +164,8 @@ const HospitalListForm = ({ type, isModalOpen, setIsModalOpen }: HospitalListFor
       {
         key: 'reqHospitalCreatedAt',
         header: '이송요청 일시',
-        render: (data: CombinedTransfer) => {
-          console.log("data = ", data)
-          console.log("Full data structure:", JSON.stringify(data, null, 2));
-
-        }
-          // format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
+        render: (data: CombinedTransfer) =>
+          format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss')
       },
       {
         key: 'patientGender_Age',
