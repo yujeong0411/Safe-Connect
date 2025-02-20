@@ -43,7 +43,8 @@ public class SseEmitterServiceImpl implements SseEmitterService {
 
     private final Map<String, SseEmitter> controlEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> dispatchGroupEmitters = new ConcurrentHashMap<>();
-    private final Map<Integer, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
+//    private final Map<Integer, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> hospitalEmitters = new ConcurrentHashMap<>();
     private final Map<String, SseEmitter> callerEmitters = new ConcurrentHashMap<>();
     private final HospitalRepository hospitalRepository;
     private final ScheduledExecutorService heartbeatExecutor;
@@ -111,7 +112,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         deadDispatchEmitters.forEach(dispatchGroupEmitters::remove);
 
         // Hospital emitters heartbeat
-        List<Integer> deadHospitalEmitters = new ArrayList<>();
+        List<String> deadHospitalEmitters = new ArrayList<>();
         hospitalEmitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
@@ -179,6 +180,7 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         return emitter;
     }
 
+/*
     @Override
     public SseEmitter createHospitalEmitter(Integer clientId) {
         SseEmitter emitter = new SseEmitter(TIMEOUT);
@@ -194,6 +196,27 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         }
         emitter.onCompletion(() -> hospitalEmitters.remove(clientId));
         emitter.onTimeout(() -> hospitalEmitters.remove(clientId));
+        return emitter;
+    }
+*/
+
+    @Override
+    public SseEmitter createHospitalEmitter(String clientId) {
+        SseEmitter emitter = new SseEmitter(TIMEOUT);
+        hospitalEmitters.put(clientId, emitter);
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("Connected!")
+                    .id(String.valueOf(System.currentTimeMillis())));
+        } catch (IOException e) {
+            hospitalEmitters.remove(clientId);
+        }
+
+        emitter.onCompletion(() -> hospitalEmitters.remove(clientId));
+        emitter.onTimeout(() -> hospitalEmitters.remove(clientId));
+
         return emitter;
     }
 
@@ -243,17 +266,16 @@ public class SseEmitterServiceImpl implements SseEmitterService {
     // 병원-구급팀 환자 이송 요청
     public void transferRequest(DispatchGroupPatientTransferResponse dispatchGroupData, HospitalPatientTransferResponse hospitalData) {
         // 병원에 응답 전송
-        List<Integer> deadHospitalEmitters = new ArrayList<>();
+        List<String> deadHospitalEmitters = new ArrayList<>();
         // 이송 요청 받은 병원에만
+        List<String> hospitalNames = dispatchGroupData.getHospitalNames();
+        log.info("hospitalNames = " + hospitalNames);
+        List<String> targetHospitalLoginIds = hospitalRepository.findByHospitalNameIn(hospitalNames).stream()
+                        .map(Hospital::getHospitalLoginId)
+                        .collect(Collectors.toList());
+
         hospitalEmitters.forEach((clientId, emitter) -> {
-            List<String> hospitalNames = dispatchGroupData.getHospitalNames();
-            List<Integer> hospitalIds = new ArrayList<>();
-            for (String hospitalName : hospitalNames) {
-                Hospital hospital = hospitalRepository.findByHospitalName(hospitalName)
-                        .orElseThrow(() -> new RuntimeException("해당 병원을 찾을 수 없습니다."));
-                hospitalIds.add(hospital.getHospitalId());
-            }
-            if (hospitalIds.contains(clientId)) {
+            if (targetHospitalLoginIds.contains(clientId)) {
                 try {
                     emitter.send(SseEmitter.event().name("transfer-request")
                             .data(ResponseUtil.success(hospitalData, "환자 이송 요청이 접수되었습니다.")));
@@ -314,17 +336,30 @@ public class SseEmitterServiceImpl implements SseEmitterService {
         List<ReqHospital> reqHospitals = reqHospitalRepository.findReqHospitalsByDispatchId(dispatchId);
 
         // 전송할 병원 필터링
-        List<Integer> hospitalIds = new ArrayList<>();
-        for (ReqHospital reqHospital : reqHospitals) {
-            if (reqHospital.getHospitalId().equals(response.getHospitalId())) {
-                continue;
-            }
-            hospitalIds.add(hospitalRepository.findByHospitalId(reqHospital.getHospitalId()).getHospitalId());
-        }
+//        List<Integer> hospitalIds = new ArrayList<>();
+//        for (ReqHospital reqHospital : reqHospitals) {
+//            if (reqHospital.getHospitalId().equals(response.getHospitalId())) {
+//                continue;
+//            }
+//            hospitalIds.add(hospitalRepository.findByHospitalId(reqHospital.getHospitalId()).getHospitalId());
+//        }
 
-        List<Integer> deadHospitalEmitters = new ArrayList<>();
+        List<Integer> hospitalIds = reqHospitals.stream()
+                .filter(reqHospital -> !reqHospital.getHospitalId().equals(response.getHospitalId()))
+                .map(ReqHospital::getHospitalId)
+                .collect(Collectors.toList());
+        List<String> targetHospitalLoginIds = hospitalRepository.findByHospitalIdIn(hospitalIds).stream()
+                .map(Hospital::getHospitalLoginId)
+                .collect(Collectors.toList());
+//        List<String> targetHospitalLoginIds = reqHospitals.stream()
+//                .filter(reqHospital -> !reqHospital.getHospitalId().equals(response.getHospitalId()))
+//                .map(ReqHospital::getHospitalId)
+//                .map(hospitalId -> hospitalRepository.findByHospitalId(hospitalId).getHospitalLoginId())
+//                .collect(Collectors.toList());
+
+        List<String> deadHospitalEmitters = new ArrayList<>();
         hospitalEmitters.forEach((clientId, emitter) -> {
-            if (hospitalIds.contains(clientId)) {
+            if (targetHospitalLoginIds.contains(clientId)) {
                 try{
                     emitter.send(SseEmitter.event().name("transfer-accepted")
                             .data(ResponseUtil.success(dispatchId,"수락 완료")));
