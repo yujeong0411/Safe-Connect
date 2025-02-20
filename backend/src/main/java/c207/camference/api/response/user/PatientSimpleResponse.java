@@ -15,4 +15,5 @@ public class PatientSimpleResponse {
     private Character patientGender;     // 환자 성별
     private Integer patientAge;        // 환자 연령대
     private String patientSymptom;       // 환자 증상
+    private String patientPhone;
 }

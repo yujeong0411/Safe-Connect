@@ -131,7 +131,7 @@ const HospitalListForm = ({ type, isModalOpen, setIsModalOpen }: HospitalListFor
         bt: detailData.patientTemperature,
         spo2: detailData.patientSpo2,
         bst: detailData.patientBloodSugar,
-        phone: detailData.userPhone,
+        phone: detailData.patientPhone,
         protectorPhone: detailData.userProtectorPhone ?? null,
         symptoms: detailData.patientSymptom,
         diseases: detailData.patientDiseases?.join(', '),
@@ -165,12 +165,12 @@ const HospitalListForm = ({ type, isModalOpen, setIsModalOpen }: HospitalListFor
         key: 'reqHospitalCreatedAt',
         header: '이송요청 일시',
         render: (data: CombinedTransfer) =>
-          format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss'),
+          format(new Date(data.reqHospitalCreatedAt), 'yyyy-MM-dd HH:mm:ss')
       },
       {
         key: 'patientGender_Age',
         header: '성별/나이',
-        render: (data: CombinedTransfer) =>
+        render: (data: CombinedTransfer) => 
           data.patients?.[0]
             ? `${data.patients[0].patientGender}/${data.patients[0].patientAge}`
             : '-',
@@ -288,7 +288,7 @@ const HospitalListForm = ({ type, isModalOpen, setIsModalOpen }: HospitalListFor
         <button onClick={handleSearch} className="px-4 py-1 rounded-md bg-banner text-white">
           조회
         </button>
-        <button onClick={handleReset} className="px-4 py-1 rounded-md border bg-graybtn text-black">
+        <button onClick={handleReset} className="px-4 py-1 rounded-md border bg-red-600 text-white">
           초기화
         </button>
       </div>
