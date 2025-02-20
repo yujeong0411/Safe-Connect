@@ -144,7 +144,7 @@ public class WebRtcController {
     public ResponseEntity<?> sendUrl(
             @RequestParam("callId") String callId,
             @RequestParam("audioFile") MultipartFile audioFile) throws IOException {
-
+        System.out.println("callId : " + callId);
         String text = webRtcService.speechToText(audioFile); // 음성파일 텍스트로 변환
         System.out.println("text: " + text);
         String summary = webRtcService.textSummary(text);
