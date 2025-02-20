@@ -91,7 +91,7 @@ const CallRecordForm = () => {
   };
 
   return (
-      <div className={`w-full p-2 sm:px-20 ${isOpen ? 'px-1 sm:px-2' : ''}`}>
+      <div className={`w-full p-2 sm:px-8 ${isOpen ? 'px-1 sm:px-2' : ''}`}>
         <div className="space-y-2">
           <div className="rounded-lg min-h-[20rem] md:min-h-[35rem]">
             <div className="flex justify-end items-center mb-2">
