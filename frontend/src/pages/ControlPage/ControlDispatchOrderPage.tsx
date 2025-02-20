@@ -11,6 +11,7 @@ import { useOpenViduStore } from '@/store/openvidu/OpenViduStore.tsx';
 import { usePatientStore } from '@/store/control/patientStore';
 import { useNavigate } from 'react-router-dom';
 import {useLocationStore} from "@/store/location/locationStore.tsx";
+import VideoEndDialog from '@features/control/components/VideoEndDialog.tsx';
 
 const ControlDispatchOrderPage = () => {
   const [fireStations, setFireStations] = useState<FireStation[]>([]);
@@ -26,6 +27,7 @@ const ControlDispatchOrderPage = () => {
   const navigate = useNavigate();
   const { callId, sessionId } = useOpenViduStore();
   const { currentCall, isDispatched, setIsDispatched } = usePatientStore.getState();
+  const [isVideoEndDialogOpen, setIsVideoEndDialogOpen] = useState(false);
 
   const patientId = currentCall?.patientId;
 
@@ -85,6 +87,8 @@ const ControlDispatchOrderPage = () => {
         type: 'default',
       });
 
+      //종료 다이얼로그 활성화
+      setIsVideoEndDialogOpen(true);
       // 성공 후 상태 초기화
       setSelectedTeam(null);
       setSelectedStation(null);
@@ -135,7 +139,7 @@ const ControlDispatchOrderPage = () => {
         </div>
 
         {/* 소방서 목록 패널 */}
-        <div className="absolute  right-4 top-4 bottom-4 w-96 bg-white/80 rounded-lg overflow-y-auto z-10 hide-scrollbar">
+        <div className="absolute  right-4 top-4  w-96 bg-white/80 rounded-lg z-10 hide-scrollbar">
           <div className="sticky top-0 bg-white/60 p-4 border-b">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">인근 소방서 목록</h2>
@@ -208,8 +212,12 @@ const ControlDispatchOrderPage = () => {
           </div>
         </div>
       </div>
-      {/*삭제 */}
-      {/*<DispatchOrderDialog open={isDispatchDialogOpen} onOpenChange={setIsDispatchDialogOpen} />*/}
+
+      <VideoEndDialog
+        open={isVideoEndDialogOpen}
+        onOpenChange={setIsVideoEndDialogOpen}
+      />
+
     </ControlMainTemplate>
   );
 };
