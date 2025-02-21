@@ -115,12 +115,12 @@ const TransferRequestPage = () => {
 
         setTransferInfo(response)
 
-        // 알림 표시
-        handleAlertClose({
-          title: "환자 이송 요청 수락",
-          description: `이송 병원: ${acceptedHospital.hospitalName}`,
-          type: "default",
-        });
+        // // 알림 표시
+        // handleAlertClose({
+        //   title: "환자 이송 요청 수락",
+        //   description: `이송 병원: ${acceptedHospital.hospitalName}`,
+        //   type: "default",
+        // });
 
         // 검색 중지
         stopSearch();
