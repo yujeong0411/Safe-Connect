@@ -92,3 +92,43 @@
 - [최종 발표 PPT](docs/12%EA%B8%B0_%EA%B3%B5%ED%86%B5PJT_%EB%B0%9C%ED%91%9C%EC%9E%90%EB%A3%8C_C207.pdf)
 
 ## 🖥️ 화면 구성
+## 일반 회원 
+1. 회원가입 및 로그인
+2. 개인정보 수정
+3. 의료정보 수정
+4. 비밀번호 변경
+5. 이메일 찾기
+6. 비밀번호 찾기
+
+## 상황실
+### 1. 영상통화 생성하기
+- 신고자의 전화번호를 입력하여 영상통화 생성
+- 영상통화 URL을 신고자에게 문자로 전송
+![control_create_video.gif](docs/gifs/control_create_video.gif)
+
+### 2. 신고 내용 텍스트화 및 AI 요약
+- 신고자와의 대화내용을 텍스트화 후 AI를 통해 요약
+![control_AI_summary.gif](docs/gifs/control_AI_summary.gif)
+
+### 3. 출동 지령
+- 신고자 위치 확인
+- 신고자 인근 구급팀 필터링 후 출동 지령 내리기
+- 출동 지령 후 통화 종료
+![control_order.gif](docs/gifs/control_order.gif)
+
+## 구급대원
+### 1. 구급대원 출동 지령 페이지
+- 출동 지령 알림 후 영상통화 참여
+- 상황실에서 환자 정보 전달받음
+- pre-KTAS 분류 AI 보조
+![dispatch_KTAS.gif](docs/gifs/dispatch_KTAS.gif)
+
+### 2. 병원 이송 일괄 요청
+- 환자 위치 기준으로 거리 범위로 병원 탐색
+- 가용가능한 응급실을 필터링하여 제공
+![dispatch_transfer.gif](docs/gifs/dispatch_transfer.gif)
+
+## 병원
+### 1. 이송 요청 수락
+- 이송 요청 수락 및 수락한 이송 보기
+![hospital_accepted.gif](docs/gifs/hospital_accepted.gif)
