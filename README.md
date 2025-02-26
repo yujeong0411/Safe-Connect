@@ -34,12 +34,33 @@
 
 ## 🔧 기술스택
 ### Backend
+  <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white">
+  <img src="https://img.shields.io/badge/mariaDB-003545?style=for-the-badge&logo=mariaDB&logoColor=white"> 
+  <img src="https://img.shields.io/badge/spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white">
+    <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white"> 
+
 
 ### Frontend
+  <img src="https://img.shields.io/badge/Typescript-3178C6?style=for-the-badge&logo=Typescript&logoColor=white">
+  <img src="https://img.shields.io/badge/zustand-orange?style=for-the-badge&logo=zustand&logoColor=white">
+  <img src="https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white">
+  <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white"> 
+  <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white">
+  <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black"> 
+  <img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white">
 
 ### CI/CD & Infrastructure
 
+  <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
+  <img src="https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white">
+  <img src="https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white">
+
 ### Development Tools
+  <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
+  <img src="https://img.shields.io/badge/GitLab-FC6D26?style=for-the-badge&logo=gitlab&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=jira&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
 
 
 ## 🗂️ 프로젝트 폴더 구조
@@ -49,12 +70,12 @@
 
 
 ## 🔶 프로젝트 산출물
-- [요구사항 명세서]
-- [API 명세서]
-- [ERD]
-- [WifeFrame]
-- [MockUp]
-- [Story Board]
-- [Architecture]
+- [요구사항 명세서](https://indecisive-curve-4da.notion.site/176142f4138080cdb62cc1bec89ed837?pvs=4)
+- [API 명세서](https://indecisive-curve-4da.notion.site/API-176142f41380801ab424d9ada4cc88e3?pvs=4)
+- [ERD](https://www.erdcloud.com/d/J5D3udPPgZiEG2PkF)
+- [WifeFrame](https://indecisive-curve-4da.notion.site/WireFrame-17f142f413808061b7c1f9efb6005831?pvs=4)
+- [MockUp](https://indecisive-curve-4da.notion.site/17f142f4138080c09286c6295987d9a9?pvs=4)
+- [Story Board](https://indecisive-curve-4da.notion.site/StoryBoard-frontend-flowchart-180142f413808005be99dfdb092b334e?pvs=4)
+- [Architecture](https://indecisive-curve-4da.notion.site/Architecture-17b142f41380807b94a1ee10247a6abd?pvs=4)
 
 ## 🖥️ 화면 구성
