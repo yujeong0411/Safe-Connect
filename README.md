@@ -93,12 +93,26 @@
 
 ## 🖥️ 화면 구성
 ## 일반 회원 
-1. 회원가입 및 로그인
-2. 개인정보 수정
-3. 의료정보 수정
-4. 비밀번호 변경
-5. 이메일 찾기
-6. 비밀번호 찾기
+### 1. 회원가입
+- 개인정보동의 및 기본정보 입력
+- 선택사항 : 의료정보 입력
+![user_signup.gif](docs/gifs/user_signup.gif)
+
+### 2. 로그인
+![user_login.gif](docs/gifs/user_login.gif)
+
+### 3. 개인정보 수정
+![user_update_info.gif](docs/gifs/user_update_info.gif)
+
+### 4. 의료정보 수정
+![user_update_medi.gif](docs/gifs/user_update_medi.gif)
+
+### 5. 비밀번호 변경
+![user_update_pw.gif](docs/gifs/user_update_pw.gif)
+
+### 6. 이메일/비밀번호 찾기
+![user_find.gif](docs/gifs/user_find.gif)
+
 
 ## 상황실
 ### 1. 영상통화 생성하기
